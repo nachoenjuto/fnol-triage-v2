@@ -927,7 +927,7 @@
   // Iconos Lucide: definidos en icons.js (LUCIDE + función lucide()), compartidos con gobierno.js.
 
   // Colores por grupo semántico (variables de styles.css)
-  const C = { primary: 'var(--primary)', ok: 'var(--ok)', review: 'var(--review)', muted: 'var(--muted)', time: 'var(--time)', auto: 'var(--auto)', hogar: 'var(--hogar)', salud: 'var(--salud)', teal: '#0f766e' };
+  const C = { primary: 'var(--primary)', ok: 'var(--ok)', review: 'var(--review)', muted: 'var(--muted)', time: 'var(--time)', auto: 'var(--auto)', hogar: 'var(--hogar)', salud: 'var(--salud)', teal: '#3f7a6a' };
   const RAMO_ITEMS = (detalles) => [
     { icono: 'car', color: C.auto, etiqueta: '<strong>Auto</strong>', detalle: detalles[0] },
     { icono: 'house', color: C.hogar, etiqueta: '<strong>Hogar</strong>', detalle: detalles[1] },
