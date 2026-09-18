@@ -10,7 +10,9 @@
 
 .topbar-actions, .topbar .right { display: flex; align-items: center; justify-content: flex-end; gap: .6rem; flex-wrap: wrap; flex: 1 1 auto; min-width: 0; margin-top: 0; }
 
-.btn-topbar, .btn-white { background: #fff; color: var(--header); border-color: #fff; display: inline-flex; align-items: center; justify-content: center; gap: .45rem; white-space: nowrap; text-decoration: none; }
+/* index.html (body 16px) y gobierno.html (body 14px) parten de tamaños de fuente y paddings de .btn
+   distintos; se fijan aquí para que los botones de ambas cabeceras midan exactamente igual. */
+.btn-topbar, .btn-white { background: #fff; color: var(--header); border-color: #fff; font-size: 14px; padding: .55rem 1rem; display: inline-flex; align-items: center; justify-content: center; gap: .45rem; white-space: nowrap; text-decoration: none; }
 .btn-topbar:hover, .btn-white:hover { background: #e2e6ee; color: #1b2a4a; }
 .btn-topbar:focus-visible, .btn-white:focus-visible { outline: none; box-shadow: 0 0 0 2px #ffd166; }
 

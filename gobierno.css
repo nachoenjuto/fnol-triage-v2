@@ -168,7 +168,7 @@ label.f { display: grid; gap: .2rem; font-size: .72rem; font-weight: 700; text-t
 .ev small { color: var(--muted); display: block; }
 .foot { text-align: center; color: var(--muted); font-size: .78rem; padding: 0 1rem 2rem; }
 .foot:empty { display: none; }
-.topbar label.f { color: rgba(255,255,255,.85); }
+.topbar label.f { display: inline-flex; flex-direction: row; align-items: center; gap: .5rem; color: rgba(255,255,255,.85); }
 @media (max-width: 600px) { .span { grid-template-columns: 1fr; gap: .2rem; } .span .r { text-align: left; } .alert { grid-template-columns: auto 1fr; } .kpi .v { font-size: 1.6rem; } }
 @media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
 
