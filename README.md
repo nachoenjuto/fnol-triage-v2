@@ -2,7 +2,7 @@
 
 Demo autosuficiente (HTML + JavaScript, sin backend, sin build) del **triaje de mensajes de clientes** en una aseguradora: clasificación por ramo, extracción de datos y aplicación de reglas de negocio con IA, con trazabilidad de cada decisión y un panel de **Gobierno de Agentes** (trazabilidad, Reasoning & Replay, autonomía y FinOps).
 
-**Demo en vivo:** https://nachoenjuto.github.io/fnol-triage/
+**Demo en vivo:** https://nachoenjuto.github.io/fnol-triage-v2/
 
 ## Caso de uso
 
