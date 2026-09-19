@@ -17,7 +17,7 @@
   --auto: #2f6f6e;   --auto-bg: #e7f1f0;
   --hogar: #6b4c7a;  --hogar-bg: #f0eaf3;
   --salud: #8c3a52;  --salud-bg: #f6e9ed;
-  --radius: 8px;
+  --radius: 0;
   --radius-sm: 6px;
   --radius-pill: 6px;
   --shadow: 0 1px 2px rgba(16, 24, 40, .06);

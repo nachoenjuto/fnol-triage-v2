@@ -82,40 +82,46 @@
 
 <!-- ───────────── REASONING & REPLAY ───────────── -->
 <section class="view" data-view="replay">
-  <details class="card lista-colapsable" id="r-lista" open>
-    <summary><span id="r-summary"></span><span class="muted small" id="r-summary-sel"></span></summary>
-    <div class="card-head" style="margin-top:.8rem">
-      <div class="row">
-        <label class="f">Agente<select id="r-agente"><option value="">Todos</option><option value="multicanal">Multicanalidad</option><option value="clasificacion">Clasificación</option><option value="extraccion">Extracción</option><option value="reglas">Reglas</option></select></label>
-        <label class="f">Canal<select id="r-canal"><option value="">Todos</option><option value="email">Email</option><option value="web">Formulario web</option><option value="chat">Chat</option><option value="telefono">Teléfono</option><option value="whatsapp">WhatsApp</option></select></label>
-        <label class="f">Decisión<select id="r-dec"><option value="">Todas</option><option value="DESPEJADO">Aprobado</option><option value="REVISION">A revisar</option></select></label>
-        <label class="f">Resultado<select id="r-res"><option value="">Todos</option><option value="auto">Autónomo</option><option value="humano">Escalado a humano</option><option value="override">Con override</option><option value="incidencia">Con incidencia</option></select></label>
-      </div>
-      <span class="muted small">Clic en una traza para cargar su razonamiento y su replay</span>
-    </div>
-    <div class="tw"><table><thead><tr><th>Traza</th><th>Hora</th><th>Mensaje</th><th>Canal</th><th>Ramo</th><th>Decisión</th><th>Autonomía</th><th>Conf.</th><th>Ciclo</th><th>Tokens</th><th>Coste</th><th>Incidencias</th></tr></thead><tbody id="r-trazas"></tbody></table></div>
-  </details>
-  <div class="two">
-    <div class="card">
-      <div class="card-head"><h2 id="h-reasoning"></h2><span class="muted small" id="r-traza-sel"></span></div>
-      <p class="muted small" style="margin-bottom:.8rem">Razonamiento resumido por agente tal y como quedó registrado (entrada → pasos → salida). No es la cadena de pensamiento cruda del modelo: es el registro estructurado que devuelve cada agente.</p>
-      <div class="steps" id="steps"></div>
-    </div>
-    <div class="detail">
-      <div class="card" id="card-replay">
-        <div class="card-head"><h2 id="h-replay"></h2></div>
-        <div class="row" style="margin-bottom:.8rem">
-          <label class="f">Modo<select id="rp-modo"><option value="identico">Idéntico — mismos prompts y modelos (verificación determinista)</option><option value="whatif">What-if — cambiar modelo o versión de prompt</option></select></label>
-          <label class="f">Modelo de Reglas<select id="rp-modelo"><option>gpt-5 (actual)</option><option>gpt-5-mini</option><option>gpt-5-nano</option></select></label>
-          <label class="f">Prompt Reglas<select id="rp-prompt"><option>v2.3 (actual)</option><option>v2.4 (candidata)</option><option>v2.2</option></select></label>
-          <button class="btn btn-primary btn-sm" type="button" id="btn-replay"></button>
+  <div class="resizable-row" id="reasoning-row" style="--pane-w:55%">
+    <div class="resizable-pane">
+      <div class="card" id="r-lista">
+        <div class="card-head">
+          <h2 id="r-summary"></h2>
+          <span class="muted small" id="r-summary-sel"></span>
         </div>
-        <div class="diff" id="rp-diff"></div>
+        <div class="row" style="margin-bottom:.5rem">
+          <label class="f">Agente<select id="r-agente"><option value="">Todos</option><option value="multicanal">Multicanalidad</option><option value="clasificacion">Clasificación</option><option value="extraccion">Extracción</option><option value="reglas">Reglas</option></select></label>
+          <label class="f">Canal<select id="r-canal"><option value="">Todos</option><option value="email">Email</option><option value="web">Formulario web</option><option value="chat">Chat</option><option value="telefono">Teléfono</option><option value="whatsapp">WhatsApp</option></select></label>
+          <label class="f">Decisión<select id="r-dec"><option value="">Todas</option><option value="DESPEJADO">Aprobado</option><option value="REVISION">A revisar</option></select></label>
+          <label class="f">Resultado<select id="r-res"><option value="">Todos</option><option value="auto">Autónomo</option><option value="humano">Escalado a humano</option><option value="override">Con override</option><option value="incidencia">Con incidencia</option></select></label>
+        </div>
+        <span class="muted small" style="margin-bottom:.5rem">Clic en una traza para cargar su razonamiento y su replay</span>
+        <div class="tw pane-scroll"><table><thead><tr><th>Traza</th><th>Hora</th><th>Mensaje</th><th>Canal</th><th>Ramo</th><th>Decisión</th><th>Autonomía</th><th>Conf.</th><th>Ciclo</th><th>Tokens</th><th>Coste</th><th>Incidencias</th></tr></thead><tbody id="r-trazas"></tbody></table></div>
       </div>
+    </div>
+    <div class="resize-handle" id="reasoning-resizer" role="separator" aria-orientation="vertical" aria-label="Redimensionar trazas y razonamiento" tabindex="0"><i data-lucide="grip-vertical"></i></div>
+    <div class="resizable-pane">
       <div class="card">
-        <div class="card-head"><h2 id="h-replays"></h2></div>
-        <div class="tw"><table><thead><tr><th>Replay</th><th>Fecha</th><th>Traza</th><th>Modo</th><th>Cambio</th><th>Ramo</th><th>Decisión</th><th>Δ coste</th><th>Δ latencia</th><th>Usuario</th></tr></thead><tbody id="replays"></tbody></table></div>
+        <div class="card-head"><h2 id="h-reasoning"></h2><span class="muted small" id="r-traza-sel"></span></div>
+        <p class="muted small" style="margin-bottom:.8rem">Razonamiento resumido por agente tal y como quedó registrado (entrada → pasos → salida). No es la cadena de pensamiento cruda del modelo: es el registro estructurado que devuelve cada agente.</p>
+        <div class="steps pane-scroll" id="steps"></div>
       </div>
+    </div>
+  </div>
+  <div class="detail">
+    <div class="card" id="card-replay">
+      <div class="card-head"><h2 id="h-replay"></h2></div>
+      <div class="row" style="margin-bottom:.8rem">
+        <label class="f">Modo<select id="rp-modo"><option value="identico">Idéntico — mismos prompts y modelos (verificación determinista)</option><option value="whatif">What-if — cambiar modelo o versión de prompt</option></select></label>
+        <label class="f">Modelo de Reglas<select id="rp-modelo"><option>gpt-5 (actual)</option><option>gpt-5-mini</option><option>gpt-5-nano</option></select></label>
+        <label class="f">Prompt Reglas<select id="rp-prompt"><option>v2.3 (actual)</option><option>v2.4 (candidata)</option><option>v2.2</option></select></label>
+        <button class="btn btn-primary btn-sm" type="button" id="btn-replay"></button>
+      </div>
+      <div class="diff" id="rp-diff"></div>
+    </div>
+    <div class="card">
+      <div class="card-head"><h2 id="h-replays"></h2></div>
+      <div class="tw"><table><thead><tr><th>Replay</th><th>Fecha</th><th>Traza</th><th>Modo</th><th>Cambio</th><th>Ramo</th><th>Decisión</th><th>Δ coste</th><th>Δ latencia</th><th>Usuario</th></tr></thead><tbody id="replays"></tbody></table></div>
     </div>
   </div>
 </section>
@@ -206,6 +212,12 @@
 <dialog id="modal-agente" class="modal" aria-labelledby="modal-agente-title">
   <div class="modal-head"><h2 id="modal-agente-title"></h2><button class="btn btn-sm" type="button" data-close="modal-agente" aria-label="Cerrar"></button></div>
   <div class="modal-body" id="modal-agente-body"></div>
+</dialog>
+
+<!-- Detalle de un KPI de FinOps -->
+<dialog id="modal-kpi-fin" class="modal" aria-labelledby="modal-kpi-fin-title">
+  <div class="modal-head"><h2 id="modal-kpi-fin-title"></h2><button class="btn btn-sm" type="button" data-close="modal-kpi-fin" aria-label="Cerrar"></button></div>
+  <div class="modal-body" id="modal-kpi-fin-body"></div>
 </dialog>
 
 <p class="foot">Panel «Gobierno de Agentes» · demo estática · los datos de demostración son inventados y coherentes con el Paquete A del triaje · <a href="https://github.com/nachoenjuto/fnol-triage" target="_blank" rel="noopener">Código en GitHub</a></p>

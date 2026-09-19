@@ -137,7 +137,7 @@
   // ---------------------------------------------------------------------------
   // Resumen: KPI, agentes, alertas, últimas trazas
   // ---------------------------------------------------------------------------
-  const kpi = (t) => `<article class="card kpi kpi-${t.cls}"><span class="l">${ic(t.icono)} ${esc(t.etiqueta)}</span><span class="v">${esc(t.valor)}</span><span class="s">${conGuardrails(esc(t.sub))}</span>${t.medidor != null ? `<div class="meter" style="--c:var(--${t.cls})"><i style="width:${Math.min(100, t.medidor)}%"></i></div>` : ''}</article>`;
+  const kpi = (t) => `<article class="card kpi kpi-${t.cls}"${t.id ? ` data-kpi-fin="${t.id}" tabindex="0" role="button" aria-haspopup="dialog"` : ''}><span class="l">${ic(t.icono)} ${esc(t.etiqueta)}</span><span class="v">${esc(t.valor)}</span><span class="s">${conGuardrails(esc(t.sub))}</span>${t.medidor != null ? `<div class="meter" style="--c:var(--${t.cls})"><i style="width:${Math.min(100, t.medidor)}%"></i></div>` : ''}</article>`;
 
   function renderResumen() {
     const dias = diarioVisible();
@@ -337,7 +337,7 @@
         <div><h3>Histórico de autonomía</h3>${tl(hist.filter((h) => h.tipo === 'nivel' || h.tipo === 'guardrail'))}</div>
         <div><h3>Cambios de modelo, prompt e incidencias</h3>${tl(hist.filter((h) => h.tipo === 'modelo' || h.tipo === 'prompt' || h.tipo === 'incidencia'))}</div>
       </div>
-      <div><h3>Comportamiento según el modelo</h3><div class="tw"><table><thead><tr><th>Modelo</th><th>Periodo</th><th>Precisión</th><th>Escalado</th><th>Override</th><th>Coste / mensaje</th><th>p95</th></tr></thead><tbody>${(a.modelos || []).map((mo) => `<tr><td class="mono">${esc(mo.modelo)}</td><td>${esc(mo.periodo)}</td><td>${esc(mo.precision)}</td><td class="tnum">${esc(mo.escalado)}</td><td class="tnum">${esc(mo.override)}</td><td class="tnum">${esc(mo.coste_msg)}</td><td class="tnum">${ms(mo.p95_ms)}</td></tr>`).join('') || '<tr><td colspan="7" class="muted">Sin datos por modelo.</td></tr>'}</tbody></table></div></div>
+      <div><h3>Comportamiento según el modelo</h3><div class="tw tabla-compacta"><table><thead><tr><th>Modelo</th><th>Periodo</th><th>Precisión</th><th>Escalado</th><th>Override</th><th>Coste / mensaje</th><th>p95</th></tr></thead><tbody>${(a.modelos || []).map((mo) => `<tr><td class="mono">${esc(mo.modelo)}</td><td>${esc(mo.periodo)}</td><td>${esc(mo.precision)}</td><td class="tnum">${esc(mo.escalado)}</td><td class="tnum">${esc(mo.override)}</td><td class="tnum">${esc(mo.coste_msg)}</td><td class="tnum">${ms(mo.p95_ms)}</td></tr>`).join('') || '<tr><td colspan="7" class="muted">Sin datos por modelo.</td></tr>'}</tbody></table></div></div>
       <div><h3>Variables que afectan a su comportamiento</h3><div class="tw"><table><thead><tr><th>Variable</th><th>Valor</th><th>Efecto</th></tr></thead><tbody>${(a.variables || []).map((v) => `<tr><td><b>${esc(v.nombre)}</b></td><td class="wrap">${conGuardrails(esc(v.valor))}</td><td class="wrap">${conGuardrails(esc(v.efecto))}</td></tr>`).join('') || '<tr><td colspan="3" class="muted">Sin variables registradas.</td></tr>'}</tbody></table></div></div>
       <div><h3>Guardrails que lo limitan</h3><p class="small">${G.politicas.filter((p) => p.agente === a.id).map((p) => `${grRef(p.id)} ${politicaActiva(p) ? '' : '<span class="muted small">(inactivo)</span>'}`).join(' · ') || '<span class="muted">Ninguno</span>'}</p></div>`;
     $('modal-agente').showModal();
@@ -358,7 +358,7 @@
       kpi({ cls: 'time', icono: 'user-check', etiqueta: 'Escalados que vienen de un guardrail', valor: `${Math.round((escaladosGr / 3180) * 100)} %`, sub: 'de los 3.180 escalados del periodo; el resto por confianza o discrepancia' }),
       kpi({ cls: 'primary', icono: 'gauge', etiqueta: 'Más disparado', valor: [...P].sort((x, y) => y.disparos - x.disparos)[0]?.id || '—', sub: [...P].sort((x, y) => y.disparos - x.disparos)[0]?.condicion || '' }),
     ].join('');
-    $('policies').innerHTML = P.map((p) => { const max = Math.max(1, ...(p.disparos_dia || [1])); const activa = politicaActiva(p); return `<tr class="${activa ? '' : 'muted'}"><td class="mono"><b>${esc(p.id)}</b></td><td>${agTag(p.agente)}</td><td class="wrap">${esc(p.condicion)}<br><small class="muted">${esc(p.descripcion || '')}</small></td><td class="wrap">${esc(p.accion)}</td><td><span class="sev sev-${esc(p.severidad || 'humano')}">${SEV[p.severidad] || esc(p.severidad)}</span></td><td><span class="tnum" style="display:inline-block;min-width:2.2rem"><b>${num(p.disparos)}</b></span> <span class="bars" style="--c:${agColor(p.agente)}" data-tip="Disparos por día (últimos 14 días): ${(p.disparos_dia || []).join(' · ')}">${(p.disparos_dia || []).map((v) => `<i style="height:${Math.max(2, (v / max) * 18)}px"></i>`).join('')}</span></td><td><label class="switch${activa ? '' : ' off'}" data-guardrail="${esc(p.id)}" title="${activa ? 'Desactivar' : 'Activar'} ${esc(p.id)}"><i></i>${activa ? 'Activo' : 'Inactivo'}</label></td></tr>`; }).join('');
+    $('policies').innerHTML = P.map((p) => { const max = Math.max(1, ...(p.disparos_dia || [1])); const activa = politicaActiva(p); return `<tr class="${activa ? '' : 'muted'}"><td class="mono"><b>${esc(p.id)}</b></td><td>${agTag(p.agente)}</td><td class="wrap">${esc(p.condicion)}<br><small class="muted">${conGuardrails(esc(p.descripcion || ''))}</small></td><td class="wrap">${esc(p.accion)}</td><td><span class="sev sev-${esc(p.severidad || 'humano')}">${SEV[p.severidad] || esc(p.severidad)}</span></td><td><span class="tnum" style="display:inline-block;min-width:2.2rem"><b>${num(p.disparos)}</b></span> <span class="bars" style="--c:${agColor(p.agente)}" data-tip="Disparos por día (últimos 14 días): ${(p.disparos_dia || []).join(' · ')}">${(p.disparos_dia || []).map((v) => `<i style="height:${Math.max(2, (v / max) * 18)}px"></i>`).join('')}</span></td><td><label class="switch${activa ? '' : ' off'}" data-guardrail="${esc(p.id)}" title="${activa ? 'Desactivar' : 'Activar'} ${esc(p.id)}"><i></i>${activa ? 'Activo' : 'Inactivo'}</label></td></tr>`; }).join('');
     const ultimos = P.flatMap((p) => (p.ultimos || []).map(([f, traza, res]) => ({ f, id: p.id, agente: p.agente, traza, res }))).sort((x, y) => y.f.localeCompare(x.f));
     $('h-disparos').innerHTML = `${ic('history')} Últimos disparos`;
     $('disparos').innerHTML = ultimos.map((u) => { const tid = (u.traza.match(/TRZ-[0-9A-Z]+/) || [])[0]; const existe = tid && G.trazas.some((t) => t.id === tid); return `<tr><td class="tnum">${fechaHora(u.f)}</td><td>${grRef(u.id)}</td><td>${agTag(u.agente)}</td><td class="mono">${existe ? `<button class="btn btn-sm" type="button" data-traza="${esc(tid)}">${ic('route')} ${esc(u.traza)}</button>` : esc(u.traza)}</td><td>${esc(u.res)}</td></tr>`; }).join('') || '<tr><td colspan="5" class="muted">Sin disparos registrados.</td></tr>';
@@ -465,21 +465,172 @@
   // FinOps: KPI, caps, modelos, recomendaciones
   // ---------------------------------------------------------------------------
   const CAP_ESTADO = { ok: ['pill-ok', 'check', 'Dentro'], aviso: ['pill-warn', 'circle-alert', 'Aviso ≥ 80 %'], superado: ['pill-crit', 'triangle-alert', 'Superado'] };
+  const capRow = (c) => { const u = c.consumo / c.limite; const [pc, pi, pl] = CAP_ESTADO[c.estado] || CAP_ESTADO.ok; const f = (v) => (c.unidad === '€' ? eur(v, v < 1 ? 3 : 2) : `${num(v)} ${esc(c.unidad)}`); return `<tr><td class="mono"><b>${esc(c.id)}</b></td><td>${esc(c.ambito)}</td><td>${esc(c.tipo)}</td><td class="tnum">${f(c.limite)}</td><td class="tnum">${f(c.consumo)}</td><td><div class="meter" style="--c:${u >= 1 ? 'var(--crit)' : u >= .8 ? 'var(--warn)' : 'var(--ok)'};margin:0"><i style="width:${Math.min(100, u * 100)}%"></i></div><span class="small muted tnum">${Math.round(u * 100)} %</span></td><td class="wrap">${conGuardrails(esc(c.accion))}</td><td><span class="pill ${pc}">${ic(pi)} ${pl}</span></td></tr>`; };
   function renderFinops() {
     const dias = diarioVisible(), hoy = G.diario[G.diario.length - 1], cap = capDiario();
     const totalMsgs = dias.reduce((a, d) => a + d[1], 0), coste = dias.reduce((a, d) => a + costeDia(d), 0);
     const porAgente = G.agentes.slice(0, 4).map((a, k) => [a.nombre, dias.reduce((s, d) => s + (d[2][k] || 0), 0)]);
     const reparto = porAgente.sort((a, b) => b[1] - a[1]).map(([n, v]) => `${n.split(' ')[0]} ${Math.round((v / coste) * 100)} %`).join(' · ');
     $('kpis-fin').innerHTML = [
-      kpi({ cls: 'warn', icono: 'euro', etiqueta: 'Coste hoy (parcial)', valor: eur(costeDia(hoy)), sub: `${Math.round((costeDia(hoy) / cap) * 100)} % del cap diario (${eur(cap, 0)}) · ${num(hoy[1])} mensajes`, medidor: (costeDia(hoy) / cap) * 100 }),
-      ...G.kpis.finops.map(kpi),
-      kpi({ cls: 'time', icono: 'cpu', etiqueta: 'Coste medio por mensaje', valor: eur(totalMsgs ? coste / totalMsgs : 0, 4), sub: reparto }),
+      kpi({ cls: 'warn', icono: 'euro', etiqueta: 'Coste hoy (parcial)', valor: eur(costeDia(hoy)), sub: `${Math.round((costeDia(hoy) / cap) * 100)} % del cap diario (${eur(cap, 0)}) · ${num(hoy[1])} mensajes`, medidor: (costeDia(hoy) / cap) * 100, id: 'coste-hoy' }),
+      kpi({ ...G.kpis.finops[0], id: 'coste-mensual' }),
+      kpi({ ...G.kpis.finops[1], id: 'caps-superados' }),
+      kpi({ cls: 'time', icono: 'cpu', etiqueta: 'Coste medio por mensaje', valor: eur(totalMsgs ? coste / totalMsgs : 0, 4), sub: reparto, id: 'coste-medio' }),
     ].join('');
-    $('caps').innerHTML = G.caps.map((c) => { const u = c.consumo / c.limite; const [pc, pi, pl] = CAP_ESTADO[c.estado] || CAP_ESTADO.ok; const f = (v) => (c.unidad === '€' ? eur(v, v < 1 ? 3 : 2) : `${num(v)} ${esc(c.unidad)}`); return `<tr><td class="mono"><b>${esc(c.id)}</b></td><td>${esc(c.ambito)}</td><td>${esc(c.tipo)}</td><td class="tnum">${f(c.limite)}</td><td class="tnum">${f(c.consumo)}</td><td><div class="meter" style="--c:${u >= 1 ? 'var(--crit)' : u >= .8 ? 'var(--warn)' : 'var(--ok)'};margin:0"><i style="width:${Math.min(100, u * 100)}%"></i></div><span class="small muted tnum">${Math.round(u * 100)} %</span></td><td class="wrap">${conGuardrails(esc(c.accion))}</td><td><span class="pill ${pc}">${ic(pi)} ${pl}</span></td></tr>`; }).join('');
+    $('caps').innerHTML = G.caps.map(capRow).join('');
     const totalModelos = (G.modelos || []).reduce((a, mo) => a + (mo.coste || 0), 0);
     $('modelos').innerHTML = (G.modelos || []).map((mo) => { const p = G.precios[mo.id]; const share = totalModelos ? mo.coste / totalModelos : 0; return `<tr><td class="mono"><b>${esc(mo.id)}</b></td><td>${esc(mo.proveedor)}</td><td class="tnum">${p ? `${eur(p.in)} / ${eur(p.out)} por M` : '—'}</td><td>${(mo.agentes || []).map(agTag).join('<br>')}</td><td class="tnum">${num(mo.llamadas)}</td><td class="tnum">${(mo.tokens.in / 1e6).toFixed(1).replace('.', ',')} M · ${(mo.tokens.out / 1e6).toFixed(1).replace('.', ',')} M · ${(mo.tokens.reasoning / 1e6).toFixed(1).replace('.', ',')} M</td><td class="tnum"><b>${eur(mo.coste)}</b></td><td><div class="meter" style="--c:var(--primary);margin:0"><i style="width:${share * 100}%"></i></div><span class="small muted tnum">${Math.round(share * 100)} %</span></td><td class="tnum">${ms(mo.p95_ms)}</td><td class="tnum">${esc(mo.exito.json_valido)}</td><td class="tnum">${esc(mo.exito.sin_reintento)}</td><td class="tnum">${esc(mo.exito.estable_replay)}</td><td>${esc(mo.exito.precision)}</td></tr>`; }).join('') || '<tr><td colspan="13" class="muted">Sin modelos en el dataset.</td></tr>';
     renderCharts();
     $('recos').innerHTML = (G.recomendaciones || []).map((r) => `<div class="alert ${r.sev}"><span class="ico">${ic(r.sev === 'info' ? 'lightbulb' : SEV_ICON[r.sev])}</span><div><b>${esc(r.id)} · ${conGuardrails(esc(r.titulo))}</b><small>${conGuardrails(esc(r.detalle))}</small></div><button class="btn btn-sm" type="button" data-goto="replay" data-replay="1">${ic('play')} Simular con replay</button></div>`).join('');
+  }
+
+  // ---------------------------------------------------------------------------
+  // FinOps: ficha modal de detalle de un KPI (coste hoy, mensual, caps, medio)
+  // ---------------------------------------------------------------------------
+  // Barras del coste diario total (últimos N días) con la línea del cap diario; resalta hoy
+  function chartCosteDiario(dias, cap) {
+    const n = dias.length;
+    const W = 640, H = 200, pl = 40, pr = 16, pt = 14, pb = 28;
+    const vals = dias.map(costeDia);
+    const ymax = Math.max(cap * 1.15, ...vals) * 1.05;
+    const bw = Math.min(26, ((W - pl - pr) / n) * .6);
+    const xs = (i) => pl + ((i + .5) / n) * (W - pl - pr), ys = (v) => pt + (1 - v / ymax) * (H - pt - pb);
+    return `<svg class="chart" viewBox="0 0 ${W} ${H}" role="img" aria-label="Coste diario total de los últimos ${n} días frente al cap diario">
+      <g class="grid">${ticksDe(ymax).map((v) => `<line x1="${pl}" x2="${W - pr}" y1="${ys(v)}" y2="${ys(v)}"/><text x="${pl - 6}" y="${ys(v) + 4}" text-anchor="end">${v} €</text>`).join('')}</g>
+      ${dias.map((d, i) => { const v = vals[i]; const esHoy = i === n - 1; return `<rect x="${xs(i) - bw / 2}" y="${ys(v)}" width="${bw}" height="${Math.max(0, ys(0) - ys(v))}" rx="3" fill="${esHoy ? 'var(--warn)' : 'var(--primary)'}" opacity="${esHoy ? 1 : .5}" data-tip="${fecha(d[0])}${esHoy ? ' · hoy' : ''}: ${eur(v)}"/>`; }).join('')}
+      <line x1="${pl}" x2="${W - pr}" y1="${ys(cap)}" y2="${ys(cap)}" stroke="var(--crit)" stroke-width="1.5" stroke-dasharray="5 4"/>
+      <text x="${W - pr}" y="${ys(cap) - 6}" text-anchor="end" style="fill:var(--crit)">Cap diario ${eur(cap, 0)}</text>
+      ${dias.map((d, i) => (n > 8 && i % 2 ? '' : `<text x="${xs(i)}" y="${H - 8}" text-anchor="middle">${fecha(d[0])}</text>`)).join('')}
+    </svg>`;
+  }
+
+  // Área/línea del coste acumulado del mes frente al cap mensual
+  function chartCosteAcumulado(dias, capMes) {
+    const n = dias.length;
+    const W = 640, H = 200, pl = 44, pr = 16, pt = 14, pb = 28;
+    let acc = 0;
+    const acumulado = dias.map((d) => (acc += costeDia(d)));
+    const ymax = Math.max(capMes, ...acumulado) * 1.08;
+    const xs = (i) => pl + (n > 1 ? (i / (n - 1)) * (W - pl - pr) : 0), ys = (v) => pt + (1 - v / ymax) * (H - pt - pb);
+    const pts = acumulado.map((v, i) => `${xs(i)},${ys(v)}`).join(' ');
+    const area = `${xs(0)},${ys(0)} ${pts} ${xs(n - 1)},${ys(0)}`;
+    return `<svg class="chart" viewBox="0 0 ${W} ${H}" role="img" aria-label="Coste acumulado del mes frente al cap mensual">
+      <g class="grid">${ticksDe(ymax).map((v) => `<line x1="${pl}" x2="${W - pr}" y1="${ys(v)}" y2="${ys(v)}"/><text x="${pl - 6}" y="${ys(v) + 4}" text-anchor="end">${v} €</text>`).join('')}</g>
+      <polygon points="${area}" fill="var(--primary)" opacity=".15"/>
+      <polyline points="${pts}" fill="none" stroke="var(--primary)" stroke-width="2"/>
+      ${acumulado.map((v, i) => `<circle cx="${xs(i)}" cy="${ys(v)}" r="3" fill="var(--primary)" data-tip="${fecha(dias[i][0])}: ${eur(v)} acumulados"/>`).join('')}
+      <line x1="${pl}" x2="${W - pr}" y1="${ys(capMes)}" y2="${ys(capMes)}" stroke="var(--crit)" stroke-width="1.5" stroke-dasharray="5 4"/>
+      <text x="${W - pr}" y="${ys(capMes) - 6}" text-anchor="end" style="fill:var(--crit)">Cap mensual ${eur(capMes, 0)}</text>
+      ${dias.map((d, i) => (n > 8 && i % 2 ? '' : `<text x="${xs(i)}" y="${H - 8}" text-anchor="middle">${fecha(d[0])}</text>`)).join('')}
+    </svg>`;
+  }
+
+  // Barras horizontales con el % de consumo de cada cap, coloreadas por estado
+  function chartCapsConsumo(caps) {
+    const COLOR = { ok: 'var(--ok)', aviso: 'var(--warn)', superado: 'var(--crit)' };
+    const rowH = 34, W = 640, H = 14 + caps.length * rowH, pl = 90, pr = 60;
+    const max = Math.max(100, ...caps.map((c) => (c.consumo / c.limite) * 100));
+    const xs = (v) => pl + (v / max) * (W - pl - pr);
+    return `<svg class="chart" viewBox="0 0 ${W} ${H}" role="img" aria-label="Porcentaje de consumo de cada cap de FinOps">
+      ${caps.map((c, i) => { const y = 14 + i * rowH; const u = Math.round((c.consumo / c.limite) * 100); const w = Math.max(0, xs(Math.min(max, u)) - pl); return `<text x="${pl - 10}" y="${y + 15}" text-anchor="end" style="fill:var(--text);font-weight:600" class="mono">${esc(c.id)}</text><rect x="${pl}" y="${y}" width="${w}" height="20" rx="4" fill="${COLOR[c.estado] || COLOR.ok}" data-tip="${esc(c.id)} · ${esc(c.ambito)}: ${u} % del límite"/><text x="${pl + w + 6}" y="${y + 15}" class="tnum">${u} %</text>`; }).join('')}
+      <line x1="${xs(100)}" x2="${xs(100)}" y1="6" y2="${H - 6}" stroke="var(--border)" stroke-dasharray="4 3"/>
+    </svg>`;
+  }
+
+  // Barras horizontales del coste por agente (€ y % del total)
+  function chartCosteAgente(porAgente, total) {
+    const rowH = 34, W = 640, H = 14 + porAgente.length * rowH, pl = 170, pr = 90;
+    const max = Math.max(...porAgente.map(([, v]) => v), 0.0001);
+    const xs = (v) => pl + (v / max) * (W - pl - pr);
+    return `<svg class="chart" viewBox="0 0 ${W} ${H}" role="img" aria-label="Coste por agente del periodo">
+      ${porAgente.map(([a, v], i) => { const y = 14 + i * rowH; const share = total ? Math.round((v / total) * 100) : 0; const nombre = a.nombre.length > 22 ? `${a.nombre.slice(0, 20)}…` : a.nombre; const w = Math.max(0, xs(v) - pl); return `<text x="${pl - 10}" y="${y + 15}" text-anchor="end" style="fill:var(--text);font-weight:600">${esc(nombre)}</text><rect x="${pl}" y="${y}" width="${w}" height="20" rx="4" fill="${agColor(a.id)}" data-tip="${esc(a.nombre)}: ${eur(v)} · ${share} % del coste"/><text x="${pl + w + 6}" y="${y + 15}" class="tnum">${eur(v)} · ${share} %</text>`; }).join('')}
+    </svg>`;
+  }
+
+  const KPI_FIN = {
+    'coste-hoy': {
+      icono: 'euro',
+      titulo: 'Coste hoy (parcial)',
+      render: () => {
+        const dias = diarioVisible(), hoy = G.diario[G.diario.length - 1], cap = capDiario(), gasto = costeDia(hoy);
+        return `<p class="small muted">El coste de hoy suma lo gastado por todos los agentes en llamadas a modelos de IA durante la jornada en curso, todavía sin cerrar. Se compara en tiempo real contra ${grRef('CAP-01')}, el cap diario global.</p>
+          <div class="kpi-mini">
+            <div class="box"><span class="muted small">${ic('euro')} Coste hoy</span><b>${eur(gasto)}</b></div>
+            <div class="box"><span class="muted small">${ic('gauge')} % del cap diario</span><b>${Math.round((gasto / cap) * 100)} %</b></div>
+            <div class="box"><span class="muted small">${ic('activity')} Mensajes hoy</span><b>${num(hoy[1])}</b></div>
+            <div class="box"><span class="muted small">${ic('coins')} Coste medio / mensaje hoy</span><b>${eur(hoy[1] ? gasto / hoy[1] : 0, 4)}</b></div>
+          </div>
+          <div><h3>Coste diario de los últimos ${dias.length} días</h3>${chartCosteDiario(dias, cap)}</div>`;
+      },
+    },
+    'coste-mensual': {
+      icono: 'wallet',
+      titulo: 'Coste mensual',
+      render: () => {
+        const info = G.kpis.finops[0] || {};
+        const capMes = G.kpis.cap_mensual || 500;
+        const dias = G.diario;
+        const ultima = new Date(dias[dias.length - 1][0]);
+        const diasEnMes = new Date(ultima.getFullYear(), ultima.getMonth() + 1, 0).getDate();
+        const diasRestantes = Math.max(0, diasEnMes - ultima.getDate());
+        const proyM = String(info.sub || '').match(/proyecci[oó]n[^\d]*([\d.,]+)\s*€/i);
+        const proyeccion = proyM ? Number(proyM[1].replace(/\./g, '').replace(',', '.')) : null;
+        return `<p class="small muted">El coste mensual acumula el gasto de todos los agentes en llamadas a modelos de IA desde el inicio del mes y se compara contra ${grRef('CAP-02')}, el cap mensual global. La proyección estima el cierre de mes al ritmo de gasto actual.</p>
+          <div class="kpi-mini">
+            <div class="box"><span class="muted small">${ic('euro')} Coste del mes</span><b>${esc(info.valor || '—')}</b></div>
+            <div class="box"><span class="muted small">${ic('gauge')} % del cap mensual</span><b>${Math.round(info.medidor || 0)} %</b></div>
+            <div class="box"><span class="muted small">${ic('wallet')} Cap mensual</span><b>${eur(capMes, 0)}</b></div>
+            ${proyeccion != null ? `<div class="box"><span class="muted small">${ic('chart-column')} Proyección de cierre</span><b>${eur(proyeccion, 0)}</b></div>` : ''}
+            <div class="box"><span class="muted small">${ic('hourglass')} Días restantes del mes</span><b>${diasRestantes}</b></div>
+          </div>
+          <div><h3>Coste acumulado</h3><span class="muted small">Últimos ${dias.length} días con histórico · el total del mes también incluye días previos a este periodo</span>${chartCosteAcumulado(dias, capMes)}</div>`;
+      },
+    },
+    'caps-superados': {
+      icono: 'triangle-alert',
+      titulo: 'Caps superados',
+      render: () => {
+        const superados = G.caps.filter((c) => c.estado === 'superado');
+        const aviso = G.caps.filter((c) => c.estado === 'aviso');
+        const ok = G.caps.filter((c) => c.estado === 'ok');
+        const orden = [...superados, ...aviso, ...ok];
+        return `<p class="small muted">Los caps de FinOps limitan el coste y consumo de tokens del pipeline. Al superarse se dispara la acción automática configurada (degradar el modelo, alertar o marcar la traza), igual que un guardrail.</p>
+          <div class="kpi-mini">
+            <div class="box"><span class="muted small">${ic('triangle-alert')} Superados</span><b>${superados.length}</b></div>
+            <div class="box"><span class="muted small">${ic('circle-alert')} En aviso (≥ 80 %)</span><b>${aviso.length}</b></div>
+            <div class="box"><span class="muted small">${ic('check')} Dentro de límite</span><b>${ok.length}</b></div>
+            <div class="box"><span class="muted small">${ic('list-checks')} Caps configurados</span><b>${G.caps.length}</b></div>
+          </div>
+          <div><h3>% de consumo por cap</h3>${chartCapsConsumo(orden)}</div>
+          <div><h3>Detalle de los caps</h3><div class="tw"><table><thead><tr><th>Cap</th><th>Ámbito</th><th>Tipo</th><th>Límite</th><th>Consumo</th><th style="min-width:160px">Uso</th><th>Acción al superar</th><th>Estado</th></tr></thead><tbody>${orden.map(capRow).join('')}</tbody></table></div></div>`;
+      },
+    },
+    'coste-medio': {
+      icono: 'coins',
+      titulo: 'Coste medio por mensaje',
+      render: () => {
+        const dias = diarioVisible();
+        const totalMsgs = dias.reduce((a, d) => a + d[1], 0), coste = dias.reduce((a, d) => a + costeDia(d), 0);
+        const porAgente = G.agentes.slice(0, 4).map((a, k) => [a, dias.reduce((s, d) => s + (d[2][k] || 0), 0)]).sort((a, b) => b[1] - a[1]);
+        const masCaro = porAgente[0];
+        return `<p class="small muted">El coste medio por mensaje es el coste total del periodo dividido entre los mensajes procesados en ese mismo periodo. Varía según la mezcla de ramos, la complejidad de los mensajes y qué modelo atiende cada agente.</p>
+          <div class="kpi-mini">
+            <div class="box"><span class="muted small">${ic('coins')} Coste medio</span><b>${eur(totalMsgs ? coste / totalMsgs : 0, 4)}</b></div>
+            <div class="box"><span class="muted small">${ic('euro')} Coste del periodo</span><b>${eur(coste)}</b></div>
+            <div class="box"><span class="muted small">${ic('activity')} Mensajes procesados</span><b>${num(totalMsgs)}</b></div>
+            <div class="box"><span class="muted small">${ic('cpu')} Agente más caro</span><b>${masCaro ? esc(masCaro[0].nombre) : '—'}</b></div>
+          </div>
+          <div><h3>Reparto del coste por agente · últimos ${dias.length} días</h3>${chartCosteAgente(porAgente, coste)}</div>`;
+      },
+    },
+  };
+
+  function abrirModalKpiFin(key) {
+    const info = KPI_FIN[key];
+    if (!info) return;
+    $('modal-kpi-fin-title').innerHTML = `${ic(info.icono)} ${esc(info.titulo)}`;
+    $('modal-kpi-fin-body').innerHTML = info.render();
+    $('modal-kpi-fin').showModal();
   }
 
   // ---------------------------------------------------------------------------
@@ -535,6 +686,27 @@
     document.documentElement.style.setProperty('--tabs-h', `${$('tabs').offsetHeight}px`);
   }
 
+  // Tirador para redimensionar horizontalmente el panel de trazas y el de razonamiento
+  function initResizer() {
+    const row = $('reasoning-row');
+    const handle = $('reasoning-resizer');
+    if (!row || !handle) return;
+    const clamp = (pct) => Math.min(75, Math.max(25, pct));
+    const setPct = (pct) => row.style.setProperty('--pane-w', `${clamp(pct)}%`);
+    handle.addEventListener('pointerdown', (e) => { handle.setPointerCapture(e.pointerId); handle.dataset.dragging = '1'; });
+    handle.addEventListener('pointermove', (e) => {
+      if (!handle.dataset.dragging) return;
+      const r = row.getBoundingClientRect();
+      setPct(((e.clientX - r.left) / r.width) * 100);
+    });
+    handle.addEventListener('pointerup', () => { delete handle.dataset.dragging; });
+    handle.addEventListener('keydown', (e) => {
+      const cur = parseFloat(row.style.getPropertyValue('--pane-w')) || 55;
+      if (e.key === 'ArrowLeft') { setPct(cur - 3); e.preventDefault(); }
+      if (e.key === 'ArrowRight') { setPct(cur + 3); e.preventDefault(); }
+    });
+  }
+
   function bind() {
     $('tabs').innerHTML = TABS.map(([v, i, l]) => `<button class="tab${v === 'resumen' ? ' is-active' : ''}" type="button" role="tab" data-view="${v}" aria-selected="${v === 'resumen'}">${ic(i)} ${l}${v === 'finops' ? ' <span class="n"></span>' : ''}</button>`).join('');
     $('tabs').addEventListener('click', (e) => { const b = e.target.closest('.tab'); if (b) goto(b.dataset.view); });
@@ -548,11 +720,16 @@
       const lg = e.target.closest('[data-legend]'); if (lg) { const set = lg.dataset.legend === 'agente' ? ocultos : tokOcultos; set.has(lg.dataset.key) ? set.delete(lg.dataset.key) : set.add(lg.dataset.key); renderCharts(); return; }
       const tz = e.target.closest('[data-traza]'); if (tz) { goto('trazas'); selectTraza(tz.dataset.traza); return; }
       const ag = e.target.closest('.agent[data-agente]'); if (ag) { abrirModalAgente(ag.dataset.agente); return; }
+      const kf = e.target.closest('[data-kpi-fin]'); if (kf) { abrirModalKpiFin(kf.dataset.kpiFin); return; }
       const ult = e.target.closest('#ultimas tr[data-id]'); if (ult) { abrirModalTraza(ult.dataset.id); return; }
       const row = e.target.closest('#t-trazas tr[data-id], #r-trazas tr[data-id]'); if (row) { selectTraza(row.dataset.id); return; }
       const chip = e.target.closest('#hist-chips .chip'); if (chip) { filtroTipo = chip.dataset.t; renderHistorico(); }
     });
-    document.addEventListener('keydown', (e) => { if (e.key === 'Enter' && e.target.matches && e.target.matches('.agent[data-agente]')) abrirModalAgente(e.target.dataset.agente); });
+    document.addEventListener('keydown', (e) => {
+      if (e.key !== 'Enter' || !e.target.matches) return;
+      if (e.target.matches('.agent[data-agente]')) abrirModalAgente(e.target.dataset.agente);
+      else if (e.target.matches('[data-kpi-fin]')) abrirModalKpiFin(e.target.dataset.kpiFin);
+    });
     document.querySelectorAll('dialog.modal').forEach((d) => d.addEventListener('click', (e) => { if (e.target === d) d.close(); }));
     $('btn-back').innerHTML = `${ic('arrow-left')} Volver al triaje`;
     $('btn-json').innerHTML = `${ic('upload')} Cargar JSON`;
@@ -585,6 +762,7 @@
     });
     medirFijos();
     window.addEventListener('resize', medirFijos);
+    initResizer();
   }
 
   bind();
