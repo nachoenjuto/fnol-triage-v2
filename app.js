@@ -28,7 +28,7 @@
   // Latencia simulada del motor local (consulta de póliza / integración)
   const LOCAL_LATENCY_MS = [80, 250];
   // Cadencia de la reproducción de resultados guardados o de archivo
-  const REPLAY_LATENCY_MS = [5000, 7000];
+  const REPLAY_LATENCY_MS = [3000, 5000];
 
   // ---------------------------------------------------------------------------
   // Utilidades
@@ -1075,6 +1075,7 @@
       const left = Math.min(bb.left, maxLeft);
       pop.style.left = `${left}px`;
       pop.style.top = `${tb.bottom + 10}px`;
+      pop.style.setProperty('--pop-max-h', `${Math.max(240, window.innerHeight - tb.bottom - 10 - 16)}px`); // el scroll solo aparece si no cabe en pantalla
       caret.style.left = `${Math.max(12, Math.min(bb.left - left + 18, pop.offsetWidth - 24))}px`;
     };
 
