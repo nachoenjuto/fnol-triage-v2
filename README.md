@@ -51,7 +51,7 @@ La ficha de cada mensaje muestra los tokens de entrada, salida y razonamiento po
 En la barra lateral, **Motor de triaje** permite elegir:
 
 - **Automático**: IA si hay clave; si no, motor local.
-- **Resultados guardados**: reproduce las fichas de [`data/resultados.js`](data/resultados.js), generadas con IA para los 51 mensajes con el mismo esquema que devuelve el modelo (ramo, indicios, datos extraídos, criterios con evidencia, decisión, motivo, confianza y tokens). Cada mensaje tarda entre 5 y 7 s, con el mismo estado en vivo, pausa y reinicio.
+- **Resultados guardados**: reproduce las fichas de [`data/resultados.js`](data/resultados.js), generadas con IA para los 51 mensajes con el mismo esquema que devuelve el modelo (ramo, indicios, datos extraídos, criterios con evidencia, decisión, motivo, confianza y tokens). Cada mensaje tarda entre 3 y 5 s, con el mismo estado en vivo, pausa y reinicio.
 - **Archivo cargado**: con **Reproducir desde archivo** puedes cargar un JSON generado con «Exportar JSON» de un lote real y repetirlo con la misma cadencia.
 
 ## Motor local (sin IA)
@@ -88,7 +88,7 @@ app.js            motor local, cliente Azure, procesamiento con pausa, registro,
 prompts.js        prompt base + bloques de reglas Auto / Hogar / Salud
 icons.js          iconos Lucide compartidos (lucide(name) + hidratación de [data-lucide])
 styles.css        estilos del triaje (claro/oscuro, responsive)
-gobierno.html     panel «Gobierno de Agentes» (seis pestañas)
+gobierno.html     panel «Gobierno de Agentes» (siete pestañas)
 gobierno.js       render del panel: fuentes de datos, trazas, replay, gráficos SVG
 gobierno.css      estilos del panel (mismos tokens que styles.css)
 data/mensajes.js  tres paquetes de mensajes
@@ -96,12 +96,12 @@ data/resultados.js fichas de triaje guardadas para reproducción
 data/gobierno.js  dataset de demostración del panel (Paquete A + 14 días)
 data/gobierno-paquete-A.json      el mismo dataset, para «Cargar JSON» en el panel
 data/triage-registro-paquete-A.json  13 fichas del Paquete A en formato «Exportar JSON», para «Reproducir desde archivo»
-_docs/            arquitectura (C4 en Mermaid)
+_docs/            arquitectura (C4 en Mermaid) y guía de referencia de la demo
 ```
 
 ## Gobierno de Agentes
 
-`gobierno.html` es el panel de control agéntico del triaje: gobernanza con trazabilidad y observabilidad de los cuatro agentes (Multicanalidad, Clasificación por ramo, Extracción de datos, Reglas de negocio). Seis pestañas:
+`gobierno.html` es el panel de control agéntico del triaje: gobernanza con trazabilidad y observabilidad de los cuatro agentes (Multicanalidad, Clasificación por ramo, Extracción de datos, Reglas de negocio). Siete pestañas:
 
 | Pestaña | Qué muestra |
 |---|---|
@@ -109,8 +109,8 @@ _docs/            arquitectura (C4 en Mermaid)
 | **Trazabilidad** | panel de detalle **fijo bajo las pestañas** (waterfall de spans por agente, guardrail disparado, override humano) que no se oculta al recorrer la lista; lista de trazas filtrable por agente, canal, decisión y resultado; «Ver razonamiento» y «Replay» abren Reasoning & Replay con esa traza |
 | **Reasoning & Replay** | la misma lista de trazas (colapsable, con filtros) y, para la seleccionada, el razonamiento estructurado por agente (entrada → pasos → salida) y el replay idéntico o what-if (otro modelo o versión de prompt) con diff de decisión, coste y latencia; histórico de replays |
 | **Autonomía** | niveles L0 Manual · L1 Asistido · L2 Supervisado · L3 Autónomo coloreados de rojo a verde, tarjetas de agentes con umbrales y tasas; clic en un agente abre su **ficha** (histórico de autonomía, cambios de modelo y prompt, comportamiento por modelo, variables que le afectan); auditoría de cambios de nivel |
-| **Guardrails** | condiciones que limitan la autonomía (G-01…G-09): agente, condición, acción, severidad, disparos por día y toggle activo/inactivo; últimos disparos enlazados a su traza. Cualquier referencia a un guardrail o cap (G-04, CAP-03) en el panel muestra su descripción al pasar el ratón |
-| **FinOps** | caps de consumo (global, por agente, por traza) con consumo y acción al superar, coste diario por agente, tokens por agente, sección de **modelos** (proveedor, precio, agentes que lo usan, llamadas, tokens, coste, latencia y éxito: JSON válido, sin reintento, estable en replay, precisión) con coste por modelo × agente y tokens por modelo; las leyendas de los gráficos activan y desactivan series; recomendaciones de ahorro |
+| **Guardrails** | condiciones que limitan la autonomía (G-01…G-09): agente, condición, acción, severidad, disparos por día y toggle activo/inactivo; ficha de detalle por guardrail, alta de **nuevos guardrails** y últimos disparos enlazados a su traza. Cualquier referencia a un guardrail o cap (G-04, CAP-03) en el panel muestra su descripción al pasar el ratón |
+| **FinOps** | KPI con detalle por clic; **acciones correctivas** propuestas por cada cap superado («Aplicar» o «Solicitar aprobación», con registro en el histórico); caps de consumo (global, por agente, por traza, tokens de razonamiento, llamadas/minuto) con consumo y acción al superar, **ficha de cada cap** (agentes implicados, histórico de superaciones) y alta de **nuevos caps**; coste diario por agente, tokens por agente, sección de **modelos** (proveedor, precio, agentes que lo usan, llamadas, tokens, coste, latencia y éxito: JSON válido, sin reintento, estable en replay, precisión) con coste por modelo × agente y tokens por modelo; las leyendas de los gráficos activan y desactivan series; recomendaciones de ahorro |
 | **Histórico** | línea de tiempo de alertas, políticas, replays, overrides, despliegues, incidentes y operaciones (kill switch, guardrails) |
 
 Fuentes de datos (selector de la cabecera):
@@ -120,6 +120,10 @@ Fuentes de datos (selector de la cabecera):
 - **Archivo JSON**: «Cargar JSON» con el esquema de `data/gobierno-paquete-A.json` (`agentes[]` con `historial`, `modelos` y `variables`; `trazas[]` con `spans` y `motivo`; y opcionalmente `caps`, `politicas` con `descripcion`, `severidad`, `disparos_dia` y `ultimos`, `razonamiento`, `replays`, `diario`, `eventos`, `modelos`…); las secciones ausentes se toman de la demo. «Exportar trazas» descarga el dataset activo con ese mismo esquema.
 
 Todos los iconos de la web (triaje y panel) son [Lucide](https://lucide.dev) (licencia ISC), inline desde `icons.js`.
+
+## Guía de referencia
+
+[`_docs/guia-demo.md`](_docs/guia-demo.md) describe cada pantalla y pestaña de la demo (qué muestra, qué se puede hacer y para qué sirve) e incluye un guion de demo de 10 minutos.
 
 ## Despliegue
 

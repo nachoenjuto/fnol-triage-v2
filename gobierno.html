@@ -131,12 +131,15 @@
 <section class="view" data-view="autonomia">
   <div class="kpis" id="kpis-aut"></div>
   <div class="card">
-    <div class="card-head"><h2 id="h-niveles"></h2><span class="muted small">De rojo (manual) a verde (autónomo). Clic en un agente para ver su histórico; el interruptor pausa el agente</span></div>
+    <div class="card-head"><h2 id="h-niveles"></h2><span class="muted small">De rojo (manual) a verde (autónomo)</span></div>
     <div class="levels" id="levels"></div>
-    <div class="agents" id="agents-aut" style="margin-top:1rem"></div>
   </div>
   <div class="card">
-    <div class="card-head"><h2 id="h-cambios"></h2><span class="muted small">Cambios de nivel, de modelo y de guardrails con su motivo y quién los aprobó</span></div>
+    <div class="card-head"><h2 id="h-agentes-aut"></h2><span class="muted small">Clic en un agente para ver su histórico; el interruptor pausa el agente</span></div>
+    <div class="agents" id="agents-aut"></div>
+  </div>
+  <div class="card">
+    <div class="card-head"><h2 id="h-cambios"></h2><span class="muted small">Cambios de nivel, de modelo y de guardrails con su motivo y quién los aprobó · clic en una fila para ver el registro completo</span></div>
     <div class="tw"><table><thead><tr><th>Fecha</th><th>Agente</th><th>Cambio</th><th>Motivo</th><th>Usuario</th></tr></thead><tbody id="cambios"></tbody></table></div>
   </div>
 </section>
@@ -145,7 +148,7 @@
 <section class="view" data-view="guardrails">
   <div class="kpis" id="kpis-gr"></div>
   <div class="card">
-    <div class="card-head"><h2 id="h-guardrails"></h2><span class="muted small">Condiciones que limitan la autonomía de cada agente · pasa el ratón por un código (G-04, CAP-03) en cualquier pestaña para ver su descripción</span><button class="btn btn-sm" type="button" id="btn-new-policy"></button></div>
+    <div class="card-head"><h2 id="h-guardrails"></h2><span class="muted small">Condiciones que limitan la autonomía de cada agente · clic en una fila para ver su detalle · pasa el ratón por un código (G-04, CAP-03) para ver su descripción</span><button class="btn btn-sm" type="button" id="btn-new-policy"></button></div>
     <div class="tw"><table><thead><tr><th>Id</th><th>Agente</th><th>Condición</th><th>Acción</th><th>Severidad</th><th style="min-width:150px">Disparos 14 d</th><th>Estado</th></tr></thead><tbody id="policies"></tbody></table></div>
   </div>
   <div class="card">
@@ -157,8 +160,12 @@
 <!-- ───────────── FINOPS ───────────── -->
 <section class="view" data-view="finops">
   <div class="kpis" id="kpis-fin"></div>
+  <div class="card" id="card-correctivas" hidden>
+    <div class="card-head"><h2 id="h-correctivas"></h2><span class="muted small">Una acción por cap superado · «Aplicar» la registra en el histórico (simulado en esta demo)</span></div>
+    <div class="alerts" id="correctivas"></div>
+  </div>
   <div class="card">
-    <div class="card-head"><h2 id="h-caps"></h2><button class="btn btn-sm" type="button" id="btn-new-cap"></button></div>
+    <div class="card-head"><h2 id="h-caps"></h2><span class="muted small">Clic en un cap para ver su detalle, los agentes implicados y su histórico</span><button class="btn btn-sm" type="button" id="btn-new-cap"></button></div>
     <div class="tw"><table><thead><tr><th>Cap</th><th>Ámbito</th><th>Tipo</th><th>Límite</th><th>Consumo</th><th style="min-width:180px">Uso</th><th>Acción al superar</th><th>Estado</th></tr></thead><tbody id="caps"></tbody></table></div>
   </div>
   <div class="two">
@@ -219,6 +226,36 @@
 <dialog id="modal-kpi-fin" class="modal" aria-labelledby="modal-kpi-fin-title">
   <div class="modal-head"><h2 id="modal-kpi-fin-title"></h2><button class="btn btn-sm" type="button" data-close="modal-kpi-fin" aria-label="Cerrar"></button></div>
   <div class="modal-body" id="modal-kpi-fin-body"></div>
+</dialog>
+
+<!-- Ficha de un cap (FinOps) -->
+<dialog id="modal-cap" class="modal wide" aria-labelledby="modal-cap-title">
+  <div class="modal-head"><h2 id="modal-cap-title"></h2><button class="btn btn-sm" type="button" data-close="modal-cap" aria-label="Cerrar"></button></div>
+  <div class="modal-body" id="modal-cap-body"></div>
+</dialog>
+
+<!-- Nuevo cap (FinOps) -->
+<dialog id="modal-cap-nuevo" class="modal wide" aria-labelledby="modal-cap-nuevo-title">
+  <div class="modal-head"><h2 id="modal-cap-nuevo-title"></h2><button class="btn btn-sm" type="button" data-close="modal-cap-nuevo" aria-label="Cerrar"></button></div>
+  <div class="modal-body" id="modal-cap-nuevo-body"></div>
+</dialog>
+
+<!-- Registro de un cambio de nivel (Autonomía · auditoría) -->
+<dialog id="modal-cambio" class="modal wide" aria-labelledby="modal-cambio-title">
+  <div class="modal-head"><h2 id="modal-cambio-title"></h2><button class="btn btn-sm" type="button" data-close="modal-cambio" aria-label="Cerrar"></button></div>
+  <div class="modal-body" id="modal-cambio-body"></div>
+</dialog>
+
+<!-- Ficha de un guardrail -->
+<dialog id="modal-gr" class="modal wide" aria-labelledby="modal-gr-title">
+  <div class="modal-head"><h2 id="modal-gr-title"></h2><button class="btn btn-sm" type="button" data-close="modal-gr" aria-label="Cerrar"></button></div>
+  <div class="modal-body" id="modal-gr-body"></div>
+</dialog>
+
+<!-- Nuevo guardrail -->
+<dialog id="modal-gr-nuevo" class="modal wide" aria-labelledby="modal-gr-nuevo-title">
+  <div class="modal-head"><h2 id="modal-gr-nuevo-title"></h2><button class="btn btn-sm" type="button" data-close="modal-gr-nuevo" aria-label="Cerrar"></button></div>
+  <div class="modal-body" id="modal-gr-nuevo-body"></div>
 </dialog>
 
 <p class="foot">Panel «Gobierno de Agentes» · demo estática · los datos de demostración son inventados y coherentes con el Paquete A del triaje · <a href="https://github.com/nachoenjuto/fnol-triage" target="_blank" rel="noopener">Código en GitHub</a></p>

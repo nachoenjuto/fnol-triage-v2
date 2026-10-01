@@ -356,3 +356,101 @@ const GOBIERNO_DEMO = {
     { id: 'R-04', sev: 'info', titulo: 'Cachear el prompt base y los bloques de reglas', detalle: 'Los 1.100 primeros tokens son idénticos en todas las llamadas: con prompt caching el coste de entrada baja un 90 % en ese tramo.' },
   ],
 };
+
+// Detalle ampliado de cada cap para su ficha modal (serie de 14 días = fechas de `diario`, reparto por agente,
+// histórico de superaciones/avisos y acciones correctivas sugeridas). Datos inventados y coherentes con alertas y guardrails.
+const CAPS_DETALLE = {
+  'CAP-01': {
+    desde: '2026-08-04', propietario: 'FinOps',
+    descripcion: 'Techo de gasto diario de todos los agentes del triaje en llamadas a modelos de IA.',
+    serie: [12.4, 13.6, 7.2, 6.4, 14.8, 15.9, 15.4, 16.8, 16.2, 7.9, 8.3, 17.9, 18.9, 17.33],
+    superaciones: [
+      { fecha: '2026-09-17T09:10:00', nivel: 'aviso', agente: 'reglas', valor: 17.3, accion: 'Aviso al 80 % enviado a FinOps', duracion: 'en curso', estado: 'activo' },
+      { fecha: '2026-09-16T16:02:00', nivel: 'aviso', agente: 'reglas', valor: 16.4, accion: 'Aviso al 80 % enviado a FinOps', duracion: 'hasta las 00:00', estado: 'resuelto' },
+      { fecha: '2026-09-11T15:48:00', nivel: 'aviso', agente: 'reglas', valor: 16.1, accion: 'Aviso al 80 % enviado a FinOps', duracion: 'hasta las 00:00', estado: 'resuelto' },
+    ],
+    correctivas: [
+      { titulo: 'Anticipar el consumo: activar R-02 (gpt-5-mini en despeje directo)', detalle: 'El agente de Reglas aporta el 79 % del gasto. Mover los despejes directos a gpt-5-mini baja el consumo diario global sin tocar los casos complejos.', impacto: '−7,9 €/día', tipo: 'modelo', replay: true, ref: 'R-02' },
+      { titulo: 'Reprogramar los lotes no urgentes fuera de la franja 09–12 h', detalle: 'El pico de la mañana concentra el 46 % del gasto diario; repartirlo evita llegar al 100 % a mediodía.', impacto: 'Suaviza el pico', tipo: 'proceso' },
+    ],
+  },
+  'CAP-02': {
+    desde: '2026-08-04', propietario: 'FinOps',
+    descripcion: 'Techo de gasto mensual global; la proyección de cierre se calcula al ritmo de los últimos 14 días.',
+    superaciones: [],
+    correctivas: [
+      { titulo: 'Revisar la proyección de cierre (428 €) cada lunes', detalle: 'Si la proyección supera el 90 % del cap, adelantar R-02 y R-04 (prompt caching).', impacto: 'Preventiva', tipo: 'proceso' },
+    ],
+  },
+  'CAP-03': {
+    desde: '2026-08-18', propietario: 'Gobierno IA',
+    descripcion: 'Presupuesto diario del agente de Reglas de negocio, el más caro del pipeline (gpt-5 con razonamiento).',
+    serie: [8.9, 9.7, 5.0, 4.4, 10.4, 11.0, 10.7, 11.6, 11.3, 5.4, 5.7, 11.8, 12.4, 13.7],
+    agentes: { reglas: 1 },
+    superaciones: [
+      { fecha: '2026-09-17T08:00:00', nivel: 'superado', agente: 'reglas', valor: 13.7, accion: 'G-07 · degradado a gpt-5-mini desde el arranque del lote', duracion: 'en curso', estado: 'activo' },
+      { fecha: '2026-09-16T17:40:00', nivel: 'superado', agente: 'reglas', valor: 12.4, accion: 'G-07 · degradado a gpt-5-mini (312 mensajes)', duracion: '6 h 20 min', estado: 'resuelto' },
+      { fecha: '2026-09-02T14:12:00', nivel: 'superado', agente: 'reglas', valor: 12.6, accion: 'Solo alerta (G-07 aún no existía)', duracion: 'hasta las 00:00', estado: 'resuelto' },
+      { fecha: '2026-08-26T16:30:00', nivel: 'superado', agente: 'reglas', valor: 12.3, accion: 'Solo alerta (G-07 aún no existía)', duracion: 'hasta las 00:00', estado: 'resuelto' },
+    ],
+    correctivas: [
+      { titulo: 'Mantener la degradación a gpt-5-mini hasta las 00:00 (G-07)', detalle: 'Ya aplicada de forma automática: el lote no se detiene y los mensajes siguen procesándose en modo degradado, con precisión del 97,6 %.', impacto: '−82 % coste/mensaje', tipo: 'modelo', auto: true, estado: 'aplicada' },
+      { titulo: 'Usar gpt-5-mini por defecto en despeje directo (A7 / H5 / S6)', detalle: 'El replay RP-0006 mantuvo la decisión con −82 % de coste. gpt-5 solo cuando hay lesionados, terceros o importe > 3.000 €.', impacto: '−7,9 €/día', tipo: 'modelo', replay: true, ref: 'R-02' },
+      { titulo: 'Bajar el reasoning effort de «medium» a «low» en mensajes sin guardrail', detalle: 'El prompt v2.4 reduce un 18 % los tokens de razonamiento con la misma decisión (RP-0008).', impacto: '−35 % tokens de razonamiento', tipo: 'prompt', replay: true, ref: 'R-01' },
+      { titulo: 'Reevaluar el límite: subir de 12 € a 14 € si la demanda es estructural', detalle: 'Los lunes y tras tormentas el volumen sube un 18 %. Requiere aprobación del Comité IA y mantener CAP-01 en 20 €.', impacto: '+2 €/día de margen', tipo: 'config', aprobacion: true },
+    ],
+  },
+  'CAP-04': {
+    desde: '2026-08-18', propietario: 'Gobierno IA',
+    descripcion: 'Coste máximo admitido por traza (suma de los agentes que intervienen en un mismo mensaje).',
+    serie: [0.031, 0.034, 0.026, 0.024, 0.036, 0.038, 0.037, 0.041, 0.040, 0.027, 0.028, 0.044, 0.048, 0.062],
+    agentes: { reglas: 0.91, extraccion: 0.07, clasificacion: 0.02 },
+    superaciones: [
+      { fecha: '2026-09-17T09:03:09', nivel: 'superado', agente: 'reglas', valor: 0.062, accion: 'Alerta + traza marcada · TRZ-4F31 (MSG-A-08)', duracion: 'puntual', estado: 'abierto', traza: 'TRZ-4F31' },
+      { fecha: '2026-09-09T11:22:00', nivel: 'superado', agente: 'reglas', valor: 0.054, accion: 'Alerta + traza marcada · TRZ-3B71', duracion: 'puntual', estado: 'resuelto' },
+      { fecha: '2026-09-05T10:05:00', nivel: 'superado', agente: 'reglas', valor: 0.052, accion: 'Alerta + traza marcada · TRZ-2D40', duracion: 'puntual', estado: 'resuelto' },
+    ],
+    correctivas: [
+      { titulo: 'Revisar la traza TRZ-4F31 (MSG-A-08) y su razonamiento', detalle: 'Mensaje con lesionados y varios terceros: el razonamiento largo duplica el coste medio. Comprobar si el guardrail G-04 puede resolverlo antes de llamar al modelo.', impacto: '−0,03 €/traza', tipo: 'proceso', traza: 'TRZ-4F31' },
+      { titulo: 'Resumir los adjuntos antes de enviarlos al agente de Reglas', detalle: 'Los mensajes con adjuntos largos son el 78 % de las trazas que superan este cap.', impacto: '−25 % tokens de entrada', tipo: 'prompt' },
+      { titulo: 'Escalar a humano sin llamar al modelo cuando G-04 ya aplica', detalle: 'Si hay lesionados la decisión nunca es automática: evitar el paso de Reglas ahorra el coste completo de la traza.', impacto: '−0,05 €/traza con lesionados', tipo: 'config', aprobacion: true },
+    ],
+  },
+  'CAP-05': {
+    desde: '2026-08-18', propietario: 'Gobierno IA',
+    descripcion: 'Tokens de razonamiento (los «tokens pensados» del modelo) que puede gastar el agente de Reglas en una misma traza.',
+    serie: [1210, 1280, 980, 940, 1350, 1420, 1390, 1560, 1530, 1010, 1030, 1740, 1890, 2610],
+    agentes: { reglas: 1 },
+    superaciones: [
+      { fecha: '2026-09-17T09:03:09', nivel: 'superado', agente: 'reglas', valor: 2610, accion: 'Alerta (1 seguida; a las 3 baja el reasoning effort)', duracion: 'puntual', estado: 'abierto', traza: 'TRZ-4F31' },
+      { fecha: '2026-09-10T16:40:00', nivel: 'superado', agente: 'reglas', valor: 2140, accion: 'Alerta', duracion: 'puntual', estado: 'resuelto' },
+    ],
+    correctivas: [
+      { titulo: 'Limitar el reasoning effort a «low» cuando no hay guardrail activo', detalle: 'Los modelos de razonamiento gastan tokens pensando aunque el caso sea claro. Con «low» se mantiene la decisión en el 99 % de los replays.', impacto: '−35 % tokens de razonamiento', tipo: 'prompt', replay: true, ref: 'R-01' },
+      { titulo: 'Activar la bajada automática de effort tras 3 superaciones seguidas', detalle: 'Ya configurada en la acción del cap; falta validarla con un replay what-if sobre el lote del lunes.', impacto: 'Contiene los picos', tipo: 'config' },
+    ],
+  },
+  'CAP-06': {
+    desde: '2026-08-18', propietario: 'Gobierno IA',
+    descripcion: 'Presupuesto diario del agente de Extracción de datos (gpt-5-mini).',
+    serie: [2.1, 2.4, 1.1, 1.0, 2.5, 2.7, 2.6, 2.8, 2.7, 1.2, 1.3, 2.9, 3.1, 2.9],
+    agentes: { extraccion: 1 },
+    superaciones: [],
+    correctivas: [
+      { titulo: 'Sin acción necesaria: consumo estable en torno al 55 %', detalle: 'Margen suficiente aunque el volumen crezca un 40 %.', impacto: 'Preventiva', tipo: 'proceso' },
+    ],
+  },
+  'CAP-07': {
+    desde: '2026-08-04', propietario: 'Plataforma',
+    descripcion: 'Límite interno de llamadas por minuto a Azure AI Foundry para no provocar errores 429.',
+    serie: [58, 62, 31, 29, 66, 71, 69, 78, 76, 34, 36, 84, 118, 74],
+    agentes: { extraccion: 0.38, reglas: 0.34, clasificacion: 0.2, multicanal: 0.08 },
+    superaciones: [
+      { fecha: '2026-09-15T10:12:00', nivel: 'aviso', agente: 'extraccion', valor: 118, accion: 'Encolado (rate limit interno) · ráfaga de 429 en Azure', duracion: '7 min', estado: 'resuelto' },
+    ],
+    correctivas: [
+      { titulo: 'Escalonar el arranque de lotes para evitar ráfagas', detalle: 'La ráfaga del 15/09 coincidió con el arranque simultáneo de los lotes de Hogar y Auto.', impacto: 'Evita 429', tipo: 'proceso' },
+    ],
+  },
+};
+GOBIERNO_DEMO.caps.forEach((c) => Object.assign(c, CAPS_DETALLE[c.id] || {}));

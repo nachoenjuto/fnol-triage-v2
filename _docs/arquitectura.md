@@ -22,7 +22,7 @@ C4Container
   Person(usuario, "Usuario de la demo")
   Container_Boundary(pages, "GitHub Pages (rama main)") {
     Container(triage, "Triage · index.html + app.js", "HTML/JS", "Paquetes, prompts editables, motor local o IA, registro de decisiones y ficha")
-    Container(gobierno, "Gobierno de Agentes · gobierno.html + gobierno.js", "HTML/JS", "Resumen, trazabilidad, Reasoning & Replay, autonomía, FinOps, histórico")
+    Container(gobierno, "Gobierno de Agentes · gobierno.html + gobierno.js", "HTML/JS", "Resumen, trazabilidad, Reasoning & Replay, autonomía, guardrails, FinOps, histórico")
     Container(icons, "icons.js", "JS", "Iconos Lucide compartidos")
     ContainerDb(datos, "data/", "JS + JSON estáticos", "mensajes.js, resultados.js, gobierno.js, JSON de prueba")
     ContainerDb(session, "sessionStorage", "navegador", "configuración IA, prompts editados, registro del triaje (triage.log)")
@@ -64,6 +64,16 @@ flowchart LR
   resumen -. clic en agente .-> mAgente([Modal · ficha del agente])
   autonomia -. clic en agente .-> mAgente
   resumen -. kill switch .-> estado[(sessionStorage gobierno.estados)]
+  guardrails -. clic en fila .-> mGr([Modal · ficha del guardrail])
+  guardrails -. nuevo .-> mGrN([Modal · nuevo guardrail])
+  guardrails -. toggle .-> estado2[(sessionStorage gobierno.gr_nuevos y overrides)]
+  finops -. clic en KPI .-> mKpi([Modal · detalle del KPI])
+  finops -. clic en cap .-> mCap([Modal · ficha del cap])
+  finops -. nuevo .-> mCapN([Modal · nuevo cap])
+  finops -. aplicar acción correctiva .-> estado3[(sessionStorage gobierno.correctivas y caps_nuevos)]
+  autonomia -. clic en cambio .-> mCambio([Modal · registro del cambio de nivel])
 ```
+
+Las acciones del operador en el panel (kill switch, guardrails, caps nuevos, acciones correctivas) se guardan en `sessionStorage` y dejan un evento en el histórico. Ver [guia-demo.md](guia-demo.md) para la guía funcional de cada pantalla.
 
 Esquema del dataset (`data/gobierno-paquete-A.json`): `version`, `periodo`, `precios{modelo:{in,out}}`, `agentes[]` (con `historial[]`, `modelos[]`, `variables[]`), `niveles[]`, `politicas[]` (con `descripcion`, `severidad`, `disparos_dia[]`, `ultimos[]`), `cambios_autonomia[]`, `caps[]`, `kpis`, `alertas[]`, `modelos[]` (consumo, `coste_por_agente`, `exito`), `trazas[]` (cada una con `motivo` y `spans: [[agente, inicio_ms, duracion_ms, modelo, tok_in, tok_out, tok_reasoning]]`), `razonamiento{trazaId: pasos[]}`, `replays[]`, `diario[[fecha, mensajes, [€ por agente]]]`, `eventos[]`, `recomendaciones[]`.

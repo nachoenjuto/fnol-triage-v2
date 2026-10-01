@@ -458,10 +458,10 @@
     const guardados = p.mensajes.filter((m) => RESULTADOS_GUARDADOS[m.id]).length;
     const sel = $('sel-motor');
     sel.querySelector('[value="guardado"]').disabled = guardados === 0;
-    sel.querySelector('[value="guardado"]').textContent = `Resultados guardados — reproducción (${guardados}/${p.mensajes.length} fichas, 5–7 s por mensaje)`;
+    sel.querySelector('[value="guardado"]').textContent = `Resultados guardados — reproducción (${guardados}/${p.mensajes.length} fichas, 3–5 s por mensaje)`;
     const opArchivo = sel.querySelector('[value="archivo"]');
     opArchivo.disabled = !state.archivo;
-    opArchivo.textContent = state.archivo ? `Archivo cargado — ${state.archivo.nombre} (${state.archivo.entradas.length} fichas, 5–7 s por mensaje)` : 'Archivo cargado — reproducción (carga un JSON abajo)';
+    opArchivo.textContent = state.archivo ? `Archivo cargado — ${state.archivo.nombre} (${state.archivo.entradas.length} fichas, 3–5 s por mensaje)` : 'Archivo cargado — reproducción (carga un JSON abajo)';
     if ((state.motor === 'guardado' && guardados === 0) || (state.motor === 'archivo' && !state.archivo)) state.motor = 'auto';
     sel.value = state.motor;
     $('motor-hint').textContent = {
