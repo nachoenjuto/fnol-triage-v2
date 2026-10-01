@@ -109,7 +109,24 @@
           "valor": "1,00 €",
           "efecto": "Al 100 % se detiene la transcripción de audio y se encola"
         }
-      ]
+      ],
+      "identidad": {
+        "id": "agt-fnol-multicanal",
+        "credencial": "Identidad administrada (Entra ID), sin secretos en código; rota automáticamente",
+        "responsable": "Equipo Canales · M. Ortega",
+        "proveedor": "Azure AI Foundry + Azure AI Speech · región UE",
+        "datos": "Texto libre y datos de contacto del remitente; puede contener datos de salud (RGPD art. 9) que solo se transportan, no se interpretan",
+        "puede": [
+          "Leer las colas de entrada de los 5 canales",
+          "Transcribir audio de llamadas",
+          "Escribir en la cola normalizada"
+        ],
+        "no_puede": [
+          "Consultar pólizas ni clientes",
+          "Tomar decisiones de negocio",
+          "Responder al cliente"
+        ]
+      }
     },
     {
       "id": "clasificacion",
@@ -196,7 +213,24 @@
           "valor": "2,00 €",
           "efecto": "Sin acción automática: el agente es barato (21 % de uso hoy)"
         }
-      ]
+      ],
+      "identidad": {
+        "id": "agt-fnol-clasificacion",
+        "credencial": "Identidad administrada (Entra ID), sin secretos en código; rota automáticamente",
+        "responsable": "Dirección de Siniestros · M. Ortega",
+        "proveedor": "Azure AI Foundry · región UE",
+        "datos": "Texto normalizado del mensaje; no recibe datos de póliza",
+        "puede": [
+          "Leer la cola normalizada",
+          "Asignar ramo e indicios",
+          "Marcar Indeterminado para revisión"
+        ],
+        "no_puede": [
+          "Consultar pólizas ni clientes",
+          "Extraer ni modificar datos",
+          "Decidir el trámite"
+        ]
+      }
     },
     {
       "id": "extraccion",
@@ -291,7 +325,24 @@
           "valor": "5,00 €",
           "efecto": "Aviso al 80 %; hoy al 58 %"
         }
-      ]
+      ],
+      "identidad": {
+        "id": "agt-fnol-extraccion",
+        "credencial": "Identidad administrada (Entra ID), sin secretos en código; rota automáticamente",
+        "responsable": "Dirección de Siniestros · J. Rey",
+        "proveedor": "Azure AI Foundry · región UE",
+        "datos": "Solo los 9 campos del siniestro (minimización); en Salud trata datos de salud, categoría especial (RGPD art. 9)",
+        "puede": [
+          "Leer el mensaje clasificado",
+          "Escribir la ficha de datos extraídos",
+          "Dejar un campo en nulo si no aparece"
+        ],
+        "no_puede": [
+          "Inventar o completar datos",
+          "Consultar historiales médicos",
+          "Decidir el trámite"
+        ]
+      }
     },
     {
       "id": "reglas",
@@ -426,7 +477,24 @@
           "valor": "12,00 €",
           "efecto": "Al 100 % G-07 degrada a gpt-5-mini (activo desde ayer)"
         }
-      ]
+      ],
+      "identidad": {
+        "id": "agt-fnol-reglas",
+        "credencial": "Identidad administrada (Entra ID), sin secretos en código; rota automáticamente",
+        "responsable": "Dirección de Siniestros · Comité IA",
+        "proveedor": "Azure AI Foundry · región UE",
+        "datos": "Datos extraídos y consulta de póliza en solo lectura (vigencia, coberturas, carencias)",
+        "puede": [
+          "Consultar la póliza en solo lectura",
+          "Evaluar el bloque de reglas del ramo",
+          "Proponer Aprobado o A revisar con evidencia"
+        ],
+        "no_puede": [
+          "Ordenar pagos",
+          "Rechazar un siniestro",
+          "Modificar la póliza o el expediente"
+        ]
+      }
     }
   ],
   "niveles": [

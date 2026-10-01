@@ -59,6 +59,30 @@
   // Aplica sobre texto YA escapado: envuelve los códigos de guardrail / cap
   const conGuardrails = (html) => String(html).replace(/\b(G-\d{2}|CAP-\d{2})\b/g, (m) => grRef(m));
 
+  // Marco normativo: etiquetas con tooltip junto al título de cada bloque (qué norma respalda lo que se ve)
+  const ALTO_RIESGO = 'Exigible a sistemas de alto riesgo desde el 02/12/2027 (Digital Omnibus); el triaje de siniestros no lo es, aquí se aplica como buena práctica.';
+  const NORMA = {
+    'ai-9': ['AI Act art. 9', `Sistema de gestión de riesgos durante todo el ciclo de vida. ${ALTO_RIESGO}`],
+    'ai-12': ['AI Act art. 12', `Registro automático de eventos para trazar el funcionamiento del sistema. ${ALTO_RIESGO}`],
+    'ai-13': ['AI Act art. 13', `Transparencia: el usuario del sistema debe poder interpretar sus resultados. ${ALTO_RIESGO}`],
+    'ai-14': ['AI Act art. 14', `Supervisión humana efectiva, incluida la capacidad de interrumpir el sistema. ${ALTO_RIESGO}`],
+    'ai-15': ['AI Act art. 15', `Precisión, solidez y ciberseguridad mantenidas a lo largo del tiempo. ${ALTO_RIESGO}`],
+    'rgpd-5': ['RGPD art. 5.2', 'Responsabilidad proactiva: el responsable debe poder demostrar que cumple. En vigor.'],
+    'rgpd-15': ['RGPD art. 15', 'Derecho de acceso a información significativa sobre la lógica aplicada (TJUE, Dun & Bradstreet C-203/22). En vigor.'],
+    'rgpd-22': ['RGPD art. 22', 'Derecho a no ser objeto de decisiones solo automatizadas. Firmar sin revisar no cuenta como intervención humana (TJUE, SCHUFA C-634/21). En vigor.'],
+    'rgpd-25': ['RGPD art. 25 y 32', 'Protección de datos desde el diseño y seguridad del tratamiento: mínimo acceso necesario. Datos de salud: categoría especial (art. 9). En vigor.'],
+    'dora-9': ['DORA art. 9', 'Protección y prevención: gestión de identidades, accesos y privilegios mínimos. En vigor desde 01/2025.'],
+    'dora-28': ['DORA art. 28', 'Riesgo de terceros TIC: los proveedores de modelos de IA entran en el registro de información y en el análisis de concentración. En vigor desde 01/2025.'],
+    'eiopa': ['EIOPA', 'Opinión sobre gobierno y gestión del riesgo de la IA (08/2025): gobierno proporcional, rendición de cuentas y documentación para todo uso de IA en seguros.'],
+    'sii-41': ['Solvencia II art. 41', 'Sistema de gobernanza eficaz que garantice una gestión sana y prudente de la actividad, incluido el control del gasto en IA.'],
+  };
+  const normas = (...ids) => `<span class="normas">${ids.map((k) => `<span class="norma" data-tip="${esc(NORMA[k][1])}">${ic('scale')} ${esc(NORMA[k][0])}</span>`).join('')}</span>`;
+  const NORMAS_BLOQUE = {
+    'h-agentes': ['ai-14'], 'h-alertas': ['eiopa'], 'h-trazas': ['ai-12', 'rgpd-5', 'dora-28'], 'h-reasoning': ['rgpd-15', 'ai-13'], 'h-replay': ['ai-15', 'eiopa'],
+    'h-niveles': ['ai-14', 'rgpd-22'], 'h-cambios': ['rgpd-5', 'eiopa'], 'h-guardrails': ['ai-9', 'ai-14'], 'h-caps': ['sii-41'], 'h-modelos': ['dora-28'], 'h-hist': ['ai-12', 'rgpd-5'],
+  };
+  const titulo = (id, icono, texto) => { $(id).innerHTML = `${ic(icono)} ${texto}${NORMAS_BLOQUE[id] ? normas(...NORMAS_BLOQUE[id]) : ''}`; };
+
   // Coste de un span según la tabla de precios (€ por millón de tokens; razonamiento se cobra como salida)
   const spanCost = ([, , , modelo, tin, tout, treas]) => { const p = G.precios[modelo] || { in: 0, out: 0 }; return (tin * p.in + (tout + treas) * p.out) / 1e6; };
   const tr = (t) => ({ dur: Math.max(...t.spans.map((s) => s[1] + s[2])), tokens: t.spans.reduce((a, s) => a + s[4] + s[5] + s[6], 0), coste: t.spans.reduce((a, s) => a + spanCost(s), 0) });
@@ -320,6 +344,19 @@
     $('cambios').innerHTML = (G.cambios_autonomia || []).map((c, i) => `<tr class="clickable" data-cambio="${i}" tabindex="0"><td class="tnum">${fechaHora(c.fecha)}</td><td>${agTag(c.agente)}</td><td>${c.de === c.a ? `${lvlBadge(c.a)} <span class="muted small">sin cambio</span>` : `${lvlBadge(c.de)} → ${lvlBadge(c.a)}`}</td><td class="wrap">${conGuardrails(esc(c.motivo))}</td><td>${esc(c.usuario)}</td></tr>`).join('');
   }
 
+  // Identidad del agente: quién es, con qué credencial actúa, quién responde de él y qué puede tocar
+  function identidadAgente(a) {
+    const idn = a.identidad;
+    if (!idn) return `<div><h3>${ic('badge-check')} Identidad y permisos</h3><p class="muted small">Sin identidad registrada para este agente.</p></div>`;
+    const lista = (xs, icono, cls) => `<ul class="permisos">${(xs || []).map((x) => `<li class="${cls}">${ic(icono)} ${esc(x)}</li>`).join('')}</ul>`;
+    return `<div><h3>${ic('badge-check')} Identidad y permisos${normas('dora-9', 'rgpd-25', 'eiopa')}</h3><div class="tw"><table class="identidad"><tbody>
+      <tr><th>Identidad</th><td class="mono">${esc(idn.id)}</td><th>Responsable</th><td>${esc(idn.responsable)}</td></tr>
+      <tr><th>Credencial</th><td>${esc(idn.credencial)}</td><th>Proveedor y región</th><td>${esc(idn.proveedor)}</td></tr>
+      <tr><th>Datos que trata</th><td colspan="3">${esc(idn.datos)}</td></tr>
+      <tr><th>Puede</th><td>${lista(idn.puede, 'check', 'si')}</td><th>No puede</th><td>${lista(idn.no_puede, 'x', 'no')}</td></tr>
+    </tbody></table></div></div>`;
+  }
+
   function abrirModalAgente(id) {
     const a = AG[id]; if (!a) return;
     const estado = estadoAgente(a); const [pc, pi, pl] = ESTADO[estado] || ESTADO.activo;
@@ -337,6 +374,7 @@
         <div class="box"><span class="muted small">Coste hoy / cap</span><b>${eur(a.coste_hoy || 0)} / ${eur(a.cap_hoy || 0, 0)}</b></div>
         <div class="box"><span class="muted small">Latencia p95</span><b>${ms(a.p95_ms || 0)}</b></div>
       </div>
+      ${identidadAgente(a)}
       <div class="two">
         <div><h3>Histórico de autonomía</h3>${tl(hist.filter((h) => h.tipo === 'nivel' || h.tipo === 'guardrail'))}</div>
         <div><h3>Cambios de modelo, prompt e incidencias</h3>${tl(hist.filter((h) => h.tipo === 'modelo' || h.tipo === 'prompt' || h.tipo === 'incidencia'))}</div>
@@ -1186,7 +1224,7 @@
     incluirNuevos();
     if (!G.trazas.some((t) => t.id === selId)) selId = G.trazas.length ? G.trazas[G.trazas.length - 1].id : null;
     renderResumen();
-    $('h-trazas').innerHTML = `${ic('route')} Trazas (${G.trazas.length})`;
+    titulo('h-trazas', 'route', `Trazas (${G.trazas.length})`);
     $('r-summary').innerHTML = `${ic('route')} Trazas (${G.trazas.length}) · filtros`;
     listaTrazas('t'); listaTrazas('r');
     renderDetalle();
@@ -1288,7 +1326,7 @@
     $('fuente').addEventListener('change', () => setFuente($('fuente').value));
     $('periodo').addEventListener('change', () => { periodoDias = Number($('periodo').value); renderResumen(); renderFinops(); });
     const H = { 'h-agentes': ['cpu', 'Agentes'], 'h-coste': ['euro', 'Coste diario frente al cap'], 'h-alertas': ['bell', 'Alertas activas'], 'h-reasoning': ['brain', 'Razonamiento registrado'], 'h-replay': ['repeat', 'Replay'], 'h-replays': ['history', 'Replays anteriores'], 'h-niveles': ['sliders-horizontal', 'Niveles de autonomía'], 'h-agentes-aut': ['cpu', 'Histórico de la autonomía y comportamiento de los agentes'], 'h-correctivas': ['lightbulb', 'Caps superados: acciones correctivas sugeridas'], 'h-guardrails': ['shield-check', 'Guardrails'], 'h-cambios': ['history', 'Cambios de nivel (auditoría)'], 'h-caps': ['scale', 'Caps configurados'], 'h-coste-ag': ['euro', 'Coste diario por agente'], 'h-tokens': ['cpu', 'Tokens por agente'], 'h-modelos': ['database', 'Modelos'], 'h-reco': ['lightbulb', 'Recomendaciones de ahorro'], 'h-hist': ['history', 'Histórico de gobierno'] };
-    Object.entries(H).forEach(([id, [i, t]]) => { $(id).innerHTML = `${ic(i)} ${t}`; });
+    Object.entries(H).forEach(([id, [i, t]]) => titulo(id, i, t));
     document.querySelectorAll('[data-close]').forEach((b) => { b.innerHTML = ic('x'); });
     $('btn-export-trazas').innerHTML = `${ic('download')} Exportar trazas`;
     $('btn-export-trazas').addEventListener('click', () => {

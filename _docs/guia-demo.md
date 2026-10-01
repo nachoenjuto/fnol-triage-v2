@@ -120,6 +120,8 @@ Panel de control de los cuatro agentes. Ofrece cuatro capacidades: **ver** (obse
 
 > Recomendación para una demo completa: procesa el Paquete A en el triaje y abre el panel con **Sesión actual** para que el cliente vea sus propios mensajes convertidos en trazas.
 
+**Etiquetas de marco normativo.** Junto al título de los bloques principales aparecen etiquetas (⚖ AI Act art. 12, RGPD art. 22, DORA art. 28, EIOPA, Solvencia II art. 41…). Al pasar el ratón muestran qué exige el artículo y si está en vigor o es exigible solo a sistemas de alto riesgo desde el 02/12/2027 (el triaje no lo es; ahí se aplica como buena práctica).
+
 ### 3.2 Resumen
 
 **Es la vista de dirección: el estado del sistema en una pantalla.**
@@ -172,7 +174,7 @@ Ejemplo de uso: probar `gpt-5-mini` en lugar de `gpt-5` en Reglas; si la decisi�
 Bloques de la pestaña:
 - **KPIs**: decisiones autónomas (objetivo ≥ 80 %), escaladas por guardrail, tasa de override (umbral de bajada de nivel: 3 %) y precisión frente a lo esperado.
 - **Niveles** coloreados de rojo (manual) a verde (autónomo).
-- **Tarjetas de agente** con nivel, umbral y tasas. Clic abre la **ficha del agente**: histórico de autonomía, cambios de modelo y de prompt, comportamiento por modelo en el tiempo y variables que le afectan (umbrales, importes máximos, cap).
+- **Tarjetas de agente** con nivel, umbral y tasas. Clic abre la **ficha del agente**: **identidad y permisos** (identidad administrada, responsable, proveedor y región, datos que trata, qué puede y qué no puede hacer), histórico de autonomía, cambios de modelo y de prompt, comportamiento por modelo en el tiempo y variables que le afectan (umbrales, importes máximos, cap).
 - **Auditoría de cambios**: cada subida o bajada de nivel, cambio de modelo o de guardrail, con **motivo y quién lo aprobó**; clic en una fila abre el registro completo.
 
 Para qué sirve: la autonomía se **gana con datos y se pierde con datos**. En la demo, Reglas bajó de L3 a L2 cuando el override superó el 3 %.

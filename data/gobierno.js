@@ -8,6 +8,7 @@ const GOBIERNO_DEMO = {
   precios: { 'gpt-5': { in: 1.25, out: 10 }, 'gpt-5-mini': { in: 0.25, out: 2 }, 'gpt-5-nano': { in: 0.05, out: 0.4 }, 'stt-es': { in: 0, out: 0 } }, // € por millón de tokens
   agentes: [
     { id: 'multicanal', nombre: 'Multicanalidad', icono: 'inbox', descripcion: 'Recibe y normaliza mensajes de email, web, chat, teléfono y WhatsApp', modelo: 'gpt-5-nano + stt-es', prompt: 'v1.2', nivel: 3, estado: 'activo', p95_ms: 640, coste_hoy: 0.31, cap_hoy: 1.0, umbral: 'STT ≥ 0,7 (G-09, inactivo)', escalado_14d: '0,1 %', override_14d: '—',
+      identidad: {id: 'agt-fnol-multicanal', credencial: 'Identidad administrada (Entra ID), sin secretos en código; rota automáticamente', responsable: 'Equipo Canales · M. Ortega', proveedor: 'Azure AI Foundry + Azure AI Speech · región UE', datos: 'Texto libre y datos de contacto del remitente; puede contener datos de salud (RGPD art. 9) que solo se transportan, no se interpretan', puede: ['Leer las colas de entrada de los 5 canales', 'Transcribir audio de llamadas', 'Escribir en la cola normalizada'], no_puede: ['Consultar pólizas ni clientes', 'Tomar decisiones de negocio', 'Responder al cliente']},
       historial: [
         { fecha: '2026-08-18T10:00:00', tipo: 'nivel', de: 'L2', a: 'L3', motivo: 'Normalización sin errores en 9.000 mensajes; no toma decisiones de negocio', usuario: 'Comité IA' },
         { fecha: '2026-08-25T09:30:00', tipo: 'modelo', de: 'gpt-4o-mini', a: 'gpt-5-nano', motivo: 'Mismo resultado de normalización con −60 % de coste', usuario: 'J. Rey' },
@@ -40,6 +41,7 @@ const GOBIERNO_DEMO = {
         { nombre: 'Cap diario', valor: '1,00 €', efecto: 'Al 100 % se detiene la transcripción de audio y se encola' },
       ] },
     { id: 'clasificacion', nombre: 'Clasificación por ramo', icono: 'tags', descripcion: 'Asigna Auto / Hogar / Salud citando los indicios del texto', modelo: 'gpt-5-nano', prompt: 'v3.1', nivel: 3, estado: 'activo', p95_ms: 1120, coste_hoy: 0.42, cap_hoy: 2.0, umbral: '≥ 0,80 · Indeterminado → humano', escalado_14d: '0,5 %', override_14d: '0,3 %',
+      identidad: {id: 'agt-fnol-clasificacion', credencial: 'Identidad administrada (Entra ID), sin secretos en código; rota automáticamente', responsable: 'Dirección de Siniestros · M. Ortega', proveedor: 'Azure AI Foundry · región UE', datos: 'Texto normalizado del mensaje; no recibe datos de póliza', puede: ['Leer la cola normalizada', 'Asignar ramo e indicios', 'Marcar Indeterminado para revisión'], no_puede: ['Consultar pólizas ni clientes', 'Extraer ni modificar datos', 'Decidir el trámite']},
       historial: [
         { fecha: '2026-08-11T09:00:00', tipo: 'nivel', de: 'L1', a: 'L2', motivo: 'Precisión 97,8 % en piloto de 1.200 mensajes; discrepancias solo en Auto/Salud con lesionados', usuario: 'Comité IA' },
         { fecha: '2026-08-27T16:00:00', tipo: 'modelo', de: 'gpt-5-mini', a: 'gpt-5-nano', motivo: 'Replay de 500 mensajes: misma precisión (99,1 % vs 99,2 %) con −80 % de coste', usuario: 'J. Rey' },
@@ -72,6 +74,7 @@ const GOBIERNO_DEMO = {
         { nombre: 'Cap diario', valor: '2,00 €', efecto: 'Sin acción automática: el agente es barato (21 % de uso hoy)' },
       ] },
     { id: 'extraccion', nombre: 'Extracción de datos', icono: 'file-text', descripcion: 'Convierte el texto libre en datos estructurados; nunca inventa', modelo: 'gpt-5-mini', prompt: 'v2.0', nivel: 2, estado: 'activo', p95_ms: 2380, coste_hoy: 2.9, cap_hoy: 5.0, umbral: 'sin umbral · G-05 datos nulos', escalado_14d: '2,0 %', override_14d: '0,9 %',
+      identidad: {id: 'agt-fnol-extraccion', credencial: 'Identidad administrada (Entra ID), sin secretos en código; rota automáticamente', responsable: 'Dirección de Siniestros · J. Rey', proveedor: 'Azure AI Foundry · región UE', datos: 'Solo los 9 campos del siniestro (minimización); en Salud trata datos de salud, categoría especial (RGPD art. 9)', puede: ['Leer el mensaje clasificado', 'Escribir la ficha de datos extraídos', 'Dejar un campo en nulo si no aparece'], no_puede: ['Inventar o completar datos', 'Consultar historiales médicos', 'Decidir el trámite']},
       historial: [
         { fecha: '2026-08-04T09:00:00', tipo: 'nivel', de: 'L0', a: 'L1', motivo: 'Arranque del piloto: una persona confirma cada ficha extraída', usuario: 'Comité IA' },
         { fecha: '2026-08-20T12:00:00', tipo: 'prompt', de: 'v1.4', a: 'v2.0', motivo: 'Instrucción «nunca inventar»: los campos ausentes quedan nulos; se añade observaciones', usuario: 'M. Ortega' },
@@ -105,6 +108,7 @@ const GOBIERNO_DEMO = {
         { nombre: 'Cap diario', valor: '5,00 €', efecto: 'Aviso al 80 %; hoy al 58 %' },
       ] },
     { id: 'reglas', nombre: 'Reglas de negocio', icono: 'list-checks', descripcion: 'Evalúa el bloque de reglas del ramo y decide Aprobado / A revisar', modelo: 'gpt-5', prompt: 'v2.3', nivel: 2, estado: 'degradado', p95_ms: 5210, coste_hoy: 13.7, cap_hoy: 12.0, umbral: '≥ 0,85 (G-01)', escalado_14d: '16,4 %', override_14d: '2,1 %',
+      identidad: {id: 'agt-fnol-reglas', credencial: 'Identidad administrada (Entra ID), sin secretos en código; rota automáticamente', responsable: 'Dirección de Siniestros · Comité IA', proveedor: 'Azure AI Foundry · región UE', datos: 'Datos extraídos y consulta de póliza en solo lectura (vigencia, coberturas, carencias)', puede: ['Consultar la póliza en solo lectura', 'Evaluar el bloque de reglas del ramo', 'Proponer Aprobado o A revisar con evidencia'], no_puede: ['Ordenar pagos', 'Rechazar un siniestro', 'Modificar la póliza o el expediente']},
       historial: [
         { fecha: '2026-08-04T09:00:00', tipo: 'nivel', de: 'L0', a: 'L1', motivo: 'Arranque: el agente propone y un tramitador confirma cada decisión', usuario: 'Comité IA' },
         { fecha: '2026-08-22T15:00:00', tipo: 'nivel', de: 'L1', a: 'L2', motivo: 'Coincidencia con el tramitador 96,4 % en 2.000 decisiones; guardrails G-01…G-05 activos', usuario: 'Comité IA' },
