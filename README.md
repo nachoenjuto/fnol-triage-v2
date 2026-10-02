@@ -96,7 +96,7 @@ data/resultados.js fichas de triaje guardadas para reproducción
 data/gobierno.js  dataset de demostración del panel (Paquete A + 14 días)
 data/gobierno-paquete-A.json      el mismo dataset, para «Cargar JSON» en el panel
 data/triage-registro-paquete-A.json  13 fichas del Paquete A en formato «Exportar JSON», para «Reproducir desde archivo»
-_docs/            arquitectura (C4 en Mermaid) y guía de referencia de la demo
+_docs/            arquitectura (C4 en Mermaid), guía de referencia de la demo y slides (sesión FNOL y observabilidad y gobierno de la IA agéntica)
 ```
 
 ## Gobierno de Agentes
@@ -124,6 +124,8 @@ Todos los iconos de la web (triaje y panel) son [Lucide](https://lucide.dev) (li
 ## Guía de referencia
 
 [`_docs/guia-demo.md`](_docs/guia-demo.md) describe cada pantalla y pestaña de la demo (qué muestra, qué se puede hacer y para qué sirve) e incluye un guion de demo de 10 minutos.
+
+[`_docs/slides-observabilidad.md`](_docs/slides-observabilidad.md) es una presentación genérica sobre observabilidad y gobierno de la IA agéntica, ilustrada con capturas del panel de gobierno. Su versión en PowerPoint ([`slides-observabilidad.pptx`](_docs/slides-observabilidad.pptx), plantilla Logicalis) se genera con `python3 _docs/build_slides_observabilidad.py`.
 
 ## Despliegue
 
