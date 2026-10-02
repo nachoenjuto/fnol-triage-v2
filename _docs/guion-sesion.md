@@ -6,25 +6,27 @@ Idea fuerza: la IA generativa ya clasifica y extrae; lo difícil es ponerla en p
 
 ---
 
-## 1. Presentación (15 min, 9 slides)
+## 1. Presentación (15 min, 16 diapositivas)
 
-| Min | Slide | Contenido | Frase clave |
-|---|---|---|---|
-| 0-1 | **1. Apertura** | Título y agenda en una línea: problema → marco → solución → demo | «Hoy no os voy a enseñar que la IA clasifica un siniestro. Eso ya lo sabéis. Os voy a enseñar cómo se pone en producción.» |
-| 1-3 | **2. La avalancha** | ~11 M de siniestros de Auto al año en España, uno cada 3 s (UNESPA). Cinco canales: email, WhatsApp, chat, web y teléfono. Plazo de 7 días del art. 16 de la LCS. El coste de gestión supone un 10-12 % de la prima | «Cada mensaje lo lee, lo clasifica y lo teclea una persona. Ahí se va el tiempo y el dinero.» |
-| 3-4 | **3. Clasificar ya está resuelto** | Un prompt clasifica y extrae con más de un 90 % de acierto. Se monta en una tarde | «Esto ya no diferencia a nadie.» |
-| 4-6 | **4. El problema real: de piloto a producción** | Más del 90 % de las aseguradoras prueba IA; el 22 % la tiene en producción; el 4 % en el caso de agentes. Gartner: más del 40 % de los proyectos agénticos se cancelarán antes de 2027 por **coste, valor poco claro y riesgo sin controlar** | «Los proyectos no mueren porque la IA falle. Mueren porque nadie puede responder tres preguntas: ¿por qué decidió eso?, ¿quién lo controla?, ¿cuánto cuesta?» |
-| 6-9 | **5. Lo que exige la regulación** | Dos columnas: **ya en vigor** (RGPD art. 22 y art. 15 con la sentencia SCHUFA, RGPD art. 9 para Salud, DORA para proveedores de LLM, Opinión de EIOPA, AI Act art. 4 y art. 50) y **lo que llega** (alto riesgo del AI Act en diciembre de 2027, LO española de IA con AESIA y DGSFP, multas de hasta 35 M€ o el 7 %) | «Un humano que firma sin mirar no cuenta como supervisión: lo dijo el TJUE. Y el aplazamiento no es una excusa: quien construya sin gobierno ahora lo rehará en 2027.» |
-| 9-10 | **6. Lo que no existe en el mercado** | Hay piezas sueltas: observabilidad de LLM, plataformas GRC y OpenTelemetry GenAI. Nadie las une a *tu* proceso, *tus* reglas y *tu* contabilidad de costes | «Esto no es un producto. Es cómo se trabaja hoy con IA en una empresa regulada.» |
-| 10-12 | **7. La solución: agentes pequeños y gobernados** | Diagrama: Multicanalidad → Clasificación → Extracción → Reglas → Decisión, con la capa de gobierno debajo. Cada agente tiene una función, un modelo, una versión de prompt y un nivel de autonomía | «No es una IA que lo hace todo. Son cuatro especialistas, y cada uno tiene sus propios límites.» |
-| 12-14 | **8. Seis pilares, cada uno con su prueba** | Seguro por diseño (guardrails, kill switch) · Compliance por defecto (trazas) · Auditable (Histórico) · Explicable (regla + evidencia, Reasoning replay) · Resiliente (fallback, reintentos) · FinOps (caps, coste por decisión). Cada pilar enlazado al artículo de la norma y a la pantalla de la demo donde se ve | «Todo lo que voy a decir ahora lo vais a ver funcionando.» |
-| 14-15 | **9. Puente a la demo** | Los dos públicos de la demo: tramitación ve el triaje; riesgos, auditoría y finanzas ven el gobierno | «Primero lo que ve el tramitador. Después lo que ve el auditor y el CFO.» |
+Nueve bloques de contenido repartidos en 16 diapositivas (portada, agenda, cuatro separadores, contenido y cierre). La columna «Diap.» indica el número en [slides-sesion-v3.pptx](slides-sesion-v3.pptx); el detalle de cada diapositiva está en [slides-sesion.md](slides-sesion.md).
+
+| Min | Diap. | Slide | Contenido | Frase clave |
+|---|---|---|---|---|
+| 0-1 | 1-3 | **1. Apertura** | Título y agenda en una línea: problema → marco → solución → demo | «Hoy no os voy a enseñar que la IA clasifica un siniestro. Eso ya lo sabéis. Os voy a enseñar cómo se pone en producción.» |
+| 1-3 | 4 | **2. La avalancha** | ~11 M de siniestros de Auto al año en España, uno cada 3 s (UNESPA). Cinco canales: email, WhatsApp, chat, web y teléfono. Plazo de 7 días del art. 16 de la LCS. La gestión de siniestros se lleva ~10 % de la prima de Auto (EE. UU., 2023, III/NAIC) | «Cada mensaje lo lee, lo clasifica y lo teclea una persona. Ahí se va el tiempo y el dinero.» |
+| 3-4 | 5 | **3. Clasificar ya está resuelto** | Un prompt clasifica y extrae con más de un 90 % de acierto. Se monta en una tarde | «Esto ya no diferencia a nadie.» |
+| 4-6 | 6 | **4. El problema real: de piloto a producción** | Más del 90 % de las aseguradoras prueba IA; el 22 % la tiene en producción; el 4 % en el caso de agentes. Gartner: más del 40 % de los proyectos agénticos se cancelarán antes de 2027 por **coste, valor poco claro y riesgo sin controlar** | «Los proyectos no mueren porque la IA falle. Mueren porque nadie puede responder tres preguntas: ¿por qué decidió eso?, ¿quién lo controla?, ¿cuánto cuesta?» |
+| 6-9 | 7-8 | **5. Lo que exige la regulación** | Dos columnas: **ya en vigor** (RGPD art. 22 y art. 15 con la sentencia SCHUFA, RGPD art. 9 para Salud, DORA para proveedores de LLM, Opinión de EIOPA, AI Act art. 4 y art. 50) y **lo que llega** (alto riesgo del AI Act en diciembre de 2027, LO española de IA con AESIA y DGSFP, multas de hasta 35 M€ o el 7 %) | «Un humano que firma sin mirar no cuenta como supervisión: lo dijo el TJUE. Y el aplazamiento no es una excusa: quien construya sin gobierno ahora lo rehará en 2027.» |
+| 9-10 | 9-10 | **6. Lo que no existe en el mercado** | Hay piezas sueltas: observabilidad de LLM, plataformas GRC y OpenTelemetry GenAI. Nadie las une a *tu* proceso, *tus* reglas y *tu* contabilidad de costes | «Esto no es un producto. Es cómo se trabaja hoy con IA en una empresa regulada.» |
+| 10-12 | 11-12 | **7. La solución: agentes pequeños y gobernados** | Diagrama: Multicanalidad → Clasificación → Extracción → Reglas → Decisión, con la capa de gobierno debajo (diap. 11). Cada agente tiene una función, un modelo, una versión de prompt, un nivel de autonomía de L0 a L3 y un responsable con permisos (diap. 12) | «No es una IA que lo hace todo. Son cuatro especialistas, y cada uno tiene sus propios límites.» |
+| 12-14 | 13 | **8. Seis pilares, cada uno con su prueba** | Seguro por diseño (guardrails, kill switch) · Compliance por defecto (trazas) · Auditable (Histórico) · Explicable (regla + evidencia, Reasoning replay) · Resiliente (fallback, reintentos) · FinOps (caps, coste por decisión). Cada pilar enlazado al artículo de la norma y a la pantalla de la demo donde se ve | «Todo lo que voy a decir ahora lo vais a ver funcionando.» |
+| 14-15 | 14-16 | **9. Puente a la demo** | Los dos públicos de la demo, con una captura de cada pantalla: tramitación ve el triaje; riesgos, auditoría y finanzas ven el gobierno | «Primero lo que ve el tramitador. Después lo que ve el auditor y el CFO.» |
 
 ### Matices para no pisar charcos
 
 - **El triaje de siniestros no es «alto riesgo» según el AI Act.** El Anexo III 5(c) cubre solo la evaluación de riesgo y la tarificación en Vida y Salud, y el Digital Omnibus (aprobado el 29/06/2026) aplaza las obligaciones de alto riesgo al 2/12/2027. El argumento normativo de hoy se apoya en el RGPD, DORA y EIOPA; el AI Act es el horizonte.
 - **No decir «no existe nada en el mercado».** Existen piezas (Datadog, Langfuse, Arize, IBM watsonx.governance, Credo AI). Lo que no existe es el gobierno integrado con el proceso y las reglas del cliente: eso es implementación.
-- **Cifras de mercado.** Algunas (coste de gestión del 10-12 %, ahorro del 25-30 % según McKinsey) vienen de fuentes secundarias: verificar en la fuente original antes de cerrar las slides.
+- **Cifras de mercado.** Verificadas en la fuente original: ~11 M y «uno cada 3 s» (UNESPA), >90 % (Conning) y >40 % (Gartner). El coste de gestión es un dato de EE. UU. (~10 % de la prima de Auto en 2023, III con datos NAIC); no hay dato público equivalente para España, y sustituye al 10-12 % anterior, cuya fuente secundaria no lo respaldaba. El 22 % solo se ha encontrado citado (Outcome Catalyst, con datos de Conning). **El 4 % de agentes en producción no está verificado** (The Insurer, artículo de pago) y una búsqueda atribuye a Celent cifras muy superiores: confirmarlo antes de presentar o quitarlo. El ahorro del 25-30 % según McKinsey sigue sin verificar en la fuente original.
 
 ---
 
@@ -56,6 +58,8 @@ Idea fuerza: la IA generativa ya clasifica y extrae; lo difícil es ponerla en p
 
 ## 3. Fuentes
 
+- [RGPD (EUR-Lex)](https://eur-lex.europa.eu/eli/reg/2016/679/oj) · [DORA (EUR-Lex)](https://eur-lex.europa.eu/eli/reg/2022/2554/oj) · [AI Act (EUR-Lex)](https://eur-lex.europa.eu/eli/reg/2024/1689/oj)
+- [TJUE C-634/21 (SCHUFA)](https://curia.europa.eu/juris/liste.jsf?num=C-634/21) · [TJUE C-203/22 (Dun & Bradstreet)](https://curia.europa.eu/juris/liste.jsf?num=C-203/22)
 - [EIOPA – Opinion on AI governance and risk management (ago. 2025)](https://www.eiopa.europa.eu/eiopa-publishes-opinion-ai-governance-and-risk-management-2025-08-06_en)
 - [Gibson Dunn – AI Act Omnibus agreement](https://www.gibsondunn.com/eu-ai-act-omnibus-agreement-postponed-high-risk-deadlines-and-other-key-changes/)
 - [Praxikon – aplazamiento del alto riesgo a diciembre de 2027](https://www.praxikon.com/en/posts/digital-omnibus-high-risk-postponement-december-2027)
@@ -66,9 +70,13 @@ Idea fuerza: la IA generativa ya clasifica y extrae; lo difícil es ponerla en p
 - [Grupo Aseguranza – la DGSFP como autoridad de IA](https://www.grupoaseguranza.com/noticias-de-seguros/dgsfp-entre-autoridades-vigilaran-sistemas-alto-riesgo-ia)
 - [Economist & Jurist – LO de IA en España](https://www.economistjurist.es/zbloque-1/ley-organica-de-ia-espana-aterriza-el-ai-act-con-aesia-sanciones-y-sandboxes/)
 - [UNESPA – siniestros de automóvil](https://www.unespa.es/notasdeprensa/siniestros-automovil-datos-2024/)
-- [Acquaint – automatización de siniestros (coste de gestión, McKinsey)](https://acquaintsoft.com/blog/insurance-claims-automation)
+- [BOE – Ley 50/1980 de Contrato de Seguro, art. 16](https://www.boe.es/buscar/act.php?id=BOE-A-1980-22501#a16)
+- [Insurance Information Institute – Private Passenger Auto Underwriting Expenses (NAIC)](https://www.iii.org/table-archive/23229)
+- [Acquaint – automatización de siniestros (ahorro según McKinsey; no respalda el 10-12 % de coste de gestión)](https://acquaintsoft.com/blog/insurance-claims-automation)
+- [Conning – AI in Insurance 2025 (nota de prensa)](https://conning.com/about-us/news/ir-pr---ai-survey-2025)
 - [The Insurer – encuesta IA Capital](https://www.theinsurer.com/ti/news/openai-dominates-ai-stacks-as-insurance-industry-moves-from-pilot-to-production-2026-05-06/)
 - [Outcome Catalyst – tendencias de IA en seguros 2026](https://www.outcomecatalyst.com/blog/insurance-ai-data-trends-2026)
+- [Gartner – nota de prensa del 25/06/2025 (40 % de proyectos agénticos cancelados)](https://www.gartner.com/en/newsroom/press-releases/2025-06-25-gartner-predicts-over-40-percent-of-agentic-ai-projects-will-be-canceled-by-end-of-2027)
 - [Outlook Business – Gartner, 40 % de proyectos agénticos cancelados](https://www.outlookbusiness.com/deeptech/artificial-intelligence/over-40-of-agentic-ai-projects-will-be-scrapped-by-2027-says-gartner)
 - [TrueFoundry – OpenTelemetry GenAI](https://www.truefoundry.com/blog/opentelemetry-genai-semantic-conventions)
 - [nOps – State of FinOps 2026](https://www.nops.io/blog/state-of-finops-2026/)
