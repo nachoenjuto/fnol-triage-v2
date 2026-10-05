@@ -174,10 +174,10 @@
     const capMes = G.kpis.cap_mensual || 500;
     const [aut, esc1, ovr, alr] = G.kpis.resumen;
     $('kpis').innerHTML = [
-      kpi({ cls: 'primary', icono: 'activity', etiqueta: 'Mensajes procesados', valor: num(totalMsgs), sub: `${dias.length} día${dias.length > 1 ? 's' : ''} · ${num(Math.round(totalMsgs / dias.length))} / día de media` }),
-      kpi(aut), kpi(esc1), kpi(ovr),
-      kpi({ cls: 'warn', icono: 'euro', etiqueta: 'Coste del periodo', valor: eur(coste, coste < 10 ? 2 : 0), sub: `${Math.round((coste / capMes) * 100)} % del cap mensual (${eur(capMes, 0)}) · ${eur(totalMsgs ? coste / totalMsgs : 0, 4)} por mensaje`, medidor: (coste / capMes) * 100 }),
-      kpi(alr),
+      kpi({ cls: 'primary', icono: 'activity', etiqueta: 'Mensajes procesados', valor: num(totalMsgs), sub: `${dias.length} día${dias.length > 1 ? 's' : ''} · ${num(Math.round(totalMsgs / dias.length))} / día de media`, id: 'res-msgs' }),
+      kpi({ ...aut, id: 'res-aut' }), kpi({ ...esc1, id: 'res-esc' }), kpi({ ...ovr, id: 'res-ovr' }),
+      kpi({ cls: 'warn', icono: 'euro', etiqueta: 'Coste del periodo', valor: eur(coste, coste < 10 ? 2 : 0), sub: `${Math.round((coste / capMes) * 100)} % del cap mensual (${eur(capMes, 0)}) · ${eur(totalMsgs ? coste / totalMsgs : 0, 4)} por mensaje`, medidor: (coste / capMes) * 100, id: 'res-coste' }),
+      kpi({ ...alr, id: 'res-alertas' }),
     ].join('');
     $('agents').innerHTML = agentesPrincipales().map((a) => agentCard(a, false)).join('');
     $('alerts').innerHTML = (G.alertas || []).map((a) => `<div class="alert ${a.sev}"><span class="ico">${ic(SEV_ICON[a.sev] || 'info')}</span><div><b>${conGuardrails(esc(a.titulo))}</b><small>${conGuardrails(esc(a.detalle))}</small></div><span class="muted small" style="white-space:nowrap">${esc(a.cuando || '')}</span></div>`).join('') || '<p class="muted">Sin alertas activas.</p>';
@@ -575,7 +575,7 @@
     const rowH = 34, W = 640, H = 14 + caps.length * rowH, pl = 90, pr = 60;
     const max = Math.max(100, ...caps.map((c) => (c.consumo / c.limite) * 100));
     const xs = (v) => pl + (v / max) * (W - pl - pr);
-    return `<svg class="chart" viewBox="0 0 ${W} ${H}" role="img" aria-label="Porcentaje de consumo de cada cap de FinOps">
+    return `<svg class="chart" data-orient="h" viewBox="0 0 ${W} ${H}" role="img" aria-label="Porcentaje de consumo de cada cap de FinOps">
       ${caps.map((c, i) => { const y = 14 + i * rowH; const u = Math.round((c.consumo / c.limite) * 100); const w = Math.max(0, xs(Math.min(max, u)) - pl); return `<text x="${pl - 10}" y="${y + 15}" text-anchor="end" style="fill:var(--text);font-weight:600" class="mono">${esc(c.id)}</text><rect x="${pl}" y="${y}" width="${w}" height="20" rx="4" fill="${COLOR[c.estado] || COLOR.ok}" data-tip="${esc(c.id)} · ${esc(c.ambito)}: ${u} % del límite"/><text x="${pl + w + 6}" y="${y + 15}" class="tnum">${u} %</text>`; }).join('')}
       <line x1="${xs(100)}" x2="${xs(100)}" y1="6" y2="${H - 6}" stroke="var(--border)" stroke-dasharray="4 3"/>
     </svg>`;
@@ -586,7 +586,7 @@
     const rowH = 34, W = 640, H = 14 + porAgente.length * rowH, pl = 215, pr = 90;
     const max = Math.max(...porAgente.map(([, v]) => v), 0.0001);
     const xs = (v) => pl + (v / max) * (W - pl - pr);
-    return `<svg class="chart" viewBox="0 0 ${W} ${H}" role="img" aria-label="Coste por agente del periodo">
+    return `<svg class="chart" data-orient="h" viewBox="0 0 ${W} ${H}" role="img" aria-label="Coste por agente del periodo">
       ${porAgente.map(([a, v], i) => { const y = 14 + i * rowH; const share = total ? Math.round((v / total) * 100) : 0; const nombre = svgAg(a.id).length > 30 ? `${svgAg(a.id).slice(0, 28)}…` : svgAg(a.id); const w = Math.max(0, xs(v) - pl); return `<text x="${pl - 10}" y="${y + 15}" text-anchor="end" style="fill:var(--text);font-weight:600">${esc(nombre)}</text><rect x="${pl}" y="${y}" width="${w}" height="20" rx="4" fill="${agColor(a.id)}" data-tip="${esc(svgAg(a.id))}: ${eur(v)} · ${share} % del coste"/><text x="${pl + w + 6}" y="${y + 15}" class="tnum">${eur(v)} · ${share} %</text>`; }).join('')}
     </svg>`;
   }
@@ -669,12 +669,226 @@
     },
   };
 
+  // ---------------------------------------------------------------------------
+  // Resumen: fichas modales animadas de los 6 KPI y del gráfico «Coste diario frente al cap»
+  // ---------------------------------------------------------------------------
+  const FMT_CONT = {
+    int: (v) => num(Math.round(v)), dec1: (v) => v.toFixed(1).replace('.', ','), pct0: (v) => `${Math.round(v)} %`,
+    pct1: (v) => `${v.toFixed(1).replace('.', ',')} %`, eur0: (v) => eur(v, 0), eur2: (v) => eur(v, 2), eur4: (v) => eur(v, 4),
+  };
+  // Cifra que se anima de 0 al valor final (el texto final ya está escrito: sin JS o con movimiento reducido se ve igual)
+  const cnt = (v, kind = 'int') => `<span data-to="${v}" data-kind="${kind}">${FMT_CONT[kind](v)}</span>`;
+  const kmini = (icono, etiqueta, valor, sub) => `<div class="box"><span class="muted small">${ic(icono)} ${etiqueta}</span><b>${valor}</b>${sub ? `<span class="muted small">${sub}</span>` : ''}</div>`;
+  const leyenda = (items) => `<div class="legend">${items.map(([l, c, extra]) => `<span><i style="background:${c}${extra || ''}"></i>${esc(l)}</span>`).join('')}</div>`;
+  const numDe = (txt, def) => { const m = String(txt || '').match(/[\d.]+(?:,\d+)?/); return m ? parseFloat(m[0].replace(/\./g, '').replace(',', '.')) : def; };
+  const finde = (iso) => { const d = new Date(iso).getDay(); return d === 0 || d === 6; };
+  const serieAround = (seed, n, base, amp, last) => { const r = rng(seed); const v = Array.from({ length: n }, () => base + (r() - 0.5) * 2 * amp); if (last != null) v[n - 1] = last; return v; };
+
+  // Prepara las animaciones de una ficha: barras que crecen, líneas que se dibujan, anillos y cifras que cuentan
+  function animar(root) {
+    const reducir = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
+    root.querySelectorAll('svg.chart').forEach((svg) => {
+      const h = svg.dataset.orient === 'h'; let i = 0;
+      svg.querySelectorAll('rect[data-tip]').forEach((r) => { r.classList.add(h ? 'bar-h' : 'bar-v'); r.style.setProperty('--i', i++); });
+      svg.querySelectorAll('polyline[stroke]:not([stroke-dasharray]), path[fill="none"][stroke]:not([stroke-dasharray])').forEach((p) => { p.setAttribute('pathLength', '1'); p.classList.add('line-a'); });
+      svg.querySelectorAll('polygon, path[opacity]').forEach((a) => a.classList.add('area-a'));
+      svg.querySelectorAll('circle[data-tip]').forEach((c, k) => { c.classList.add('dot-a'); c.style.setProperty('--i', k); });
+    });
+    root.classList.remove('anim'); void root.offsetWidth;
+    if (reducir) return;
+    root.classList.add('anim');
+    root.querySelectorAll('[data-to]').forEach((el) => {
+      const to = Number(el.dataset.to), f = FMT_CONT[el.dataset.kind] || FMT_CONT.int, t0 = performance.now(), dur = 1000;
+      const paso = (t) => { const k = Math.min(1, (t - t0) / dur); el.textContent = f(to * (1 - (1 - k) ** 3)); if (k < 1) requestAnimationFrame(paso); };
+      requestAnimationFrame(paso);
+    });
+  }
+
+  // Barras verticales con sombreado de fines de semana, línea de referencia y serie superpuesta opcional
+  function chartBarras(vals, fechas, o = {}) {
+    const n = vals.length, W = 640, H = o.H || 220, pl = 46, pr = 16, pt = 16, pb = 28, f = o.fmt || ((v) => num(Math.round(v)));
+    const ymax = Math.max(o.ref ? o.ref.v * 1.15 : 0, ...vals, ...(o.linea || [0])) * 1.1;
+    const xs = (i) => pl + ((i + 0.5) / n) * (W - pl - pr), ys = (v) => pt + (1 - v / ymax) * (H - pt - pb), bw = Math.min(28, ((W - pl - pr) / n) * 0.62);
+    const col = o.color || 'var(--primary)';
+    return `<svg class="chart" viewBox="0 0 ${W} ${H}" role="img" aria-label="${esc(o.aria || 'Serie diaria')}">
+      ${fechas.map((d, i) => (finde(d) ? `<rect x="${xs(i) - (W - pl - pr) / n / 2}" y="${pt}" width="${(W - pl - pr) / n}" height="${H - pt - pb}" fill="var(--muted)" opacity=".07"/>` : '')).join('')}
+      <g class="grid">${[0, 0.25, 0.5, 0.75, 1].map((q) => `<line x1="${pl}" x2="${W - pr}" y1="${ys(ymax * q)}" y2="${ys(ymax * q)}"/><text x="${pl - 6}" y="${ys(ymax * q) + 4}" text-anchor="end">${(o.tick || f)(ymax * q)}</text>`).join('')}</g>
+      ${vals.map((v, i) => `<rect x="${xs(i) - bw / 2}" y="${ys(v)}" width="${bw}" height="${Math.max(0, ys(0) - ys(v))}" rx="3" fill="${o.colorDe ? o.colorDe(v, i) : col}" opacity="${i === n - 1 ? 1 : 0.78}" data-tip="${fecha(fechas[i])}${i === n - 1 ? ' · hoy (parcial)' : ''}: ${f(v)}${o.unit ? ` ${o.unit}` : ''}"/>`).join('')}
+      ${o.linea ? `<polyline points="${o.linea.map((v, i) => `${xs(i)},${ys(v)}`).join(' ')}" fill="none" stroke="${o.lineaColor || 'var(--ag-extraccion)'}" stroke-width="2.4" stroke-linejoin="round"/>` : ''}
+      ${o.ref ? `<line x1="${pl}" x2="${W - pr}" y1="${ys(o.ref.v)}" y2="${ys(o.ref.v)}" stroke="${o.ref.color || 'var(--crit)'}" stroke-width="1.5" stroke-dasharray="6 4"/><text x="${pl + 4}" y="${ys(o.ref.v) - 5}" style="fill:${o.ref.color || 'var(--crit)'};font-weight:700">${esc(o.ref.label)}</text>` : ''}
+      ${fechas.map((d, i) => (n > 8 && i % 2 ? '' : `<text x="${xs(i)}" y="${H - 8}" text-anchor="middle">${fecha(d)}</text>`)).join('')}
+    </svg>`;
+  }
+  // Línea con área y puntos (tendencias en %)
+  function chartTendencia(vals, fechas, o = {}) {
+    const n = vals.length, W = 640, H = o.H || 210, pl = 46, pr = 16, pt = 16, pb = 28, f = o.fmt || pct1v;
+    const lo = o.min != null ? o.min : Math.min(...vals, o.ref ? o.ref.v : Infinity) * 0.9, hi = o.max != null ? o.max : Math.max(...vals, o.ref ? o.ref.v : 0) * 1.1;
+    const xs = (i) => pl + (n > 1 ? (i / (n - 1)) * (W - pl - pr) : 0), ys = (v) => pt + (1 - (v - lo) / (hi - lo || 1)) * (H - pt - pb);
+    const pts = vals.map((v, i) => `${xs(i)},${ys(v)}`).join(' '); const col = o.color || 'var(--primary)';
+    return `<svg class="chart" viewBox="0 0 ${W} ${H}" role="img" aria-label="${esc(o.aria || 'Tendencia')}">
+      <g class="grid">${[0, 0.5, 1].map((q) => { const v = lo + (hi - lo) * q; return `<line x1="${pl}" x2="${W - pr}" y1="${ys(v)}" y2="${ys(v)}"/><text x="${pl - 6}" y="${ys(v) + 4}" text-anchor="end">${f(v)}</text>`; }).join('')}</g>
+      <polygon points="${xs(0)},${ys(lo)} ${pts} ${xs(n - 1)},${ys(lo)}" fill="${col}" opacity=".13"/>
+      ${o.ref ? `<line x1="${pl}" x2="${W - pr}" y1="${ys(o.ref.v)}" y2="${ys(o.ref.v)}" stroke="${o.ref.color || 'var(--ok)'}" stroke-width="1.5" stroke-dasharray="6 4"/><text x="${pl + 4}" y="${ys(o.ref.v) - 5}" style="fill:${o.ref.color || 'var(--ok)'};font-weight:700">${esc(o.ref.label)}</text>` : ''}
+      <polyline points="${pts}" fill="none" stroke="${col}" stroke-width="2.6" stroke-linejoin="round" stroke-linecap="round"/>
+      ${vals.map((v, i) => `<circle cx="${xs(i)}" cy="${ys(v)}" r="${i === n - 1 ? 5 : 3.4}" fill="${o.puntoDe ? o.puntoDe(v) : col}" stroke="var(--surface)" stroke-width="2" data-tip="${fecha(fechas[i])}: ${f(v)}"/>`).join('')}
+      ${fechas.map((d, i) => (n > 8 && i % 2 ? '' : `<text x="${xs(i)}" y="${H - 8}" text-anchor="middle">${fecha(d)}</text>`)).join('')}
+    </svg>`;
+  }
+  const pct1v = (v) => `${v.toFixed(1).replace('.', ',')} %`;
+  // Barras apiladas por día: series = [{ label, color, vals }]
+  function chartApilada(series, fechas, o = {}) {
+    const n = fechas.length, W = 640, H = o.H || 220, pl = 46, pr = 16, pt = 16, pb = 28;
+    const tot = fechas.map((_, i) => series.reduce((a, s) => a + s.vals[i], 0)), ymax = Math.max(...tot, o.ref ? o.ref.v * 1.15 : 0) * 1.1;
+    const xs = (i) => pl + ((i + 0.5) / n) * (W - pl - pr), ys = (v) => pt + (1 - v / ymax) * (H - pt - pb), bw = Math.min(28, ((W - pl - pr) / n) * 0.62), f = o.fmt || ((v) => num(Math.round(v)));
+    return `<svg class="chart" viewBox="0 0 ${W} ${H}" role="img" aria-label="${esc(o.aria || 'Serie apilada')}">
+      <g class="grid">${[0, 0.25, 0.5, 0.75, 1].map((q) => `<line x1="${pl}" x2="${W - pr}" y1="${ys(ymax * q)}" y2="${ys(ymax * q)}"/><text x="${pl - 6}" y="${ys(ymax * q) + 4}" text-anchor="end">${f(ymax * q)}</text>`).join('')}</g>
+      ${fechas.map((d, i) => { let acc = 0; return series.map((s, k) => { const v = s.vals[i], y0 = ys(acc), y1 = ys(acc + v); acc += v; return `<rect x="${xs(i) - bw / 2}" y="${y1}" width="${bw}" height="${Math.max(0, y0 - y1 - 1)}" rx="${k === series.length - 1 ? 3 : 0}" fill="${s.color}" data-tip="${fecha(d)} · ${esc(s.label)}: ${f(v)}"/>`; }).join(''); }).join('')}
+      ${o.ref ? `<line x1="${pl}" x2="${W - pr}" y1="${ys(o.ref.v)}" y2="${ys(o.ref.v)}" stroke="${o.ref.color || 'var(--crit)'}" stroke-width="1.5" stroke-dasharray="6 4"/><text x="${pl + 4}" y="${ys(o.ref.v) - 5}" style="fill:${o.ref.color || 'var(--crit)'};font-weight:700">${esc(o.ref.label)}</text>` : ''}
+      ${fechas.map((d, i) => (n > 8 && i % 2 ? '' : `<text x="${xs(i)}" y="${H - 8}" text-anchor="middle">${fecha(d)}</text>`)).join('')}
+    </svg>`;
+  }
+  // Anillo animado con reparto [etiqueta, valor, color] y texto central
+  function chartAnillo(items, centro, sub) {
+    const R = 54, C = 2 * Math.PI * R, total = items.reduce((a, [, v]) => a + v, 0) || 1; let off = 0;
+    return `<svg class="donut" viewBox="0 0 160 160" role="img" aria-label="${esc(sub || 'Reparto')}">
+      <circle cx="80" cy="80" r="${R}" fill="none" stroke="var(--border)" stroke-width="18" opacity=".55"/>
+      ${items.map(([l, v, c], i) => { const len = Math.max(0, (v / total) * C - 2); const seg = `<circle class="donut-seg" style="--i:${i}" cx="80" cy="80" r="${R}" fill="none" stroke="${c}" stroke-width="18" stroke-dasharray="${len.toFixed(2)} ${(C - len).toFixed(2)}" stroke-dashoffset="${(-off).toFixed(2)}" transform="rotate(-90 80 80)" data-tip="${esc(l)}: ${num(Math.round(v))} · ${Math.round((v / total) * 100)} %"/>`; off += (v / total) * C; return seg; }).join('')}
+      <text x="80" y="82" text-anchor="middle" style="font-size:25px;font-weight:800;fill:var(--text)">${esc(centro)}</text>
+      <text x="80" y="100" text-anchor="middle" style="font-size:10px;fill:var(--muted)">${esc(sub || '')}</text>
+    </svg>`;
+  }
+  const anilloConLeyenda = (items, centro, sub) => `<div class="donut-wrap">${chartAnillo(items, centro, sub)}<ul class="donut-leg">${items.map(([l, v, c]) => `<li><i style="background:${c}"></i><span>${esc(l)}</span><b class="tnum">${num(Math.round(v))}</b><span class="muted small">${Math.round((v / (items.reduce((a, [, x]) => a + x, 0) || 1)) * 100)} %</span></li>`).join('')}</ul></div>`;
+
+  // Datos derivados comunes de las fichas del Resumen
+  function datosResumen() {
+    const dias = diarioVisible(), fechas = dias.map((d) => d[0]), n = dias.length;
+    const total = dias.reduce((a, d) => a + d[1], 0), coste = dias.reduce((a, d) => a + costeDia(d), 0);
+    const [aut, esc1, ovr, alr] = (G.kpis.resumen || []);
+    const pAut = numDe(aut && aut.valor, 81), pEsc = numDe(esc1 && esc1.valor, 100 - pAut), pOvr = numDe(ovr && ovr.valor, 2.1);
+    const nAut = Math.round(numDe(aut && aut.sub, total * pAut / 100)), nEsc = Math.round(numDe(esc1 && esc1.sub, total - nAut));
+    return { dias, fechas, n, total, coste, aut, esc1, ovr, alr, pAut, pEsc, pOvr, nAut, nEsc, capMes: G.kpis.cap_mensual || 500 };
+  }
+  const mediaMovil = (v, k = 3) => v.map((_, i) => { const s = v.slice(Math.max(0, i - k + 1), i + 1); return s.reduce((a, b) => a + b, 0) / s.length; });
+
+  KPI_FIN['res-msgs'] = {
+    icono: 'activity', titulo: 'Mensajes procesados',
+    render: () => {
+      const d = datosResumen(); const msgs = d.dias.map((x) => x[1]);
+      const pico = Math.max(...msgs), laborables = d.dias.filter((x) => !finde(x[0])), fines = d.dias.filter((x) => finde(x[0]));
+      const media = (a) => (a.length ? a.reduce((s, x) => s + x[1], 0) / a.length : 0);
+      const trz = G.trazas || []; const mix = (k, claves) => claves.map((c) => trz.filter((t) => t[k] === c).length + 1);
+      const canales = distribuir(d.total, mix('canal', CANALES_ORDEN), 'msg-canal').map((v, i) => [canalInfo(CANALES_ORDEN[i])[1], v, ['var(--primary)', 'var(--ag-clasificacion)', 'var(--ag-extraccion)', 'var(--ag-reglas)', 'var(--auto)'][i]]);
+      const ramos = distribuir(d.total, mix('ramo', ['Auto', 'Hogar', 'Salud']), 'msg-ramo').map((v, i) => [['Auto', 'Hogar', 'Salud'][i], v, ['var(--auto)', 'var(--hogar)', 'var(--salud)'][i]]);
+      return `<p class="small muted">Cada mensaje de cliente que entra por cualquier canal y recorre la cadena de agentes (multicanal → clasificación → extracción → reglas) cuenta una vez. El volumen es claramente semanal: baja a la mitad en fin de semana.</p>
+        <div class="kpi-mini">${kmini('activity', 'Mensajes en el periodo', cnt(d.total))}${kmini('chart-column', 'Media diaria', cnt(Math.round(d.total / d.n)))}${kmini('gauge', 'Día de mayor carga', cnt(pico), fecha(d.fechas[msgs.indexOf(pico)]))}${kmini('calendar', 'Laborable vs. fin de semana', `${cnt(Math.round(media(laborables)))} / ${cnt(Math.round(media(fines)))}`, 'mensajes al día de media')}</div>
+        <div><h3>Mensajes por día · barras = volumen, línea = media móvil de 3 días</h3>${chartBarras(msgs, d.fechas, { linea: mediaMovil(msgs), aria: 'Mensajes procesados por día', unit: 'mensajes' })}${leyenda([['Mensajes', 'var(--primary)'], ['Media móvil 3 d', 'var(--ag-extraccion)'], ['Fin de semana', 'var(--muted)', ';opacity:.3']])}</div>
+        <div class="two"><div><h3>Por canal de entrada</h3>${anilloConLeyenda(canales, num(d.total), 'mensajes')}</div><div><h3>Por ramo</h3>${anilloConLeyenda(ramos, num(d.total), 'mensajes')}</div></div>
+        <p class="muted small">El reparto por canal y ramo se estima a partir del mix del lote actual (Paquete A).</p>`;
+    },
+  };
+
+  KPI_FIN['res-aut'] = {
+    icono: 'zap', titulo: 'Autonomía efectiva',
+    render: () => {
+      const d = datosResumen(); const base = serieAround('aut-dia', d.n, d.pAut, 1.6, d.pAut); if (d.n > 3) { base[d.n - 3] = d.pAut - 2.4; base[d.n - 2] = d.pAut - 3.1; }
+      const porNivel = G.agentes.filter((a) => a.cap_hoy != null);
+      return `<p class="small muted">Porcentaje de decisiones que el sistema toma y ejecuta <b>sin intervención humana</b>: ni escalado por un guardrail ni cambiado después por un tramitador. El objetivo de la demo es ≥ 80 %.</p>
+        <div class="kpi-mini">${kmini('zap', 'Autonomía efectiva', cnt(d.pAut, 'pct0'))}${kmini('circle-check', 'Decisiones autónomas', cnt(d.nAut))}${kmini('user-check', 'Pasaron por una persona', cnt(d.nEsc))}${kmini('gauge', 'Margen sobre el objetivo', `<span style="color:var(--${d.pAut >= 80 ? 'ok' : 'crit'})">${d.pAut >= 80 ? '+' : ''}${(d.pAut - 80).toFixed(1).replace('.', ',')} pp</span>`, 'objetivo ≥ 80 %')}</div>
+        <div class="two"><div><h3>Reparto de decisiones</h3>${anilloConLeyenda([['Autónomas', d.nAut, 'var(--ok)'], ['Escaladas a una persona', d.nEsc, 'var(--review)']], `${Math.round(d.pAut)} %`, 'autónomas')}</div>
+        <div><h3>Autonomía por agente</h3><ul class="rel-list lvl-list">${porNivel.map((a) => `<li>${agTag(a.id)}${lvlBadge(a.nivel)}<span class="small muted">${esc((G.niveles[a.nivel] || {}).nombre || '')}</span><span class="meter" style="--c:var(--lc-${a.nivel})"><i style="width:${(a.nivel + 1) * 25}%"></i></span></li>`).join('')}</ul><p class="muted small" style="margin-top:.4rem">Una barra más llena = más autonomía concedida al agente (L0 manual … L3 autónomo).</p></div></div>
+        <div><h3>Autonomía efectiva por día</h3>${chartTendencia(base, d.fechas, { min: Math.floor(Math.min(...base) - 3), max: 100, ref: { v: 80, label: 'objetivo 80 %' }, aria: 'Autonomía efectiva por día', puntoDe: (v) => (v >= 80 ? 'var(--ok)' : 'var(--warn)'), color: 'var(--ok)' })}<p class="muted small">La caída de los últimos días coincide con la bajada de Reglas de L3 a L2 (supervisado) y la degradación por cap.</p></div>`;
+    },
+  };
+
+  KPI_FIN['res-esc'] = {
+    icono: 'user-check', titulo: 'Escalados a humano',
+    render: () => {
+      const d = datosResumen();
+      const causas = [...String((d.aut && G.kpis.autonomia && G.kpis.autonomia[1] && G.kpis.autonomia[1].sub) || '').matchAll(/(G-\d{2})[^\d]*(\d+) %/g)].map((m) => [m[1], Number(m[2])]);
+      const base = causas.length ? causas : [['G-02', 62], ['G-04', 20], ['G-05', 11]]; const resto = Math.max(0, 100 - base.reduce((a, [, v]) => a + v, 0));
+      const filas = [...base, ...(resto ? [['otras', resto]] : [])];
+      const colores = ['var(--ag-reglas)', 'var(--review)', 'var(--ag-extraccion)', 'var(--muted)'];
+      const nombre = (id) => { const p = G.politicas.find((x) => x.id === id); return id === 'otras' ? 'Otras (confianza, discrepancia…)' : `${id} · ${p ? p.condicion.split(' · ')[0].replace(/ \(.*$/, '') : ''}`.replace(/(.{40}).+/, '$1…'); };
+      const porDia = d.dias.map((x, i) => { const aut = serieAround('aut-dia', d.n, d.pAut, 1.6, d.pAut)[i]; return Math.round(x[1] * (100 - aut) / 100); });
+      const series = filas.map(([id, pc], k) => ({ label: id === 'otras' ? 'Otras' : id, color: colores[k % colores.length], vals: porDia.map((v, i) => Math.round(v * pc / 100)) }));
+      return `<p class="small muted">Decisiones que un guardrail (o una confianza baja) envía a un tramitador en lugar de ejecutarse solas. Un escalado no es un fallo: es el sistema funcionando como se diseñó.</p>
+        <div class="kpi-mini">${kmini('user-check', 'Escalados en el periodo', cnt(d.nEsc))}${kmini('gauge', '% de los mensajes', cnt(d.pEsc, 'pct0'))}${kmini('shield-check', 'Causa principal', esc(filas[0][0]), `${filas[0][1]} % de los escalados`)}${kmini('timer', 'Resolución humana (mediana)', cnt(14, 'int') + ' min', 'desde que llega a la cola')}</div>
+        <div class="two"><div><h3>Causas de escalado</h3>${anilloConLeyenda(filas.map(([id, pc], k) => [nombre(id), Math.round(d.nEsc * pc / 100), colores[k % colores.length]]), `${Math.round(d.pEsc)} %`, 'escalados')}</div>
+        <div><h3>Ranking de guardrails por disparos</h3>${hbars([...G.politicas].filter((p) => p.severidad === 'humano').sort((a, b) => b.disparos - a.disparos).slice(0, 6).map((p) => [p.id, p.disparos, agColor(p.agente)]), { pl: 56, aria: 'Guardrails con más disparos' })}</div></div>
+        <div><h3>Escalados por día y causa</h3>${chartApilada(series, d.fechas, { aria: 'Escalados por día y causa' })}${leyenda(series.map((s) => [s.label, s.color]))}</div>`;
+    },
+  };
+
+  KPI_FIN['res-ovr'] = {
+    icono: 'repeat', titulo: 'Overrides humanos',
+    render: () => {
+      const d = datosResumen(); const serie = [1.7, 1.9, 1.6, 1.8, 1.9, 2.0, 1.8, 1.7, 2.1, 1.9, 2.2, 3.4, 4.1, d.pOvr].slice(-d.n); const cambiadas = Math.round(numDe(d.ovr && d.ovr.sub, 67));
+      const porAgente = G.agentes.filter((a) => a.cap_hoy != null).map((a) => [`${svgAg(a.id)}`, numDe(a.override_14d && a.override_14d !== '—' ? a.override_14d : '0', 0), agColor(a.id)]);
+      const motivos = [['Dato no accesible al modelo', 41, 'var(--ag-extraccion)'], ['Importe mal interpretado', 22, 'var(--ag-reglas)'], ['Cobertura o exclusión', 19, 'var(--review)'], ['Otros', 18, 'var(--muted)']];
+      const recientes = (G.eventos || []).filter((e) => e.tipo === 'override').slice(0, 3);
+      return `<p class="small muted">Un <b>override</b> es una decisión del agente que un tramitador cambia después. Es la mejor señal de calidad real: si sube por encima del 3 %, el nivel de autonomía del agente se revisa a la baja.</p>
+        <div class="kpi-mini">${kmini('repeat', 'Tasa de override', cnt(d.pOvr, 'pct1'))}${kmini('user-check', 'Decisiones cambiadas', cnt(cambiadas))}${kmini('gauge', 'Objetivo', '≤ 3 %', `<span style="color:var(--${d.pOvr <= 3 ? 'ok' : 'crit'})">${d.pOvr <= 3 ? 'dentro del objetivo' : 'por encima'}</span>`)}${kmini('triangle-alert', 'Pico del periodo', cnt(Math.max(...serie), 'pct1'), 'semana del 15/09')}</div>
+        <div><h3>Tasa de override por día</h3>${chartTendencia(serie, d.fechas, { min: 0, max: 5, ref: { v: 3, label: 'umbral de bajada de nivel 3 %', color: 'var(--crit)' }, aria: 'Tasa de override por día', color: 'var(--time)', puntoDe: (v) => (v > 3 ? 'var(--crit)' : 'var(--time)') })}</div>
+        <div class="two"><div><h3>Override por agente (14 días, %)</h3>${hbars(porAgente.map(([l, v, c]) => [l, v, c]), { pl: 190, fmt: (v) => `${String(v).replace('.', ',')} %`, total: 100, aria: 'Override por agente' })}</div>
+        <div><h3>Por qué cambia una persona la decisión</h3>${anilloConLeyenda(motivos.map(([l, v, c]) => [l, v, c]), `${cambiadas}`, 'overrides')}</div></div>
+        ${recientes.length ? `<div><h3>Overrides recientes</h3><ul class="mini-tl">${recientes.map((e) => `<li><span class="t">${fechaHora(e.fecha)}</span><span class="ico" style="--c:var(--review)">${ic('user-check')}</span><div><b>${conGuardrails(esc(e.titulo))}</b><small>${conGuardrails(esc(e.detalle))} · ${esc(e.usuario)}</small></div></li>`).join('')}</ul></div>` : ''}`;
+    },
+  };
+
+  KPI_FIN['res-coste'] = {
+    icono: 'euro', titulo: 'Coste del periodo',
+    render: () => {
+      const d = datosResumen(); const ids = G.agentes.slice(0, 4).map((a) => a.id);
+      const porAg = ids.map((id, k) => [id, d.dias.reduce((s, x) => s + (x[2][k] || 0), 0)]);
+      const series = ids.map((id, k) => ({ label: svgAg(id), color: agColor(id), vals: d.dias.map((x) => x[2][k] || 0) }));
+      const pm = d.total ? d.coste / d.total : 0; const proy = (G.kpis.finops && G.kpis.finops[0] && /proyecci[oó]n[^\d]*([\d.,]+)/i.exec(G.kpis.finops[0].sub || '')) ? numDe(/proyecci[oó]n[^\d]*([\d.,]+)/i.exec(G.kpis.finops[0].sub)[1], null) : null;
+      return `<p class="small muted">Gasto en llamadas a modelos de IA de todos los agentes en el periodo seleccionado. El agente de Reglas (gpt-5 con razonamiento) concentra la mayor parte; por eso es el que más cuidan los caps.</p>
+        <div class="kpi-mini">${kmini('euro', 'Coste del periodo', cnt(d.coste, d.coste < 10 ? 'eur2' : 'eur0'))}${kmini('gauge', '% del cap mensual', cnt((d.coste / d.capMes) * 100, 'pct0'), `de ${eur(d.capMes, 0)}`)}${kmini('coins', 'Coste por mensaje', cnt(pm, 'eur4'))}${proy != null ? kmini('chart-column', 'Proyección de cierre de mes', cnt(proy, 'eur0')) : kmini('activity', 'Coste medio diario', cnt(d.coste / d.n, 'eur2'))}</div>
+        <div><h3>Coste diario apilado por agente</h3>${chartApilada(series, d.fechas, { fmt: (v) => `${v.toFixed(v < 10 ? 1 : 0).replace('.', ',')} €`, ref: { v: capDiario(), label: `cap diario ${eur(capDiario(), 0)}` }, aria: 'Coste diario por agente' })}${leyenda([...series.map((s) => [s.label, s.color]), ['Cap diario', 'var(--crit)']])}</div>
+        <div class="two"><div><h3>Reparto del coste</h3>${anilloConLeyenda(porAg.map(([id, v]) => [svgAg(id), Math.round(v * 100) / 100, agColor(id)]), eur(d.coste, 0), 'periodo')}</div>
+        <div><h3>Coste acumulado frente al cap mensual</h3>${chartCosteAcumulado(G.diario, d.capMes)}</div></div>`;
+    },
+  };
+
+  KPI_FIN['res-alertas'] = {
+    icono: 'bell', titulo: 'Alertas activas',
+    render: () => {
+      const d = datosResumen(); const act = G.alertas || []; const evs = (G.eventos || []).filter((e) => e.tipo === 'alerta' || e.tipo === 'incidente');
+      const fechasEv = fechasSerie(); const porDia = (sev) => fechasEv.map((f) => evs.filter((e) => e.fecha.slice(0, 10) === f && e.sev === sev).length);
+      const series = [{ label: 'Crítica', color: 'var(--crit)', vals: porDia('crit') }, { label: 'Aviso', color: 'var(--warn)', vals: porDia('warn') }, { label: 'Informativa', color: 'var(--time)', vals: porDia('info') }, { label: 'Cerrada', color: 'var(--ok)', vals: porDia('ok') }];
+      const nCrit = act.filter((a) => a.sev === 'crit').length, nWarn = act.filter((a) => a.sev === 'warn').length;
+      return `<p class="small muted">Situaciones que requieren atención ahora: caps de coste superados, errores del proveedor o deriva del comportamiento. Las críticas pueden activar una acción automática (por ejemplo degradar el modelo).</p>
+        <div class="kpi-mini">${kmini('bell', 'Alertas activas', cnt(act.length))}${kmini('triangle-alert', 'Críticas', `<span style="color:var(--crit)">${cnt(nCrit)}</span>`)}${kmini('circle-alert', 'Avisos', `<span style="color:var(--warn)">${cnt(nWarn)}</span>`)}${kmini('history', 'Eventos en 14 días', cnt(evs.length), 'alertas e incidentes')}</div>
+        <div class="two"><div><h3>Alertas activas por severidad</h3>${anilloConLeyenda([['Crítica', nCrit, 'var(--crit)'], ['Aviso', nWarn, 'var(--warn)'], ['Informativa', act.length - nCrit - nWarn, 'var(--time)']].filter((x) => x[1] > 0), String(act.length), 'activas')}</div>
+        <div><h3>Alertas e incidentes por día</h3>${chartApilada(series, fechasEv, { H: 200, fmt: (v) => String(Math.round(v)), aria: 'Alertas por día y severidad' })}${leyenda(series.map((s) => [s.label, s.color]))}</div></div>
+        <div><h3>Alertas activas</h3><div class="alerts">${act.map((a) => `<div class="alert ${a.sev}"><span class="ico${a.sev === 'crit' ? ' pulse' : ''}">${ic(SEV_ICON[a.sev] || 'info')}</span><div><b>${conGuardrails(esc(a.titulo))}</b><small>${conGuardrails(esc(a.detalle))}</small></div><span class="muted small" style="white-space:nowrap">${esc(a.cuando || '')}</span></div>`).join('') || '<p class="muted">Sin alertas activas.</p>'}</div>
+        <div class="row" style="margin-top:.6rem"><button class="btn btn-sm" type="button" data-goto="finops">${ic('coins')} Ir a FinOps</button><button class="btn btn-sm" type="button" data-goto="historico">${ic('history')} Ver el histórico</button></div></div>`;
+    },
+  };
+
+  KPI_FIN['coste-cap'] = {
+    icono: 'euro', titulo: 'Coste diario frente al cap',
+    render: () => {
+      const d = datosResumen(); const cap = capDiario(); const vals = d.dias.map(costeDia); const hoy = vals[vals.length - 1];
+      const sobre = d.dias.map((x, i) => [x[0], vals[i], vals[i] / cap]).filter(([, , u]) => u >= 0.8).reverse();
+      const nCap = vals.filter((v) => v >= cap).length, nAviso = vals.filter((v) => v >= cap * 0.8 && v < cap).length;
+      const ids = G.agentes.slice(0, 4).map((a) => a.id);
+      const series = ids.map((id, k) => ({ label: svgAg(id), color: agColor(id), vals: d.dias.map((x) => x[2][k] || 0) }));
+      return `<p class="small muted">Coste total de los agentes cada día frente a ${grRef('CAP-01')}, el cap diario global. Al 80 % salta un aviso; al 100 % se degrada el agente de Reglas a un modelo más barato (G-07).</p>
+        <div class="kpi-mini">${kmini('euro', 'Coste hoy (parcial)', cnt(hoy, 'eur2'))}${kmini('gauge', '% del cap diario', cnt((hoy / cap) * 100, 'pct0'), `cap ${eur(cap, 0)}`)}${kmini('triangle-alert', 'Días sobre el cap', `<span style="color:var(--${nCap ? 'crit' : 'ok'})">${cnt(nCap)}</span>`, `de ${d.n}`)}${kmini('circle-alert', 'Días en aviso (≥ 80 %)', `<span style="color:var(--warn)">${cnt(nAviso)}</span>`)}${kmini('chart-column', 'Día más caro', cnt(Math.max(...vals), 'eur2'), fecha(d.fechas[vals.indexOf(Math.max(...vals))]))}</div>
+        <div><h3>Coste total por día</h3>${chartCoste()}${leyenda([['Coste total / día', 'var(--primary)'], ['Día ≥ 80 % del cap', 'var(--warn)'], ['Cap diario global', 'var(--crit)']])}</div>
+        <div><h3>De qué agente viene el gasto</h3>${chartApilada(series, d.fechas, { fmt: (v) => `${v.toFixed(v < 10 ? 1 : 0).replace('.', ',')} €`, ref: { v: cap, label: `cap ${eur(cap, 0)}` }, aria: 'Coste diario por agente' })}${leyenda(series.map((s) => [s.label, s.color]))}</div>
+        ${sobre.length ? `<div><h3>Días cerca del cap o por encima</h3><div class="tw tabla-compacta"><table><thead><tr><th>Día</th><th>Coste</th><th style="min-width:180px">Uso del cap</th><th>Estado</th></tr></thead><tbody>${sobre.map(([f, v, u]) => `<tr><td class="tnum">${fecha(f)}</td><td class="tnum"><b>${eur(v)}</b></td><td><div class="meter" style="--c:var(--${u >= 1 ? 'crit' : 'warn'});margin:0"><i style="width:${Math.min(100, u * 100)}%"></i></div><span class="small muted tnum">${Math.round(u * 100)} %</span></td><td><span class="pill ${u >= 1 ? 'pill-crit' : 'pill-warn'}">${u >= 1 ? 'Superado' : 'Aviso ≥ 80 %'}</span></td></tr>`).join('')}</tbody></table></div></div>` : ''}`;
+    },
+  };
+
   function abrirModalKpiFin(key) {
     const info = KPI_FIN[key];
     if (!info) return;
     $('modal-kpi-fin-title').innerHTML = `${ic(info.icono)} ${esc(info.titulo)}`;
     $('modal-kpi-fin-body').innerHTML = info.render();
-    $('modal-kpi-fin').showModal();
+    abrir('modal-kpi-fin');
+    animar($('modal-kpi-fin-body'));
   }
 
   // ---------------------------------------------------------------------------
@@ -725,7 +939,7 @@
     const total = opts.total || items.reduce((a, [, v]) => a + v, 0) || 1;
     const rowH = 30, W = 640, pl = opts.pl || 150, pr = 90, H = 8 + items.length * rowH, max = Math.max(...items.map(([, v]) => v), 0.0001);
     const f = opts.fmt || ((v) => num(v));
-    return `<svg class="chart" viewBox="0 0 ${W} ${H}" role="img" aria-label="${esc(opts.aria || 'Distribución')}">${items.map(([label, v, color], i) => { const y = 4 + i * rowH; const w = Math.max(v > 0 ? 3 : 0, ((v / max) * (W - pl - pr))); return `<text x="${pl - 10}" y="${y + 15}" text-anchor="end" style="fill:var(--text);font-weight:600">${esc(label)}</text><rect x="${pl}" y="${y}" width="${W - pl - pr}" height="20" rx="4" fill="${color}" opacity=".1"/><rect x="${pl}" y="${y}" width="${w}" height="20" rx="4" fill="${color}" data-tip="${esc(label)}: ${f(v)} · ${Math.round((v / total) * 100)} %"/><text x="${pl + w + 6}" y="${y + 15}" class="tnum">${f(v)} · ${Math.round((v / total) * 100)} %</text>`; }).join('')}</svg>`;
+    return `<svg class="chart" data-orient="h" viewBox="0 0 ${W} ${H}" role="img" aria-label="${esc(opts.aria || 'Distribución')}">${items.map(([label, v, color], i) => { const y = 4 + i * rowH; const w = Math.max(v > 0 ? 3 : 0, ((v / max) * (W - pl - pr))); return `<text x="${pl - 10}" y="${y + 15}" text-anchor="end" style="fill:var(--text);font-weight:600">${esc(label)}</text><rect x="${pl}" y="${y}" width="${W - pl - pr}" height="20" rx="4" fill="${color}" opacity=".1"/><rect x="${pl}" y="${y}" width="${w}" height="20" rx="4" fill="${color}" data-tip="${esc(label)}: ${f(v)} · ${Math.round((v / total) * 100)} %"/><text x="${pl + w + 6}" y="${y + 15}" class="tnum">${f(v)} · ${Math.round((v / total) * 100)} %</text>`; }).join('')}</svg>`;
   }
 
   // «Agente de» / «Ag. de»: el prefijo se acorta solo cuando el nombre del agente ocuparía dos líneas
@@ -890,6 +1104,7 @@
       <div><h3>${c.estado === 'ok' ? 'Recomendaciones preventivas' : 'Acción correctiva sugerida'}</h3><ul class="corr-list">${lista.map((x, k) => correctivaItem(c, k, x)).join('')}</ul></div>
       ${evs.length ? `<div><h3>Actividad relacionada en el histórico</h3><ul class="mini-tl">${evs.map((e) => `<li><span class="t">${fechaHora(e.fecha)}</span><span class="ico" style="--c:${(TIPOS[e.tipo] || [])[2] || 'var(--muted)'}">${ic((TIPOS[e.tipo] || ['info'])[0])}</span><div><b>${conGuardrails(esc(e.titulo))}</b><small>${conGuardrails(esc(e.detalle))} · ${esc(e.usuario)}</small></div></li>`).join('')}</ul></div>` : ''}`;
     abrir('modal-cap');
+    animar($('modal-cap-body'));
   }
 
   // ---- Nuevo cap -----------------------------------------------------------
@@ -1048,6 +1263,7 @@
       </div>
       <div><h3>Últimos disparos</h3>${ult.length ? `<div class="tw"><table><thead><tr><th>Fecha</th><th>Traza</th><th>Resultado</th></tr></thead><tbody>${ult.map(([f, traza, res]) => { const tid = (traza.match(/TRZ-[0-9A-Z]+/) || [])[0]; const existe = tid && G.trazas.some((t) => t.id === tid); return `<tr><td class="tnum">${fechaHora(f)}</td><td class="mono">${existe ? `<button class="btn btn-sm" type="button" data-traza="${esc(tid)}">${ic('route')} ${esc(traza)}</button>` : esc(traza)}</td><td>${esc(res)}</td></tr>`; }).join('')}</tbody></table></div>` : '<p class="muted small">Sin disparos registrados.</p>'}</div>`;
     abrir('modal-gr');
+    animar($('modal-gr-body'));
   }
 
   // ---- Nuevo guardrail -----------------------------------------------------
@@ -1338,6 +1554,7 @@
     $('btn-replay').addEventListener('click', () => renderDiff(true));
     ['rp-modo', 'rp-modelo', 'rp-prompt'].forEach((id) => $(id).addEventListener('change', () => renderDiff(false)));
     $('btn-new-policy').innerHTML = `${ic('plus')} Nuevo guardrail`;
+    $('btn-coste-cap').innerHTML = `${ic('chart-column')} Ampliar`;
     $('btn-new-cap').innerHTML = `${ic('plus')} Nuevo cap`;
     ['t', 'r'].forEach((pre) => ['agente', 'canal', 'dec', 'res'].forEach((k) => $(`${pre}-${k}`).addEventListener('change', () => listaTrazas(pre))));
     // Tooltip de gráficos, waterfall y referencias a guardrails

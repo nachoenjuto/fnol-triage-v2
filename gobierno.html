@@ -48,8 +48,8 @@
   </div>
   <div class="two">
     <div class="card">
-      <div class="card-head"><h2 id="h-coste"></h2><span class="muted small" id="coste-sub">€/día · línea discontinua = cap diario</span></div>
-      <div id="chart-coste"></div>
+      <div class="card-head"><h2 id="h-coste"></h2><span class="muted small" id="coste-sub">€/día · línea discontinua = cap diario</span><button class="btn btn-sm" type="button" data-kpi-fin="coste-cap" id="btn-coste-cap"></button></div>
+      <div id="chart-coste" class="chart-click" data-kpi-fin="coste-cap" role="button" tabindex="0" aria-haspopup="dialog" title="Ampliar el gráfico"></div>
       <div class="legend" id="legend-coste"></div>
     </div>
     <div class="card">
@@ -223,7 +223,7 @@
 </dialog>
 
 <!-- Detalle de un KPI de FinOps -->
-<dialog id="modal-kpi-fin" class="modal" aria-labelledby="modal-kpi-fin-title">
+<dialog id="modal-kpi-fin" class="modal wide" aria-labelledby="modal-kpi-fin-title">
   <div class="modal-head"><h2 id="modal-kpi-fin-title"></h2><button class="btn btn-sm" type="button" data-close="modal-kpi-fin" aria-label="Cerrar"></button></div>
   <div class="modal-body" id="modal-kpi-fin-body"></div>
 </dialog>
