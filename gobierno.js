@@ -60,22 +60,8 @@
   const conGuardrails = (html) => String(html).replace(/\b(G-\d{2}|CAP-\d{2})\b/g, (m) => grRef(m));
 
   // Marco normativo: etiquetas con tooltip junto al título de cada bloque (qué norma respalda lo que se ve)
-  const ALTO_RIESGO = 'Exigible a sistemas de alto riesgo desde el 02/12/2027 (Digital Omnibus); el triaje de siniestros no lo es, aquí se aplica como buena práctica.';
-  const NORMA = {
-    'ai-9': ['AI Act art. 9', `Sistema de gestión de riesgos durante todo el ciclo de vida. ${ALTO_RIESGO}`],
-    'ai-12': ['AI Act art. 12', `Registro automático de eventos para trazar el funcionamiento del sistema. ${ALTO_RIESGO}`],
-    'ai-13': ['AI Act art. 13', `Transparencia: el usuario del sistema debe poder interpretar sus resultados. ${ALTO_RIESGO}`],
-    'ai-14': ['AI Act art. 14', `Supervisión humana efectiva, incluida la capacidad de interrumpir el sistema. ${ALTO_RIESGO}`],
-    'ai-15': ['AI Act art. 15', `Precisión, solidez y ciberseguridad mantenidas a lo largo del tiempo. ${ALTO_RIESGO}`],
-    'rgpd-5': ['RGPD art. 5.2', 'Responsabilidad proactiva: el responsable debe poder demostrar que cumple. En vigor.'],
-    'rgpd-15': ['RGPD art. 15', 'Derecho de acceso a información significativa sobre la lógica aplicada (TJUE, Dun & Bradstreet C-203/22). En vigor.'],
-    'rgpd-22': ['RGPD art. 22', 'Derecho a no ser objeto de decisiones solo automatizadas. Firmar sin revisar no cuenta como intervención humana (TJUE, SCHUFA C-634/21). En vigor.'],
-    'rgpd-25': ['RGPD art. 25 y 32', 'Protección de datos desde el diseño y seguridad del tratamiento: mínimo acceso necesario. Datos de salud: categoría especial (art. 9). En vigor.'],
-    'dora-9': ['DORA art. 9', 'Protección y prevención: gestión de identidades, accesos y privilegios mínimos. En vigor desde 01/2025.'],
-    'dora-28': ['DORA art. 28', 'Riesgo de terceros TIC: los proveedores de modelos de IA entran en el registro de información y en el análisis de concentración. En vigor desde 01/2025.'],
-    'eiopa': ['EIOPA', 'Opinión sobre gobierno y gestión del riesgo de la IA (08/2025): gobierno proporcional, rendición de cuentas y documentación para todo uso de IA en seguros.'],
-    'sii-41': ['Solvencia II art. 41', 'Sistema de gobernanza eficaz que garantice una gestión sana y prudente de la actividad, incluido el control del gasto en IA.'],
-  };
+  // Catálogo compartido con la ficha del triaje (cumplimiento.js): misma etiqueta y explicación en las dos páginas
+  const NORMA = Cumplimiento.NORMAS;
   const normas = (...ids) => `<span class="normas">${ids.map((k) => `<span class="norma" data-tip="${esc(NORMA[k][1])}">${ic('scale')} ${esc(NORMA[k][0])}</span>`).join('')}</span>`;
   const NORMAS_BLOQUE = {
     'h-agentes': ['ai-14'], 'h-alertas': ['eiopa'], 'h-trazas': ['ai-12', 'rgpd-5', 'dora-28'], 'h-reasoning': ['rgpd-15', 'ai-13'], 'h-replay': ['ai-15', 'eiopa'],
@@ -121,7 +107,7 @@
       const incumple = (e.criterios || []).filter((c) => c.resultado === 'incumple').map((c) => c.regla);
       const incidencias = /fallback/i.test(e.origen || '') ? [`Fallback al motor local: ${e.origen.replace(/^.*fallback IA:\s*/i, '').replace(/\)$/, '')}`] : [];
       return {
-        id: `TRZ-S${String(i + 1).padStart(3, '0')}`, mensaje: e.id, asunto: e.asunto, canal: e.mensaje?.canal || 'chat',
+        id: (e.gobernanza && e.gobernanza.trazabilidad && e.gobernanza.trazabilidad.traza_id) || `TRZ-S${String(i + 1).padStart(3, '0')}`, mensaje: e.id, asunto: e.asunto, canal: e.mensaje?.canal || 'chat',
         inicio: new Date(new Date(e.timestamp).getTime() - dur).toISOString(), ramo: e.ramo, decision: e.decision, confianza: e.confianza ?? 0, motivo: e.motivo,
         resultado: e.decision === 'REVISION' ? 'humano' : 'auto', guardrail: incumple.length ? `${incumple.join(', ')} incumple → escalado` : undefined,
         incidencias: incidencias.length ? incidencias : undefined, spans, origen: e.origen,
@@ -250,7 +236,8 @@
   function fichaTraza(t, modo) {
     const m = tr(t);
     const versiones = t.origen ? '—' : agentesPrincipales().map((a) => `${a.id} ${a.prompt}`).join(' · ') || '—';
-    const botones = `<button class="btn btn-sm" type="button" data-goto="replay">${ic('brain')} Ver razonamiento</button><button class="btn btn-sm" type="button" data-goto="replay" data-replay="1">${ic('repeat')} Replay</button>`;
+    const conCmp = cmpItems.some((x) => x.gob.trazabilidad.traza_id === t.id);
+    const botones = `<button class="btn btn-sm" type="button" data-goto="replay">${ic('brain')} Ver razonamiento</button><button class="btn btn-sm" type="button" data-goto="replay" data-replay="1">${ic('repeat')} Replay</button>${conCmp ? `<button class="btn btn-sm" type="button" data-cmp-ficha="${esc(t.id)}">${ic('fingerprint')} Cumplimiento</button>` : ''}`;
     const pills = `${ramoPill(t.ramo)} ${decPill(t.decision)} ${resPill(t)}`;
     const datos = `<dl class="kv"><dt>Inicio</dt><dd>${new Date(t.inicio).toLocaleString('es-ES')}</dd><dt>Canal</dt><dd>${canal(t.canal)}</dd><dt>Confianza</dt><dd>${pct(t.confianza)}</dd><dt>Guardrail</dt><dd>${t.guardrail ? `<span class="policy fail">${ic('shield-check')} ${conGuardrails(esc(t.guardrail))}</span>` : `<span class="policy pass">${ic('check')} Ninguno disparado</span>`}</dd><dt>Versiones</dt><dd class="mono">${esc(versiones)}</dd>${t.origen ? `<dt>Origen</dt><dd>${esc(t.origen)}</dd>` : ''}<dt>Ciclo · tokens · coste</dt><dd>${ms(m.dur)} · ${num(m.tokens)} · ${eur(m.coste, 4)}</dd><dt>Incidencias</dt><dd>${(t.incidencias || []).map((i) => `<span class="pill pill-warn">${ic('circle-alert')} ${conGuardrails(esc(i))}</span>`).join(' ') || '<span class="muted">—</span>'}</dd></dl>`;
     const override = t.override ? `<div class="box" style="border-color:var(--time)"><b>${ic('repeat')} Override humano · ${esc(t.override.usuario)} · ${hora(t.override.fecha)}</b><br><span class="pill pill-review">A revisar</span> → <span class="pill pill-ok">Aprobado</span><br><span class="small">${esc(t.override.motivo)}</span><br><span class="muted small">Se registra como «dato no accesible al modelo»: candidato a integrar la consulta de conductores declarados como herramienta del agente de Extracción.</span></div>` : '';
@@ -1434,10 +1421,153 @@
   // ---------------------------------------------------------------------------
   // Render completo, navegación y eventos
   // ---------------------------------------------------------------------------
+  // ---------------------------------------------------------------------------
+  // Termómetro de cumplimiento: controles medidos en las trazas (cumplimiento.js) + declarados (documentales)
+  // ---------------------------------------------------------------------------
+  const ESTADO_CMP = { ok: ['pill-ok', 'circle-check', 'Cubierto'], ambar: ['pill-warn', 'circle-alert', 'Parcial'], rojo: ['pill-crit', 'circle-x', 'Sin cubrir'] };
+  const CAT_ICONO = { identificativo: 'user', contacto: 'phone', indirecto: 'fingerprint', localizacion: 'map-pin', financiero: 'wallet', salud: 'heart-pulse', menor: 'users', tercero: 'user-check' };
+  let cmpFiltro = ''; let cmpSoloAmbar = false; let cmpAlterada = null; let cmpItems = [];
+
+  // Mismas entradas que la ficha del triaje: el mensaje, la salida del modelo y su bloque _gobernanza
+  function entradasCumplimiento() {
+    if ($('fuente').value === 'sesion') {
+      const log = ssGet('triage.log', []);
+      const items = (Array.isArray(log) ? [...log].reverse() : []).filter((e) => e.mensaje && e.mensaje.texto)
+        .map((e) => ({ entry: e, gob: e.gobernanza || Cumplimiento.gobernanza(e, e.gob_opts || {}), texto: e.mensaje.texto, raw: e.raw }));
+      if (items.length) return items;
+    }
+    const msgs = Object.fromEntries(PAQUETES.flatMap((p) => p.mensajes).map((m) => [m.id, m]));
+    return G.trazas.filter((t) => msgs[t.mensaje] && RESULTADOS_GUARDADOS[t.mensaje]).map((t) => {
+      const m = msgs[t.mensaje];
+      const r = expandirResultadoGuardado(RESULTADOS_GUARDADOS[m.id]);
+      const { usage, ...json } = r;
+      const entry = { ...r, id: m.id, raw: JSON.stringify(json, null, 2), origen: 'IA', mensaje: m, timestamp: new Date(t.inicio).toISOString(), revisado: t.resultado === 'override' };
+      const reglas = t.spans.find((s) => s[0] === 'reglas');
+      return { entry, gob: Cumplimiento.gobernanza(entry, { traza_id: t.id, modelo: reglas ? reglas[3] : null, prompt: PROMPT_VERSION }), texto: m.texto, raw: entry.raw };
+    });
+  }
+
+  const colorPct = (p) => (p >= 90 ? 'var(--ok)' : p >= 70 ? 'var(--warn)' : 'var(--crit)');
+  function termoSvg(p) {
+    const alto = 132; const lleno = Math.round((alto * p) / 100);
+    return `<svg class="termo-svg" viewBox="0 0 48 180" role="img" aria-label="${p} por ciento de controles cubiertos">
+      <rect x="16" y="8" width="16" height="${alto + 12}" rx="8" fill="var(--bg)" stroke="var(--border)" stroke-width="1.5"/>
+      ${[25, 50, 75].map((k) => `<line x1="34" x2="40" y1="${8 + 6 + alto - (alto * k) / 100}" y2="${8 + 6 + alto - (alto * k) / 100}" stroke="var(--border)" stroke-width="1.5"/>`).join('')}
+      <rect class="termo-fill" x="20" y="${8 + 6 + alto - lleno}" width="8" height="${lleno + 10}" rx="4" fill="${colorPct(p)}"/>
+      <circle cx="24" cy="160" r="14" fill="${colorPct(p)}" stroke="var(--surface)" stroke-width="3"/>
+    </svg>`;
+  }
+
+  function renderCumplimiento() {
+    cmpItems = entradasCumplimiento();
+    const items = cmpItems.map((x, i) => (i === cmpAlterada ? { ...x, raw: String(x.raw || '').replace(/"decision": "(DESPEJADO|REVISION)"/, (s0, d) => `"decision": "${d === 'DESPEJADO' ? 'REVISION' : 'DESPEJADO'}"`) } : x));
+    const cadena = Cumplimiento.verificarCadena(items);
+    const T = Cumplimiento.termometro(cmpItems.map((x) => x.gob), G.cumplimiento_declarado || GOBIERNO_DEMO.cumplimiento_declarado || {}, cadena);
+    const todos = T.marcos.flatMap((mc) => mc.controles.map((c) => ({ ...c, marco: mc.id })));
+    const cuenta = (e) => todos.filter((c) => c.estado === e).length;
+    const fuente = $('fuente').value === 'sesion' && ssGet('triage.log', []).length ? 'la sesión actual del triaje' : 'las 13 trazas del Paquete A (demo)';
+
+    $('cmp-hero').innerHTML = `<div class="cmp-hero-main">
+        <div class="cmp-global" style="--c:${colorPct(T.global)}"><span class="v">${T.global}<small>%</small></span><span class="l">de cobertura de controles</span></div>
+        <div class="cmp-hero-txt">
+          <h2>${ic('thermometer')} Termómetro de cumplimiento ${normas('ai-12', 'rgpd-5', 'eiopa')}</h2>
+          <p class="small">Cómo se guardan las trazas, las evidencias y los datos personales que exigen las normas que aplican a una aseguradora que automatiza con IA. Calculado sobre ${esc(fuente)}: los mismos bloques <span class="mono">_gobernanza</span> que se ven en la «Respuesta cruda» de cada ficha del triaje.</p>
+          <div class="row" style="margin-top:.5rem"><span class="pill pill-ok">${ic('circle-check')} ${cuenta('ok')} cubiertos</span><span class="pill pill-warn">${ic('circle-alert')} ${cuenta('ambar')} parciales</span>${cuenta('rojo') ? `<span class="pill pill-crit">${ic('circle-x')} ${cuenta('rojo')} sin cubrir</span>` : ''}<span class="pill pill-muted">${ic('activity')} ${todos.filter((c) => c.fuente === 'medido').length} medidos en las trazas</span><span class="pill pill-muted">${ic('file-text')} ${todos.filter((c) => c.fuente === 'declarado').length} declarados (documentales)</span></div>
+        </div>
+        <div class="cmp-hero-acc"><button class="btn btn-primary btn-sm" type="button" id="btn-cmp-export">${ic('download')} Exportar evidencias de cumplimiento</button></div>
+      </div>
+      <p class="muted small cmp-aviso">${ic('info')} Indicador técnico de cobertura de controles, no un certificado: no sustituye la evaluación del DPO ni de Cumplimiento. Los controles «medidos» se recalculan con cada traza; los «declarados» proceden de la documentación del sistema.</p>`;
+
+    $('cmp-termos').innerHTML = T.marcos.map((mc) => `<button type="button" class="card termo${cmpFiltro === mc.id ? ' is-active' : ''}" data-cmp-marco="${mc.id}" aria-pressed="${cmpFiltro === mc.id}">
+        ${termoSvg(mc.pct)}
+        <div class="termo-txt"><span class="termo-pct" style="color:${colorPct(mc.pct)}">${mc.pct} %</span><b>${esc(mc.nombre)}</b><span class="muted small">${esc(mc.sub)}</span>
+        <span class="termo-cuenta"><span class="pill pill-ok">${mc.cuenta.ok}</span><span class="pill pill-warn">${mc.cuenta.ambar}</span>${mc.cuenta.rojo ? `<span class="pill pill-crit">${mc.cuenta.rojo}</span>` : ''}<span class="muted small">de ${mc.controles.length} controles</span></span></div>
+      </button>`).join('');
+
+    titulo('h-cmp-matriz', 'list-checks', 'Qué exige cada norma y cómo se cumple');
+    $('cmp-filtro').innerHTML = [['', 'Todas'], ...T.marcos.map((mc) => [mc.id, mc.nombre])].map(([k, l]) => `<button type="button" class="chip${cmpFiltro === k ? ' is-active' : ''}" data-cmp-marco="${k}">${esc(l)}</button>`).join('');
+    $('cmp-filtro-estado').innerHTML = `<button type="button" class="chip${cmpSoloAmbar ? ' is-active' : ''}" data-cmp-ambar="1">${ic('circle-alert')} Solo parciales</button>`;
+    const filas = todos.filter((c) => (!cmpFiltro || c.marco === cmpFiltro) && (!cmpSoloAmbar || c.estado !== 'ok'));
+    $('cmp-matriz').innerHTML = filas.map((c) => {
+      const [cls, icono, txt] = ESTADO_CMP[c.estado];
+      const tz = (c.trazas || []);
+      return `<tr><td><span class="pill ${cls}">${ic(icono)} ${txt}</span></td>
+        <td><span class="normas" style="margin:0">${c.normas.map((e) => `<span class="norma" data-tip="${esc(Cumplimiento.NORMA_POR_ETIQUETA[e] || e)}">${ic('scale')} ${esc(e)}</span>`).join('')}</span></td>
+        <td class="wrap">${esc(c.exige)}</td><td class="wrap">${esc(c.como)}</td><td class="wrap"><b>${esc(c.medida)}</b></td>
+        <td>${c.fuente === 'medido' ? `<span class="pill pill-time">${ic('activity')} Medido</span>` : `<span class="pill pill-muted">${ic('file-text')} Declarado</span>`}</td>
+        <td class="wrap">${tz.length ? `${tz.slice(0, 3).map((id) => `<a href="#" class="mono" data-cmp-traza="${esc(id)}">${esc(id)}</a>`).join(' ')}${tz.length > 3 ? ` <span class="muted small">+${tz.length - 3}</span>` : ''}` : '<span class="muted">—</span>'}</td></tr>`;
+    }).join('') || '<tr><td colspan="7" class="muted">Ningún control con este filtro.</td></tr>';
+
+    titulo('h-cmp-ciclo', 'route', 'Ciclo de vida de una traza');
+    const PASOS = [
+      ['inbox', 'Ingesta', 'Mensaje de cualquiera de los 5 canales; se calcula el hash de entrada', ['AI Act art. 12'], 'al recibir'],
+      ['scan-text', 'Detección de datos personales', '8 categorías; salud, menores y terceros quedan marcados', ['RGPD art. 4.1', 'RGPD art. 9'], 'al recibir'],
+      ['eye-off', 'Seudonimización', 'Nombres, DNI, póliza y matrícula pasan a tokens; teléfono e IBAN se enmascaran', ['RGPD art. 4.5', 'RGPD art. 25'], 'antes de registrar'],
+      ['sparkles', 'Decisión del modelo', 'Cita las evidencias que la justifican; hoy recibe el texto completo (ver minimización)', ['AI Act art. 13', 'RGPD art. 5.1.c'], 'segundos'],
+      ['user-check', 'Supervisión humana', 'Toda decisión desfavorable o dudosa la firma una persona', ['AI Act art. 14', 'RGPD art. 22'], 'antes de comunicar'],
+      ['link', 'Registro sellado', 'Hash de la salida y eslabón de la cadena de integridad', ['AI Act art. 12', 'RGPD art. 5.2'], 'al decidir'],
+      ['archive', 'Retención', 'Traza seudonimizada 6 meses como mínimo; expediente 2 años (daños) o 5 (personas)', ['AI Act art. 19 y 26.6', 'LCS art. 23'], '6 meses · 2-5 años'],
+      ['lock', 'Bloqueo y supresión', 'Bloqueo durante la prescripción; después supresión. Para analítica, solo datos anonimizados', ['LOPDGDD art. 32', 'RGPD art. 5.1.e'], 'al prescribir'],
+    ];
+    $('cmp-ciclo').innerHTML = PASOS.map(([i, t, d, ns, cuando], k) => `<div class="ciclo-paso"><span class="ciclo-n">${k + 1}</span><span class="ciclo-ico">${ic(i)}</span><b>${esc(t)}</b><span class="small">${esc(d)}</span><span class="ciclo-cuando">${ic('timer')} ${esc(cuando)}</span><span class="normas" style="margin:0">${ns.map((e) => `<span class="norma" data-tip="${esc(Cumplimiento.NORMA_POR_ETIQUETA[e] || e)}">${esc(e)}</span>`).join('')}</span></div>`).join('');
+
+    titulo('h-cmp-inv', 'fingerprint', `Inventario de datos personales (${T.resumen.datos_personales} en ${T.resumen.trazas} mensajes)`);
+    $('cmp-inv').innerHTML = cmpItems.map((x, i) => {
+      const dp = x.gob.datos_personales;
+      const chips = Object.entries(dp.por_categoria).map(([c, nn]) => `<span class="pill pill-muted" data-tip="${esc(Cumplimiento.CATEGORIAS[c].etiqueta)} · ${esc(Cumplimiento.CATEGORIAS[c].tratamiento)}"><span class="pii-dot pii-${c}"></span> ${ic(CAT_ICONO[c])} ${nn}</span>`).join(' ');
+      const muestra = dp.hallazgos.filter((h) => h.categoria !== 'salud').slice(0, 2).map((h) => `<span class="mono">${esc(h.valor_en_traza)}</span>`).join(' · ');
+      return `<tr class="clickable" data-cmp-item="${i}" tabindex="0"><td class="mono">${esc(x.gob.trazabilidad.traza_id)}</td><td>${esc(x.entry.id)}</td><td>${ramoPill(x.entry.ramo)}</td><td class="wrap">${chips}</td>
+        <td>${dp.categoria_especial_salud ? `<span class="pill pill-crit">${ic('heart-pulse')} ${dp.categoria_especial_salud}</span>` : '<span class="muted">—</span>'}</td>
+        <td>${dp.menores ? `<span class="pill pill-warn">${dp.menores}</span>` : '<span class="muted">—</span>'}</td><td>${dp.terceros || '<span class="muted">—</span>'}</td>
+        <td>${dp.no_usados_en_decision} de ${dp.total}</td><td>${muestra}</td></tr>`;
+    }).join('');
+
+    titulo('h-cmp-cadena', 'link', 'Integridad del registro');
+    $('btn-cmp-alterar').innerHTML = cmpAlterada === null ? `${ic('triangle-alert')} Simular una alteración` : `${ic('undo-2')} Restaurar`;
+    $('cmp-cadena').innerHTML = `<p class="small" style="margin-bottom:.5rem">${cadena.roto === null ? `<span class="pill pill-ok">${ic('circle-check')} Cadena íntegra</span> ${cadena.items.length} de ${cadena.items.length} eslabones verificados al recalcular los hashes desde los datos.` : `<span class="pill pill-crit">${ic('circle-x')} Cadena rota</span> La traza <b class="mono">${esc(cadena.items[cadena.roto].traza_id)}</b> no coincide con su sello: alguien cambió la decisión después de registrarla. Todas las posteriores quedan en entredicho.`}</p>
+      <ol class="eslabones">${cadena.items.map((e) => `<li class="${e.ok ? 'ok' : 'ko'}"><span class="mono">${esc(e.traza_id)}</span><span class="mono muted">${e.eslabon.slice(0, 12)}…</span>${e.ok ? ic('check') : ic('x')}</li>`).join('')}</ol>`;
+
+    titulo('h-cmp-seud', 'eye-off', 'Seudonimizar no es anonimizar');
+    $('cmp-seud').innerHTML = `<div class="seud-col"><b>${ic('fingerprint')} Seudonimizado <span class="norma" data-tip="${esc(Cumplimiento.NORMA_POR_ETIQUETA['RGPD art. 4.5'])}">RGPD art. 4.5</span></b><p class="small">El dato se sustituye por un token (<span class="mono">PER-0B01</span>, <span class="mono">POL-…</span>) y la clave se guarda aparte. <b>Sigue siendo dato personal</b>: es lo que corresponde a las trazas, porque el siniestro hay que tramitarlo y el asegurado puede pedir su explicación.</p><p class="small muted">Se aplica a: trazas operativas, replay, exportaciones de auditoría.</p></div>
+      <div class="seud-col"><b>${ic('lock')} Anonimizado <span class="norma" data-tip="RGPD considerando 26: la información anónima no entra en el ámbito del RGPD. Requiere que la reidentificación no sea razonablemente posible.">RGPD cons. 26</span></b><p class="small">Irreversible: no hay clave que permita volver a la persona. Sale del RGPD, pero ya no sirve para tramitar. Se usa al final del ciclo o para conjuntos de datos de analítica y de pruebas.</p><p class="small muted">Se aplica a: cuadros de mando agregados, datasets de evaluación y de entrenamiento.</p></div>`;
+  }
+
+  // Ficha de cumplimiento de una traza: texto con los datos personales resaltados, hallazgos y bloque _gobernanza
+  function abrirModalCmp(i) {
+    const x = cmpItems[i]; if (!x) return;
+    const hs = Cumplimiento.hallazgosConCita(x.entry);
+    let pos = 0; let html = '';
+    hs.filter((h, k) => !hs.slice(0, k).some((o) => h.inicio < o.fin && h.fin > o.inicio)).forEach((h) => {
+      if (h.inicio < pos) return;
+      html += esc(x.texto.slice(pos, h.inicio)) + `<mark class="pii pii-${h.categoria}" title="${esc(Cumplimiento.CATEGORIAS[h.categoria].etiqueta)} · ${esc(Cumplimiento.CATEGORIAS[h.categoria].tratamiento)}">${esc(h.cita)}</mark>`;
+      pos = h.fin;
+    });
+    html += esc(x.texto.slice(pos));
+    const dp = x.gob.datos_personales;
+    const ley = Object.keys(dp.por_categoria).map((c) => `<li><span class="pii-dot pii-${c}"></span> ${esc(Cumplimiento.CATEGORIAS[c].etiqueta)} <span class="muted">· ${dp.por_categoria[c]}</span></li>`).join('');
+    $('modal-cmp-title').innerHTML = `${ic('fingerprint')} ${esc(x.gob.trazabilidad.traza_id)} · ${esc(x.entry.id)} <span class="muted" style="font-weight:400">· ${esc(x.entry.mensaje.asunto || '')}</span>`;
+    $('modal-cmp-body').innerHTML = `<div class="two">
+        <div><h3>Mensaje con los datos personales detectados</h3><p class="cmp-texto">${html}</p><ul class="pii-ley">${ley}</ul>
+          <p class="muted small" style="margin-top:.5rem">Vista con permisos de tramitador. En la traza persistida solo queda la columna «valor en la traza».</p></div>
+        <div><h3>Hallazgos y tratamiento</h3><div class="tw"><table><thead><tr><th>Dato</th><th>Categoría</th><th>Valor en la traza</th><th>¿Para decidir?</th></tr></thead><tbody>${dp.hallazgos.map((h) => `<tr><td class="mono">${esc(h.id)}</td><td><span class="pii-dot pii-${h.categoria}"></span> ${esc(Cumplimiento.CATEGORIAS[h.categoria].etiqueta)}</td><td class="mono">${esc(h.valor_en_traza)}</td><td>${h.usado_en_decision ? `<span class="pill pill-ok">sí</span>` : `<span class="pill pill-warn" data-tip="Se envió al modelo pero no hacía falta para decidir: candidato a seudonimizar antes del modelo (minimización)">no</span>`}</td></tr>`).join('')}</tbody></table></div></div>
+      </div>
+      <div><h3>Bloque _gobernanza (el mismo que la «Respuesta cruda» de la ficha del triaje)</h3><pre class="raw-json">${Cumplimiento.jsonHtml({ _gobernanza: x.gob }, {})}</pre></div>`;
+    $('modal-cmp').showModal();
+  }
+
+  function exportarCumplimiento() {
+    const T = Cumplimiento.termometro(cmpItems.map((x) => x.gob), G.cumplimiento_declarado || {}, Cumplimiento.verificarCadena(cmpItems));
+    const datos = { esquema: Cumplimiento.ESQUEMA, generado: new Date().toISOString(), aviso: 'Indicador técnico de cobertura de controles; no sustituye la evaluación del DPO ni de Cumplimiento.', termometro: T, cadena: Cumplimiento.encadenar(cmpItems.map((x) => x.gob)), trazas: cmpItems.map((x) => x.gob) };
+    const url = URL.createObjectURL(new Blob([JSON.stringify(datos, null, 2)], { type: 'application/json' }));
+    const a = Object.assign(document.createElement('a'), { href: url, download: `evidencias-cumplimiento-${new Date().toISOString().slice(0, 10)}.json` });
+    document.body.appendChild(a); a.click(); a.remove(); URL.revokeObjectURL(url);
+  }
+
   function renderAll() {
     AG = Object.fromEntries(G.agentes.map((a) => [a.id, a]));
     POL = Object.fromEntries([...(G.politicas || []), ...(G.caps || [])].map((p) => [p.id, p]));
     incluirNuevos();
+    cmpItems = entradasCumplimiento();
     if (!G.trazas.some((t) => t.id === selId)) selId = G.trazas.length ? G.trazas[G.trazas.length - 1].id : null;
     renderResumen();
     titulo('h-trazas', 'route', `Trazas (${G.trazas.length})`);
@@ -1450,11 +1580,12 @@
     renderGuardrails();
     renderFinops();
     renderHistorico();
+    renderCumplimiento();
     $('tabs').querySelector('[data-view="finops"] .n').textContent = G.caps.filter((c) => c.estado === 'superado').length || '';
     ajustarAgentes();
   }
 
-  const TABS = [['resumen', 'layout-dashboard', 'Resumen'], ['trazas', 'route', 'Trazabilidad'], ['replay', 'brain', 'Reasoning & Replay'], ['autonomia', 'sliders-horizontal', 'Autonomía'], ['guardrails', 'shield-check', 'Guardrails'], ['finops', 'coins', 'FinOps'], ['historico', 'history', 'Histórico']];
+  const TABS = [['resumen', 'layout-dashboard', 'Resumen'], ['trazas', 'route', 'Trazabilidad'], ['replay', 'brain', 'Reasoning & Replay'], ['autonomia', 'sliders-horizontal', 'Autonomía'], ['guardrails', 'shield-check', 'Guardrails'], ['cumplimiento', 'thermometer', 'Termómetro de cumplimiento'], ['finops', 'coins', 'FinOps'], ['historico', 'history', 'Histórico']];
   function goto(v, opts = {}) {
     document.querySelectorAll('.tab').forEach((b) => { b.classList.toggle('is-active', b.dataset.view === v); b.setAttribute('aria-selected', String(b.dataset.view === v)); });
     document.querySelectorAll('.view').forEach((s) => s.classList.toggle('is-active', s.dataset.view === v));
@@ -1466,7 +1597,6 @@
   // Alturas reales de cabecera y pestañas para los elementos fijos (la cabecera puede ocupar varias líneas)
   function medirFijos() {
     document.documentElement.style.setProperty('--top-h', `${document.querySelector('.topbar').offsetHeight}px`);
-    document.documentElement.style.setProperty('--tabs-h', `${$('tabs').offsetHeight}px`);
   }
 
   // Tirador para redimensionar horizontalmente el panel de trazas y el de razonamiento
@@ -1490,8 +1620,29 @@
     });
   }
 
+  // Menú lateral plegable: el estado se recuerda en este navegador (preferencia del usuario)
+  function initNav() {
+    const lay = $('gb-layout'); const b = $('btn-toggle-nav');
+    const set = (abierto) => {
+      lay.classList.toggle('nav-collapsed', !abierto);
+      b.setAttribute('aria-expanded', String(abierto));
+      b.setAttribute('aria-label', abierto ? 'Plegar el menú' : 'Desplegar el menú');
+      b.title = abierto ? 'Plegar el menú' : 'Desplegar el menú';
+      b.innerHTML = ic(abierto ? 'panel-left-close' : 'panel-left-open');
+      // Plegado: el nombre de cada sección aparece como tooltip sobre su icono
+      lay.querySelectorAll('.tab').forEach((t) => { if (abierto) delete t.dataset.tip; else t.dataset.tip = t.getAttribute('aria-label'); });
+      try { localStorage.setItem('gobierno.nav', abierto ? '1' : '0'); } catch { /* sin almacenamiento */ }
+      setTimeout(() => ajustarAgentes(), 200);
+    };
+    let abierto = true;
+    try { abierto = localStorage.getItem('gobierno.nav') !== '0'; } catch { /* sin almacenamiento */ }
+    set(abierto);
+    b.addEventListener('click', () => set(lay.classList.contains('nav-collapsed')));
+  }
+
   function bind() {
-    $('tabs').innerHTML = TABS.map(([v, i, l]) => `<button class="tab${v === 'resumen' ? ' is-active' : ''}" type="button" role="tab" data-view="${v}" aria-selected="${v === 'resumen'}">${ic(i)} ${l}${v === 'finops' ? ' <span class="n"></span>' : ''}</button>`).join('');
+    $('tabs').innerHTML = TABS.map(([v, i, l]) => `<button class="tab${v === 'resumen' ? ' is-active' : ''}" type="button" role="tab" data-view="${v}" aria-selected="${v === 'resumen'}" aria-label="${l}">${ic(i)} <span class="lbl">${l}</span>${v === 'finops' ? '<span class="n"></span>' : ''}</button>`).join('');
+    initNav();
     $('tabs').addEventListener('click', (e) => { const b = e.target.closest('.tab'); if (b) goto(b.dataset.view); });
     // Navegación, modales, kill switch, guardrails y leyendas: un único delegado de clic
     document.addEventListener('click', (e) => {
@@ -1505,6 +1656,13 @@
       const co = e.target.closest('[data-corr]'); if (co) { const [cid, k] = co.dataset.corr.split(':'); aplicarCorrectiva(cid, Number(k)); return; }
       const cp = e.target.closest('[data-cap]'); if (cp) { abrirModalCap(cp.dataset.cap); return; }
       const lg = e.target.closest('[data-legend]'); if (lg) { const set = lg.dataset.legend === 'agente' ? ocultos : tokOcultos; set.has(lg.dataset.key) ? set.delete(lg.dataset.key) : set.add(lg.dataset.key); renderCharts(); return; }
+      const cm = e.target.closest('[data-cmp-marco]'); if (cm) { cmpFiltro = cmpFiltro === cm.dataset.cmpMarco ? '' : cm.dataset.cmpMarco; renderCumplimiento(); return; }
+      const ca = e.target.closest('[data-cmp-ambar]'); if (ca) { cmpSoloAmbar = !cmpSoloAmbar; renderCumplimiento(); return; }
+      const cf = e.target.closest('[data-cmp-ficha]'); if (cf) { const k = cmpItems.findIndex((x) => x.gob.trazabilidad.traza_id === cf.dataset.cmpFicha); if (k >= 0) { cerrarTodos(); abrirModalCmp(k); } return; }
+      const ci = e.target.closest('[data-cmp-item]'); if (ci) { abrirModalCmp(Number(ci.dataset.cmpItem)); return; }
+      const ct = e.target.closest('[data-cmp-traza]'); if (ct) { e.preventDefault(); const t = G.trazas.find((x) => x.id === ct.dataset.cmpTraza); if (t) { goto('trazas'); selectTraza(t.id); } else { const k = cmpItems.findIndex((x) => x.gob.trazabilidad.traza_id === ct.dataset.cmpTraza); if (k >= 0) abrirModalCmp(k); } return; }
+      if (e.target.closest('#btn-cmp-export')) { exportarCumplimiento(); return; }
+      if (e.target.closest('#btn-cmp-alterar')) { cmpAlterada = cmpAlterada === null ? Math.min(4, cmpItems.length - 1) : null; renderCumplimiento(); return; }
       const tz = e.target.closest('[data-traza]'); if (tz) { cerrarTodos(); goto('trazas'); selectTraza(tz.dataset.traza); return; }
       const gf = e.target.closest('#policies tr[data-gr]'); if (gf) { abrirModalGr(gf.dataset.gr); return; }
       const ag = e.target.closest('.agent[data-agente]'); if (ag) { abrirModalAgente(ag.dataset.agente); return; }

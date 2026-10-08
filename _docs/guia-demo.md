@@ -42,6 +42,8 @@ Se navega entre pantallas con el botón **Gobierno de Agentes** de la cabecera d
 
 ### 2.2 Barra de fases (breadcrumb)
 
+Cada fase lleva su número de paso (1 a 6) en un círculo del color de la cabecera.
+
 Seis botones que representan el proceso de extremo a extremo. Al pasar el ratón o hacer clic sobre cada uno aparece una ficha explicativa. Sirve para **contar el caso de negocio antes de lanzar el lote**.
 
 | Fase | Qué explica | Tipo |
@@ -92,22 +94,41 @@ Capacidades: **ordenar** por cualquier columna con cabecera, **filtrar** por ram
 
 ### 2.5 Ficha del mensaje (ventana modal)
 
-Es la pantalla de **explicabilidad** de una decisión. Dos columnas:
+Es la pantalla de **explicabilidad** de una decisión. Cinco pestañas:
 
-| Columna izquierda | Columna derecha |
+| Pestaña | Qué muestra |
 |---|---|
-| Datos del mensaje (canal, asunto, fecha) | **Ramo** asignado con los indicios que lo justifican |
-| **Texto original** del cliente | **Criterios de decisión**: cada regla evaluada (cumple / incumple / no aplica) con su evidencia |
-| **Datos extraídos** (los que no aparecen en el texto salen como nulos) | **Decisión** final, motivo, confianza, tokens por paso |
-| | **Respuesta cruda del modelo** (desplegable) para auditoría técnica |
+| **Mensaje** | Datos del mensaje y el **texto con las evidencias resaltadas** (fondo oscuro, texto blanco, numeradas). A la derecha, la lista de evidencias. Al pasar el ratón o hacer clic sobre una evidencia (en el texto o en la lista), el título «Evidencias» se sustituye por su tipo (por ejemplo «3 · Fecha del hecho»). El botón **Leyenda**, a la derecha del título, abre los colores y las etiquetas al pasar el ratón o con un clic |
+| **Datos extraídos** | Los campos del siniestro; los que no aparecen en el texto salen nulos |
+| **Reglas de negocio** | Cada regla del ramo: cumple / incumple / no aplica, con su evidencia |
+| **Razonamiento** | Ramo, decisión, siguiente paso recomendado y cronología |
+| **Respuesta cruda** | La salida del modelo tal cual y, con **+ Gobierno**, el bloque `_gobernanza` que añade la plataforma (ver 2.6) |
 
 Uso típico: abrir un mensaje «A revisar» y enseñar **exactamente qué regla lo ha frenado y con qué frase del cliente**.
+
+### 2.6 Respuesta cruda con metadatos de gobierno
+
+Debajo de la salida del modelo aparece el bloque **`_gobernanza`**, marcado como «añadido por la plataforma de gobierno, no generado por el modelo». Lo calcula `cumplimiento.js` de forma determinista y es **el mismo** que usa el Termómetro de cumplimiento del panel.
+
+| Color | Qué marca | Norma a la que ayuda |
+|---|---|---|
+| Subrayado discontinuo en la salida del modelo | Campos con datos personales (nombre, póliza, lugar; en Salud, también el tipo de siniestro) | RGPD art. 4.1 y 9 |
+| Etiqueta tras una clave (`ramo`, `criterios`, `evidencias`, `decision`…) | Datos que sirven para trazar y explicar la decisión | AI Act art. 12 y 13, RGPD art. 15 y 22 |
+| Azul · `trazabilidad` | Traza, modelo, versión del prompt, hash SHA-256 de entrada, salida y sello | AI Act art. 12, RGPD art. 5.2 |
+| Ocre · `retencion` | Hasta cuándo se guarda la traza (6 meses) y el expediente (2 años en daños, 5 en personas); después, bloqueo | AI Act art. 19, LCS art. 23, LOPDGDD art. 32 |
+| Teja · `datos_personales` | Cada dato detectado con su categoría, su valor en la traza (seudonimizado o enmascarado) y si se usó para decidir. Los de salud, en rojo | RGPD art. 4.5, 8, 9, 14 y 25 |
+| Verde · `explicabilidad` | Por qué este ramo (evidencias verificadas) y **por qué no los otros dos** | AI Act art. 13, RGPD art. 15 y 22 |
+| Violeta · `supervision_humana` | Si la decisión requiere a una persona y en qué estado está | AI Act art. 14, RGPD art. 22 |
+
+Al pasar el ratón por una norma aparece qué exige. «Copiar JSON» copia lo que se ve (con o sin el bloque).
+
+> Mensaje clave: **el modelo no se autocertifica**. Los metadatos de cumplimiento los pone la plataforma, se pueden recalcular en cualquier momento y, si alguien altera una traza, el hash deja de coincidir.
 
 ---
 
 ## 3. Gobierno de Agentes (`gobierno.html`)
 
-Panel de control de los cuatro agentes. Ofrece cuatro capacidades: **ver** (observabilidad), **entender** (razonamiento y replay), **limitar** (autonomía y guardrails) y **pagar** (FinOps).
+Panel de control de los cuatro agentes. Ofrece cinco capacidades: **ver** (observabilidad), **entender** (razonamiento y replay), **limitar** (autonomía y guardrails), **demostrar** (termómetro de cumplimiento) y **pagar** (FinOps). Las secciones están en un **menú lateral** que se pliega con el botón de arriba; plegado muestra solo los iconos (el nombre sale al pasar el ratón).
 
 ### 3.1 Cabecera: fuente y periodo
 
@@ -204,7 +225,25 @@ Qué muestra y qué permite:
 
 Para qué sirve: es el **mecanismo de control** que permite dar autonomía sin perder el control. Los guardrails de importe y lesionados explican la mayoría de los escalados.
 
-### 3.7 FinOps
+### 3.7 Termómetro de cumplimiento
+
+**Cómo se guardan las trazas, las evidencias y los datos personales que exigen las normas**, con una cifra por marco:
+
+| Bloque | Qué muestra |
+|---|---|
+| **Cabecera** | Cobertura global de controles, cuántos están cubiertos y cuántos parciales, y cuántos se **miden en las trazas** frente a los **declarados** (documentales). Botón «Exportar evidencias de cumplimiento» (JSON con el termómetro, la cadena y los bloques `_gobernanza`) |
+| **Termómetros** | Reglamento de IA (RIA · AI Act), Protección de datos (RGPD y LOPDGDD), Resiliencia operativa (DORA) y Gobierno en seguros (EIOPA y Solvencia II). Verde desde el 90 %, ámbar desde el 70 %. Clic para filtrar la matriz |
+| **Matriz norma → control** | Qué exige cada artículo, cómo lo resuelve la solución, la medida en vivo, si es medido o declarado y las trazas que lo respaldan. Filtro «Solo parciales» |
+| **Ciclo de vida de una traza** | Ocho pasos, de la ingesta a la supresión, con su norma y su plazo |
+| **Inventario de datos personales** | Por mensaje: categorías detectadas, salud, menores, terceros, cuántos no se usaron para decidir y una muestra del valor en la traza. Clic para ver el texto con los datos resaltados y su bloque `_gobernanza` |
+| **Integridad del registro** | Cadena de hashes sobre las trazas. «Simular una alteración» cambia la decisión de una traza ya registrada y la cadena se rompe a partir de ella |
+| **Seudonimizar no es anonimizar** | La diferencia en dos columnas (RGPD art. 4.5 frente al considerando 26) |
+
+Los controles en ámbar son reales: la **minimización** (el texto llega completo al modelo y parte de los datos no hacía falta para decidir), la **EIPD** pendiente de revisión por un cambio de modelo, el **aviso de IA** pendiente en WhatsApp, la **formación** de dos tramitadores nuevos, la **concentración** en un único proveedor de modelos y las **pruebas de sesgo** por canal. Dan conversación: muestran que el panel no maquilla.
+
+> Aviso que aparece en pantalla: es un indicador técnico de cobertura de controles, no un certificado; no sustituye la evaluación del DPO ni de Cumplimiento.
+
+### 3.8 FinOps
 
 **Controla cuánto cuesta cada decisión y actúa antes de pasarse del presupuesto.**
 
@@ -220,7 +259,7 @@ Para qué sirve: es el **mecanismo de control** que permite dar autonomía sin p
 
 Mensaje clave: en la demo, el agente de Reglas (`gpt-5`) concentra el ~79 % del coste. Es el candidato obvio a optimizar, y los replays permiten hacerlo sin riesgo.
 
-### 3.8 Histórico
+### 3.9 Histórico
 
 **Línea de tiempo única de todo lo que ha ocurrido.** Filtrable por chips de tipo:
 
@@ -248,7 +287,8 @@ Para qué sirve: es el **libro de registro para auditoría**: qué cambió, cuá
 | 5–6 | Gobierno · Resumen (fuente Sesión actual) | KPIs y tarjetas; probar el kill switch | «Control total y parada inmediata» |
 | 6–7 | Trazabilidad → Reasoning & Replay | Waterfall y replay What-if | «Auditamos y probamos antes de cambiar» |
 | 7–8 | Autonomía y Guardrails | Niveles, G-02 y G-04 | «Autonomía graduada con límites claros» |
-| 8–10 | FinOps → Histórico | Cap superado, recomendaciones, línea de tiempo | «Coste bajo control y todo auditado» |
+| 8–9 | Triaje · Respuesta cruda de MSG-A-12 → Gobierno · Termómetro | Bloque `_gobernanza`: datos de un menor y de salud, por qué Salud y no Auto ni Hogar; después el termómetro, el inventario y «Simular una alteración» | «La solución deja a la aseguradora en condiciones de demostrar que cumple» |
+| 9–10 | FinOps → Histórico | Cap superado, recomendaciones, línea de tiempo | «Coste bajo control y todo auditado» |
 
 ---
 

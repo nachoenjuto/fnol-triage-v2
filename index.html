@@ -4,9 +4,10 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>FNOL — Primer Aviso de Siniestro</title>
-  <meta name="description" content="Demo de triaje multicanal de mensajes de clientes de una aseguradora: clasificación por ramo, extracción de datos y aplicación de reglas con Azure AI Foundry.">
-  <link rel="stylesheet" href="styles.css">
-  <link rel="stylesheet" href="header.css">
+  <meta name="description" content="Demo de triaje multicanal de mensajes de clientes de una aseguradora: clasificación por ramo, extracción de datos y aplicación de reglas con un proveedor de IA.">
+  <link rel="stylesheet" href="styles.css?v=19">
+  <link rel="stylesheet" href="header.css?v=19">
+  <link rel="stylesheet" href="cumplimiento.css?v=19">
 </head>
 <body>
   <header class="topbar">
@@ -28,12 +29,12 @@
 
   <!-- Fases del proceso: breadcrumb con ficha explicativa al pasar el ratón / clic -->
   <nav class="submenu" id="phases" aria-label="Fases del proceso">
-    <button type="button" class="phase" data-phase="multicanal" aria-expanded="false"><span data-lucide="messages-square" aria-hidden="true"></span> Multicanalidad</button><span class="arrow" data-lucide="chevron-right" aria-hidden="true"></span>
-    <button type="button" class="phase" data-phase="ramo" aria-expanded="false"><span data-lucide="tags" aria-hidden="true"></span> Clasificación por ramo</button><span class="arrow" data-lucide="chevron-right" aria-hidden="true"></span>
-    <button type="button" class="phase" data-phase="datos" aria-expanded="false"><span data-lucide="file-search" aria-hidden="true"></span> Extracción de datos</button><span class="arrow" data-lucide="chevron-right" aria-hidden="true"></span>
-    <button type="button" class="phase" data-phase="reglas" aria-expanded="false"><span data-lucide="list-checks" aria-hidden="true"></span> Reglas de negocio</button><span class="arrow" data-lucide="chevron-right" aria-hidden="true"></span>
-    <button type="button" class="phase" data-phase="registro" aria-expanded="false"><span data-lucide="route" aria-hidden="true"></span> Trazabilidad</button><span class="arrow" data-lucide="chevron-right" aria-hidden="true"></span>
-    <button type="button" class="phase" data-phase="automatizacion" aria-expanded="false"><span data-lucide="workflow" aria-hidden="true"></span> Automatización</button>
+    <button type="button" class="phase" data-phase="multicanal" aria-expanded="false"><span class="step-n" aria-hidden="true">1</span> Multicanalidad</button><span class="arrow" data-lucide="chevron-right" aria-hidden="true"></span>
+    <button type="button" class="phase" data-phase="ramo" aria-expanded="false"><span class="step-n" aria-hidden="true">2</span> Clasificación por ramo</button><span class="arrow" data-lucide="chevron-right" aria-hidden="true"></span>
+    <button type="button" class="phase" data-phase="datos" aria-expanded="false"><span class="step-n" aria-hidden="true">3</span> Extracción de datos</button><span class="arrow" data-lucide="chevron-right" aria-hidden="true"></span>
+    <button type="button" class="phase" data-phase="reglas" aria-expanded="false"><span class="step-n" aria-hidden="true">4</span> Reglas de negocio</button><span class="arrow" data-lucide="chevron-right" aria-hidden="true"></span>
+    <button type="button" class="phase" data-phase="registro" aria-expanded="false"><span class="step-n" aria-hidden="true">5</span> Trazabilidad</button><span class="arrow" data-lucide="chevron-right" aria-hidden="true"></span>
+    <button type="button" class="phase" data-phase="automatizacion" aria-expanded="false"><span class="step-n" aria-hidden="true">6</span> Automatización</button>
     <!-- Panel emergente con la descripción de la fase (se rellena en app.js) -->
     <div id="phase-pop" class="phase-pop" role="tooltip" hidden>
       <div class="phase-pop-caret" aria-hidden="true"></div>
@@ -84,8 +85,9 @@
   </section>
 
   <div class="layout">
+    <div class="sidebar-rail"><button id="btn-toggle-sidebar" class="sidebar-toggle" type="button" aria-controls="sidebar" aria-expanded="true"></button></div>
     <!-- Barra lateral de ajustes -->
-    <aside class="sidebar" aria-label="Ajustes">
+    <aside class="sidebar" id="sidebar" aria-label="Ajustes">
       <details class="card section">
         <summary><span class="section-ico" data-lucide="inbox" aria-hidden="true"></span> Paquete de mensajes</summary>
         <div class="section-body">
@@ -200,35 +202,90 @@
   </div>
 
   <!-- Ficha de un mensaje -->
-  <dialog id="modal" class="modal" aria-labelledby="modal-title">
+  <dialog id="modal" class="modal ficha" aria-labelledby="modal-title">
     <div class="modal-head">
-      <div>
-        <h2 id="modal-title"></h2>
-        <p id="modal-subtitle" class="muted"></p>
+      <div class="mh-title"><span id="modal-canal" class="mh-ico" aria-hidden="true"></span><h2 id="modal-title"></h2></div>
+      <div class="mh-actions">
+        <span id="modal-pos" class="mh-pos" aria-live="polite"></span>
+        <button id="modal-prev" class="btn btn-ghost btn-icon" type="button" aria-label="Mensaje anterior" title="Anterior (←)"></button>
+        <button id="modal-next" class="btn btn-ghost btn-icon" type="button" aria-label="Mensaje siguiente" title="Siguiente (→)"></button>
+        <button id="modal-close" class="btn btn-ghost btn-icon" type="button" aria-label="Cerrar"><span data-lucide="x" aria-hidden="true"></span></button>
       </div>
-      <button id="modal-close" class="btn btn-ghost" type="button" aria-label="Cerrar"><span data-lucide="x" aria-hidden="true"></span></button>
     </div>
-    <div class="modal-body">
-      <div class="modal-col">
-        <h3 id="modal-h-mensaje">Mensaje</h3>
-        <dl id="modal-mensaje" class="kv"></dl>
-        <pre id="modal-texto" class="msg-text"></pre>
+    <div class="ficha-kpis" id="modal-kpis"></div>
+    <div class="ficha-tabs" id="modal-tabs" role="tablist" aria-label="Secciones de la ficha"></div>
+    <div class="ficha-body">
+      <section class="ficha-panel" id="tab-mensaje" role="tabpanel">
+        <div class="ficha-resumen">
+          <div class="ficha-col">
+            <h3>Datos del mensaje</h3>
+            <div class="box"><dl id="modal-mensaje" class="kv"></dl></div>
+            <h3>Mensaje con evidencias</h3>
+            <div id="modal-texto" class="msg-text msg-evid"></div>
+          </div>
+          <div class="ficha-col">
+            <div class="ev-head">
+              <h3 id="ev-titulo" aria-live="polite">Evidencias</h3>
+              <button id="btn-leyenda" class="btn-leyenda" type="button" aria-expanded="false" aria-controls="ev-pop"><span data-lucide="info" aria-hidden="true"></span> Leyenda</button>
+              <div id="ev-pop" class="ev-pop" role="tooltip" hidden>
+                <h4>Leyenda de las evidencias</h4>
+                <ul class="ev-leyenda" aria-label="Leyenda de colores de las evidencias">
+                  <li data-kind="ev-ramo"><mark class="ev ev-ramo">ramo</mark><span><b>Ramo</b> · indicio que justifica el ramo asignado</span></li>
+                  <li data-kind="ev-dato"><mark class="ev ev-dato">dato</mark><span><b>Dato extraído</b> · póliza, importe, tipo de siniestro, lugar o documentación</span></li>
+                  <li data-kind="ev-fecha"><mark class="ev ev-fecha">fecha</mark><span><b>Fecha del hecho</b> · cuándo ocurrió el siniestro</span></li>
+                  <li data-kind="ev-incumple"><mark class="ev ev-incumple">regla</mark><span><b>Regla que incumple</b> · motivo de la revisión humana</span></li>
+                  <li data-kind="ev-regla"><mark class="ev ev-regla">regla</mark><span><b>Regla que cumple</b> · prueba de que se cumple</span></li>
+                </ul>
+                <p class="small muted">Etiquetas: <span class="ev-tag ok">verificada</span> el modelo la citó y está en el texto · <span class="ev-tag aprox">reconstruida</span> deducida de los datos extraídos · <span class="ev-tag ko">no localizada</span> la cita no aparece en el mensaje.</p>
+              </div>
+            </div>
+            <p class="small muted" id="modal-evid-resumen"></p>
+            <ol id="modal-evid" class="ev-list"></ol>
+          </div>
+        </div>
+      </section>
+      <section class="ficha-panel" id="tab-datos" role="tabpanel" hidden>
         <h3>Datos extraídos</h3>
-        <div class="box"><dl id="modal-datos" class="kv"></dl></div>
-      </div>
-      <div class="modal-col modal-decision">
-        <h3>Ramo</h3>
-        <p id="modal-ramo"></p>
-        <ul id="modal-ramo-criterios" class="ramo-criterios"></ul>
-        <h3>Criterios de decisión</h3>
+        <div class="box"><dl id="modal-datos" class="kv kv-wide"></dl></div>
+      </section>
+      <section class="ficha-panel" id="tab-reglas" role="tabpanel" hidden>
+        <h3 id="modal-reglas-h">Reglas de negocio del ramo</h3>
         <ul id="modal-criterios" class="criterios"></ul>
-        <h3>Decisión</h3>
-        <dl id="modal-resultado" class="kv"></dl>
-        <details>
-          <summary>Respuesta cruda del modelo</summary>
-          <pre id="modal-raw" class="raw"></pre>
-        </details>
-      </div>
+      </section>
+      <section class="ficha-panel" id="tab-razonamiento" role="tabpanel" hidden>
+        <div class="ficha-resumen">
+          <div class="ficha-col">
+            <h3>Ramo</h3>
+            <p id="modal-ramo"></p>
+            <ul id="modal-ramo-criterios" class="ramo-criterios"></ul>
+            <h3>Decisión</h3>
+            <dl id="modal-resultado" class="kv"></dl>
+          </div>
+          <div class="ficha-col">
+            <div id="modal-sig" class="sig-card"></div>
+            <h3>Cronología del procesamiento</h3>
+            <ol id="modal-crono" class="crono"></ol>
+          </div>
+        </div>
+      </section>
+      <section class="ficha-panel" id="tab-json" role="tabpanel" hidden>
+        <div class="row between wrap raw-head">
+          <h3 style="margin:0;border:0;padding:0">Respuesta cruda del modelo</h3>
+          <div class="row">
+            <div class="seg" role="group" aria-label="Contenido de la respuesta">
+              <button type="button" class="seg-btn" data-raw="modelo" aria-pressed="false">Salida del modelo</button>
+              <button type="button" class="seg-btn" data-raw="gobierno" aria-pressed="true">+ Gobierno</button>
+            </div>
+            <button id="modal-copy-raw" class="btn btn-sm" type="button"></button>
+          </div>
+        </div>
+        <ul class="raw-leyenda" id="raw-leyenda" aria-label="Leyenda de colores de la respuesta">
+          <li><i class="rl-pii"></i>Dato personal</li><li><i class="rl-art9"></i>Salud (RGPD art. 9)</li><li><i class="rl-tag"></i>Clave usada para trazabilidad (norma al pasar el ratón)</li>
+          <li class="rl-gob"><i class="rl-traz"></i>Trazabilidad</li><li class="rl-gob"><i class="rl-expl"></i>Explicabilidad</li><li class="rl-gob"><i class="rl-sup"></i>Supervisión humana</li><li class="rl-gob"><i class="rl-ret"></i>Retención</li><li class="rl-gob"><i class="rl-norma"></i>Norma</li>
+        </ul>
+        <pre id="modal-raw" class="raw"></pre>
+        <p class="small muted raw-nota" id="raw-nota"></p>
+      </section>
     </div>
   </dialog>
 
@@ -237,10 +294,12 @@
     <a href="https://github.com/nachoenjuto/fnol-triage" target="_blank" rel="noopener">Código en GitHub</a>
   </footer>
 
-  <script src="icons.js"></script>
-  <script src="data/mensajes.js"></script>
-  <script src="data/resultados.js"></script>
-  <script src="prompts.js"></script>
-  <script src="app.js"></script>
+  <script src="icons.js?v=19"></script>
+  <script src="data/mensajes.js?v=19"></script>
+  <script src="data/resultados.js?v=19"></script>
+  <script src="prompts.js?v=19"></script>
+  <script src="evidencias.js?v=19"></script>
+  <script src="cumplimiento.js?v=19"></script>
+  <script src="app.js?v=19"></script>
 </body>
 </html>

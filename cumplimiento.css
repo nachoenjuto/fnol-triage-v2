@@ -1,0 +1,40 @@
+/* Capa de cumplimiento compartida por index.html y gobierno.html: JSON coloreado con metadatos de gobierno
+   (cumplimiento.js → jsonHtml) y marcas de datos personales sobre el texto del mensaje. */
+/* Respuesta cruda con metadatos de gobierno (cumplimiento.js → jsonHtml) */
+:root { --g-pii: #a0522d; --g-art9: #9f2d2d; --g-traz: #2c5aa0; --g-expl: #276749; --g-sup: #6b4c7a; --g-ret: #8a5a2b; --g-norma: #1b2a4a; }
+@media (prefers-color-scheme: dark) { :root { --g-pii: #e0a07a; --g-art9: #ef8f8e; --g-traz: #8fb3ec; --g-expl: #7fcca2; --g-sup: #c3a6d6; --g-ret: #d9ad7c; --g-norma: #c9d4ee; } }
+.raw-leyenda { list-style: none; display: flex; flex-wrap: wrap; gap: .3rem .9rem; margin: .55rem 0 0; padding: 0; font-size: .74rem; color: var(--muted); }
+.raw-leyenda li { display: inline-flex; align-items: center; gap: .35rem; }
+.raw-leyenda i { width: .8rem; height: .8rem; border-radius: 3px; display: inline-block; }
+.raw-leyenda.sin-gob .rl-gob { display: none; }
+.rl-pii { border-bottom: 2px dashed var(--g-pii); background: color-mix(in srgb, var(--g-pii) 14%, transparent); }
+.rl-art9 { background: var(--g-art9); }
+.rl-tag { background: var(--g-norma); border-radius: 50% !important; }
+.rl-traz { background: var(--g-traz); } .rl-expl { background: var(--g-expl); } .rl-sup { background: var(--g-sup); } .rl-ret { background: var(--g-ret); }
+.rl-norma { background: color-mix(in srgb, var(--g-norma) 16%, transparent); border: 1px solid var(--g-norma); }
+:is(.raw, .raw-json) .j-key { color: var(--text); font-weight: 600; } :is(.raw, .raw-json) .j-str { color: #3d5a3d; } :is(.raw, .raw-json) .j-num, :is(.raw, .raw-json) .j-bool, :is(.raw, .raw-json) .j-null { color: #6b4c7a; }
+@media (prefers-color-scheme: dark) { :is(.raw, .raw-json) .j-str { color: #a9c9a4; } :is(.raw, .raw-json) .j-num, :is(.raw, .raw-json) .j-bool, :is(.raw, .raw-json) .j-null { color: #c3a6d6; } }
+:is(.raw, .raw-json) .j-pii { border-bottom: 2px dashed var(--g-pii); background: color-mix(in srgb, var(--g-pii) 12%, transparent); cursor: help; }
+:is(.raw, .raw-json) .j-pii-salud { border-bottom-color: var(--g-art9); background: color-mix(in srgb, var(--g-art9) 14%, transparent); }
+/* Marca tras las claves que sirven para trazabilidad: la norma sale en el tooltip (no se copia con el JSON) */
+:is(.raw, .raw-json) .j-tag { margin-left: .6rem; cursor: help; font-size: .68rem; font-weight: 600; color: var(--g-norma); }
+:is(.raw, .raw-json) .j-tag::before { content: ''; display: inline-block; width: .5rem; height: .5rem; border-radius: 50%; background: var(--g-norma); margin-right: .3rem; vertical-align: .05rem; }
+:is(.raw, .raw-json) .j-tag::after { content: attr(data-normas); background: color-mix(in srgb, var(--g-norma) 10%, transparent); border-radius: 3px; padding: 0 .3rem; }
+:is(.raw, .raw-json) .g-bloque { display: inline; }
+:is(.raw, .raw-json) .g-bloque::before { content: '// Añadido por la plataforma de gobierno · no generado por el modelo'; display: block; color: var(--muted); font-style: italic; margin: .2rem 0 .1rem; }
+:is(.raw, .raw-json) .g-key { padding: 0 .25rem; border-radius: 3px; color: #fff; }
+:is(.raw, .raw-json) .g-key.g-traz { background: var(--g-traz); } :is(.raw, .raw-json) .g-key.g-expl { background: var(--g-expl); } :is(.raw, .raw-json) .g-key.g-sup { background: var(--g-sup); }
+:is(.raw, .raw-json) .g-key.g-ret { background: var(--g-ret); } :is(.raw, .raw-json) .g-key.g-pii { background: var(--g-pii); } :is(.raw, .raw-json) .g-key.g-ria { background: var(--g-norma); }
+@media (prefers-color-scheme: dark) { :is(.raw, .raw-json) .g-key { color: #10141c; } }
+:is(.raw, .raw-json) .g-traz .j-str { color: var(--g-traz); } :is(.raw, .raw-json) .g-expl .j-str { color: var(--g-expl); } :is(.raw, .raw-json) .g-sup .j-str { color: var(--g-sup); } :is(.raw, .raw-json) .g-ret .j-str { color: var(--g-ret); } :is(.raw, .raw-json) .g-pii .j-str { color: var(--g-pii); }
+:is(.raw, .raw-json) .g-art9, :is(.raw, .raw-json) .g-art9 .j-str { color: var(--g-art9); }
+:is(.raw, .raw-json) .j-norma, :is(.raw, .raw-json) .g-sec .j-norma { color: var(--g-norma); background: color-mix(in srgb, var(--g-norma) 10%, transparent); border: 1px solid color-mix(in srgb, var(--g-norma) 40%, transparent); border-radius: 3px; cursor: help; }
+
+/* JSON en gobierno.html (index.html ya da estilo a .raw en styles.css) */
+.raw-json { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: .75rem; line-height: 1.5; white-space: pre-wrap; word-break: break-word; background: var(--bg); border: 1px solid var(--border); border-radius: 5px; padding: .6rem; max-height: 420px; overflow: auto; margin: 0; }
+
+/* Datos personales resaltados sobre el texto del mensaje (una clase por categoría) */
+.pii { border-radius: 3px; padding: 0 2px; color: #fff; cursor: help; -webkit-box-decoration-break: clone; box-decoration-break: clone; }
+.pii-identificativo { background: #a0522d; } .pii-contacto { background: #8a5a2b; } .pii-indirecto { background: #4a5578; } .pii-localizacion { background: #2f6f6e; }
+.pii-financiero { background: #6b4c7a; } .pii-salud { background: #9f2d2d; } .pii-menor { background: #b3412f; } .pii-tercero { background: #55608a; }
+.pii-dot { display: inline-block; width: .7rem; height: .7rem; border-radius: 3px; vertical-align: -.05rem; }

@@ -330,6 +330,7 @@
       criterios_ramo: Array.isArray(obj.criterios_ramo) ? obj.criterios_ramo.map((c) => String(c)).filter(Boolean) : [],
       datos_extraidos: datos,
       criterios,
+      evidencias: Evidencias.validar(obj.evidencias),
       decision,
       motivo: obj.motivo.trim().slice(0, 240),
       confianza: Number.isFinite(confianza) ? Math.max(0, Math.min(1, confianza)) : 0.5,
@@ -358,29 +359,35 @@
 
   async function aiTriage(msg, cfg, onProgress) {
     if (state.estrategia === '1paso') {
+      const t0 = performance.now();
       const { text, usage } = await callChat(cfg, [
         { role: 'system', content: buildSystemPrompt(state.prompts) },
         { role: 'user', content: buildUserPrompt(msg) },
       ], { onProgress });
+      const duracion_ms = Math.round(performance.now() - t0);
       const parsed = parseTriage(text);
       if (!parsed) throw new Error('Respuesta del modelo no válida');
-      return { ...parsed, raw: text, usage, pasos: [{ nombre: 'Triaje (todas las reglas)', usage }] };
+      return { ...parsed, raw: text, usage, pasos: [{ nombre: 'Triaje (todas las reglas)', usage, duracion_ms }] };
     }
 
     // Paso 1: clasificar el ramo con un prompt corto
+    const t1 = performance.now();
     const p1 = await callChat(cfg, [
       { role: 'system', content: state.prompts.ramo },
       { role: 'user', content: buildUserPrompt(msg) },
     ], { maxTokens: 800, onProgress: (p) => onProgress && onProgress(`paso 1/2 ramo · ${p}`) });
+    const ms1 = Math.round(performance.now() - t1);
     const ramoInfo = parseRamo(p1.text);
     if (!ramoInfo) throw new Error('Respuesta de clasificación de ramo no válida');
 
     // Paso 2: extracción + reglas solo del ramo clasificado (todas si es Indeterminado)
     const ramoPrevio = ramoInfo.ramo === 'Indeterminado' ? null : ramoInfo.ramo;
+    const t2 = performance.now();
     const p2 = await callChat(cfg, [
       { role: 'system', content: buildSystemPrompt(state.prompts, ramoPrevio) },
       { role: 'user', content: buildUserPrompt(msg, ramoPrevio) },
     ], { onProgress: (p) => onProgress && onProgress(`paso 2/2 reglas ${ramoInfo.ramo} · ${p}`) });
+    const ms2 = Math.round(performance.now() - t2);
     const parsed = parseTriage(p2.text);
     if (!parsed) throw new Error('Respuesta del modelo no válida');
 
@@ -393,7 +400,7 @@
       motivo: discrepancia ? `${discrepancia}. ${parsed.motivo}` : parsed.motivo,
       raw: `// Paso 1 — clasificación de ramo\n${p1.text}\n\n// Paso 2 — extracción y reglas\n${p2.text}`,
       usage: sumUsage(p1.usage, p2.usage),
-      pasos: [{ nombre: 'Paso 1 · ramo', usage: p1.usage }, { nombre: 'Paso 2 · reglas', usage: p2.usage }],
+      pasos: [{ nombre: 'Paso 1 · ramo', usage: p1.usage, duracion_ms: ms1 }, { nombre: 'Paso 2 · reglas', usage: p2.usage, duracion_ms: ms2 }],
     };
   }
 
@@ -465,7 +472,7 @@
     if ((state.motor === 'guardado' && guardados === 0) || (state.motor === 'archivo' && !state.archivo)) state.motor = 'auto';
     sel.value = state.motor;
     $('motor-hint').textContent = {
-      auto: 'Llama a Azure AI Foundry si hay clave; si no, usa el motor local de reglas.',
+      auto: 'Llama a la IA si hay clave; si no, usa el motor local de reglas.',
       guardado: 'Reproduce fichas generadas con IA y guardadas en data/resultados.js, sin llamar al modelo.',
       archivo: 'Reproduce las fichas del JSON cargado en el orden en que se procesaron.',
     }[state.motor];
@@ -627,28 +634,190 @@
   };
   const RESULT_ICON = { cumple: lucide('check'), incumple: lucide('x'), no_aplica: lucide('minus') };
 
-  function openModal(entry) {
+  // Etiquetas y colores de cada tipo de evidencia
+  const REF_LABEL = {
+    numero_poliza: 'Nº de póliza', tipo_siniestro: 'Tipo de siniestro', fecha_hecho: 'Fecha del hecho', importe_estimado_eur: 'Importe', lugar: 'Lugar',
+    nombre_cliente: 'Cliente', documentacion_mencionada: 'Documentación', lesionados: 'Lesionados', terceros_implicados: 'Terceros', observaciones: 'Observaciones', ramo: 'Ramo',
+  };
+  function refInfo(ref, entry) {
+    if (String(ref).startsWith('regla:')) {
+      const cod = ref.slice(6); const c = (entry.criterios || []).find((x) => x.regla === cod);
+      return { clase: c && c.resultado === 'incumple' ? 'ev-incumple' : 'ev-regla', label: `Regla ${cod}${c && c.resultado === 'incumple' ? ' · incumple' : ''}` };
+    }
+    return { clase: ref === 'ramo' ? 'ev-ramo' : ref === 'fecha_hecho' ? 'ev-fecha' : 'ev-dato', label: REF_LABEL[ref] || ref };
+  }
+  const DATOS_ESENCIALES = ['numero_poliza', 'fecha_hecho', 'importe_estimado_eur'];
+
+  // Cronología: pasos reales con su duración (IA) o una sola etapa (motor local, resultados guardados)
+  function etapasDe(entry) {
+    const ia = /^IA/.test(entry.origen || '');
+    const pasos = entry.pasos || [];
+    const tok = (u) => (u ? `${u.input ?? '?'}↑ ${u.output ?? '?'}↓${u.reasoning ? ` ${u.reasoning}⟳` : ''} tokens` : '');
+    const etapas = [{ nombre: 'Mensaje recibido', det: `${CANAL_LABEL[entry.mensaje.canal] || entry.mensaje.canal} · normalizado al formato común` }];
+    if (ia && pasos.length > 1) pasos.forEach((p) => etapas.push({ nombre: p.nombre, ms: p.duracion_ms, det: tok(p.usage) }));
+    else if (ia) etapas.push({ nombre: 'Clasificación, extracción y reglas', ms: pasos[0] && pasos[0].duracion_ms, det: `una sola llamada al modelo · ${tok(entry.usage)}`.replace(/ · $/, '') });
+    else etapas.push({ nombre: 'Motor local de reglas', ms: entry.duracion_ms, det: 'expresiones regulares, sin IA' });
+    etapas.push({ nombre: entry.decision === DECISION.REVIEW ? 'Escalado a revisión humana' : 'Aprobado automáticamente', det: entry.motivo, review: entry.decision === DECISION.REVIEW });
+    return etapas;
+  }
+
+  const modalState = { lista: [], idx: 0, entry: null, tab: 'mensaje', raw: 'gobierno' };
+  const TABS = [['mensaje', 'messages-square', 'Mensaje'], ['datos', 'database', 'Datos extraídos'], ['reglas', 'list-checks', 'Reglas de negocio'], ['razonamiento', 'brain', 'Razonamiento'], ['json', 'braces', 'Respuesta cruda']];
+  function setTab(nombre) {
+    modalState.tab = nombre;
+    document.querySelectorAll('#modal-tabs .ficha-tab').forEach((b) => b.setAttribute('aria-selected', String(b.dataset.tab === nombre)));
+    document.querySelectorAll('#modal .ficha-panel').forEach((p) => { p.hidden = p.id !== `tab-${nombre}`; });
+  }
+
+  // Título de la columna de evidencias: «Evidencias» o el tipo de la evidencia activa (hover o seleccionada)
+  const TIPO_EV = { 'ev-ramo': 'Ramo', 'ev-dato': 'Dato extraído', 'ev-fecha': 'Fecha del hecho', 'ev-incumple': 'Regla que incumple', 'ev-regla': 'Regla que cumple' };
+  function tituloEvidencia(n) {
+    const h = $('ev-titulo');
+    const e = n && (modalState.evs || []).find((x) => String(x.n) === String(n));
+    if (!e) { h.textContent = 'Evidencias'; return; }
+    const info = refInfo(e.ref, modalState.entry || {});
+    const detalle = info.clase === 'ev-fecha' ? '' : info.clase.startsWith('ev-regla') || info.clase === 'ev-incumple' ? e.ref.slice(6) : info.clase === 'ev-ramo' ? (modalState.entry || {}).ramo || '' : info.label;
+    h.innerHTML = `<span class="ev-activa ${info.clase}">${e.n} · ${escapeHtml(TIPO_EV[info.clase])}${detalle ? ` <small>${escapeHtml(detalle)}</small>` : ''}</span>`;
+  }
+
+  function pintarEvidencias(entry, m) {
+    const ev = Evidencias.construir(m.texto, entry.evidencias, entry);
+    modalState.evs = ev.lista;
+    const segs = Evidencias.segmentos(m.texto, ev.lista);
+    const faltan = DATOS_ESENCIALES.filter((k) => (entry.datos_extraidos || {})[k] == null && !ev.lista.some((e) => e.ref === k));
+    const r = ev.resumen;
+    const resumen = !r.total && !faltan.length ? 'Sin evidencias para este mensaje.'
+      : `${r.resaltadas} fragmento${r.resaltadas === 1 ? '' : 's'} del mensaje resaltado${r.resaltadas === 1 ? '' : 's'}`
+        + (r.pedidas ? ` · el modelo citó ${r.pedidas} y ${r.modelo} se localizaron en el texto` : '')
+        + (r.respaldo ? ` · ${r.respaldo} reconstruida${r.respaldo === 1 ? '' : 's'} a partir de los datos extraídos` : '');
+    const lista = ev.lista.map((e) => {
+      const info = refInfo(e.ref, entry);
+      const tag = !e.verificada ? '<span class="ev-tag ko" title="La cita del modelo no aparece literalmente en el mensaje">no localizada</span>'
+        : e.origen === 'respaldo' ? '<span class="ev-tag aprox" title="Reconstruida a partir de los datos extraídos, no citada por el modelo">reconstruida</span>'
+        : '<span class="ev-tag ok" title="El modelo citó este fragmento y está en el texto del mensaje">verificada</span>';
+      return `<li class="ev-item ${info.clase}${e.resaltada ? '' : ' ev-sin'}" data-n="${e.n}"><span class="ev-num">${e.n}</span><div><strong>${escapeHtml(info.label)}</strong> <q>${escapeHtml(e.cita)}</q>${e.nota ? `<small>${escapeHtml(e.nota)}</small>` : ''}</div>${tag}</li>`;
+    }).join('') + faltan.map((k) => `<li class="ev-item ev-falta"><span class="ev-num">–</span><div><strong>${escapeHtml(REF_LABEL[k])}</strong><small>No consta en el mensaje</small></div></li>`).join('');
+    const cont = $('modal-texto'); cont.replaceChildren();
+    segs.forEach((sg) => {
+      if (!sg.ev) { cont.append(document.createTextNode(sg.t)); return; }
+      const info = refInfo(sg.ev.ref, entry);
+      const mark = Object.assign(document.createElement('mark'), { className: `ev ${info.clase}`, title: `${info.label}${sg.ev.nota ? `: ${sg.ev.nota}` : ''}` });
+      mark.dataset.n = sg.ev.n; mark.append(document.createTextNode(sg.t));
+      mark.append(Object.assign(document.createElement('sup'), { textContent: sg.ev.n }));
+      cont.append(mark);
+    });
+    $('modal-evid-resumen').textContent = resumen;
+    $('modal-evid').innerHTML = lista;
+  }
+
+  // Bloque _gobernanza de una decisión (determinista: se recalcula y se guarda en la propia entrada)
+  function gobDe(entry) {
+    entry.gobernanza = Cumplimiento.gobernanza(entry, entry.gob_opts || {});
+    return entry.gobernanza;
+  }
+
+  // Respuesta cruda: la salida del modelo tal cual y, debajo, el bloque añadido por la plataforma
+  function pintarRaw(entry) {
+    const gob = gobDe(entry);
+    const conGob = modalState.raw !== 'modelo';
+    document.querySelectorAll('#tab-json .seg-btn').forEach((b) => b.setAttribute('aria-pressed', String((b.dataset.raw === 'gobierno') === conGob)));
+    $('raw-leyenda').classList.toggle('sin-gob', !conGob);
+    let modelo = null;
+    try { const m = String(entry.raw || '').match(/^\s*\{[\s\S]*\}\s*$/); if (m) modelo = JSON.parse(m[0]); } catch { modelo = null; }
+    const opts = { sensibles: Cumplimiento.camposSensibles(entry), claves: Cumplimiento.CLAVES_NORMA };
+    let html; let texto;
+    if (modelo) {
+      const obj = conGob ? { ...modelo, _gobernanza: gob } : modelo;
+      html = Cumplimiento.jsonHtml(obj, opts); texto = JSON.stringify(obj, null, 2);
+    } else {
+      const base = entry.raw || '(sin respuesta cruda: decisión del motor local)';
+      html = escapeHtml(base) + (conGob ? `\n\n${Cumplimiento.jsonHtml({ _gobernanza: gob }, opts)}` : '');
+      texto = base + (conGob ? `\n\n${JSON.stringify({ _gobernanza: gob }, null, 2)}` : '');
+    }
+    $('modal-raw').innerHTML = html;
+    modalState.rawTexto = texto;
+    const dp = gob.datos_personales;
+    $('raw-nota').textContent = conGob
+      ? `El bloque «_gobernanza» lo añade la plataforma, no el modelo. ${dp.total} datos personales detectados (${dp.categoria_especial_salud} de salud, ${dp.menores} de menores, ${dp.terceros} de terceros): esta ficha es la vista operativa del tramitador; la traza persistida guarda «valor_en_traza», nunca el dato en claro.`
+      : 'Salida del modelo tal y como llegó, sin metadatos de gobierno.';
+  }
+
+  function pintarSiguientePaso(entry) {
+    const paso = Evidencias.siguientePaso(entry);
+    const card = $('modal-sig'); card.className = `sig-card ${paso.tono === 'ok' ? 'ok' : ''}`;
+    const borrador = Evidencias.borradorSolicitud(entry, paso);
+    card.innerHTML = `<span class="k">Siguiente paso recomendado</span>
+      <div class="t">${lucide(paso.icono)} ${escapeHtml(paso.titulo)}</div>
+      <div class="small">${escapeHtml(paso.detalle)}</div>
+      ${paso.pedir.length ? `<div class="small muted">Qué pedir al cliente:</div><div class="pedir">${paso.pedir.map((x) => `<span>${escapeHtml(x)}</span>`).join('')}</div>` : ''}
+      ${paso.otras && paso.otras.length ? `<div class="small muted">También: ${escapeHtml(paso.otras.join(' · '))}</div>` : ''}
+      <div class="sig-acciones">
+        <button class="btn btn-sm btn-primary" type="button" id="btn-revisado">${lucide('check')} ${entry.revisado ? 'Revisado' : paso.tono === 'ok' ? 'Marcar como tramitado' : 'Marcar como revisado'}</button>
+        ${borrador ? `<button class="btn btn-sm" type="button" id="btn-solicitud">${lucide('copy')} Copiar solicitud al cliente</button>` : ''}
+      </div>`;
+    $('btn-revisado').addEventListener('click', () => { entry.revisado = !entry.revisado; gobDe(entry); persistLog(); pintarSiguientePaso(entry); pintarIndicadores(entry); pintarRaw(entry); });
+    const bs = $('btn-solicitud');
+    if (bs) bs.addEventListener('click', async () => {
+      try { await navigator.clipboard.writeText(borrador); bs.innerHTML = `${lucide('check')} Copiado`; } catch { bs.textContent = 'No se pudo copiar'; }
+      setTimeout(() => { bs.innerHTML = `${lucide('copy')} Copiar solicitud al cliente`; }, 1800);
+    });
+  }
+
+  function pintarIndicadores(entry) {
+    const review = entry.decision === DECISION.REVIEW;
+    const ramoColor = { Auto: 'var(--auto)', Hogar: 'var(--hogar)', Salud: 'var(--salud)' }[entry.ramo] || 'var(--muted)';
+    const inc = (entry.criterios || []).filter((c) => c.resultado === 'incumple').map((c) => c.regla);
+    const esperado = entry.esperado || {};
+    $('modal-kpis').innerHTML = `
+      <div class="kpi-tile" style="--tc:${review ? 'var(--review)' : 'var(--ok)'}"><span class="l">Decisión</span><span class="v">${review ? 'A revisar' : 'Aprobado'}</span><span class="s">${entry.revisado ? '<span class="pill pill-revisado">Revisado</span>' : inc.length ? `incumple ${escapeHtml(inc.join(', '))}` : 'sin reglas incumplidas'}</span></div>
+      <div class="kpi-tile" style="--tc:${ramoColor}"><span class="l">Ramo</span><span class="v">${escapeHtml(entry.ramo)}</span><span class="s">${esperado.ramo ? (esperado.ramo === entry.ramo ? 'coincide con el esperado' : `esperado ${escapeHtml(esperado.ramo)}`) : escapeHtml(entry.origen.startsWith('IA') ? 'asignado por el modelo' : 'asignado por reglas locales')}</span></div>
+      <div class="kpi-tile conf" style="--tc:${entry.confianza >= 0.85 ? 'var(--ok)' : entry.confianza >= 0.7 ? 'var(--review)' : 'var(--error)'}"><div class="txt"><span class="l">Confianza</span><span class="v" style="color:var(--tc)">${entry.confianza >= 0.85 ? 'Alta' : entry.confianza >= 0.7 ? 'Media' : 'Baja'}</span><span class="s">del modelo en su decisión</span></div><svg class="ring" viewBox="0 0 64 64" role="img" aria-label="Confianza ${Math.round(entry.confianza * 100)} por ciento"><circle class="pista" cx="32" cy="32" r="26"/><circle class="valor" cx="32" cy="32" r="26" stroke-dasharray="${(entry.confianza * 163.36).toFixed(1)} 999"/><text x="32" y="37" text-anchor="middle">${Math.round(entry.confianza * 100)}%</text></svg></div>`
+  }
+
+  function openModal(entry, lista, { conservarTab = false } = {}) {
+    if (lista) modalState.lista = lista; else modalState.lista = sortedFilteredLog();
+    modalState.idx = Math.max(0, modalState.lista.findIndex((e) => e.id === entry.id));
+    modalState.entry = entry;
     const m = entry.mensaje;
+    const datos = entry.datos_extraidos || {};
+    const esperado = entry.esperado || {};
     $('modal-title').textContent = `${entry.id} · ${m.asunto}`;
-    $('modal-subtitle').innerHTML = `<span class="pill pill-ramo-${entry.ramo.toLowerCase()}">${escapeHtml(entry.ramo)}</span> <span class="pill ${entry.decision === DECISION.REVIEW ? 'pill-review' : 'pill-ok'}">${entry.decision === DECISION.REVIEW ? 'A revisar' : 'Aprobado'}</span>`;
-    $('modal-h-mensaje').innerHTML = `${canalIcon(m.canal)} Mensaje <span class="muted">· ${escapeHtml(CANAL_LABEL[m.canal] || m.canal)}</span>`;
+    $('modal-canal').innerHTML = canalIcon(m.canal);
+    $('modal-pos').textContent = modalState.lista.length > 1 ? `${modalState.idx + 1} de ${modalState.lista.length}` : '';
+    $('modal-prev').disabled = modalState.idx <= 0; $('modal-next').disabled = modalState.idx >= modalState.lista.length - 1;
+    $('modal-prev').innerHTML = lucide('chevron-left'); $('modal-next').innerHTML = lucide('chevron-right');
+    $('modal-copy-raw').innerHTML = `${lucide('copy')} Copiar JSON`;
+    $('modal-tabs').innerHTML = TABS.map(([k, icono, label]) => {
+      const nInc = k === 'reglas' ? (entry.criterios || []).filter((c) => c.resultado === 'incumple').length : 0;
+      return `<button class="ficha-tab" type="button" role="tab" data-tab="${k}" aria-selected="false">${lucide(icono)} ${label}${k === 'reglas' ? ` <span class="n${nInc ? '' : ' vacio'}">${nInc || 0}</span>` : ''}</button>`;
+    }).join('');
+    setTab(conservarTab ? modalState.tab : 'mensaje');
+    tituloEvidencia(null);
+    pintarIndicadores(entry);
+
+    pintarEvidencias(entry, m);
+    pintarSiguientePaso(entry);
+    const etapas = etapasDe(entry);
+    $('modal-crono').innerHTML = etapas.map((e) => `<li class="${e.review ? 'review' : ''}"><b>${escapeHtml(e.nombre)}</b>${e.ms != null ? `<span class="ms">${fmtMs(e.ms)}</span>` : ''}${e.det ? `<small>${escapeHtml(e.det)}</small>` : ''}</li>`).join('')
+      + `<li class="crono-total" style="--dc:transparent">Ciclo total ${fmtMs(entry.duracion_ms)}</li>`;
+
     $('modal-mensaje').innerHTML = kv([
       ['Remitente', escapeHtml(m.remitente.nombre)],
       ['Contacto', escapeHtml(m.remitente.contacto)],
       ['Canal', escapeHtml(CANAL_LABEL[m.canal] || m.canal)],
       ['Recibido', new Date(m.fecha_recepcion).toLocaleString('es-ES')],
+      ['Asunto', escapeHtml(m.asunto)],
     ]);
-    $('modal-texto').textContent = m.texto;
-    const datos = entry.datos_extraidos || {};
     const keys = [...Object.keys(DATOS_LABELS), ...Object.keys(datos).filter((k) => !DATOS_LABELS[k])];
     $('modal-datos').innerHTML = kv(keys.filter((k) => k in datos).map((k) => [DATOS_LABELS[k] || k, k === 'importe_estimado_eur' ? fmtEur(datos[k]) : fmtValue(datos[k])]));
 
-    const esperado = entry.esperado || {};
     const ramoOk = esperado.ramo ? (esperado.ramo === entry.ramo ? `<span class="mark ok">${lucide('check')} coincide</span>` : `<span class="mark ko">${lucide('x')} esperado ${escapeHtml(esperado.ramo)}</span>`) : '';
+    const colorRamo = { Auto: 'var(--auto)', Hogar: 'var(--hogar)', Salud: 'var(--salud)' }[entry.ramo] || 'var(--muted)';
+    const hReglas = $('modal-reglas-h');
+    hReglas.textContent = `Reglas de negocio del ramo ${entry.ramo}`; hReglas.style.color = colorRamo; hReglas.style.borderLeftColor = colorRamo;
     $('modal-ramo').innerHTML = `Asignado por el ${entry.origen.startsWith('IA') ? 'modelo' : 'motor local'}: <strong>${escapeHtml(entry.ramo)}</strong> ${ramoOk}`;
     $('modal-ramo-criterios').replaceChildren(...(entry.criterios_ramo || []).map((c) => Object.assign(document.createElement('li'), { textContent: c })));
     if (!(entry.criterios_ramo || []).length) $('modal-ramo-criterios').innerHTML = '<li class="muted">Sin criterios de clasificación en el resultado.</li>';
-
     $('modal-criterios').replaceChildren(...(entry.criterios || []).map((c) => {
       const li = document.createElement('li');
       li.className = `crit crit-${c.resultado}`;
@@ -664,11 +833,17 @@
       ['Origen', escapeHtml(entry.origen)],
       ['Ciclo', fmtMs(entry.duracion_ms)],
       ['Tokens', entry.usage ? `${entry.usage.input ?? '?'} entrada · ${entry.usage.output ?? '?'} salida${entry.usage.reasoning != null ? ` (${entry.usage.reasoning} razonamiento)` : ''}` : undefined],
-      ...(entry.pasos && entry.pasos.length > 1 ? entry.pasos.map((p) => [`${lucide('corner-down-right')} ${escapeHtml(p.nombre)}`, `${p.usage?.input ?? '?'} entrada · ${p.usage?.output ?? '?'} salida${p.usage?.reasoning != null ? ` (${p.usage.reasoning} razonamiento)` : ''}`]) : []),
+      ...(entry.pasos && entry.pasos.length > 1 ? entry.pasos.map((p) => [`${lucide('corner-down-right')} ${escapeHtml(p.nombre)}`, `${p.duracion_ms != null ? `${fmtMs(p.duracion_ms)} · ` : ''}${p.usage?.input ?? '?'} entrada · ${p.usage?.output ?? '?'} salida${p.usage?.reasoning != null ? ` (${p.usage.reasoning} razonamiento)` : ''}`]) : []),
       ['Referencia demo', esperado.ramo ? `${esperado.revision ? 'A revisar (esperado)' : 'Aprobado (esperado)'}${esperado.nota ? ` — ${escapeHtml(esperado.nota)}` : ''}` : undefined],
     ]);
-    $('modal-raw').textContent = entry.raw || '(sin respuesta cruda: decisión del motor local)';
-    $('modal').showModal();
+    pintarRaw(entry);
+    if (!$('modal').open) $('modal').showModal();
+    $('modal').querySelector('.ficha-body').scrollTop = 0;
+  }
+
+  function navegarModal(delta) {
+    const e = modalState.lista[modalState.idx + delta];
+    if (e) openModal(e, modalState.lista, { conservarTab: true });
   }
 
   // ---------------------------------------------------------------------------
@@ -703,7 +878,7 @@
       await simulateModelWait(onProgress);
       return {
         ramo: e.ramo, criterios_ramo: e.criterios_ramo || [], datos_extraidos: e.datos_extraidos || {}, criterios: e.criterios || [],
-        decision: e.decision, motivo: e.motivo, confianza: e.confianza ?? 0.5, raw: e.raw || null, usage: e.usage || null, pasos: e.pasos || null,
+        decision: e.decision, motivo: e.motivo, confianza: e.confianza ?? 0.5, evidencias: e.evidencias || [], raw: e.raw || null, usage: e.usage || null, pasos: e.pasos || null,
         origen: `${e.origen || 'IA'} (archivo)`,
       };
     }
@@ -772,13 +947,22 @@
           criterios_ramo: result.criterios_ramo || [],
           pasos: result.pasos || null,
           datos_extraidos: result.datos_extraidos,
+          evidencias: result.evidencias || [],
           raw: result.raw || null,
           usage: result.usage || null,
           duracion_ms: Math.round(performance.now() - t0),
           timestamp: new Date().toISOString(),
           esperado: msg.esperado,
           mensaje: mensajeLimpio,
+          gob_opts: {
+            // En «Resultados guardados» del Paquete A se usa la misma traza que el panel de gobierno
+            // (y al reproducir un archivo exportado, la traza y el modelo que se registraron entonces)
+            traza_id: (msg.__entrada && msg.__entrada.gob_opts && msg.__entrada.gob_opts.traza_id) || (state.motor === 'guardado' && typeof TRAZA_DEMO !== 'undefined' ? TRAZA_DEMO[msg.id] : undefined),
+            modelo: /^IA/.test(result.origen || '') ? ((msg.__entrada && msg.__entrada.gob_opts && msg.__entrada.gob_opts.modelo) || (state.motor === 'guardado' ? 'gpt-5' : (cfg && cfg.deployment) || 'modelo IA')) : 'motor local (sin IA)',
+            prompt: /^IA/.test(result.origen || '') ? PROMPT_VERSION : 'reglas locales',
+          },
         });
+        gobDe(state.log[0]);
         persistLog();
         setProgress(i + 1, mensajes.length);
         if (!state.paused) setStatus('run-status', `Procesando ${i + 1}/${mensajes.length}…`);
@@ -826,7 +1010,7 @@
     URL.revokeObjectURL(url);
   }
   function exportJson() {
-    const data = state.log.map(({ mensaje, ...e }) => ({ ...e, mensaje: { id: mensaje.id, canal: mensaje.canal, asunto: mensaje.asunto, texto: mensaje.texto } }));
+    const data = state.log.map(({ mensaje, ...e }) => ({ ...e, mensaje: { id: mensaje.id, canal: mensaje.canal, asunto: mensaje.asunto, texto: mensaje.texto, remitente: mensaje.remitente } }));
     download(`triage-registro-${isoDate(new Date())}.json`, JSON.stringify(data, null, 2), 'application/json');
   }
   function exportCsv() {
@@ -839,7 +1023,20 @@
   // ---------------------------------------------------------------------------
   // Eventos
   // ---------------------------------------------------------------------------
+  // Panel lateral (paquete, configuración y prompt) plegable; el estado se recuerda en la sesión
+  function setSidebar(abierto) {
+    document.querySelector('.layout').classList.toggle('sidebar-collapsed', !abierto);
+    $('sidebar').hidden = !abierto;
+    const b = $('btn-toggle-sidebar');
+    b.setAttribute('aria-expanded', String(abierto));
+    b.innerHTML = lucide(abierto ? 'panel-left-close' : 'panel-left-open');
+    b.title = b.ariaLabel = abierto ? 'Ocultar el panel lateral' : 'Mostrar el panel lateral';
+    ssSet('triage.sidebar', abierto);
+  }
+
   function bind() {
+    setSidebar(ssGet('triage.sidebar', true));
+    $('btn-toggle-sidebar').addEventListener('click', () => setSidebar($('sidebar').hidden));
     $('btn-toggle-config').addEventListener('click', () => {
       const panel = $('config-panel');
       panel.hidden = !panel.hidden;
@@ -918,6 +1115,54 @@
       if (entry) openModal(entry);
     });
     $('modal-close').addEventListener('click', () => $('modal').close());
+    $('modal-prev').addEventListener('click', () => navegarModal(-1));
+    $('modal-next').addEventListener('click', () => navegarModal(1));
+    $('modal-tabs').addEventListener('click', (ev) => { const b = ev.target.closest('.ficha-tab'); if (b) setTab(b.dataset.tab); });
+    $('modal').addEventListener('keydown', (ev) => {
+      if (ev.target.closest('input, textarea, select')) return;
+      if (ev.key === 'ArrowLeft') { ev.preventDefault(); navegarModal(-1); } else if (ev.key === 'ArrowRight') { ev.preventDefault(); navegarModal(1); }
+    });
+    // Resaltado cruzado: pasar el ratón por un fragmento o una evidencia ilumina su pareja y sustituye el título
+    // «Evidencias» por el tipo de la evidencia activa; un clic la fija. La leyenda solo se abre desde su botón.
+    const marcar = (el, clase, on) => {
+      $('modal').querySelectorAll(`[data-n="${el.dataset.n}"]`).forEach((x) => x.classList.toggle(clase, on));
+    };
+    const activa = () => { const sel = $('modal').querySelector('mark.ev.is-sel, .ev-item.is-sel'); return sel ? sel.dataset.n : null; };
+    ['mouseover', 'mouseout'].forEach((tipo) => $('modal').addEventListener(tipo, (ev) => {
+      const el = ev.target.closest('mark.ev[data-n], .ev-item[data-n]');
+      if (!el) return;
+      marcar(el, 'is-on', tipo === 'mouseover');
+      tituloEvidencia(tipo === 'mouseover' ? el.dataset.n : activa());
+    }));
+    $('modal').addEventListener('click', (ev) => {
+      if (ev.target.closest('#btn-leyenda, #ev-pop')) return;
+      const el = ev.target.closest('mark.ev[data-n], .ev-item[data-n]');
+      const ya = el && el.classList.contains('is-sel');
+      $('modal').querySelectorAll('.is-sel').forEach((x) => x.classList.remove('is-sel'));
+      if (el && !ya) marcar(el, 'is-sel', true);
+      tituloEvidencia(activa());
+    });
+    // Leyenda: popover que se abre al pasar el ratón o con el foco sobre el botón, y se fija con un clic
+    const pop = $('ev-pop'); const btnLey = $('btn-leyenda');
+    let fijada = false;
+    const verLeyenda = (on) => { pop.hidden = !on; btnLey.setAttribute('aria-expanded', String(on)); };
+    btnLey.addEventListener('mouseenter', () => verLeyenda(true));
+    btnLey.addEventListener('mouseleave', () => { if (!fijada) setTimeout(() => { if (!fijada && !pop.matches(':hover')) verLeyenda(false); }, 120); });
+    pop.addEventListener('mouseleave', () => { if (!fijada) verLeyenda(false); });
+    btnLey.addEventListener('focus', () => verLeyenda(true));
+    btnLey.addEventListener('blur', () => { if (!fijada) verLeyenda(false); });
+    btnLey.addEventListener('click', () => { fijada = !fijada; verLeyenda(fijada); });
+    $('modal').addEventListener('click', (ev) => { if (fijada && !ev.target.closest('#btn-leyenda, #ev-pop')) { fijada = false; verLeyenda(false); } });
+    $('modal').addEventListener('keydown', (ev) => { if (ev.key === 'Escape' && !pop.hidden) { ev.preventDefault(); fijada = false; verLeyenda(false); btnLey.focus(); } });
+    $('modal-copy-raw').addEventListener('click', async () => {
+      const b = $('modal-copy-raw');
+      try { await navigator.clipboard.writeText(modalState.rawTexto || $('modal-raw').textContent); b.innerHTML = `${lucide('check')} Copiado`; } catch { b.textContent = 'No se pudo copiar'; }
+      setTimeout(() => { b.innerHTML = `${lucide('copy')} Copiar JSON`; }, 1800);
+    });
+    $('tab-json').addEventListener('click', (ev) => {
+      const b = ev.target.closest('.seg-btn'); if (!b || !modalState.entry) return;
+      modalState.raw = b.dataset.raw; pintarRaw(modalState.entry);
+    });
     $('modal').addEventListener('click', (ev) => { if (ev.target === $('modal')) $('modal').close(); });
   }
 
@@ -1118,6 +1363,9 @@
   function medirTopH() {
     const topbar = document.querySelector('.topbar');
     if (topbar) document.documentElement.style.setProperty('--top-h', `${topbar.offsetHeight}px`);
+    // Cabecera + barra de fases (ambas fijas): el panel lateral se ancla justo debajo
+    const submenu = document.querySelector('.submenu');
+    if (topbar) document.documentElement.style.setProperty('--head-h', `${topbar.offsetHeight + (submenu ? submenu.offsetHeight : 0)}px`);
   }
 
   // ---------------------------------------------------------------------------

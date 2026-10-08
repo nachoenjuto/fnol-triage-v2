@@ -5,8 +5,9 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Gobierno, Observabilidad y FinOps de Agentes IA para FNOL</title>
   <meta name="description" content="Panel de control agéntico del triaje de seguros: trazabilidad y observabilidad de los agentes, Reasoning & Replay, Autonomy engine y FinOps con caps de consumo.">
-  <link rel="stylesheet" href="gobierno.css">
-  <link rel="stylesheet" href="header.css">
+  <link rel="stylesheet" href="gobierno.css?v=19">
+  <link rel="stylesheet" href="header.css?v=19">
+  <link rel="stylesheet" href="cumplimiento.css?v=19">
 </head>
 <body>
 <header class="topbar">
@@ -36,8 +37,14 @@
   </div>
 </header>
 <p id="fuente-status" class="foot" role="status" aria-live="polite" style="padding:.5rem 1rem 0"></p>
-<nav class="tabs" id="tabs" aria-label="Secciones"></nav>
 <div class="tip" id="tip"></div>
+<div class="gb-layout" id="gb-layout">
+<!-- Menú lateral de secciones: colapsable; plegado muestra solo los iconos -->
+<nav class="sidenav" id="sidenav" aria-label="Secciones">
+  <button id="btn-toggle-nav" class="sidebar-toggle" type="button" aria-controls="tabs" aria-expanded="true"></button>
+  <div id="tabs" class="sidenav-list" role="tablist" aria-orientation="vertical"></div>
+</nav>
+<main class="gb-main">
 
 <!-- ───────────── RESUMEN ───────────── -->
 <section class="view is-active" data-view="resumen">
@@ -210,6 +217,44 @@
   </div>
 </section>
 
+<!-- ───────────── TERMÓMETRO DE CUMPLIMIENTO ───────────── -->
+<section class="view" data-view="cumplimiento">
+  <div class="card cmp-hero" id="cmp-hero"></div>
+  <div class="cmp-termos" id="cmp-termos"></div>
+  <div class="card">
+    <div class="card-head"><h2 id="h-cmp-matriz"></h2><div class="row"><div class="chips" id="cmp-filtro"></div><div class="chips" id="cmp-filtro-estado"></div></div></div>
+    <div class="tw"><table class="cmp-tabla"><thead><tr><th>Estado</th><th>Norma</th><th>Qué exige</th><th>Cómo lo resuelve la solución</th><th>Medida</th><th>Fuente</th><th>Trazas</th></tr></thead><tbody id="cmp-matriz"></tbody></table></div>
+  </div>
+  <div class="card">
+    <div class="card-head"><h2 id="h-cmp-ciclo"></h2><span class="muted small">Qué le pasa a una traza desde que llega el mensaje hasta que se suprime, y qué norma rige cada paso</span></div>
+    <div class="ciclo" id="cmp-ciclo"></div>
+  </div>
+  <div class="card">
+    <div class="card-head"><h2 id="h-cmp-inv"></h2><span class="muted small">Detectados por la plataforma en cada mensaje · clic en una fila para ver el texto, los hallazgos y su bloque _gobernanza</span></div>
+    <div class="tw"><table><thead><tr><th>Traza</th><th>Mensaje</th><th>Ramo</th><th>Datos personales detectados</th><th>Salud</th><th>Menores</th><th>Terceros</th><th>No usados para decidir</th><th>Valor en la traza (muestra)</th></tr></thead><tbody id="cmp-inv"></tbody></table></div>
+  </div>
+  <div class="two">
+    <div class="card">
+      <div class="card-head"><h2 id="h-cmp-cadena"></h2><button class="btn btn-sm" type="button" id="btn-cmp-alterar"></button></div>
+      <p class="muted small" style="margin-bottom:.6rem">Cada eslabón es el SHA-256 del anterior más el sello de la traza (hash de entrada, de salida y hora). Si alguien cambia una sola letra de una traza ya registrada, la cadena se rompe a partir de ella.</p>
+      <div class="cadena" id="cmp-cadena"></div>
+    </div>
+    <div class="card">
+      <div class="card-head"><h2 id="h-cmp-seud"></h2></div>
+      <div class="seud" id="cmp-seud"></div>
+    </div>
+  </div>
+</section>
+
+</main>
+</div>
+
+<!-- Ficha de cumplimiento de una traza -->
+<dialog id="modal-cmp" class="modal wide" aria-labelledby="modal-cmp-title">
+  <div class="modal-head"><h2 id="modal-cmp-title"></h2><button class="btn btn-sm" type="button" data-close="modal-cmp" aria-label="Cerrar"></button></div>
+  <div class="modal-body" id="modal-cmp-body"></div>
+</dialog>
+
 <!-- Ficha de una traza (Resumen) -->
 <dialog id="modal-traza" class="modal" aria-labelledby="modal-traza-title">
   <div class="modal-head"><h2 id="modal-traza-title"></h2><button class="btn btn-sm" type="button" data-close="modal-traza" aria-label="Cerrar"></button></div>
@@ -259,8 +304,13 @@
 </dialog>
 
 <p class="foot">Panel «Gobierno de Agentes» · demo estática · los datos de demostración son inventados y coherentes con el Paquete A del triaje · <a href="https://github.com/nachoenjuto/fnol-triage" target="_blank" rel="noopener">Código en GitHub</a></p>
-  <script src="icons.js"></script>
-  <script src="data/gobierno.js"></script>
-  <script src="gobierno.js"></script>
+  <script src="icons.js?v=19"></script>
+  <script src="data/mensajes.js?v=19"></script>
+  <script src="data/resultados.js?v=19"></script>
+  <script src="prompts.js?v=19"></script>
+  <script src="evidencias.js?v=19"></script>
+  <script src="cumplimiento.js?v=19"></script>
+  <script src="data/gobierno.js?v=19"></script>
+  <script src="gobierno.js?v=19"></script>
 </body>
 </html>

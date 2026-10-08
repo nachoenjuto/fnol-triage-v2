@@ -46,6 +46,16 @@ Seleccionable en la barra lateral:
 
 La ficha de cada mensaje muestra los tokens de entrada, salida y razonamiento por paso para comparar.
 
+### Evidencias en el texto del mensaje
+
+La ficha resalta en el mensaje los fragmentos en los que se basa cada dato, el ramo y las reglas incumplidas (numerados, con su explicación). El modelo devuelve un campo opcional `evidencias: [{ "ref", "cita", "nota" }]` con citas **literales** del mensaje; [`evidencias.js`](evidencias.js) las **comprueba** en el texto (exacta o normalizada: mayúsculas, tildes, espacios, comillas) antes de resaltarlas. Una cita que no aparece se marca «no localizada» y no se resalta. Nunca se piden posiciones numéricas al modelo. Si el modelo no devuelve evidencias (o el prompt editado no las pide), se reconstruyen a partir de los datos extraídos y de las citas entre comillas de los criterios («reconstruida»). El «siguiente paso recomendado» sale de una tabla fija por regla incumplida, no del modelo.
+
+### Capa de cumplimiento normativo
+
+[`cumplimiento.js`](cumplimiento.js) añade a cada decisión un bloque **`_gobernanza`** calculado por la plataforma (no por el modelo): datos personales detectados (identificativos, contacto, póliza y matrícula, dirección, IBAN, **salud**, **menores** y **terceros**) con su valor seudonimizado o enmascarado en la traza y si se usaron para decidir; explicabilidad (por qué este ramo y por qué no los otros); sello SHA-256 de entrada y salida; plazos de retención; y supervisión humana, cada parte con la norma a la que ayuda (AI Act, RGPD, LOPDGDD, LCS). La ficha lo muestra en color en «Respuesta cruda» y el panel lo agrega en el **Termómetro de cumplimiento**.
+
+Pruebas (sin dependencias, requieren Node): `make test`. Tras cambiar mensajes o resultados guardados, `make datos` regenera los JSON de `data/`.
+
 ## Reproducción sin llamar al modelo
 
 En la barra lateral, **Motor de triaje** permite elegir:
@@ -86,9 +96,15 @@ Compatibilidad: para modelos de razonamiento (`gpt-5*`, `o*`) no se envían `tem
 index.html        UI del triaje: conexión IA, barra lateral, contadores, registro, ficha modal
 app.js            motor local, cliente Azure, procesamiento con pausa, registro, render
 prompts.js        prompt base + bloques de reglas Auto / Hogar / Salud
+evidencias.js     evidencias del mensaje: anclado de citas, respaldo sin IA y siguiente paso (lógica pura, probada con `make test`)
+cumplimiento.js   capa de cumplimiento: datos personales, explicabilidad, SHA-256, retención, termómetro (lógica pura, probada con `make test`)
+cumplimiento.css  JSON coloreado con metadatos de gobierno y marcas de datos personales (lo usan las dos páginas)
+tests/            pruebas de evidencias.js y cumplimiento.js; medición con un modelo real (ia-real.js)
+scripts/          generar-datos.js: regenera los JSON de data/ (`make datos`)
+Makefile          `make run` (servidor local), `make test` y `make datos`
 icons.js          iconos Lucide compartidos (lucide(name) + hidratación de [data-lucide])
 styles.css        estilos del triaje (claro/oscuro, responsive)
-gobierno.html     panel «Gobierno de Agentes» (siete pestañas)
+gobierno.html     panel «Gobierno de Agentes» (ocho secciones en un menú lateral plegable)
 gobierno.js       render del panel: fuentes de datos, trazas, replay, gráficos SVG
 gobierno.css      estilos del panel (mismos tokens que styles.css)
 data/mensajes.js  tres paquetes de mensajes
@@ -101,7 +117,7 @@ _docs/            arquitectura (C4 en Mermaid), guía de referencia de la demo y
 
 ## Gobierno de Agentes
 
-`gobierno.html` es el panel de control agéntico del triaje: gobernanza con trazabilidad y observabilidad de los cuatro agentes (Multicanalidad, Clasificación por ramo, Extracción de datos, Reglas de negocio). Siete pestañas:
+`gobierno.html` es el panel de control agéntico del triaje: gobernanza con trazabilidad y observabilidad de los cuatro agentes (Multicanalidad, Clasificación por ramo, Extracción de datos, Reglas de negocio). Ocho secciones en un menú lateral plegable (plegado, solo iconos):
 
 | Pestaña | Qué muestra |
 |---|---|
@@ -110,6 +126,7 @@ _docs/            arquitectura (C4 en Mermaid), guía de referencia de la demo y
 | **Reasoning & Replay** | la misma lista de trazas (colapsable, con filtros) y, para la seleccionada, el razonamiento estructurado por agente (entrada → pasos → salida) y el replay idéntico o what-if (otro modelo o versión de prompt) con diff de decisión, coste y latencia; histórico de replays |
 | **Autonomía** | niveles L0 Manual · L1 Asistido · L2 Supervisado · L3 Autónomo coloreados de rojo a verde, tarjetas de agentes con umbrales y tasas; clic en un agente abre su **ficha** (histórico de autonomía, cambios de modelo y prompt, comportamiento por modelo, variables que le afectan); auditoría de cambios de nivel |
 | **Guardrails** | condiciones que limitan la autonomía (G-01…G-09): agente, condición, acción, severidad, disparos por día y toggle activo/inactivo; ficha de detalle por guardrail, alta de **nuevos guardrails** y últimos disparos enlazados a su traza. Cualquier referencia a un guardrail o cap (G-04, CAP-03) en el panel muestra su descripción al pasar el ratón |
+| **Termómetro de cumplimiento** | cobertura de controles por marco (RIA · AI Act, RGPD y LOPDGDD, DORA, EIOPA y Solvencia II) con termómetros; matriz norma → qué exige → cómo se resuelve → medida, separando controles **medidos** en las trazas y **declarados**; ciclo de vida de una traza con sus plazos; inventario de datos personales por mensaje con ficha (texto resaltado, hallazgos, bloque `_gobernanza`); cadena de integridad SHA-256 con «Simular una alteración»; seudonimizar frente a anonimizar; exportación de evidencias |
 | **FinOps** | KPI con detalle por clic; **acciones correctivas** propuestas por cada cap superado («Aplicar» o «Solicitar aprobación», con registro en el histórico); caps de consumo (global, por agente, por traza, tokens de razonamiento, llamadas/minuto) con consumo y acción al superar, **ficha de cada cap** (agentes implicados, histórico de superaciones) y alta de **nuevos caps**; coste diario por agente, tokens por agente, sección de **modelos** (proveedor, precio, agentes que lo usan, llamadas, tokens, coste, latencia y éxito: JSON válido, sin reintento, estable en replay, precisión) con coste por modelo × agente y tokens por modelo; las leyendas de los gráficos activan y desactivan series; recomendaciones de ahorro |
 | **Histórico** | línea de tiempo de alertas, políticas, replays, overrides, despliegues, incidentes y operaciones (kill switch, guardrails) |
 

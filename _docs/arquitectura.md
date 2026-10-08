@@ -22,8 +22,10 @@ C4Container
   Person(usuario, "Usuario de la demo")
   Container_Boundary(pages, "GitHub Pages (rama main)") {
     Container(triage, "Triage · index.html + app.js", "HTML/JS", "Paquetes, prompts editables, motor local o IA, registro de decisiones y ficha")
-    Container(gobierno, "Gobierno de Agentes · gobierno.html + gobierno.js", "HTML/JS", "Resumen, trazabilidad, Reasoning & Replay, autonomía, guardrails, FinOps, histórico")
+    Container(gobierno, "Gobierno de Agentes · gobierno.html + gobierno.js", "HTML/JS", "Resumen, trazabilidad, Reasoning & Replay, autonomía, guardrails, termómetro de cumplimiento, FinOps, histórico")
     Container(icons, "icons.js", "JS", "Iconos Lucide compartidos")
+    Container(evid, "evidencias.js", "JS puro", "Ancla en el texto las citas del modelo y reconstruye evidencias sin IA")
+    Container(cumpl, "cumplimiento.js + cumplimiento.css", "JS puro", "Detección de datos personales, explicabilidad, sellado SHA-256, retención y termómetro: bloque _gobernanza")
     ContainerDb(datos, "data/", "JS + JSON estáticos", "mensajes.js, resultados.js, gobierno.js, JSON de prueba")
     ContainerDb(session, "sessionStorage", "navegador", "configuración IA, prompts editados, registro del triaje (triage.log)")
   }
@@ -39,6 +41,10 @@ C4Container
   Rel(triage, icons, "lucide()")
   Rel(gobierno, icons, "lucide()")
   Rel(triage, foundry, "llamadas al modelo", "HTTPS")
+  Rel(triage, evid, "Evidencias.construir()")
+  Rel(cumpl, evid, "evidencias verificadas")
+  Rel(triage, cumpl, "_gobernanza por decisión (Respuesta cruda, registro)")
+  Rel(gobierno, cumpl, "Termómetro de cumplimiento, inventario, cadena de integridad")
 ```
 
 ## Nivel 3 · Componentes del panel de gobierno
@@ -58,6 +64,7 @@ flowchart LR
   G --> replay[Reasoning & Replay · lista + pasos por agente + diff]
   G --> autonomia[Autonomía · niveles L0–L3, agentes, auditoría]
   G --> guardrails[Guardrails · condiciones, disparos, toggles]
+  G --> cumpl[Termómetro de cumplimiento · marcos, matriz norma→control, ciclo de vida, inventario, cadena]
   G --> finops[FinOps · caps, coste por agente, modelos, recomendaciones]
   G --> historico[Histórico · línea de tiempo por tipo de evento]
   resumen -. clic en traza .-> mTraza([Modal · ficha explicada de la traza])
@@ -72,8 +79,35 @@ flowchart LR
   finops -. nuevo .-> mCapN([Modal · nuevo cap])
   finops -. aplicar acción correctiva .-> estado3[(sessionStorage gobierno.correctivas y caps_nuevos)]
   autonomia -. clic en cambio .-> mCambio([Modal · registro del cambio de nivel])
+  cumpl -. clic en fila del inventario .-> mCmp([Modal · ficha de cumplimiento de la traza])
+  mTraza -. botón Cumplimiento .-> mCmp
+```
+
+## Nivel 3 · Componentes de la capa de cumplimiento
+
+Una sola fuente de verdad para las dos páginas: `cumplimiento.js` calcula el bloque `_gobernanza` de cada decisión a partir del mensaje y de la salida del modelo, de forma determinista (no se le pide al modelo). La ficha del triaje lo muestra en «Respuesta cruda» y lo guarda en el registro; el panel lo lee del registro (fuente «Sesión actual») o lo recalcula para las 13 trazas de la demo. Como el hash de entrada y el de salida dependen solo del texto y de la respuesta, coinciden en las dos páginas.
+
+```mermaid
+flowchart LR
+  msg[Mensaje del cliente] --> det[detectar · 8 categorías de datos personales]
+  raw[Salida del modelo] --> hash[sha256 · entrada, salida y sello]
+  msg --> hash
+  ev[evidencias.js · citas verificadas] --> expl[explicabilidad · por qué este ramo y por qué no los otros]
+  det --> masc[enmascarar · tokens PER-/POL-/MAT-, teléfono e IBAN parciales]
+  masc --> expl
+  det --> gob[(_gobernanza)]
+  hash --> gob
+  expl --> gob
+  ret[retención · 6 meses traza, 2 o 5 años expediente, bloqueo] --> gob
+  sup[supervisión humana · REVISION → persona] --> gob
+  gob --> ficha[index.html · Respuesta cruda coloreada]
+  gob --> log[(sessionStorage triage.log · Exportar JSON)]
+  log --> panel[gobierno.html · Termómetro de cumplimiento]
+  decl[data/gobierno.js · controles declarados] --> panel
+  gob --> cadena[encadenar / verificarCadena · integridad del registro]
+  cadena --> panel
 ```
 
 Las acciones del operador en el panel (kill switch, guardrails, caps nuevos, acciones correctivas) se guardan en `sessionStorage` y dejan un evento en el histórico. Ver [guia-demo.md](guia-demo.md) para la guía funcional de cada pantalla.
 
-Esquema del dataset (`data/gobierno-paquete-A.json`): `version`, `periodo`, `precios{modelo:{in,out}}`, `agentes[]` (con `historial[]`, `modelos[]`, `variables[]`), `niveles[]`, `politicas[]` (con `descripcion`, `severidad`, `disparos_dia[]`, `ultimos[]`), `cambios_autonomia[]`, `caps[]`, `kpis`, `alertas[]`, `modelos[]` (consumo, `coste_por_agente`, `exito`), `trazas[]` (cada una con `motivo` y `spans: [[agente, inicio_ms, duracion_ms, modelo, tok_in, tok_out, tok_reasoning]]`), `razonamiento{trazaId: pasos[]}`, `replays[]`, `diario[[fecha, mensajes, [€ por agente]]]`, `eventos[]`, `recomendaciones[]`.
+Esquema del dataset (`data/gobierno-paquete-A.json`): `version`, `periodo`, `precios{modelo:{in,out}}`, `agentes[]` (con `historial[]`, `modelos[]`, `variables[]`), `niveles[]`, `politicas[]` (con `descripcion`, `severidad`, `disparos_dia[]`, `ultimos[]`), `cambios_autonomia[]`, `caps[]`, `kpis`, `alertas[]`, `modelos[]` (consumo, `coste_por_agente`, `exito`), `trazas[]` (cada una con `motivo` y `spans: [[agente, inicio_ms, duracion_ms, modelo, tok_in, tok_out, tok_reasoning]]`), `razonamiento{trazaId: pasos[]}`, `replays[]`, `diario[[fecha, mensajes, [€ por agente]]]`, `eventos[]`, `recomendaciones[]`, `cumplimiento_declarado{ria, rgpd, dora, eiopa}` (controles documentales del Termómetro de cumplimiento). Los dos JSON de `data/` se regeneran con `make datos`.

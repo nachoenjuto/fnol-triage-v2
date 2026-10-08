@@ -12,9 +12,9 @@ Criterios de clasificación:
 - Si el mensaje afecta a varios ramos, elige el ramo principal según el bien dañado o la prestación solicitada. Si no puede determinarse, usa "Indeterminado".
 
 Responde EXCLUSIVAMENTE con un objeto JSON válido:
-{"ramo": "Auto" | "Hogar" | "Salud" | "Indeterminado", "criterios_ramo": ["<indicio 1 citado del texto>", "<indicio 2>", "..."], "confianza": <número entre 0 y 1>}
+{"ramo": "Auto" | "Hogar" | "Salud" | "Indeterminado", "criterios_ramo": ["\\"<cita literal del mensaje>\\": <explicación breve>", "..."], "confianza": <número entre 0 y 1>}
 
-En "criterios_ramo" enumera los indicios concretos del mensaje (palabras, referencias a pólizas, tipo de daño o prestación) en los que basas la clasificación, incluidos los que apuntaban a otro ramo si los hay. No añadas texto fuera del JSON.`;
+En "criterios_ramo" enumera los indicios concretos del mensaje (palabras, referencias a pólizas, tipo de daño o prestación) en los que basas la clasificación, incluidos los que apuntaban a otro ramo si los hay. Cada indicio empieza por una cita LITERAL del mensaje entre comillas dobles, copiada carácter a carácter, seguida de dos puntos y una explicación breve; no parafrasees dentro de las comillas. No añadas texto fuera del JSON.`;
 
 const PROMPT_BASE = `Eres un tramitador senior del departamento de siniestros de una aseguradora española.
 Recibes un mensaje de un cliente (email, formulario web, chat o transcripción telefónica) y debes hacer el triaje:
@@ -27,7 +27,7 @@ Recibes un mensaje de un cliente (email, formulario web, chat o transcripción t
 Responde EXCLUSIVAMENTE con un objeto JSON válido con esta forma exacta:
 {
   "ramo": "Auto" | "Hogar" | "Salud" | "Indeterminado",
-  "criterios_ramo": ["<indicio del texto que justifica el ramo>", "..."],
+  "criterios_ramo": ["\\"<cita literal del mensaje>\\": <explicación breve>", "..."],
   "datos_extraidos": {
     "nombre_cliente": string | null,
     "numero_poliza": string | null,
@@ -43,12 +43,17 @@ Responde EXCLUSIVAMENTE con un objeto JSON válido con esta forma exacta:
   "criterios": [
     { "regla": "<código, p. ej. A2>", "descripcion": "<resumen corto de la regla>", "resultado": "cumple" | "incumple" | "no_aplica", "evidencia": "<cita o razonamiento breve>" }
   ],
+  "evidencias": [
+    { "ref": "<campo de datos_extraidos | ramo | regla:CÓDIGO>", "cita": "<fragmento LITERAL del mensaje>", "nota": "<qué demuestra, máximo 80 caracteres>" }
+  ],
   "decision": "DESPEJADO" | "REVISION",
   "motivo": "<una frase clara en español, máximo 200 caracteres>",
   "confianza": <número entre 0 y 1>
 }
 
-Incluye en "criterios" TODAS las reglas del bloque aplicado, aunque su resultado sea "no_aplica". No añadas texto fuera del JSON.`;
+Incluye en "criterios" TODAS las reglas del bloque aplicado, aunque su resultado sea "no_aplica".
+
+EVIDENCIAS: en "evidencias" lista entre 5 y 12 fragmentos del mensaje: al menos uno que justifique el ramo, uno por cada dato no nulo de datos_extraidos (póliza, fecha, importe, tipo de siniestro, lugar, documentación, terceros, lesionados) y uno por cada regla que incumple; si hay sitio, añade también las reglas que se cumplen gracias a un fragmento concreto. Cada "cita" debe ser un fragmento LITERAL del texto del mensaje, copiado carácter a carácter (mismas mayúsculas, tildes y espacios), de entre 2 y 12 palabras; nunca parafrasees ni resumas dentro de "cita" (la explicación va en "nota"). En "ref" usa el nombre del campo de datos_extraidos al que da soporte, "ramo" para los indicios del ramo o "regla:" seguido del código (p. ej. "regla:H4"). Si un dato esencial no aparece en el texto, no inventes ninguna cita: déjalo a null en datos_extraidos y explícalo en el criterio correspondiente. No añadas texto fuera del JSON.`;
 
 const REGLAS_AUTO = `BLOQUE DE REGLAS — RAMO AUTO
 A1. Vigencia: la póliza debe estar vigente y al corriente de pago en la fecha del hecho. Si el cliente menciona impago, baja o póliza vencida → REVISION.
@@ -110,3 +115,6 @@ function buildUserPrompt(mensaje, ramoPrevio = null) {
   ].join('\n');
   return `Mensaje a evaluar. Responde solo con el objeto JSON indicado.\n\n${cabecera}\n\nTexto del mensaje:\n"""\n${mensaje.texto}\n"""`;
 }
+
+// Versión del prompt de reglas: se registra en cada traza (_gobernanza.trazabilidad.prompt) y coincide con el panel de gobierno
+const PROMPT_VERSION = 'reglas v2.3';

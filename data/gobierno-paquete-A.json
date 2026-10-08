@@ -39,6 +39,23 @@
       "umbral": "STT ≥ 0,7 (G-09, inactivo)",
       "escalado_14d": "0,1 %",
       "override_14d": "—",
+      "identidad": {
+        "id": "agt-fnol-multicanal",
+        "credencial": "Identidad administrada, sin secretos en código; rota automáticamente",
+        "responsable": "Equipo Canales · M. Ortega",
+        "proveedor": "Proveedor de IA (texto y voz) · región UE",
+        "datos": "Texto libre y datos de contacto del remitente; puede contener datos de salud (RGPD art. 9) que solo se transportan, no se interpretan",
+        "puede": [
+          "Leer las colas de entrada de los 5 canales",
+          "Transcribir audio de llamadas",
+          "Escribir en la cola normalizada"
+        ],
+        "no_puede": [
+          "Consultar pólizas ni clientes",
+          "Tomar decisiones de negocio",
+          "Responder al cliente"
+        ]
+      },
       "historial": [
         {
           "fecha": "2026-08-18T10:00:00",
@@ -76,7 +93,25 @@
       "modelos": [
         {
           "modelo": "gpt-4o-mini",
-          "periodo": "01/08 – 25/08",
+          "periodo": "04/08 – 10/08",
+          "precision": "99,5 %",
+          "escalado": "0,3 %",
+          "override": "—",
+          "coste_msg": "0,0006 €",
+          "p95_ms": 730
+        },
+        {
+          "modelo": "gpt-4o-mini",
+          "periodo": "11/08 – 17/08",
+          "precision": "99,5 %",
+          "escalado": "0,3 %",
+          "override": "—",
+          "coste_msg": "0,0006 €",
+          "p95_ms": 720
+        },
+        {
+          "modelo": "gpt-4o-mini",
+          "periodo": "18/08 – 24/08",
           "precision": "99,6 %",
           "escalado": "0,2 %",
           "override": "—",
@@ -85,7 +120,133 @@
         },
         {
           "modelo": "gpt-5-nano",
-          "periodo": "25/08 – hoy",
+          "periodo": "25/08 – 03/09",
+          "precision": "99,6 %",
+          "escalado": "0,2 %",
+          "override": "—",
+          "coste_msg": "0,0002 €",
+          "p95_ms": 655
+        },
+        {
+          "modelo": "gpt-5-nano",
+          "periodo": "04/09",
+          "precision": "99,6 %",
+          "escalado": "0,2 %",
+          "override": "—",
+          "coste_msg": "0,0002 €",
+          "p95_ms": 650
+        },
+        {
+          "modelo": "gpt-5-nano",
+          "periodo": "05/09",
+          "precision": "99,6 %",
+          "escalado": "0,2 %",
+          "override": "—",
+          "coste_msg": "0,0002 €",
+          "p95_ms": 645
+        },
+        {
+          "modelo": "gpt-5-nano",
+          "periodo": "06/09",
+          "precision": "99,6 %",
+          "escalado": "0,2 %",
+          "override": "—",
+          "coste_msg": "0,0002 €",
+          "p95_ms": 642
+        },
+        {
+          "modelo": "gpt-5-nano",
+          "periodo": "07/09",
+          "precision": "99,7 %",
+          "escalado": "0,2 %",
+          "override": "—",
+          "coste_msg": "0,0002 €",
+          "p95_ms": 640
+        },
+        {
+          "modelo": "gpt-5-nano",
+          "periodo": "08/09",
+          "precision": "99,7 %",
+          "escalado": "0,1 %",
+          "override": "—",
+          "coste_msg": "0,0002 €",
+          "p95_ms": 640
+        },
+        {
+          "modelo": "gpt-5-nano",
+          "periodo": "09/09",
+          "precision": "99,7 %",
+          "escalado": "0,1 %",
+          "override": "—",
+          "coste_msg": "0,0002 €",
+          "p95_ms": 638
+        },
+        {
+          "modelo": "gpt-5-nano",
+          "periodo": "10/09",
+          "precision": "99,7 %",
+          "escalado": "0,1 %",
+          "override": "—",
+          "coste_msg": "0,0002 €",
+          "p95_ms": 638
+        },
+        {
+          "modelo": "gpt-5-nano",
+          "periodo": "11/09",
+          "precision": "99,7 %",
+          "escalado": "0,1 %",
+          "override": "—",
+          "coste_msg": "0,0002 €",
+          "p95_ms": 636
+        },
+        {
+          "modelo": "gpt-5-nano",
+          "periodo": "12/09",
+          "precision": "99,7 %",
+          "escalado": "0,1 %",
+          "override": "—",
+          "coste_msg": "0,0002 €",
+          "p95_ms": 636
+        },
+        {
+          "modelo": "gpt-5-nano",
+          "periodo": "13/09",
+          "precision": "99,7 %",
+          "escalado": "0,1 %",
+          "override": "—",
+          "coste_msg": "0,0002 €",
+          "p95_ms": 635
+        },
+        {
+          "modelo": "gpt-5-nano",
+          "periodo": "14/09",
+          "precision": "99,7 %",
+          "escalado": "0,1 %",
+          "override": "—",
+          "coste_msg": "0,0002 €",
+          "p95_ms": 635
+        },
+        {
+          "modelo": "gpt-5-nano",
+          "periodo": "15/09",
+          "precision": "99,8 %",
+          "escalado": "0,1 %",
+          "override": "—",
+          "coste_msg": "0,0002 €",
+          "p95_ms": 634
+        },
+        {
+          "modelo": "gpt-5-nano",
+          "periodo": "16/09",
+          "precision": "99,8 %",
+          "escalado": "0,1 %",
+          "override": "—",
+          "coste_msg": "0,0002 €",
+          "p95_ms": 632
+        },
+        {
+          "modelo": "gpt-5-nano",
+          "periodo": "17/09 (hoy)",
           "precision": "99,7 %",
           "escalado": "0,1 %",
           "override": "—",
@@ -109,24 +270,7 @@
           "valor": "1,00 €",
           "efecto": "Al 100 % se detiene la transcripción de audio y se encola"
         }
-      ],
-      "identidad": {
-        "id": "agt-fnol-multicanal",
-        "credencial": "Identidad administrada (Entra ID), sin secretos en código; rota automáticamente",
-        "responsable": "Equipo Canales · M. Ortega",
-        "proveedor": "Azure AI Foundry + Azure AI Speech · región UE",
-        "datos": "Texto libre y datos de contacto del remitente; puede contener datos de salud (RGPD art. 9) que solo se transportan, no se interpretan",
-        "puede": [
-          "Leer las colas de entrada de los 5 canales",
-          "Transcribir audio de llamadas",
-          "Escribir en la cola normalizada"
-        ],
-        "no_puede": [
-          "Consultar pólizas ni clientes",
-          "Tomar decisiones de negocio",
-          "Responder al cliente"
-        ]
-      }
+      ]
     },
     {
       "id": "clasificacion",
@@ -143,6 +287,23 @@
       "umbral": "≥ 0,80 · Indeterminado → humano",
       "escalado_14d": "0,5 %",
       "override_14d": "0,3 %",
+      "identidad": {
+        "id": "agt-fnol-clasificacion",
+        "credencial": "Identidad administrada, sin secretos en código; rota automáticamente",
+        "responsable": "Dirección de Siniestros · M. Ortega",
+        "proveedor": "Proveedor de IA · región UE",
+        "datos": "Texto normalizado del mensaje; no recibe datos de póliza",
+        "puede": [
+          "Leer la cola normalizada",
+          "Asignar ramo e indicios",
+          "Marcar Indeterminado para revisión"
+        ],
+        "no_puede": [
+          "Consultar pólizas ni clientes",
+          "Extraer ni modificar datos",
+          "Decidir el trámite"
+        ]
+      },
       "historial": [
         {
           "fecha": "2026-08-11T09:00:00",
@@ -180,8 +341,26 @@
       "modelos": [
         {
           "modelo": "gpt-5-mini",
-          "periodo": "01/08 – 27/08",
+          "periodo": "04/08 – 10/08",
           "precision": "99,2 %",
+          "escalado": "0,7 %",
+          "override": "0,5 %",
+          "coste_msg": "0,0006 €",
+          "p95_ms": 1400
+        },
+        {
+          "modelo": "gpt-5-mini",
+          "periodo": "11/08 – 17/08",
+          "precision": "99,2 %",
+          "escalado": "0,6 %",
+          "override": "0,4 %",
+          "coste_msg": "0,0006 €",
+          "p95_ms": 1390
+        },
+        {
+          "modelo": "gpt-5-mini",
+          "periodo": "18/08 – 24/08",
+          "precision": "99,3 %",
           "escalado": "0,6 %",
           "override": "0,4 %",
           "coste_msg": "0,0006 €",
@@ -189,7 +368,133 @@
         },
         {
           "modelo": "gpt-5-nano",
-          "periodo": "27/08 – hoy",
+          "periodo": "25/08 – 03/09",
+          "precision": "99,1 %",
+          "escalado": "0,6 %",
+          "override": "0,4 %",
+          "coste_msg": "0,0001 €",
+          "p95_ms": 1150
+        },
+        {
+          "modelo": "gpt-5-nano",
+          "periodo": "04/09",
+          "precision": "99,1 %",
+          "escalado": "0,6 %",
+          "override": "0,4 %",
+          "coste_msg": "0,0001 €",
+          "p95_ms": 1140
+        },
+        {
+          "modelo": "gpt-5-nano",
+          "periodo": "05/09",
+          "precision": "99,2 %",
+          "escalado": "0,5 %",
+          "override": "0,4 %",
+          "coste_msg": "0,0001 €",
+          "p95_ms": 1130
+        },
+        {
+          "modelo": "gpt-5-nano",
+          "periodo": "06/09",
+          "precision": "99,2 %",
+          "escalado": "0,5 %",
+          "override": "0,3 %",
+          "coste_msg": "0,0001 €",
+          "p95_ms": 1128
+        },
+        {
+          "modelo": "gpt-5-nano",
+          "periodo": "07/09",
+          "precision": "99,2 %",
+          "escalado": "0,5 %",
+          "override": "0,3 %",
+          "coste_msg": "0,0001 €",
+          "p95_ms": 1125
+        },
+        {
+          "modelo": "gpt-5-nano",
+          "periodo": "08/09",
+          "precision": "99,2 %",
+          "escalado": "0,5 %",
+          "override": "0,3 %",
+          "coste_msg": "0,0001 €",
+          "p95_ms": 1122
+        },
+        {
+          "modelo": "gpt-5-nano",
+          "periodo": "09/09",
+          "precision": "99,2 %",
+          "escalado": "0,5 %",
+          "override": "0,3 %",
+          "coste_msg": "0,0001 €",
+          "p95_ms": 1120
+        },
+        {
+          "modelo": "gpt-5-nano",
+          "periodo": "10/09",
+          "precision": "99,2 %",
+          "escalado": "0,5 %",
+          "override": "0,3 %",
+          "coste_msg": "0,0001 €",
+          "p95_ms": 1120
+        },
+        {
+          "modelo": "gpt-5-nano",
+          "periodo": "11/09",
+          "precision": "99,1 %",
+          "escalado": "0,5 %",
+          "override": "0,3 %",
+          "coste_msg": "0,0001 €",
+          "p95_ms": 1120
+        },
+        {
+          "modelo": "gpt-5-nano",
+          "periodo": "12/09",
+          "precision": "99,1 %",
+          "escalado": "0,5 %",
+          "override": "0,3 %",
+          "coste_msg": "0,0001 €",
+          "p95_ms": 1118
+        },
+        {
+          "modelo": "gpt-5-nano",
+          "periodo": "13/09",
+          "precision": "99,1 %",
+          "escalado": "0,5 %",
+          "override": "0,3 %",
+          "coste_msg": "0,0001 €",
+          "p95_ms": 1118
+        },
+        {
+          "modelo": "gpt-5-nano",
+          "periodo": "14/09",
+          "precision": "99,1 %",
+          "escalado": "0,5 %",
+          "override": "0,3 %",
+          "coste_msg": "0,0001 €",
+          "p95_ms": 1120
+        },
+        {
+          "modelo": "gpt-5-nano",
+          "periodo": "15/09",
+          "precision": "99,1 %",
+          "escalado": "0,5 %",
+          "override": "0,3 %",
+          "coste_msg": "0,0001 €",
+          "p95_ms": 1120
+        },
+        {
+          "modelo": "gpt-5-nano",
+          "periodo": "16/09",
+          "precision": "99,0 %",
+          "escalado": "0,6 %",
+          "override": "0,3 %",
+          "coste_msg": "0,0001 €",
+          "p95_ms": 1122
+        },
+        {
+          "modelo": "gpt-5-nano",
+          "periodo": "17/09 (hoy)",
           "precision": "99,1 %",
           "escalado": "0,5 %",
           "override": "0,3 %",
@@ -213,24 +518,7 @@
           "valor": "2,00 €",
           "efecto": "Sin acción automática: el agente es barato (21 % de uso hoy)"
         }
-      ],
-      "identidad": {
-        "id": "agt-fnol-clasificacion",
-        "credencial": "Identidad administrada (Entra ID), sin secretos en código; rota automáticamente",
-        "responsable": "Dirección de Siniestros · M. Ortega",
-        "proveedor": "Azure AI Foundry · región UE",
-        "datos": "Texto normalizado del mensaje; no recibe datos de póliza",
-        "puede": [
-          "Leer la cola normalizada",
-          "Asignar ramo e indicios",
-          "Marcar Indeterminado para revisión"
-        ],
-        "no_puede": [
-          "Consultar pólizas ni clientes",
-          "Extraer ni modificar datos",
-          "Decidir el trámite"
-        ]
-      }
+      ]
     },
     {
       "id": "extraccion",
@@ -247,6 +535,23 @@
       "umbral": "sin umbral · G-05 datos nulos",
       "escalado_14d": "2,0 %",
       "override_14d": "0,9 %",
+      "identidad": {
+        "id": "agt-fnol-extraccion",
+        "credencial": "Identidad administrada, sin secretos en código; rota automáticamente",
+        "responsable": "Dirección de Siniestros · J. Rey",
+        "proveedor": "Proveedor de IA · región UE",
+        "datos": "Solo los 9 campos del siniestro (minimización); en Salud trata datos de salud, categoría especial (RGPD art. 9)",
+        "puede": [
+          "Leer el mensaje clasificado",
+          "Escribir la ficha de datos extraídos",
+          "Dejar un campo en nulo si no aparece"
+        ],
+        "no_puede": [
+          "Inventar o completar datos",
+          "Consultar historiales médicos",
+          "Decidir el trámite"
+        ]
+      },
       "historial": [
         {
           "fecha": "2026-08-04T09:00:00",
@@ -284,7 +589,7 @@
           "fecha": "2026-09-15T10:12:00",
           "tipo": "incidencia",
           "de": "—",
-          "a": "429 Azure",
+          "a": "429 del proveedor de IA",
           "motivo": "Ráfaga de 429 (10:12–10:19): 38 reintentos, 1 fallback al motor local",
           "usuario": "Sistema"
         }
@@ -292,7 +597,25 @@
       "modelos": [
         {
           "modelo": "gpt-5",
-          "periodo": "04/08 – 29/08",
+          "periodo": "04/08 – 10/08",
+          "precision": "99,7 % campos",
+          "escalado": "2,2 %",
+          "override": "1,0 %",
+          "coste_msg": "0,0110 €",
+          "p95_ms": 3950
+        },
+        {
+          "modelo": "gpt-5",
+          "periodo": "11/08 – 19/08",
+          "precision": "99,7 % campos",
+          "escalado": "2,1 %",
+          "override": "0,9 %",
+          "coste_msg": "0,0110 €",
+          "p95_ms": 3920
+        },
+        {
+          "modelo": "gpt-5",
+          "periodo": "20/08 – 28/08",
           "precision": "99,8 % campos",
           "escalado": "1,9 %",
           "override": "0,8 %",
@@ -301,7 +624,133 @@
         },
         {
           "modelo": "gpt-5-mini",
-          "periodo": "29/08 – hoy",
+          "periodo": "29/08 – 03/09",
+          "precision": "99,7 % campos",
+          "escalado": "2,0 %",
+          "override": "0,9 %",
+          "coste_msg": "0,0018 €",
+          "p95_ms": 2400
+        },
+        {
+          "modelo": "gpt-5-mini",
+          "periodo": "04/09",
+          "precision": "99,7 % campos",
+          "escalado": "2,0 %",
+          "override": "0,9 %",
+          "coste_msg": "0,0018 €",
+          "p95_ms": 2390
+        },
+        {
+          "modelo": "gpt-5-mini",
+          "periodo": "05/09",
+          "precision": "99,7 % campos",
+          "escalado": "2,0 %",
+          "override": "0,9 %",
+          "coste_msg": "0,0018 €",
+          "p95_ms": 2385
+        },
+        {
+          "modelo": "gpt-5-mini",
+          "periodo": "06/09",
+          "precision": "99,7 % campos",
+          "escalado": "2,0 %",
+          "override": "0,9 %",
+          "coste_msg": "0,0018 €",
+          "p95_ms": 2385
+        },
+        {
+          "modelo": "gpt-5-mini",
+          "periodo": "07/09",
+          "precision": "99,7 % campos",
+          "escalado": "2,0 %",
+          "override": "0,9 %",
+          "coste_msg": "0,0018 €",
+          "p95_ms": 2380
+        },
+        {
+          "modelo": "gpt-5-mini",
+          "periodo": "08/09",
+          "precision": "99,7 % campos",
+          "escalado": "2,0 %",
+          "override": "0,9 %",
+          "coste_msg": "0,0018 €",
+          "p95_ms": 2380
+        },
+        {
+          "modelo": "gpt-5-mini",
+          "periodo": "09/09",
+          "precision": "99,7 % campos",
+          "escalado": "2,0 %",
+          "override": "0,9 %",
+          "coste_msg": "0,0018 €",
+          "p95_ms": 2378
+        },
+        {
+          "modelo": "gpt-5-mini",
+          "periodo": "10/09",
+          "precision": "99,7 % campos",
+          "escalado": "2,0 %",
+          "override": "0,9 %",
+          "coste_msg": "0,0018 €",
+          "p95_ms": 2378
+        },
+        {
+          "modelo": "gpt-5-mini",
+          "periodo": "11/09",
+          "precision": "99,7 % campos",
+          "escalado": "2,0 %",
+          "override": "0,9 %",
+          "coste_msg": "0,0018 €",
+          "p95_ms": 2378
+        },
+        {
+          "modelo": "gpt-5-mini",
+          "periodo": "12/09",
+          "precision": "99,7 % campos",
+          "escalado": "2,0 %",
+          "override": "0,9 %",
+          "coste_msg": "0,0018 €",
+          "p95_ms": 2378
+        },
+        {
+          "modelo": "gpt-5-mini",
+          "periodo": "13/09",
+          "precision": "99,7 % campos",
+          "escalado": "2,0 %",
+          "override": "0,9 %",
+          "coste_msg": "0,0018 €",
+          "p95_ms": 2378
+        },
+        {
+          "modelo": "gpt-5-mini",
+          "periodo": "14/09",
+          "precision": "99,7 % campos",
+          "escalado": "2,0 %",
+          "override": "0,9 %",
+          "coste_msg": "0,0018 €",
+          "p95_ms": 2378
+        },
+        {
+          "modelo": "gpt-5-mini",
+          "periodo": "15/09",
+          "precision": "99,6 % campos",
+          "escalado": "2,3 %",
+          "override": "1,0 %",
+          "coste_msg": "0,0018 €",
+          "p95_ms": 2820
+        },
+        {
+          "modelo": "gpt-5-mini",
+          "periodo": "16/09",
+          "precision": "99,7 % campos",
+          "escalado": "2,0 %",
+          "override": "0,9 %",
+          "coste_msg": "0,0018 €",
+          "p95_ms": 2390
+        },
+        {
+          "modelo": "gpt-5-mini",
+          "periodo": "17/09 (hoy)",
           "precision": "99,7 % campos",
           "escalado": "2,0 %",
           "override": "0,9 %",
@@ -325,24 +774,7 @@
           "valor": "5,00 €",
           "efecto": "Aviso al 80 %; hoy al 58 %"
         }
-      ],
-      "identidad": {
-        "id": "agt-fnol-extraccion",
-        "credencial": "Identidad administrada (Entra ID), sin secretos en código; rota automáticamente",
-        "responsable": "Dirección de Siniestros · J. Rey",
-        "proveedor": "Azure AI Foundry · región UE",
-        "datos": "Solo los 9 campos del siniestro (minimización); en Salud trata datos de salud, categoría especial (RGPD art. 9)",
-        "puede": [
-          "Leer el mensaje clasificado",
-          "Escribir la ficha de datos extraídos",
-          "Dejar un campo en nulo si no aparece"
-        ],
-        "no_puede": [
-          "Inventar o completar datos",
-          "Consultar historiales médicos",
-          "Decidir el trámite"
-        ]
-      }
+      ]
     },
     {
       "id": "reglas",
@@ -359,6 +791,23 @@
       "umbral": "≥ 0,85 (G-01)",
       "escalado_14d": "16,4 %",
       "override_14d": "2,1 %",
+      "identidad": {
+        "id": "agt-fnol-reglas",
+        "credencial": "Identidad administrada, sin secretos en código; rota automáticamente",
+        "responsable": "Dirección de Siniestros · Comité IA",
+        "proveedor": "Proveedor de IA · región UE",
+        "datos": "Datos extraídos y consulta de póliza en solo lectura (vigencia, coberturas, carencias)",
+        "puede": [
+          "Consultar la póliza en solo lectura",
+          "Evaluar el bloque de reglas del ramo",
+          "Proponer Aprobado o A revisar con evidencia"
+        ],
+        "no_puede": [
+          "Ordenar pagos",
+          "Rechazar un siniestro",
+          "Modificar la póliza o el expediente"
+        ]
+      },
       "historial": [
         {
           "fecha": "2026-08-04T09:00:00",
@@ -420,7 +869,43 @@
       "modelos": [
         {
           "modelo": "gpt-5",
-          "periodo": "04/08 – hoy",
+          "periodo": "04/08 – 10/08",
+          "precision": "97,8 % decisión",
+          "escalado": "19,5 %",
+          "override": "3,2 %",
+          "coste_msg": "0,0110 €",
+          "p95_ms": 5400
+        },
+        {
+          "modelo": "gpt-5",
+          "periodo": "11/08 – 21/08",
+          "precision": "98,1 % decisión",
+          "escalado": "18,0 %",
+          "override": "2,8 %",
+          "coste_msg": "0,0110 €",
+          "p95_ms": 5320
+        },
+        {
+          "modelo": "gpt-5",
+          "periodo": "22/08 – 31/08",
+          "precision": "98,6 % decisión",
+          "escalado": "17,0 %",
+          "override": "2,4 %",
+          "coste_msg": "0,0110 €",
+          "p95_ms": 5260
+        },
+        {
+          "modelo": "gpt-5",
+          "periodo": "01/09 – 03/09",
+          "precision": "98,8 % decisión",
+          "escalado": "16,6 %",
+          "override": "2,1 %",
+          "coste_msg": "0,0110 €",
+          "p95_ms": 5230
+        },
+        {
+          "modelo": "gpt-5",
+          "periodo": "04/09",
           "precision": "98,9 % decisión",
           "escalado": "16,4 %",
           "override": "2,1 %",
@@ -428,8 +913,116 @@
           "p95_ms": 5210
         },
         {
-          "modelo": "gpt-5-mini",
-          "periodo": "tramos degradados (16/09, 17/09)",
+          "modelo": "gpt-5",
+          "periodo": "05/09",
+          "precision": "98,9 % decisión",
+          "escalado": "16,4 %",
+          "override": "2,1 %",
+          "coste_msg": "0,0110 €",
+          "p95_ms": 5210
+        },
+        {
+          "modelo": "gpt-5",
+          "periodo": "06/09",
+          "precision": "98,9 % decisión",
+          "escalado": "16,3 %",
+          "override": "2,0 %",
+          "coste_msg": "0,0110 €",
+          "p95_ms": 5200
+        },
+        {
+          "modelo": "gpt-5",
+          "periodo": "07/09",
+          "precision": "98,9 % decisión",
+          "escalado": "16,3 %",
+          "override": "2,0 %",
+          "coste_msg": "0,0110 €",
+          "p95_ms": 5200
+        },
+        {
+          "modelo": "gpt-5",
+          "periodo": "08/09",
+          "precision": "98,9 % decisión",
+          "escalado": "16,4 %",
+          "override": "2,1 %",
+          "coste_msg": "0,0110 €",
+          "p95_ms": 5210
+        },
+        {
+          "modelo": "gpt-5",
+          "periodo": "09/09",
+          "precision": "98,9 % decisión",
+          "escalado": "16,4 %",
+          "override": "2,1 %",
+          "coste_msg": "0,0110 €",
+          "p95_ms": 5210
+        },
+        {
+          "modelo": "gpt-5",
+          "periodo": "10/09",
+          "precision": "98,9 % decisión",
+          "escalado": "16,4 %",
+          "override": "2,2 %",
+          "coste_msg": "0,0110 €",
+          "p95_ms": 5215
+        },
+        {
+          "modelo": "gpt-5",
+          "periodo": "11/09",
+          "precision": "99,0 % decisión",
+          "escalado": "16,2 %",
+          "override": "2,0 %",
+          "coste_msg": "0,0110 €",
+          "p95_ms": 5190
+        },
+        {
+          "modelo": "gpt-5",
+          "periodo": "12/09",
+          "precision": "99,0 % decisión",
+          "escalado": "16,1 %",
+          "override": "2,0 %",
+          "coste_msg": "0,0110 €",
+          "p95_ms": 5190
+        },
+        {
+          "modelo": "gpt-5",
+          "periodo": "13/09",
+          "precision": "99,0 % decisión",
+          "escalado": "16,2 %",
+          "override": "2,4 %",
+          "coste_msg": "0,0110 €",
+          "p95_ms": 5195
+        },
+        {
+          "modelo": "gpt-5",
+          "periodo": "14/09",
+          "precision": "98,9 % decisión",
+          "escalado": "16,5 %",
+          "override": "3,1 %",
+          "coste_msg": "0,0110 €",
+          "p95_ms": 5205
+        },
+        {
+          "modelo": "gpt-5",
+          "periodo": "15/09",
+          "precision": "98,8 % decisión",
+          "escalado": "16,8 %",
+          "override": "4,1 %",
+          "coste_msg": "0,0110 €",
+          "p95_ms": 5215
+        },
+        {
+          "modelo": "gpt-5-mini (degradado)",
+          "periodo": "16/09",
+          "precision": "97,6 % decisión",
+          "escalado": "18,2 %",
+          "override": "3,4 %",
+          "coste_msg": "0,0020 €",
+          "p95_ms": 3070
+        },
+        {
+          "modelo": "gpt-5-mini (degradado)",
+          "periodo": "17/09 (hoy)",
           "precision": "97,6 % decisión",
           "escalado": "18,2 %",
           "override": "3,4 %",
@@ -477,24 +1070,7 @@
           "valor": "12,00 €",
           "efecto": "Al 100 % G-07 degrada a gpt-5-mini (activo desde ayer)"
         }
-      ],
-      "identidad": {
-        "id": "agt-fnol-reglas",
-        "credencial": "Identidad administrada (Entra ID), sin secretos en código; rota automáticamente",
-        "responsable": "Dirección de Siniestros · Comité IA",
-        "proveedor": "Azure AI Foundry · región UE",
-        "datos": "Datos extraídos y consulta de póliza en solo lectura (vigencia, coberturas, carencias)",
-        "puede": [
-          "Consultar la póliza en solo lectura",
-          "Evaluar el bloque de reglas del ramo",
-          "Proponer Aprobado o A revisar con evidencia"
-        ],
-        "no_puede": [
-          "Ordenar pagos",
-          "Rechazar un siniestro",
-          "Modificar la póliza o el expediente"
-        ]
-      }
+      ]
     }
   ],
   "niveles": [
@@ -976,7 +1552,7 @@
   "modelos": [
     {
       "id": "gpt-5",
-      "proveedor": "Azure AI Foundry",
+      "proveedor": "Proveedor de IA",
       "agentes": [
         "reglas"
       ],
@@ -1000,7 +1576,7 @@
     },
     {
       "id": "gpt-5-mini",
-      "proveedor": "Azure AI Foundry",
+      "proveedor": "Proveedor de IA",
       "agentes": [
         "extraccion",
         "reglas"
@@ -1026,7 +1602,7 @@
     },
     {
       "id": "gpt-5-nano",
-      "proveedor": "Azure AI Foundry",
+      "proveedor": "Proveedor de IA",
       "agentes": [
         "multicanal",
         "clasificacion"
@@ -1052,7 +1628,7 @@
     },
     {
       "id": "stt-es",
-      "proveedor": "Azure AI Speech",
+      "proveedor": "Proveedor de IA (voz)",
       "agentes": [
         "multicanal"
       ],
@@ -1084,7 +1660,71 @@
       "unidad": "€",
       "consumo": 17.33,
       "accion": "Alertar al 80 % · degradar Reglas al 100 %",
-      "estado": "aviso"
+      "estado": "aviso",
+      "desde": "2026-08-04",
+      "propietario": "FinOps",
+      "descripcion": "Techo de gasto diario de todos los agentes del triaje en llamadas a modelos de IA.",
+      "serie": [
+        12.4,
+        13.6,
+        7.2,
+        6.4,
+        14.8,
+        15.9,
+        15.4,
+        16.8,
+        16.2,
+        7.9,
+        8.3,
+        17.9,
+        18.9,
+        17.33
+      ],
+      "superaciones": [
+        {
+          "fecha": "2026-09-17T09:10:00",
+          "nivel": "aviso",
+          "agente": "reglas",
+          "valor": 17.3,
+          "accion": "Aviso al 80 % enviado a FinOps",
+          "duracion": "en curso",
+          "estado": "activo"
+        },
+        {
+          "fecha": "2026-09-16T16:02:00",
+          "nivel": "aviso",
+          "agente": "reglas",
+          "valor": 16.4,
+          "accion": "Aviso al 80 % enviado a FinOps",
+          "duracion": "hasta las 00:00",
+          "estado": "resuelto"
+        },
+        {
+          "fecha": "2026-09-11T15:48:00",
+          "nivel": "aviso",
+          "agente": "reglas",
+          "valor": 16.1,
+          "accion": "Aviso al 80 % enviado a FinOps",
+          "duracion": "hasta las 00:00",
+          "estado": "resuelto"
+        }
+      ],
+      "correctivas": [
+        {
+          "titulo": "Anticipar el consumo: activar R-02 (gpt-5-mini en despeje directo)",
+          "detalle": "El agente de Reglas aporta el 79 % del gasto. Mover los despejes directos a gpt-5-mini baja el consumo diario global sin tocar los casos complejos.",
+          "impacto": "−7,9 €/día",
+          "tipo": "modelo",
+          "replay": true,
+          "ref": "R-02"
+        },
+        {
+          "titulo": "Reprogramar los lotes no urgentes fuera de la franja 09–12 h",
+          "detalle": "El pico de la mañana concentra el 46 % del gasto diario; repartirlo evita llegar al 100 % a mediodía.",
+          "impacto": "Suaviza el pico",
+          "tipo": "proceso"
+        }
+      ]
     },
     {
       "id": "CAP-02",
@@ -1094,7 +1734,19 @@
       "unidad": "€",
       "consumo": 296.4,
       "accion": "Alertar al 80 % · pausar lotes no urgentes al 100 %",
-      "estado": "ok"
+      "estado": "ok",
+      "desde": "2026-08-04",
+      "propietario": "FinOps",
+      "descripcion": "Techo de gasto mensual global; la proyección de cierre se calcula al ritmo de los últimos 14 días.",
+      "superaciones": [],
+      "correctivas": [
+        {
+          "titulo": "Revisar la proyección de cierre (428 €) cada lunes",
+          "detalle": "Si la proyección supera el 90 % del cap, adelantar R-02 y R-04 (prompt caching).",
+          "impacto": "Preventiva",
+          "tipo": "proceso"
+        }
+      ]
     },
     {
       "id": "CAP-03",
@@ -1104,7 +1756,100 @@
       "unidad": "€",
       "consumo": 13.7,
       "accion": "Degradar a gpt-5-mini hasta las 00:00",
-      "estado": "superado"
+      "estado": "superado",
+      "desde": "2026-08-18",
+      "propietario": "Gobierno IA",
+      "descripcion": "Presupuesto diario del agente de Reglas de negocio, el más caro del pipeline (gpt-5 con razonamiento).",
+      "serie": [
+        8.9,
+        9.7,
+        5,
+        4.4,
+        10.4,
+        11,
+        10.7,
+        11.6,
+        11.3,
+        5.4,
+        5.7,
+        11.8,
+        12.4,
+        13.7
+      ],
+      "agentes": {
+        "reglas": 1
+      },
+      "superaciones": [
+        {
+          "fecha": "2026-09-17T08:00:00",
+          "nivel": "superado",
+          "agente": "reglas",
+          "valor": 13.7,
+          "accion": "G-07 · degradado a gpt-5-mini desde el arranque del lote",
+          "duracion": "en curso",
+          "estado": "activo"
+        },
+        {
+          "fecha": "2026-09-16T17:40:00",
+          "nivel": "superado",
+          "agente": "reglas",
+          "valor": 12.4,
+          "accion": "G-07 · degradado a gpt-5-mini (312 mensajes)",
+          "duracion": "6 h 20 min",
+          "estado": "resuelto"
+        },
+        {
+          "fecha": "2026-09-02T14:12:00",
+          "nivel": "superado",
+          "agente": "reglas",
+          "valor": 12.6,
+          "accion": "Solo alerta (G-07 aún no existía)",
+          "duracion": "hasta las 00:00",
+          "estado": "resuelto"
+        },
+        {
+          "fecha": "2026-08-26T16:30:00",
+          "nivel": "superado",
+          "agente": "reglas",
+          "valor": 12.3,
+          "accion": "Solo alerta (G-07 aún no existía)",
+          "duracion": "hasta las 00:00",
+          "estado": "resuelto"
+        }
+      ],
+      "correctivas": [
+        {
+          "titulo": "Mantener la degradación a gpt-5-mini hasta las 00:00 (G-07)",
+          "detalle": "Ya aplicada de forma automática: el lote no se detiene y los mensajes siguen procesándose en modo degradado, con precisión del 97,6 %.",
+          "impacto": "−82 % coste/mensaje",
+          "tipo": "modelo",
+          "auto": true,
+          "estado": "aplicada"
+        },
+        {
+          "titulo": "Usar gpt-5-mini por defecto en despeje directo (A7 / H5 / S6)",
+          "detalle": "El replay RP-0006 mantuvo la decisión con −82 % de coste. gpt-5 solo cuando hay lesionados, terceros o importe > 3.000 €.",
+          "impacto": "−7,9 €/día",
+          "tipo": "modelo",
+          "replay": true,
+          "ref": "R-02"
+        },
+        {
+          "titulo": "Bajar el reasoning effort de «medium» a «low» en mensajes sin guardrail",
+          "detalle": "El prompt v2.4 reduce un 18 % los tokens de razonamiento con la misma decisión (RP-0008).",
+          "impacto": "−35 % tokens de razonamiento",
+          "tipo": "prompt",
+          "replay": true,
+          "ref": "R-01"
+        },
+        {
+          "titulo": "Reevaluar el límite: subir de 12 € a 14 € si la demanda es estructural",
+          "detalle": "Los lunes y tras tormentas el volumen sube un 18 %. Requiere aprobación del Comité IA y mantener CAP-01 en 20 €.",
+          "impacto": "+2 €/día de margen",
+          "tipo": "config",
+          "aprobacion": true
+        }
+      ]
     },
     {
       "id": "CAP-04",
@@ -1114,7 +1859,83 @@
       "unidad": "€",
       "consumo": 0.062,
       "accion": "Alertar y marcar la traza",
-      "estado": "superado"
+      "estado": "superado",
+      "desde": "2026-08-18",
+      "propietario": "Gobierno IA",
+      "descripcion": "Coste máximo admitido por traza (suma de los agentes que intervienen en un mismo mensaje).",
+      "serie": [
+        0.031,
+        0.034,
+        0.026,
+        0.024,
+        0.036,
+        0.038,
+        0.037,
+        0.041,
+        0.04,
+        0.027,
+        0.028,
+        0.044,
+        0.048,
+        0.062
+      ],
+      "agentes": {
+        "reglas": 0.91,
+        "extraccion": 0.07,
+        "clasificacion": 0.02
+      },
+      "superaciones": [
+        {
+          "fecha": "2026-09-17T09:03:09",
+          "nivel": "superado",
+          "agente": "reglas",
+          "valor": 0.062,
+          "accion": "Alerta + traza marcada · TRZ-4F31 (MSG-A-08)",
+          "duracion": "puntual",
+          "estado": "abierto",
+          "traza": "TRZ-4F31"
+        },
+        {
+          "fecha": "2026-09-09T11:22:00",
+          "nivel": "superado",
+          "agente": "reglas",
+          "valor": 0.054,
+          "accion": "Alerta + traza marcada · TRZ-3B71",
+          "duracion": "puntual",
+          "estado": "resuelto"
+        },
+        {
+          "fecha": "2026-09-05T10:05:00",
+          "nivel": "superado",
+          "agente": "reglas",
+          "valor": 0.052,
+          "accion": "Alerta + traza marcada · TRZ-2D40",
+          "duracion": "puntual",
+          "estado": "resuelto"
+        }
+      ],
+      "correctivas": [
+        {
+          "titulo": "Revisar la traza TRZ-4F31 (MSG-A-08) y su razonamiento",
+          "detalle": "Mensaje con lesionados y varios terceros: el razonamiento largo duplica el coste medio. Comprobar si el guardrail G-04 puede resolverlo antes de llamar al modelo.",
+          "impacto": "−0,03 €/traza",
+          "tipo": "proceso",
+          "traza": "TRZ-4F31"
+        },
+        {
+          "titulo": "Resumir los adjuntos antes de enviarlos al agente de Reglas",
+          "detalle": "Los mensajes con adjuntos largos son el 78 % de las trazas que superan este cap.",
+          "impacto": "−25 % tokens de entrada",
+          "tipo": "prompt"
+        },
+        {
+          "titulo": "Escalar a humano sin llamar al modelo cuando G-04 ya aplica",
+          "detalle": "Si hay lesionados la decisión nunca es automática: evitar el paso de Reglas ahorra el coste completo de la traza.",
+          "impacto": "−0,05 €/traza con lesionados",
+          "tipo": "config",
+          "aprobacion": true
+        }
+      ]
     },
     {
       "id": "CAP-05",
@@ -1124,7 +1945,66 @@
       "unidad": "tok",
       "consumo": 2610,
       "accion": "Alertar; 3 seguidas → bajar reasoning effort",
-      "estado": "superado"
+      "estado": "superado",
+      "desde": "2026-08-18",
+      "propietario": "Gobierno IA",
+      "descripcion": "Tokens de razonamiento (los «tokens pensados» del modelo) que puede gastar el agente de Reglas en una misma traza.",
+      "serie": [
+        1210,
+        1280,
+        980,
+        940,
+        1350,
+        1420,
+        1390,
+        1560,
+        1530,
+        1010,
+        1030,
+        1740,
+        1890,
+        2610
+      ],
+      "agentes": {
+        "reglas": 1
+      },
+      "superaciones": [
+        {
+          "fecha": "2026-09-17T09:03:09",
+          "nivel": "superado",
+          "agente": "reglas",
+          "valor": 2610,
+          "accion": "Alerta (1 seguida; a las 3 baja el reasoning effort)",
+          "duracion": "puntual",
+          "estado": "abierto",
+          "traza": "TRZ-4F31"
+        },
+        {
+          "fecha": "2026-09-10T16:40:00",
+          "nivel": "superado",
+          "agente": "reglas",
+          "valor": 2140,
+          "accion": "Alerta",
+          "duracion": "puntual",
+          "estado": "resuelto"
+        }
+      ],
+      "correctivas": [
+        {
+          "titulo": "Limitar el reasoning effort a «low» cuando no hay guardrail activo",
+          "detalle": "Los modelos de razonamiento gastan tokens pensando aunque el caso sea claro. Con «low» se mantiene la decisión en el 99 % de los replays.",
+          "impacto": "−35 % tokens de razonamiento",
+          "tipo": "prompt",
+          "replay": true,
+          "ref": "R-01"
+        },
+        {
+          "titulo": "Activar la bajada automática de effort tras 3 superaciones seguidas",
+          "detalle": "Ya configurada en la acción del cap; falta validarla con un replay what-if sobre el lote del lunes.",
+          "impacto": "Contiene los picos",
+          "tipo": "config"
+        }
+      ]
     },
     {
       "id": "CAP-06",
@@ -1134,7 +2014,38 @@
       "unidad": "€",
       "consumo": 2.9,
       "accion": "Alertar al 80 %",
-      "estado": "ok"
+      "estado": "ok",
+      "desde": "2026-08-18",
+      "propietario": "Gobierno IA",
+      "descripcion": "Presupuesto diario del agente de Extracción de datos (gpt-5-mini).",
+      "serie": [
+        2.1,
+        2.4,
+        1.1,
+        1,
+        2.5,
+        2.7,
+        2.6,
+        2.8,
+        2.7,
+        1.2,
+        1.3,
+        2.9,
+        3.1,
+        2.9
+      ],
+      "agentes": {
+        "extraccion": 1
+      },
+      "superaciones": [],
+      "correctivas": [
+        {
+          "titulo": "Sin acción necesaria: consumo estable en torno al 55 %",
+          "detalle": "Margen suficiente aunque el volumen crezca un 40 %.",
+          "impacto": "Preventiva",
+          "tipo": "proceso"
+        }
+      ]
     },
     {
       "id": "CAP-07",
@@ -1144,7 +2055,51 @@
       "unidad": "req",
       "consumo": 74,
       "accion": "Encolar (rate limit interno)",
-      "estado": "ok"
+      "estado": "ok",
+      "desde": "2026-08-04",
+      "propietario": "Plataforma",
+      "descripcion": "Límite interno de llamadas por minuto a Proveedor de IA para no provocar errores 429.",
+      "serie": [
+        58,
+        62,
+        31,
+        29,
+        66,
+        71,
+        69,
+        78,
+        76,
+        34,
+        36,
+        84,
+        118,
+        74
+      ],
+      "agentes": {
+        "extraccion": 0.38,
+        "reglas": 0.34,
+        "clasificacion": 0.2,
+        "multicanal": 0.08
+      },
+      "superaciones": [
+        {
+          "fecha": "2026-09-15T10:12:00",
+          "nivel": "aviso",
+          "agente": "extraccion",
+          "valor": 118,
+          "accion": "Encolado (rate limit interno) · ráfaga de 429 en el proveedor de IA",
+          "duracion": "7 min",
+          "estado": "resuelto"
+        }
+      ],
+      "correctivas": [
+        {
+          "titulo": "Escalonar el arranque de lotes para evitar ráfagas",
+          "detalle": "La ráfaga del 15/09 coincidió con el arranque simultáneo de los lotes de Hogar y Auto.",
+          "impacto": "Evita 429",
+          "tipo": "proceso"
+        }
+      ]
     }
   ],
   "kpis": {
@@ -1266,7 +2221,7 @@
           0,
           90,
           "gpt-5-nano",
-          210,
+          304,
           40,
           0
         ],
@@ -1275,7 +2230,7 @@
           90,
           720,
           "gpt-5-nano",
-          430,
+          524,
           58,
           0
         ],
@@ -1284,7 +2239,7 @@
           810,
           1640,
           "gpt-5-mini",
-          910,
+          1004,
           250,
           0
         ],
@@ -1293,7 +2248,7 @@
           2450,
           3900,
           "gpt-5",
-          1384,
+          1478,
           612,
           214
         ]
@@ -1316,7 +2271,7 @@
           0,
           60,
           "gpt-5-nano",
-          180,
+          259,
           32,
           0
         ],
@@ -1325,7 +2280,7 @@
           60,
           690,
           "gpt-5-nano",
-          440,
+          519,
           61,
           0
         ],
@@ -1334,7 +2289,7 @@
           750,
           1710,
           "gpt-5-mini",
-          930,
+          1009,
           262,
           0
         ],
@@ -1343,7 +2298,7 @@
           2460,
           3720,
           "gpt-5",
-          1391,
+          1470,
           598,
           196
         ]
@@ -1366,7 +2321,7 @@
           0,
           70,
           "gpt-5-nano",
-          160,
+          248,
           30,
           0
         ],
@@ -1375,7 +2330,7 @@
           70,
           640,
           "gpt-5-nano",
-          400,
+          488,
           55,
           0
         ],
@@ -1384,7 +2339,7 @@
           710,
           1520,
           "gpt-5-mini",
-          860,
+          948,
           231,
           0
         ],
@@ -1393,7 +2348,7 @@
           2230,
           3480,
           "gpt-5",
-          1360,
+          1448,
           571,
           188
         ]
@@ -1424,7 +2379,7 @@
           0,
           80,
           "gpt-5-nano",
-          220,
+          323,
           41,
           0
         ],
@@ -1433,7 +2388,7 @@
           80,
           700,
           "gpt-5-nano",
-          450,
+          553,
           62,
           0
         ],
@@ -1442,7 +2397,7 @@
           780,
           1810,
           "gpt-5-mini",
-          960,
+          1063,
           271,
           0
         ],
@@ -1451,7 +2406,7 @@
           2590,
           4260,
           "gpt-5",
-          1388,
+          1491,
           634,
           241
         ]
@@ -1474,7 +2429,7 @@
           0,
           60,
           "gpt-5-nano",
-          190,
+          280,
           33,
           0
         ],
@@ -1483,7 +2438,7 @@
           60,
           650,
           "gpt-5-nano",
-          420,
+          510,
           57,
           0
         ],
@@ -1492,7 +2447,7 @@
           710,
           1590,
           "gpt-5-mini",
-          890,
+          980,
           244,
           0
         ],
@@ -1501,7 +2456,7 @@
           2300,
           3510,
           "gpt-5",
-          1372,
+          1462,
           580,
           175
         ]
@@ -1524,7 +2479,7 @@
           0,
           80,
           "gpt-5-nano",
-          200,
+          284,
           36,
           0
         ],
@@ -1533,7 +2488,7 @@
           80,
           680,
           "gpt-5-nano",
-          410,
+          494,
           54,
           0
         ],
@@ -1542,7 +2497,7 @@
           760,
           1560,
           "gpt-5-mini",
-          870,
+          954,
           236,
           0
         ],
@@ -1551,7 +2506,7 @@
           2320,
           3470,
           "gpt-5",
-          1358,
+          1442,
           566,
           182
         ]
@@ -1574,7 +2529,7 @@
           0,
           60,
           "gpt-5-nano",
-          150,
+          232,
           28,
           0
         ],
@@ -1583,7 +2538,7 @@
           60,
           610,
           "gpt-5-nano",
-          380,
+          462,
           50,
           0
         ],
@@ -1592,7 +2547,7 @@
           670,
           1420,
           "gpt-5-mini",
-          820,
+          902,
           218,
           0
         ],
@@ -1601,7 +2556,7 @@
           2090,
           3210,
           "gpt-5",
-          1349,
+          1431,
           548,
           160
         ]
@@ -1638,7 +2593,7 @@
           1840,
           890,
           "gpt-5-nano",
-          520,
+          607,
           74,
           0
         ],
@@ -1647,7 +2602,7 @@
           2730,
           2210,
           "gpt-5-mini",
-          1080,
+          1167,
           312,
           0
         ],
@@ -1656,7 +2611,7 @@
           4940,
           7420,
           "gpt-5",
-          1412,
+          1499,
           668,
           2610
         ]
@@ -1679,7 +2634,7 @@
           0,
           60,
           "gpt-5-nano",
-          170,
+          273,
           31,
           0
         ],
@@ -1688,7 +2643,7 @@
           60,
           640,
           "gpt-5-nano",
-          400,
+          503,
           53,
           0
         ],
@@ -1697,7 +2652,7 @@
           700,
           1500,
           "gpt-5-mini",
-          850,
+          953,
           229,
           0
         ],
@@ -1706,7 +2661,7 @@
           2200,
           3380,
           "gpt-5",
-          1355,
+          1458,
           584,
           190
         ]
@@ -1724,7 +2679,7 @@
       "motivo": "Urgencias por crisis de asma en hospital del cuadro con informe adjunto: prestación directa sin carencia.",
       "resultado": "auto",
       "incidencias": [
-        "429 Azure · reintento 1 (2 s)"
+        "429 del proveedor de IA · reintento 1 (2 s)"
       ],
       "spans": [
         [
@@ -1732,7 +2687,7 @@
           0,
           80,
           "gpt-5-nano",
-          200,
+          282,
           35,
           0
         ],
@@ -1741,7 +2696,7 @@
           80,
           660,
           "gpt-5-nano",
-          400,
+          482,
           52,
           0
         ],
@@ -1750,7 +2705,7 @@
           740,
           3620,
           "gpt-5-mini",
-          860,
+          942,
           233,
           0
         ],
@@ -1759,7 +2714,7 @@
           4360,
           3400,
           "gpt-5",
-          1352,
+          1434,
           562,
           178
         ]
@@ -1782,7 +2737,7 @@
           0,
           70,
           "gpt-5-nano",
-          160,
+          228,
           30,
           0
         ],
@@ -1791,7 +2746,7 @@
           70,
           620,
           "gpt-5-nano",
-          390,
+          458,
           51,
           0
         ],
@@ -1800,7 +2755,7 @@
           690,
           1480,
           "gpt-5-mini",
-          840,
+          908,
           226,
           0
         ],
@@ -1809,7 +2764,7 @@
           2170,
           3420,
           "gpt-5",
-          1366,
+          1434,
           590,
           186
         ]
@@ -1832,7 +2787,7 @@
           0,
           70,
           "gpt-5-nano",
-          150,
+          220,
           29,
           0
         ],
@@ -1841,7 +2796,7 @@
           70,
           630,
           "gpt-5-nano",
-          380,
+          450,
           50,
           0
         ],
@@ -1850,7 +2805,7 @@
           700,
           1450,
           "gpt-5-mini",
-          830,
+          900,
           224,
           0
         ],
@@ -1859,7 +2814,7 @@
           2150,
           3360,
           "gpt-5",
-          1352,
+          1422,
           566,
           176
         ]
@@ -1883,7 +2838,7 @@
           0,
           70,
           "gpt-5-nano",
-          140,
+          224,
           27,
           0
         ],
@@ -1892,7 +2847,7 @@
           70,
           700,
           "gpt-5-nano",
-          360,
+          444,
           48,
           0
         ],
@@ -1901,7 +2856,7 @@
           770,
           1520,
           "gpt-5-mini",
-          780,
+          864,
           206,
           0
         ],
@@ -1910,7 +2865,7 @@
           2290,
           3980,
           "gpt-5",
-          1330,
+          1414,
           610,
           232
         ]
@@ -1921,7 +2876,7 @@
     "TRZ-4F2A": [
       {
         "agente": "multicanal",
-        "entrada": "Email de marta.gil@correo.es · 540 caracteres · 1 adjunto (parte amistoso escaneado)",
+        "entrada": "Email de marta.gil@correo.es · 784 caracteres · 1 adjunto (parte amistoso escaneado)",
         "pasos": [
           "Canal email: se conserva el asunto y se registra el adjunto como documentación",
           "Fecha de recepción 14/09 09:12 · idioma es-ES"
@@ -1932,7 +2887,7 @@
         "agente": "clasificacion",
         "entrada": "Texto normalizado",
         "pasos": [
-          "Indicios Auto: \"Seat León 4521 KLM\", \"póliza AU-483920\", \"M-30\", \"parte amistoso\"",
+          "Indicios Auto: \"Seat León 4521 KLM\", \"póliza AU-483920\", \"M-30\", \"parte amistoso\", \"otro conductor\"",
           "Sin indicios de Hogar ni Salud",
           "Confianza de ramo 0,99"
         ],
@@ -1942,9 +2897,10 @@
         "agente": "extraccion",
         "entrada": "Texto + ramo Auto",
         "pasos": [
-          "Póliza AU-483920 · fecha \"sábado 12 de septiembre\" → 2026-09-12 · lugar M-30, Madrid",
+          "Póliza AU-483920 · fecha \"sábado 12 de septiembre\" → 2026-09-12 · lugar M-30 a la altura del Puente de Segovia",
           "Importe 1.350 € (presupuesto de taller: paragolpes y faro derecho)",
-          "Tercero implicado = sí (parte amistoso firmado por ambos) · lesionados = no (\"No hubo heridos\")"
+          "Tercero implicado = sí (Raúl Méndez, parte amistoso firmado por ambos) · lesionados = no (\"No hubo heridos\")",
+          "Datos personales detectados: DNI y teléfono de la tomadora, nombre del tercero → se seudonimizan en la traza"
         ],
         "salida": "10 campos · 0 inventados · 0 nulos"
       },
@@ -1963,7 +2919,7 @@
     "TRZ-4F2B": [
       {
         "agente": "multicanal",
-        "entrada": "Formulario web · campos: nombre, teléfono, asunto, texto (410 caracteres) · fotos y 2 facturas adjuntas",
+        "entrada": "Formulario web · campos: nombre, teléfono, asunto, texto (718 caracteres) · fotos y 2 facturas adjuntas",
         "pasos": [
           "Canal web: los campos estructurados se vuelcan al formato único",
           "Fecha de recepción 14/09 11:40"
@@ -1984,9 +2940,10 @@
         "agente": "extraccion",
         "entrada": "Texto + ramo Hogar",
         "pasos": [
-          "Póliza HO-220114 · fecha \"ayer 13/09\" → 2026-09-13 · lugar C/ Alcalá 210, Madrid",
+          "Póliza HO-220114 · fecha \"ayer 13/09\" → 2026-09-13 · lugar C/ Alcalá 210, 4.º A, 28028 Madrid",
           "Importe 1.080 € = 180 € fontanero + 900 € parquetista (dos facturas)",
-          "Sin terceros · sin lesionados · documentación: fotos y facturas"
+          "Sin terceros (\"El agua no ha llegado al piso de abajo\") · sin lesionados · documentación: fotos y facturas",
+          "IBAN para el pago detectado → enmascarado en la traza y no se usa en la decisión"
         ],
         "salida": "10 campos · 0 inventados · 0 nulos"
       },
@@ -2005,7 +2962,7 @@
     "TRZ-4F2C": [
       {
         "agente": "multicanal",
-        "entrada": "Chat de la app móvil · 3 mensajes seguidos unidos en uno · 300 caracteres",
+        "entrada": "Chat de la app móvil · 3 mensajes seguidos unidos en uno · 624 caracteres",
         "pasos": [
           "Canal chat: se concatenan los mensajes de la misma conversación",
           "Fecha de recepción 14/09 20:05"
@@ -2027,7 +2984,7 @@
         "entrada": "Texto + ramo Salud",
         "pasos": [
           "Número de póliza no mencionado → nulo; se registra la tarjeta 7712 0034 8891 como identificación",
-          "Fecha \"esta tarde\" → 2026-09-14 · lugar Hospital Quirón Pozuelo · lesionados = sí (la propia asegurada)",
+          "Fecha \"esta tarde\" → 2026-09-14 · lugar Hospital Quirón Pozuelo · lesionados = sí (la propia asegurada, esguince de grado II)",
           "Importe no mencionado → nulo (prestación directa)"
         ],
         "salida": "10 campos · 0 inventados · 2 nulos"
@@ -2047,7 +3004,7 @@
     "TRZ-4F2D": [
       {
         "agente": "multicanal",
-        "entrada": "Email de anavarro71@mail.com · 612 caracteres · sin adjuntos",
+        "entrada": "Email de anavarro71@mail.com · 776 caracteres · sin adjuntos",
         "pasos": [
           "Canal email → sin transcripción; se conserva el asunto original",
           "Fecha de recepción 13/09 17:22 · idioma es-ES"
@@ -2058,7 +3015,7 @@
         "agente": "clasificacion",
         "entrada": "Texto normalizado",
         "pasos": [
-          "Indicios Auto: \"Peugeot 308\", \"póliza AU-119045\", \"parking\", \"columna\"",
+          "Indicios Auto: \"Peugeot 308 3318 LMB\", \"póliza AU-119045\", \"parking\", \"columna\"",
           "Sin indicios de Hogar ni Salud",
           "Confianza de ramo 0,98"
         ],
@@ -2070,16 +3027,16 @@
         "pasos": [
           "Póliza AU-119045 · fecha \"el jueves 10\" → 2026-09-10 (relativa a la recepción)",
           "Importe 2.200 € (taller de confianza) · sin terceros · sin lesionados",
-          "Conductor: \"mi hijo Pablo (22 años)\" → observaciones"
+          "Conductor: \"mi hijo Pablo (22 años)\"; el tomador \"no sé si lo incluimos en la póliza\" → observaciones"
         ],
-        "salida": "10 campos · 0 inventados · 1 nulo (lugar exacto)"
+        "salida": "10 campos · 0 inventados · 0 nulos"
       },
       {
         "agente": "reglas",
         "entrada": "Datos extraídos + bloque de reglas Auto v2.3",
         "pasos": [
           "A1 cumple · A2 cumple (3 días) · A4 cumple · A5 cumple · A6 cumple (2.200 € < 6.000 €)",
-          "A3 INCUMPLE: el conductor no consta como declarado en el texto",
+          "A3 INCUMPLE: el conductor no consta como declarado y el propio tomador lo duda",
           "A7 no aplica al haber una regla incumplida · A8 cumple",
           "Decisión REVISION con confianza 0,90: comprobar conductores habituales"
         ],
@@ -2089,7 +3046,7 @@
     "TRZ-4F2E": [
       {
         "agente": "multicanal",
-        "entrada": "Formulario web · 380 caracteres · informe de incidencia de la eléctrica adjunto",
+        "entrada": "Formulario web · 680 caracteres · informe de incidencia de la eléctrica adjunto",
         "pasos": [
           "Canal web: campos estructurados + texto libre",
           "Fecha de recepción 12/09 08:50"
@@ -2110,11 +3067,11 @@
         "agente": "extraccion",
         "entrada": "Texto + ramo Hogar",
         "pasos": [
-          "Póliza HO-334902 · fecha \"11 de septiembre por la noche\" → 2026-09-11",
-          "Importe 640 € (reposición de televisor y router) · documentación: informe de la compañía eléctrica",
+          "Póliza HO-334902 · fecha \"11 de septiembre por la noche\" → 2026-09-11 · lugar C/ Los Robles 14, Las Rozas",
+          "Importe 640 € (520 € televisor + 120 € router) · documentación: informe INC-2026-118734 y diagnóstico técnico",
           "Sin terceros (la eléctrica reconoce la incidencia) · sin lesionados"
         ],
-        "salida": "10 campos · 0 inventados · 1 nulo (lugar exacto)"
+        "salida": "10 campos · 0 inventados · 0 nulos"
       },
       {
         "agente": "reglas",
@@ -2131,7 +3088,7 @@
     "TRZ-4F2F": [
       {
         "agente": "multicanal",
-        "entrada": "Email de svega@empresa.com · 330 caracteres · sin adjuntos",
+        "entrada": "Email de svega@empresa.com · 625 caracteres · 1 adjunto (prescripción)",
         "pasos": [
           "Canal email: asunto conservado",
           "Fecha de recepción 11/09 10:15"
@@ -2143,7 +3100,7 @@
         "entrada": "Texto normalizado",
         "pasos": [
           "Indicios Salud: \"traumatólogo\", \"cuadro médico\", \"Clínica Santa Elena\", \"radiografía\", \"analítica\", \"SA-770213\"",
-          "\"Caída en casa\" no es un siniestro de Hogar: es el origen de la lesión",
+          "\"Me caí en casa\" no es un siniestro de Hogar: es el origen de la lesión de la persona (no hay daño en la vivienda)",
           "Confianza de ramo 0,96"
         ],
         "salida": "Ramo = Salud"
@@ -2154,7 +3111,7 @@
         "pasos": [
           "Póliza SA-770213 · fecha \"el pasado día 8\" → 2026-09-08 · lugar Clínica Santa Elena",
           "Tipo: pruebas diagnósticas prescritas (radiografía lumbar y analítica) · importe no mencionado → nulo",
-          "Lesionados = sí (el propio asegurado, caída en casa)"
+          "Lesionados = sí (el propio asegurado, caída en casa) · documentación: prescripción escaneada"
         ],
         "salida": "10 campos · 0 inventados · 1 nulo (importe)"
       },
@@ -2173,7 +3130,7 @@
     "TRZ-4F30": [
       {
         "agente": "multicanal",
-        "entrada": "Chat web · 2 mensajes · 210 caracteres · foto de la luna adjunta",
+        "entrada": "Chat web · 2 mensajes · 581 caracteres · foto de la luna adjunta",
         "pasos": [
           "Canal chat: mensajes concatenados; la foto se registra como documentación",
           "Fecha de recepción 14/09 13:30"
@@ -2194,8 +3151,8 @@
         "agente": "extraccion",
         "entrada": "Texto + ramo Auto",
         "pasos": [
-          "Póliza AU-905512 · fecha \"esta mañana\" → 2026-09-14 · lugar autovía A-6",
-          "Importe 280 € (presupuesto del taller de lunas concertado) · sin terceros · sin lesionados"
+          "Póliza AU-905512 · fecha \"esta mañana\" → 2026-09-14 · lugar A-2 a la altura de Torrejón de Ardoz",
+          "Importe 280 € (presupuesto del taller de lunas concertado) · sin tercero identificable (\"No he podido coger la matrícula del camión\") · sin lesionados"
         ],
         "salida": "10 campos · 0 inventados · 0 nulos"
       },
@@ -2213,7 +3170,7 @@
     "TRZ-4F31": [
       {
         "agente": "multicanal",
-        "entrada": "Llamada telefónica · 2 min 40 s · transcripción STT",
+        "entrada": "Llamada telefónica · 3 min 20 s · transcripción STT de 890 caracteres",
         "pasos": [
           "Transcripción con confianza STT 0,88 (≥ 0,7)",
           "Se elimina el ruido de la centralita y se conserva la marca temporal"
@@ -2234,10 +3191,11 @@
         "agente": "extraccion",
         "entrada": "Transcripción + ramo Auto",
         "pasos": [
-          "Póliza AU-662371 · fecha 14/09 · lesionados = sí (ingreso) · tercero = sí",
+          "Póliza AU-662371 · fecha 14/09 · lugar rotonda av. de Leganés / c/ Porto Cristo · lesionados = sí (ingreso, cirugía prevista) · tercero = sí (Opel Astra 9012 JHN)",
+          "Dato de salud no necesario para el siniestro (\"es diabético\") → categoría especial: no se extrae, se marca y se restringe",
           "Importe no mencionado → nulo (no se estima)"
         ],
-        "salida": "10 campos · 2 nulos"
+        "salida": "10 campos · 1 nulo (importe)"
       },
       {
         "agente": "reglas",
@@ -2253,7 +3211,7 @@
     "TRZ-4F32": [
       {
         "agente": "multicanal",
-        "entrada": "Formulario web · 290 caracteres · foto y presupuesto adjuntos",
+        "entrada": "Formulario web · 619 caracteres · foto y presupuesto adjuntos",
         "pasos": [
           "Canal web: campos estructurados + texto libre",
           "Fecha de recepción 13/09 12:00"
@@ -2274,11 +3232,12 @@
         "agente": "extraccion",
         "entrada": "Texto + ramo Hogar",
         "pasos": [
-          "Póliza HO-118830 · fecha 12/09 · importe 400 € (presupuesto del cristalero)",
-          "Causa: balón de los hijos del vecino → terceros = sí (posible recobro) · sin lesionados",
+          "Póliza HO-118830 · fecha 13/09 · importe 400 € (presupuesto del cristalero) · lugar C/ Martínez de la Riva 48, 1.º C",
+          "Causa: balón de los hijos del vecino del 2.º C (Andrés Pardo) → terceros = sí (posible recobro) · sin lesionados",
+          "Datos de un tercero no remitente (nombre y teléfono del vecino) → se marcan como interesado distinto del remitente",
           "Documentación: foto y presupuesto"
         ],
-        "salida": "10 campos · 0 inventados · 1 nulo (lugar exacto)"
+        "salida": "10 campos · 0 inventados · 0 nulos"
       },
       {
         "agente": "reglas",
@@ -2295,7 +3254,7 @@
     "TRZ-4F33": [
       {
         "agente": "multicanal",
-        "entrada": "Email de la asegurada · 420 caracteres · informe de urgencias adjunto",
+        "entrada": "Email de la asegurada · 599 caracteres · informe de urgencias adjunto",
         "pasos": [
           "Canal email: asunto conservado; el informe se registra como documentación",
           "Fecha de recepción 11/09 09:05"
@@ -2316,7 +3275,7 @@
         "agente": "extraccion",
         "entrada": "Texto + ramo Salud",
         "pasos": [
-          "Primera llamada respondida con 429 (Azure): reintento con backoff de 2 s, completada",
+          "Primera llamada respondida con 429 (proveedor de IA): reintento con backoff de 2 s, completada",
           "Póliza SA-337700 · fecha 10/09 · lugar Hospital Universitario Quirónsalud Madrid",
           "Lesionados = sí (la propia asegurada) · importe no mencionado → nulo · documentación: informe de urgencias"
         ],
@@ -2326,7 +3285,7 @@
         "agente": "reglas",
         "entrada": "Datos extraídos + bloque de reglas Salud v2.3",
         "pasos": [
-          "S1 cumple · S2 cumple (urgencia: sin carencia) · S3 cumple (no consta preexistencia no declarada)",
+          "S1 cumple · S2 cumple (urgencia: sin carencia) · S3 cumple (asma crónica conocida, \"soy asmática desde niña\"; la urgencia se cubre en todo caso)",
           "S4 cumple (urgencias sin autorización) · S5 cumple (centro del cuadro) · S6 cumple → despeje directo",
           "Decisión DESPEJADO con confianza 0,94"
         ],
@@ -2357,9 +3316,9 @@
         "agente": "extraccion",
         "entrada": "Texto + ramo Auto",
         "pasos": [
-          "Póliza AU-742210 · fecha 14/09 · lugar parking del Carrefour de Alcobendas",
+          "Póliza AU-742210 · fecha 13/09 · lugar parking del Carrefour de Alcobendas",
           "Importe 600 € (presupuesto) · tercero desconocido (no identificado) · sin lesionados",
-          "Documentación: fotos y denuncia"
+          "Documentación: fotos y denuncia (diligencias 18734/26)"
         ],
         "salida": "10 campos · 0 inventados · 0 nulos"
       },
@@ -2378,9 +3337,9 @@
     "TRZ-4F35": [
       {
         "agente": "multicanal",
-        "entrada": "WhatsApp · 3 mensajes · 1 foto del informe de urgencias",
+        "entrada": "WhatsApp · 4 mensajes · 551 caracteres · emojis",
         "pasos": [
-          "Canal WhatsApp: mensajes unidos; la foto del informe se registra como documentación",
+          "Canal WhatsApp: mensajes unidos; se eliminan los emojis",
           "Fecha de recepción 13/09 19:55"
         ],
         "salida": "Mensaje normalizado MSG-A-12"
@@ -2389,7 +3348,8 @@
         "agente": "clasificacion",
         "entrada": "Texto normalizado",
         "pasos": [
-          "Indicios Salud: \"urgencias\", \"radiografía\", \"Hospital HM Sanchinarro\", \"póliza familiar SA-518877\", \"hijo\"",
+          "Indicios Salud: \"urgencias pediátricas\", \"radiografía del brazo\", \"fractura de muñeca\", \"Hospital HM Sanchinarro\", \"póliza familiar SA-518877\"",
+          "Descartado Hogar: la caída es en el parque de Valdebebas, no en la vivienda",
           "\"Patinete\" no activa Auto: no es un vehículo asegurado ni hay tercero",
           "Confianza de ramo 0,97"
         ],
@@ -2400,7 +3360,7 @@
         "entrada": "Texto + ramo Salud",
         "pasos": [
           "Póliza familiar SA-518877 (beneficiario: el hijo) · fecha 13/09 · lugar Hospital Universitario HM Sanchinarro",
-          "Lesionados = sí (el hijo) · importe no mencionado → nulo · documentación: informe de urgencias"
+          "Lesionados = sí (el hijo, 8 años: dato de un menor) · importe no mencionado → nulo · documentación: tarjeta sanitaria"
         ],
         "salida": "10 campos · 0 inventados · 1 nulo (importe)"
       },
@@ -2419,7 +3379,7 @@
     "TRZ-4F36": [
       {
         "agente": "multicanal",
-        "entrada": "WhatsApp · 2 mensajes muy cortos · sin adjuntos · tono de urgencia",
+        "entrada": "WhatsApp · 5 mensajes cortos · 522 caracteres · sin adjuntos · tono de urgencia",
         "pasos": [
           "Canal WhatsApp: mensajes unidos; sin abreviaturas que expandir",
           "Fecha de recepción 14/09 08:05"
@@ -2430,8 +3390,8 @@
         "agente": "clasificacion",
         "entrada": "Texto normalizado",
         "pasos": [
-          "Indicios Hogar: \"nos han entrado en casa\", \"HO-604118\"",
-          "Sin indicios de Auto ni Salud · pocos indicios, pero inequívocos",
+          "Indicios Hogar: \"nos han entrado en casa\", \"los cajones por el suelo\", \"HO-604118\"",
+          "Sin indicios de Auto ni Salud · indicios escasos pero inequívocos",
           "Confianza de ramo 0,91"
         ],
         "salida": "Ramo = Hogar"
@@ -2440,8 +3400,8 @@
         "agente": "extraccion",
         "entrada": "Texto + ramo Hogar",
         "pasos": [
-          "Póliza HO-604118 · fecha \"esta noche\" → 2026-09-13/14 · tipo: robo en vivienda",
-          "Sin relación de objetos ni importe → nulos · sin mención de denuncia ni de signos de fuerza",
+          "Póliza HO-604118 · fecha \"este finde\" → sin día concreto (nulo) · tipo: robo en vivienda",
+          "Sin relación de objetos ni importe (\"todavía no sé cuánto\") → nulos · \"Todavía no hemos ido a la policía\" · \"la puerta parece bien\"",
           "Sin terceros identificados · sin lesionados"
         ],
         "salida": "10 campos · 0 inventados · 4 nulos (importe, lugar, documentación, signos de fuerza)"
@@ -2451,7 +3411,7 @@
         "entrada": "Datos extraídos + bloque de reglas Hogar v2.3",
         "pasos": [
           "H1 cumple · H2 cumple (mismo día)",
-          "H4 INCUMPLE: robo sin denuncia, sin lista valorada y sin signos de fuerza acreditados",
+          "H4 INCUMPLE: robo sin denuncia, sin lista valorada y sin signos de fuerza acreditados (\"la puerta parece bien\")",
           "H9 no evaluable: importe nulo · falta información esencial",
           "Decisión REVISION con confianza 0,90: pedir denuncia y lista valorada, enviar perito"
         ],
@@ -2675,7 +3635,7 @@
       "tipo": "incidente",
       "sev": "info",
       "agente": "extraccion",
-      "titulo": "429 en Azure AI Foundry · reintento con backoff (2 s)",
+      "titulo": "429 en Proveedor de IA · reintento con backoff (2 s)",
       "detalle": "TRZ-4F33: la llamada de extracción se reintentó una vez y completó correctamente.",
       "usuario": "Sistema"
     },
@@ -2738,7 +3698,7 @@
       "tipo": "incidente",
       "sev": "warn",
       "agente": null,
-      "titulo": "Ráfaga de 429 en Azure (10:12–10:19)",
+      "titulo": "Ráfaga de 429 en el proveedor de IA (10:12–10:19)",
       "detalle": "38 llamadas reintentadas con backoff; 1 mensaje cayó al motor local (G-08) y se marcó para revisión.",
       "usuario": "Sistema"
     },
@@ -2831,5 +3791,243 @@
       "titulo": "Cachear el prompt base y los bloques de reglas",
       "detalle": "Los 1.100 primeros tokens son idénticos en todas las llamadas: con prompt caching el coste de entrada baja un 90 % en ese tramo."
     }
-  ]
+  ],
+  "cumplimiento_declarado": {
+    "ria": [
+      {
+        "id": "ria-4",
+        "normas": [
+          "AI Act art. 4"
+        ],
+        "exige": "Alfabetización en IA del personal que usa el sistema",
+        "como": "Formación obligatoria para tramitadores y supervisores (curso interno de 4 h con prueba final)",
+        "medida": "9 de 11 tramitadores formados (82 %) · 2 incorporaciones recientes pendientes",
+        "estado": "ambar",
+        "fuente": "declarado",
+        "trazas": []
+      },
+      {
+        "id": "ria-50",
+        "normas": [
+          "AI Act art. 50"
+        ],
+        "exige": "Informar al cliente de que interactúa con una IA",
+        "como": "Aviso de IA en los mensajes automáticos al cliente (petición de documentación)",
+        "medida": "Configurado en email, web y chat · pendiente en WhatsApp",
+        "estado": "ambar",
+        "fuente": "declarado",
+        "trazas": []
+      },
+      {
+        "id": "ria-9",
+        "normas": [
+          "AI Act art. 9"
+        ],
+        "exige": "Gestión de riesgos durante todo el ciclo de vida",
+        "como": "Matriz de riesgos del triaje revisada por el Comité IA; los guardrails y los caps salen de ella",
+        "medida": "Última revisión 06/2026 · próxima 12/2026",
+        "estado": "ok",
+        "fuente": "declarado",
+        "trazas": []
+      },
+      {
+        "id": "ria-10",
+        "normas": [
+          "AI Act art. 10"
+        ],
+        "exige": "Gobierno de los datos y del conocimiento que usa el sistema",
+        "como": "Prompt de reglas versionado (reglas v2.3) y registrado en cada traza",
+        "medida": "Versión del prompt en el 100 % de las trazas · bases de conocimiento sin catálogo versionado",
+        "estado": "ambar",
+        "fuente": "declarado",
+        "trazas": []
+      },
+      {
+        "id": "ria-15",
+        "normas": [
+          "AI Act art. 15"
+        ],
+        "exige": "Precisión y solidez a lo largo del tiempo",
+        "como": "Replay determinista y what-if antes de cada cambio de modelo o de prompt",
+        "medida": "8 replays en 14 días · 0 cambios de decisión no explicados",
+        "estado": "ok",
+        "fuente": "declarado",
+        "trazas": []
+      },
+      {
+        "id": "ria-6",
+        "normas": [
+          "AI Act art. 6"
+        ],
+        "exige": "Clasificar el sistema según su riesgo",
+        "como": "Triaje de siniestros: no es alto riesgo (Anexo III 5.c); controles de alto riesgo como buena práctica",
+        "medida": "Clasificación documentada y validada por Cumplimiento (05/2026)",
+        "estado": "ok",
+        "fuente": "declarado",
+        "trazas": []
+      }
+    ],
+    "rgpd": [
+      {
+        "id": "rgpd-30",
+        "normas": [
+          "RGPD art. 30"
+        ],
+        "exige": "Registro de actividades de tratamiento",
+        "como": "Tratamiento «Triaje FNOL asistido por IA» inscrito en el RAT",
+        "medida": "RAT-SIN-014 · actualizado 05/2026",
+        "estado": "ok",
+        "fuente": "declarado",
+        "trazas": []
+      },
+      {
+        "id": "rgpd-35",
+        "normas": [
+          "RGPD art. 35"
+        ],
+        "exige": "Evaluación de impacto (datos de salud a gran escala)",
+        "como": "EIPD del triaje realizada en 03/2026",
+        "medida": "Revisión pendiente: el cambio de modelo de Multicanalidad del 25/08/2026 obliga a revisarla",
+        "estado": "ambar",
+        "fuente": "declarado",
+        "trazas": []
+      },
+      {
+        "id": "rgpd-28",
+        "normas": [
+          "RGPD art. 28"
+        ],
+        "exige": "Contrato de encargo con el proveedor de IA",
+        "como": "DPA firmado; procesamiento y almacenamiento en región UE; los datos no se usan para entrenar",
+        "medida": "Vigente hasta 12/2027",
+        "estado": "ok",
+        "fuente": "declarado",
+        "trazas": []
+      },
+      {
+        "id": "rgpd-32",
+        "normas": [
+          "RGPD art. 32"
+        ],
+        "exige": "Seguridad del tratamiento",
+        "como": "Cifrado en tránsito y en reposo; identidad administrada por agente, sin secretos en código",
+        "medida": "Revisión de accesos trimestral · última 09/2026",
+        "estado": "ok",
+        "fuente": "declarado",
+        "trazas": []
+      },
+      {
+        "id": "rgpd-15",
+        "normas": [
+          "RGPD art. 15"
+        ],
+        "exige": "Atender el derecho de acceso y de explicación",
+        "como": "Exportación por interesado del bloque _gobernanza y del razonamiento de su decisión",
+        "medida": "Plazo de respuesta de 1 mes · 0 solicitudes abiertas",
+        "estado": "ok",
+        "fuente": "declarado",
+        "trazas": []
+      }
+    ],
+    "dora": [
+      {
+        "id": "dora-28",
+        "normas": [
+          "DORA art. 28"
+        ],
+        "exige": "Registro y riesgo de proveedores TIC",
+        "como": "El proveedor de modelos está inscrito en el registro de información",
+        "medida": "Inscrito · concentración: un único proveedor para los 4 agentes",
+        "estado": "ambar",
+        "fuente": "declarado",
+        "trazas": []
+      },
+      {
+        "id": "dora-9",
+        "normas": [
+          "DORA art. 9"
+        ],
+        "exige": "Identidades y privilegios mínimos",
+        "como": "Una identidad por agente con permisos «puede / no puede»",
+        "medida": "4 de 4 agentes con identidad propia",
+        "estado": "ok",
+        "fuente": "declarado",
+        "trazas": []
+      },
+      {
+        "id": "dora-11",
+        "normas": [
+          "DORA art. 11"
+        ],
+        "exige": "Continuidad si falla el proveedor de IA",
+        "como": "Reintentos con backoff exponencial y fallback al motor local de reglas",
+        "medida": "Ráfaga de 429 del 15/09: 38 reintentos, 1 fallback, 0 mensajes perdidos",
+        "estado": "ok",
+        "fuente": "declarado",
+        "trazas": []
+      },
+      {
+        "id": "dora-19",
+        "normas": [
+          "DORA art. 19"
+        ],
+        "exige": "Notificación de incidentes TIC graves",
+        "como": "Procedimiento de clasificación y notificación definido",
+        "medida": "0 incidentes graves en el periodo",
+        "estado": "ok",
+        "fuente": "declarado",
+        "trazas": []
+      }
+    ],
+    "eiopa": [
+      {
+        "id": "eiopa-gob",
+        "normas": [
+          "EIOPA"
+        ],
+        "exige": "Gobierno proporcional y rendición de cuentas",
+        "como": "Comité IA; responsable nominal por agente; cambios de autonomía auditados",
+        "medida": "4 de 4 agentes con responsable · 100 % de los cambios con motivo",
+        "estado": "ok",
+        "fuente": "declarado",
+        "trazas": []
+      },
+      {
+        "id": "eiopa-trato",
+        "normas": [
+          "EIOPA"
+        ],
+        "exige": "Trato justo a los asegurados",
+        "como": "Pruebas de sesgo por canal y por ramo (tasa de revisión y de override)",
+        "medida": "Última prueba 07/2026 · WhatsApp con +6 pp de revisiones: en análisis",
+        "estado": "ambar",
+        "fuente": "declarado",
+        "trazas": []
+      },
+      {
+        "id": "sii-41",
+        "normas": [
+          "Solvencia II art. 41"
+        ],
+        "exige": "Gestión sana y prudente, incluido el gasto en IA",
+        "como": "Caps de consumo por agente y por traza, con alertas",
+        "medida": "CAP-04 y CAP-05 superados una vez en el periodo (TRZ-4F31): alertados",
+        "estado": "ok",
+        "fuente": "declarado",
+        "trazas": []
+      },
+      {
+        "id": "eiopa-doc",
+        "normas": [
+          "EIOPA"
+        ],
+        "exige": "Documentación del sistema",
+        "como": "Guía de referencia, arquitectura C4 y fichas de agente versionadas",
+        "medida": "Actualizada 10/2026",
+        "estado": "ok",
+        "fuente": "declarado",
+        "trazas": []
+      }
+    ]
+  }
 }
