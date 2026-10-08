@@ -35,6 +35,7 @@
     'rgpd-9': ['RGPD art. 9', 'Categorías especiales: los datos de salud solo pueden tratarse con una de las excepciones del art. 9.2. En seguros, art. 9.2 junto con el art. 99 de la LOSSEAR (a validar por el DPO).'],
     'rgpd-13': ['RGPD art. 13 y 14', 'Información al interesado, también cuando sus datos no los aporta él mismo (art. 14: terceros mencionados en el mensaje). En vigor.'],
     'rgpd-15': ['RGPD art. 15', 'Derecho de acceso a información significativa sobre la lógica aplicada (TJUE, Dun & Bradstreet C-203/22). En vigor.'],
+    'rgpd-17': ['RGPD art. 17', 'Derecho de supresión: alcanza también a las copias y a los índices derivados, incluidos los índices vectoriales de las bases de conocimiento. En vigor.'],
     'rgpd-22': ['RGPD art. 22', 'Derecho a no ser objeto de decisiones solo automatizadas con efectos jurídicos. Firmar sin revisar no cuenta como intervención humana (TJUE, SCHUFA C-634/21). En vigor.'],
     'rgpd-25': ['RGPD art. 25', 'Protección de datos desde el diseño y por defecto. En vigor.'],
     'rgpd-28': ['RGPD art. 28', 'Encargado del tratamiento: contrato (DPA) con el proveedor de IA y garantías de ubicación de los datos. En vigor.'],
@@ -234,6 +235,37 @@
   }
 
   // ---------------------------------------------------------------------------
+  // Conocimiento usado por cada decisión: catálogo común con la sección «Knowledge bases» del panel
+  // (data/gobierno.js · knowledge[] usa los mismos ids y versiones; lo comprueba tests/cumplimiento.test.js).
+  // Solo KB-01 (los bloques de reglas de prompts.js) es real en la demo; el resto está simulado.
+  // ---------------------------------------------------------------------------
+  const CONOCIMIENTO = {
+    'KB-01': { nombre: 'Reglas de negocio Auto / Hogar / Salud', version: 'v2.3', simulada: false },
+    'KB-02': { nombre: 'Condicionados Auto 2026', version: '2026.09.2', simulada: true },
+    'KB-03': { nombre: 'Condicionados Hogar 2026', version: '2026.08.1', simulada: true },
+    'KB-04': { nombre: 'Manual de tramitación de siniestros', version: '4.2', simulada: true },
+    'KB-05': { nombre: 'Cuadro médico concertado', version: '2026-09-16', simulada: true },
+    'KB-06': { nombre: 'Red de talleres y peritos', version: '2026-09-08', simulada: true },
+    'KB-07': { nombre: 'Runbook de daños corporales', version: 'v1.4', simulada: true },
+    'KB-08': { nombre: 'Corpus normativo (LCS, LOSSEAR, RGPD, AI Act)', version: '2026.07', simulada: true },
+    'KB-09': { nombre: 'Plantillas de comunicación al cliente', version: 'v3.0', simulada: true },
+  };
+  function conocimientoDe(entry = {}, prompt = '') {
+    const ia = !/local/.test(String(prompt)) && prompt;
+    const v = (String(prompt).match(/v\d+(?:\.\d+)*/) || [])[0];
+    const ids = ['KB-01'];
+    if (ia) {
+      ids.push('KB-04', 'KB-08');
+      if (entry.ramo === 'Auto') ids.push('KB-02', 'KB-06');
+      if (entry.ramo === 'Hogar') ids.push('KB-03');
+      if (entry.ramo === 'Salud') ids.push('KB-05');
+      if ((entry.datos_extraidos || {}).lesionados && entry.ramo === 'Auto') ids.push('KB-07');
+      if (entry.decision === 'REVISION') ids.push('KB-09');
+    }
+    return ids.map((id) => ({ kb: id, nombre: CONOCIMIENTO[id].nombre, version: id === 'KB-01' ? (ia ? v || CONOCIMIENTO[id].version : 'reglas locales') : CONOCIMIENTO[id].version, ...(CONOCIMIENTO[id].simulada ? { simulada: true } : {}) }));
+  }
+
+  // ---------------------------------------------------------------------------
   // Bloque _gobernanza de una decisión
   // ---------------------------------------------------------------------------
   const sumarAnios = (iso, n) => { const d = new Date(iso); d.setFullYear(d.getFullYear() + n); return d.toISOString().slice(0, 10); };
@@ -285,7 +317,8 @@
         hash_entrada: `sha256:${hashEntrada}`,
         hash_salida: `sha256:${hashSalida}`,
         hash_registro: `sha256:${hashRegistro}`,
-        normas: [N('ai-12'), N('rgpd-5')],
+        conocimiento: conocimientoDe(entry, opts.prompt),
+        normas: [N('ai-12'), N('ai-10'), N('rgpd-5')],
       },
       retencion: {
         traza_seudonimizada: { plazo: '6 meses como mínimo', hasta: sumarMeses(ts, 6), normas: [N('ai-19')] },
@@ -457,7 +490,7 @@
     return rec(valor, 0, '', { gob });
   }
 
-  const API = { ESQUEMA, NORMAS, NORMA_POR_ETIQUETA, CATEGORIAS, CLAVES_NORMA, sha256, corto, detectar, enmascarar, camposSensibles, descartados, gobernanza, hallazgosConCita, encadenar, verificarCadena, termometro, jsonHtml };
+  const API = { ESQUEMA, NORMAS, CONOCIMIENTO, conocimientoDe, NORMA_POR_ETIQUETA, CATEGORIAS, CLAVES_NORMA, sha256, corto, detectar, enmascarar, camposSensibles, descartados, gobernanza, hallazgosConCita, encadenar, verificarCadena, termometro, jsonHtml };
   if (typeof module !== 'undefined' && module.exports) module.exports = API;
   root.Cumplimiento = API;
 })(typeof window !== 'undefined' ? window : globalThis);

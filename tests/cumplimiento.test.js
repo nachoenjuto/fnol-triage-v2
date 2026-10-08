@@ -94,4 +94,24 @@ test('el JSON coloreado no altera el texto del JSON', () => {
   assert.deepStrictEqual(JSON.parse(texto), { _gobernanza: g });
 });
 
+console.log('conocimiento (Knowledge bases)');
+const GOB = cargar('data/gobierno.js', 'GOBIERNO_DEMO');
+test('el catálogo común y el panel tienen las mismas KB, nombres y versiones', () => {
+  assert.deepStrictEqual(GOB.knowledge.map((k) => k.id).sort(), Object.keys(C.CONOCIMIENTO).sort());
+  for (const k of GOB.knowledge) { assert.strictEqual(k.nombre, C.CONOCIMIENTO[k.id].nombre, k.id); assert.strictEqual(k.version, C.CONOCIMIENTO[k.id].version, k.id); assert.strictEqual(k.simulada, C.CONOCIMIENTO[k.id].simulada, k.id); }
+});
+test('cada traza registra las KB que usó, con KB-01 en la versión del prompt', () => {
+  const g = C.gobernanza(entrada(A[7]), { prompt: 'reglas v2.3' });
+  const ids = g.trazabilidad.conocimiento.map((c) => c.kb);
+  assert.strictEqual(g.trazabilidad.conocimiento[0].version, 'v2.3');
+  ['KB-01', 'KB-02', 'KB-06', 'KB-07'].forEach((id) => assert.ok(ids.includes(id), id));
+  assert.ok(!ids.includes('KB-05'), 'una moto no consulta el cuadro médico');
+});
+test('las rúbricas suman 100 y apuntan a KB existentes', () => {
+  for (const r of GOB.rubricas) {
+    assert.strictEqual(r.criterios.reduce((a, c) => a + c[1], 0), 100, r.id);
+    r.kb.forEach((id) => assert.ok(C.CONOCIMIENTO[id], `${r.id} → ${id}`));
+  }
+});
+
 console.log(`\n${n} pruebas ejecutadas${process.exitCode ? ' con fallos' : ' correctamente'}`);

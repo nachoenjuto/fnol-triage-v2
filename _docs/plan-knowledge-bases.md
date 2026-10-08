@@ -1,6 +1,6 @@
 # Plan: pestaña «Knowledge bases» en observabilidad
 
-> Estado: **propuesta para revisión**. No se ha tocado código.
+> Estado (08/10/2026): **implementado** con las decisiones confirmadas: lista de KB del apartado 9, posición entre Guardrails y el Termómetro, comparativa de configuraciones incluida y rúbricas editables (simulado, en la sesión).
 
 ## 1. Qué problema resuelve
 

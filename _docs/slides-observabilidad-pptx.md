@@ -261,11 +261,12 @@ Un mismo trace_id une los tres: del problema técnico a su impacto en negocio y 
 | Valor | Prevenir degradaciones y cumplir SLA | Ver el retorno del proyecto | Explicar y auditar cada decisión |
 
 ## Mapa de capacidades
-<!-- notes: Este es el mapa del bloque. Agrupamos las capacidades en cinco verbos:
+<!-- notes: Este es el mapa del bloque. Agrupamos las capacidades en seis verbos:
 
 - ver lo que pasa;
 - entender por qué pasa;
 - limitar lo que el agente puede hacer solo;
+- conocer con qué conocimiento decide y si sigue siendo bueno;
 - pagar solo lo que tiene sentido pagar;
 - y auditar todo lo anterior.
 
@@ -275,10 +276,25 @@ A remarcar: cada capacidad responde a una de las cuatro preguntas del principio.
 
 Cada capacidad responde a una de las cuatro preguntas del principio.
 
-| Ver | Entender | Limitar | Pagar | Auditar |
-|---|---|---|---|---|
-| ¿Qué está pasando? | ¿Por qué decidió eso? | ¿Quién lo controla? | ¿Cuánto cuesta? | ¿Qué cambió y quién lo aprobó? |
-| Vista de dirección · Trazabilidad de extremo a extremo | Explicabilidad · Reasoning Replay · Causa raíz | Identidad y permisos · Autonomía · Trust Score · Guardrails · Kill switch | Caps · Acciones correctivas · Comparativa de modelos · Simulación antes de cambiar | Libro de registro · Cumplimiento por diseño |
+| Ver | Entender | Limitar | Conocer | Pagar | Auditar |
+|---|---|---|---|---|---|
+| ¿Qué está pasando? | ¿Por qué decidió eso? | ¿Quién lo controla? | ¿Con qué conocimiento decide? | ¿Cuánto cuesta? | ¿Podemos demostrarlo? |
+| Portada · Vista de dirección · Trazabilidad | Explicabilidad · Evidencias · Reasoning Replay · Causa raíz | Identidad y permisos · Autonomía · Trust Score · Guardrails · Kill switch | Knowledge bases · Rúbricas | Caps · Acciones correctivas · Modelos · Simulación | Libro de registro · Cumplimiento · Prueba en cada decisión · Termómetro |
+
+## Ver: la portada del panel
+<!-- notes: Antes de entrar en detalle, esta es la portada del panel. Cada ficha corresponde a una sección y responde a una pregunta: qué pasa, por qué, con qué límites, con qué conocimiento, si cumple y cuánto cuesta.
+
+Cada ficha lleva dos cifras en vivo y un semáforo. Si algo va mal, se ve aquí antes de abrir nada.
+
+A remarcar: la portada no es decoración; es la forma de que cualquiera sepa en qué sección tiene que entrar. -->
+
+Una ficha por pregunta, con su estado en vivo.
+
+- **Una puerta de entrada**: diez fichas agrupadas en ver, entender, limitar, conocer, cumplimiento, costes y auditar.
+- **Dos cifras en vivo por ficha**: calculadas con los mismos datos que su sección, y un semáforo si hay algo que mirar.
+- **La norma de cada bloque**: las etiquetas de cada ficha dicen a qué artículo responde.
+
+![la portada del panel](img/observabilidad/00-inicio.png)
 
 ## Ver: la vista de dirección
 <!-- notes: Esta es la primera pantalla, pensada para dirección.
@@ -291,9 +307,9 @@ A remarcar: no hace falta ser técnico para leer esta pantalla; está pensada pa
 
 En diez segundos se sabe si el sistema va bien.
 
-- **El estado del sistema en una pantalla**: mensajes, autonomía efectiva, escalados, overrides, coste frente al cap y alertas.
+- **El estado del sistema en una pantalla**: mensajes, autonomía efectiva, escalados, overrides, coste frente al cap, alertas, cumplimiento y conocimiento.
 - **Una tarjeta por agente**: modelo, versión de prompt, nivel de autonomía, estado y coste del día frente a su límite.
-- **Alertas con causa y acción**: no solo «algo va mal», sino qué se ha hecho ya.
+- **Alertas de todas las fuentes**: coste, conocimiento y cumplimiento, cada una con su causa y lo que ya se ha hecho.
 
 ![Vista de dirección](img/observabilidad/01-resumen.png)
 
@@ -340,6 +356,21 @@ Si el cliente pregunta por qué, la respuesta está aquí.
 - **Ejemplo**: «Robo en vivienda sin denuncia ni relación de objetos: falta información esencial; se solicita la denuncia y se envía perito».
 
 ![Traza explicada](img/observabilidad/04-traza-explicada.png)
+
+## Entender: evidencias verificadas
+<!-- notes: La explicabilidad se apoya en el propio texto del cliente. El modelo devuelve citas literales y el navegador comprueba que están en el mensaje antes de resaltarlas.
+
+Nunca se piden posiciones al modelo, porque los modelos cuentan mal los caracteres. Y si una cita no aparece, se marca como no localizada.
+
+A remarcar: si el cliente pregunta por qué, la respuesta es su propia frase. -->
+
+Cada dato y cada regla, con la frase literal del cliente que lo prueba.
+
+- **El modelo cita, la plataforma comprueba**: solo se resalta una cita que aparece de verdad en el mensaje.
+- **Un color por tipo de evidencia**: ramo, dato extraído, fecha, regla que se cumple y regla que se incumple.
+- **Lo que falta, también**: si un dato esencial no está en el texto, se marca «no consta» y no se inventa.
+
+![evidencias verificadas](img/observabilidad/41-evidencias.png)
 
 ## Entender: Reasoning Replay y What-if
 <!-- notes: Aquí tenemos dos capacidades.
@@ -531,6 +562,36 @@ Si la IA falla, el proceso sigue.
 
 ![Tarjetas de agente con kill switch](img/observabilidad/02-agentes-kill-switch.png)
 
+## Conocer: el conocimiento también se degrada
+<!-- notes: Un agente puede estar perfecto y aun así equivocarse, porque el conocimiento que consulta se ha degradado: documentos obsoletos, duplicados, un índice que crece sin control.
+
+En el ejemplo, alguien sincronizó 340 condicionados de 2024 y el recall cayó seis puntos. La comparativa muestra que un filtro de vigencia lo arregla.
+
+A remarcar: el conocimiento se vigila igual que los agentes, con métricas, umbrales y versiones. -->
+
+Los agentes deciden con conocimiento que no está en el modelo, y ese conocimiento envejece.
+
+- **Un inventario de todo el conocimiento**: índices RAG de SharePoint o Drive, Markdown, runbooks, tablas de referencia y plantillas.
+- **Salud medida contra umbrales**: recall, fidelidad, citas, frescura, obsoletos, duplicados, deriva y datos personales.
+- **Comparativa de configuraciones**: el mismo corpus con distintos tamaños de chunk y solapamiento, para decidir con datos.
+
+![el conocimiento también se degrada](img/observabilidad/31-knowledge.png)
+
+## Conocer: rúbricas que vigilan el conocimiento
+<!-- notes: Las rúbricas son un activo más, versionado y con responsable. Cada una tiene sus criterios con peso y un juego de preguntas de referencia.
+
+Se ejecutan cada noche, en cada reindexado y en cada cambio de configuración. Si una base empeora, no se publica: es una puerta de calidad.
+
+A remarcar: si el juez y las personas dejan de coincidir, la evaluación deja de ser fiable, y el panel lo dice. -->
+
+La salud solo es tan buena como las pruebas con las que se mide.
+
+- **Preguntas de referencia por base**: factuales, de cláusula, de exclusión, de plazo y preguntas trampa sin respuesta.
+- **Criterios con peso**: fidelidad, cláusula correcta, completitud y rechazo correcto; los pesos deben sumar 100.
+- **Juez calibrado con personas**: el acuerdo entre el modelo juez y los revisores dice si la evaluación es fiable.
+
+![rúbricas que vigilan el conocimiento](img/observabilidad/33-rubrica.png)
+
 ## Pagar: caps y presupuesto
 <!-- notes: El coste de un agente es variable: depende de cuántos casos llegan, de lo largos que son y de cuánto tiene que razonar el modelo. Por eso hay que controlarlo en tiempo real.
 
@@ -663,6 +724,36 @@ Cada bloque del panel lleva su etiqueta normativa: qué exige el artículo y si 
 - **Histórico**: AI Act art. 12 · supervisores sectoriales.
 
 ![Etiqueta normativa](img/observabilidad/12-etiqueta-normativa.png)
+
+## Auditar: la prueba en cada decisión
+<!-- notes: Esta es la respuesta cruda del modelo para un menor que llega a urgencias. Debajo, la plataforma añade el bloque de gobierno: los datos personales detectados y cómo se guardan, por qué es Salud y no Auto ni Hogar, el sello de la traza y cuánto tiempo se conserva.
+
+Nada de esto lo genera el modelo. Se calcula de forma determinista y se puede recalcular en cualquier momento.
+
+A remarcar: el modelo no se autocertifica. -->
+
+La plataforma, no el modelo, deja en cada decisión la evidencia que pide la norma.
+
+- **Datos personales detectados y seudonimizados**: identificativos, contacto, salud, menores y terceros, con su valor en la traza.
+- **Por qué este ramo y por qué no los otros**: con las evidencias verificadas que lo justifican.
+- **Sello y retención**: hash SHA-256 de entrada y salida, plazos de conservación y supervisión humana.
+
+![la prueba en cada decisión](img/observabilidad/42-respuesta-cruda.png)
+
+## Auditar: termómetro de cumplimiento
+<!-- notes: El termómetro agrega los bloques de gobierno de todas las trazas. Cada control dice qué exige la norma, cómo lo resuelve la solución y la medida en vivo.
+
+Hay controles en ámbar, y eso es bueno: el panel no maquilla. La minimización, por ejemplo, está en ámbar porque hoy el texto llega completo al modelo.
+
+A remarcar: no sustituye al DPO; le da la evidencia que necesita, recalculada con cada traza. -->
+
+Cobertura de controles con evidencia medible, no un certificado.
+
+- **Un termómetro por marco**: AI Act, RGPD y LOPDGDD, DORA, y EIOPA y Solvencia II, con los controles en ámbar a la vista.
+- **Norma, control y medida**: qué exige cada artículo, cómo se resuelve y la cifra en vivo, medida o declarada.
+- **Inventario de datos e integridad**: datos personales por mensaje y una cadena de hashes que detecta cualquier alteración.
+
+![termómetro de cumplimiento](img/observabilidad/34-termometro.png)
 
 # Cómo implantarlo
 

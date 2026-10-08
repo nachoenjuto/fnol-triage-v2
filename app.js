@@ -504,6 +504,19 @@
       sync();
     });
     root.querySelector(`[data-restore="${key}"]`).addEventListener('click', () => { ta.value = def.texto; ta.dispatchEvent(new Event('input')); });
+    root.querySelector(`[data-grande="${key}"]`).addEventListener('click', () => abrirEditorPrompt(def, ta));
+  }
+
+  // Editor ancho de un bloque de prompt: el menú lateral es estrecho, así que se edita aquí y se devuelve al guardar
+  function abrirEditorPrompt(def, ta) {
+    const dlg = $('modal-prompt'); const area = $('prompt-grande');
+    $('modal-prompt-title').textContent = def.titulo;
+    area.value = ta.value;
+    const cuenta = () => { $('prompt-grande-count').textContent = `${area.value.length} caracteres${area.value === def.texto ? '' : ' · editado'}`; };
+    area.oninput = cuenta; cuenta();
+    $('prompt-grande-restaurar').onclick = () => { area.value = def.texto; cuenta(); };
+    $('prompt-grande-guardar').onclick = () => { ta.value = area.value; ta.dispatchEvent(new Event('input')); dlg.close(); };
+    dlg.showModal(); area.focus();
   }
 
   function renderPromptSections() {
@@ -512,7 +525,7 @@
       <textarea data-prompt="${key}" rows="14" spellcheck="false"></textarea>
       <div class="row between">
         <small class="muted"><span data-count="${key}"></span> caracteres</small>
-        <button class="btn btn-ghost btn-sm" type="button" data-restore="${key}">Restaurar original</button>
+        <span class="row"><button class="btn btn-ghost btn-sm" type="button" data-grande="${key}" title="Abrir el bloque en un editor ancho">${lucide('maximize-2')} Editar en grande</button><button class="btn btn-ghost btn-sm" type="button" data-restore="${key}">Restaurar</button></span>
       </div>`;
 
     // «Prompt base» va directo, sin colapsable propio: es el bloque principal del prompt
@@ -1023,20 +1036,27 @@
   // ---------------------------------------------------------------------------
   // Eventos
   // ---------------------------------------------------------------------------
-  // Panel lateral (paquete, configuración y prompt) plegable; el estado se recuerda en la sesión
-  function setSidebar(abierto) {
-    document.querySelector('.layout').classList.toggle('sidebar-collapsed', !abierto);
-    $('sidebar').hidden = !abierto;
-    const b = $('btn-toggle-sidebar');
-    b.setAttribute('aria-expanded', String(abierto));
-    b.innerHTML = lucide(abierto ? 'panel-left-close' : 'panel-left-open');
-    b.title = b.ariaLabel = abierto ? 'Ocultar el panel lateral' : 'Mostrar el panel lateral';
-    ssSet('triage.sidebar', abierto);
-  }
-
   function bind() {
-    setSidebar(ssGet('triage.sidebar', true));
-    $('btn-toggle-sidebar').addEventListener('click', () => setSidebar($('sidebar').hidden));
+    // Menú lateral común con el panel de gobierno (shell.js): plegado deja solo los iconos de las secciones
+    Shell.initShell();
+    // Recorrido de la demo (modo presentador): acciones de los pasos que ocurren en el triaje
+    Shell.Recorrido.init({
+      fases: () => { window.scrollTo({ top: 0 }); const f = document.querySelector('.phase'); if (f) f.click(); return ''; },
+      procesar: () => {
+        if (state.running) return 'El lote ya se está procesando.';
+        if (state.log.some((e) => e.paquete === 'A')) return 'El Paquete A ya está procesado. Para repetirlo, pulsa «Reiniciar lote».';
+        $('sel-motor').value = 'guardado'; $('sel-motor').dispatchEvent(new Event('change'));
+        $('sel-paquete').value = 'A'; $('sel-paquete').dispatchEvent(new Event('change'));
+        $('btn-run').click();
+        return '';
+      },
+      ficha: (id, tab) => {
+        const e = state.log.find((x) => x.id === id);
+        if (!e) return `Todavía no hay ficha de ${id}: haz antes el paso 2 (Procesar el Paquete A) y espera a que termine.`;
+        openModal(e); if (tab) setTab(tab);
+        return '';
+      },
+    });
     $('btn-toggle-config').addEventListener('click', () => {
       const panel = $('config-panel');
       panel.hidden = !panel.hidden;

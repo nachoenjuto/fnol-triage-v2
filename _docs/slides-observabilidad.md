@@ -2,7 +2,7 @@
 
 Presentación genérica sobre las capacidades de observabilidad y gobierno que necesita una plataforma de IA agéntica en una empresa. Los ejemplos y las capturas vienen de la demo de triaje de siniestros (FNOL) de este repositorio, pero el discurso vale para cualquier sector.
 
-Este fichero es el contenido de referencia: texto, capturas y notas del ponente de cada slide, sin estilo. Iconos de [Lucide](https://lucide.dev). Capturas en [img/observabilidad/](img/observabilidad/), sacadas de `gobierno.html` con la fuente «Demo · Paquete A + 14 días».
+Este fichero es el contenido de referencia: texto, capturas y notas del ponente de cada slide, sin estilo. Iconos de [Lucide](https://lucide.dev). Capturas en [img/observabilidad/](img/observabilidad/), sacadas de `gobierno.html` (fuente «Demo · Paquete A + 14 días») e `index.html` (Paquete A procesado). Se regeneran con `make capturas` (con `make run` en marcha): `scripts/capturas.mjs` las hace con Chrome sin interfaz y `scripts/componer-capturas.py` monta las compuestas.
 
 **Versión en PowerPoint** (plantilla Logicalis 2026, modo avanzado de la skill md-to-pptx): [slides-observabilidad.pptx](slides-observabilidad.pptx), 60 slides. Se genera así:
 
@@ -44,49 +44,63 @@ Si se cambia el contenido, hay que actualizar también `slides-observabilidad-pp
 | 15 | Arquitectura de referencia | Contenido |
 | 16 | Tres niveles de observabilidad | Contenido |
 | 17 | Mapa de capacidades | Contenido |
-| 18 | Ver: la vista de dirección | Contenido + captura |
-| 19 | Ver: la vista de dirección | Captura ampliada |
-| 20 | Ver: trazabilidad de extremo a extremo | Contenido + captura |
-| 21 | Ver: trazabilidad de extremo a extremo | Captura ampliada |
-| 22 | Entender: explicabilidad | Contenido + captura |
-| 23 | Entender: explicabilidad | Captura ampliada |
-| 24 | Entender: Reasoning Replay y What-if | Contenido + captura |
-| 25 | Entender: Reasoning Replay y What-if (1/2) | Captura ampliada |
-| 26 | Entender: Reasoning Replay y What-if (2/2) | Captura ampliada |
-| 27 | Entender: causa raíz del comportamiento | Contenido |
-| 28 | Limitar: identidad y permisos por agente | Contenido + captura |
-| 29 | Limitar: identidad y permisos por agente | Captura ampliada |
-| 30 | Limitar: autonomía progresiva | Contenido + captura |
-| 31 | Limitar: autonomía progresiva (1/2) | Captura ampliada |
-| 32 | Limitar: autonomía progresiva (2/2) | Captura ampliada |
-| 33 | Limitar: Trust Score y supervisión adaptativa | Contenido |
-| 34 | Limitar: Trust Score y supervisión adaptativa | Captura ampliada |
-| 35 | Limitar: guardrails | Contenido + captura |
-| 36 | Limitar: guardrails | Captura ampliada |
-| 37 | Limitar: kill switch y resiliencia | Contenido + captura |
-| 38 | Limitar: kill switch y resiliencia | Captura ampliada |
-| 39 | Pagar: caps y presupuesto | Contenido + captura |
-| 40 | Pagar: caps y presupuesto (1/2) | Captura ampliada |
-| 41 | Pagar: caps y presupuesto (2/2) | Captura ampliada |
-| 42 | Pagar: de la alerta a la acción | Contenido + captura |
-| 43 | Pagar: de la alerta a la acción (1/2) | Captura ampliada |
-| 44 | Pagar: de la alerta a la acción (2/2) | Captura ampliada |
-| 45 | Pagar: el modelo adecuado para cada agente | Contenido + captura |
-| 46 | Pagar: el modelo adecuado para cada agente | Captura ampliada |
-| 47 | Antes de cambiar, simular | Contenido + captura |
-| 48 | Antes de cambiar, simular (1/2) | Captura ampliada |
-| 49 | Antes de cambiar, simular (2/2) | Captura ampliada |
-| 50 | Auditar: libro de registro | Contenido + captura |
-| 51 | Auditar: libro de registro | Captura ampliada |
-| 52 | Cumplimiento por diseño | Contenido + captura |
-| 53 | Cumplimiento por diseño | Captura ampliada |
-| 54 | Separador 05 · Cómo implantarlo | Contenido |
-| 55 | Marco de madurez GenAIOps | Contenido |
-| 56 | Cadena de confianza operacional | Contenido |
-| 57 | Piezas sueltas frente a integración | Contenido |
-| 58 | Mensajes clave | Contenido |
-| 59 | Fuentes | Contenido |
-| 60 | Gracias | Cierre |
+| 18 | Ver: la portada del panel | Contenido + captura |
+| 19 | Ver: la portada del panel | Captura ampliada |
+| 20 | Ver: la vista de dirección | Contenido + captura |
+| 21 | Ver: la vista de dirección | Captura ampliada |
+| 22 | Ver: trazabilidad de extremo a extremo | Contenido + captura |
+| 23 | Ver: trazabilidad de extremo a extremo | Captura ampliada |
+| 24 | Entender: explicabilidad | Contenido + captura |
+| 25 | Entender: explicabilidad | Captura ampliada |
+| 26 | Entender: evidencias verificadas | Contenido + captura |
+| 27 | Entender: evidencias verificadas | Captura ampliada |
+| 28 | Entender: Reasoning Replay y What-if | Contenido + captura |
+| 29 | Entender: Reasoning Replay y What-if (1/2) | Captura ampliada |
+| 30 | Entender: Reasoning Replay y What-if (2/2) | Captura ampliada |
+| 31 | Entender: causa raíz del comportamiento | Contenido |
+| 32 | Limitar: identidad y permisos por agente | Contenido + captura |
+| 33 | Limitar: identidad y permisos por agente | Captura ampliada |
+| 34 | Limitar: autonomía progresiva | Contenido + captura |
+| 35 | Limitar: autonomía progresiva (1/2) | Captura ampliada |
+| 36 | Limitar: autonomía progresiva (2/2) | Captura ampliada |
+| 37 | Limitar: Trust Score y supervisión adaptativa | Contenido |
+| 38 | Limitar: Trust Score y supervisión adaptativa | Captura ampliada |
+| 39 | Limitar: guardrails | Contenido + captura |
+| 40 | Limitar: guardrails | Captura ampliada |
+| 41 | Limitar: kill switch y resiliencia | Contenido + captura |
+| 42 | Limitar: kill switch y resiliencia | Captura ampliada |
+| 43 | Conocer: el conocimiento también se degrada | Contenido + captura |
+| 44 | Conocer: el conocimiento también se degrada (1/2) | Captura ampliada |
+| 45 | Conocer: el conocimiento también se degrada (2/2) | Captura ampliada |
+| 46 | Conocer: rúbricas que vigilan el conocimiento | Contenido + captura |
+| 47 | Conocer: rúbricas que vigilan el conocimiento | Captura ampliada |
+| 48 | Pagar: caps y presupuesto | Contenido + captura |
+| 49 | Pagar: caps y presupuesto (1/2) | Captura ampliada |
+| 50 | Pagar: caps y presupuesto (2/2) | Captura ampliada |
+| 51 | Pagar: de la alerta a la acción | Contenido + captura |
+| 52 | Pagar: de la alerta a la acción (1/2) | Captura ampliada |
+| 53 | Pagar: de la alerta a la acción (2/2) | Captura ampliada |
+| 54 | Pagar: el modelo adecuado para cada agente | Contenido + captura |
+| 55 | Pagar: el modelo adecuado para cada agente | Captura ampliada |
+| 56 | Antes de cambiar, simular | Contenido + captura |
+| 57 | Antes de cambiar, simular (1/2) | Captura ampliada |
+| 58 | Antes de cambiar, simular (2/2) | Captura ampliada |
+| 59 | Auditar: libro de registro | Contenido + captura |
+| 60 | Auditar: libro de registro | Captura ampliada |
+| 61 | Cumplimiento por diseño | Contenido + captura |
+| 62 | Cumplimiento por diseño | Captura ampliada |
+| 63 | Auditar: la prueba en cada decisión | Contenido + captura |
+| 64 | Auditar: la prueba en cada decisión | Captura ampliada |
+| 65 | Auditar: termómetro de cumplimiento | Contenido + captura |
+| 66 | Auditar: termómetro de cumplimiento (1/2) | Captura ampliada |
+| 67 | Auditar: termómetro de cumplimiento (2/2) | Captura ampliada |
+| 68 | Separador 05 · Cómo implantarlo | Contenido |
+| 69 | Marco de madurez GenAIOps | Contenido |
+| 70 | Cadena de confianza operacional | Contenido |
+| 71 | Piezas sueltas frente a integración | Contenido |
+| 72 | Mensajes clave | Contenido |
+| 73 | Fuentes | Contenido |
+| 74 | Gracias | Cierre |
 
 ---
 
@@ -453,20 +467,21 @@ Tres columnas unidas por una flecha inferior con el texto «un mismo `trace_id`�
 
 ## 17 · Mapa de capacidades
 
-Cinco columnas, una por verbo, cada una con la pregunta que responde:
+Seis columnas, una por verbo, cada una con la pregunta que responde:
 
-| `eye` **Ver** | `lightbulb` **Entender** | `shield` **Limitar** | `wallet` **Pagar** | `book-open-check` **Auditar** |
-|---|---|---|---|---|
-| ¿Qué está pasando? | ¿Por qué decidió eso? | ¿Quién lo controla? | ¿Cuánto cuesta? | ¿Qué cambió y quién lo aprobó? |
-| Vista de dirección · Trazabilidad de extremo a extremo | Explicabilidad · Reasoning Replay · Causa raíz | Identidad y permisos · Autonomía · Trust Score · Guardrails · Kill switch | Caps · Acciones correctivas · Comparativa de modelos · Simulación antes de cambiar | Libro de registro · Cumplimiento por diseño |
+| `eye` **Ver** | `lightbulb` **Entender** | `shield` **Limitar** | `book-open` **Conocer** | `wallet` **Pagar** | `book-open-check` **Auditar** |
+|---|---|---|---|---|---|
+| ¿Qué está pasando? | ¿Por qué decidió eso? | ¿Quién lo controla? | ¿Con qué conocimiento decide? | ¿Cuánto cuesta? | ¿Podemos demostrarlo? |
+| Portada · Vista de dirección · Trazabilidad | Explicabilidad · Evidencias · Reasoning Replay · Causa raíz | Identidad y permisos · Autonomía · Trust Score · Guardrails · Kill switch | Knowledge bases · Rúbricas | Caps · Acciones correctivas · Modelos · Simulación | Libro de registro · Cumplimiento · Prueba en cada decisión · Termómetro |
 
 > **Notas del ponente:**
 >
-> Este es el mapa del bloque. Agrupamos las capacidades en cinco verbos:
+> Este es el mapa del bloque. Agrupamos las capacidades en seis verbos:
 >
 > - ver lo que pasa;
 > - entender por qué pasa;
 > - limitar lo que el agente puede hacer solo;
+> - conocer con qué conocimiento decide y si sigue siendo bueno;
 > - pagar solo lo que tiene sentido pagar;
 > - y auditar todo lo anterior.
 >
@@ -476,15 +491,51 @@ Cinco columnas, una por verbo, cada una con la pregunta que responde:
 
 ---
 
-## 18 · Ver: la vista de dirección
+## 18 · Ver: la portada del panel
+
+![Inicio: una ficha por pregunta, con dos cifras en vivo, su semáforo y su norma](img/observabilidad/00-inicio.png)
+
+Al lado de la captura:
+
+- `house` **Una puerta de entrada**: diez fichas agrupadas en ver, entender, limitar, conocer, cumplimiento, costes y auditar.
+- `activity` **Dos cifras en vivo por ficha**: calculadas con los mismos datos que su sección, y un semáforo si hay algo que mirar.
+- `scale` **La norma de cada bloque**: las etiquetas de cada ficha dicen a qué artículo responde.
+
+**Una ficha por pregunta, con su estado en vivo.**
+
+> **Notas del ponente:**
+>
+> Antes de entrar en detalle, esta es la portada del panel. Cada ficha corresponde a una sección y responde a una pregunta: qué pasa, por qué, con qué límites, con qué conocimiento, si cumple y cuánto cuesta.
+>
+> Cada ficha lleva dos cifras en vivo y un semáforo. Si algo va mal, se ve aquí antes de abrir nada.
+>
+> A remarcar: la portada no es decoración; es la forma de que cualquiera sepa en qué sección tiene que entrar.
+
+---
+
+## 19 · Ver: la portada del panel
+
+Captura a pantalla completa de la slide anterior, sin título: solo la imagen, con borde gris.
+
+**Pie de foto** (va bajo la captura de la slide anterior): Inicio: una ficha por pregunta, con dos cifras en vivo, su semáforo y su norma
+
+![Inicio: una ficha por pregunta, con dos cifras en vivo, su semáforo y su norma](img/observabilidad/00-inicio.png)
+
+> **Notas del ponente:**
+>
+> Recorrer los grupos de izquierda a derecha y señalar el semáforo rojo de Knowledge bases y FinOps: el panel dice dónde mirar primero.
+
+---
+
+## 20 · Ver: la vista de dirección
 
 ![Vista de dirección del panel de gobierno: KPIs, agentes y coste frente al cap](img/observabilidad/01-resumen.png)
 
 Al lado de la captura:
 
-- `layout-dashboard` **El estado del sistema en una pantalla**: mensajes procesados, autonomía efectiva, escalados a persona, overrides humanos, coste frente al cap y alertas activas.
+- `layout-dashboard` **El estado del sistema en una pantalla**: mensajes procesados, autonomía efectiva, escalados a persona, overrides humanos, coste frente al cap, alertas activas, cumplimiento y conocimiento.
 - `bot` **Una tarjeta por agente**: modelo, versión de prompt, nivel de autonomía, estado (activo, degradado o pausado) y coste del día frente a su límite.
-- `bell` **Alertas con causa y acción**: no solo «algo va mal», sino qué se ha hecho ya.
+- `bell` **Alertas de todas las fuentes**: coste, conocimiento y cumplimiento, cada una con su causa y lo que ya se ha hecho.
 
 **En diez segundos se sabe si el sistema va bien.**
 
@@ -500,7 +551,7 @@ Al lado de la captura:
 
 ---
 
-## 19 · Ver: la vista de dirección
+## 21 · Ver: la vista de dirección
 
 Captura a pantalla completa de la slide anterior, sin título: solo la imagen, con borde gris.
 
@@ -514,7 +565,7 @@ Captura a pantalla completa de la slide anterior, sin título: solo la imagen, c
 
 ---
 
-## 20 · Ver: trazabilidad de extremo a extremo
+## 22 · Ver: trazabilidad de extremo a extremo
 
 ![Trazabilidad: cadena de agentes en cascada, datos de la traza y override humano](img/observabilidad/03-trazabilidad.png)
 
@@ -540,7 +591,7 @@ Captura a pantalla completa de la slide anterior, sin título: solo la imagen, c
 
 ---
 
-## 21 · Ver: trazabilidad de extremo a extremo
+## 23 · Ver: trazabilidad de extremo a extremo
 
 Captura a pantalla completa de la slide anterior, sin título: solo la imagen, con borde gris.
 
@@ -554,7 +605,7 @@ Captura a pantalla completa de la slide anterior, sin título: solo la imagen, c
 
 ---
 
-## 22 · Entender: explicabilidad
+## 24 · Entender: explicabilidad
 
 ![Ficha explicada de una traza: qué llegó, qué hizo cada agente y por qué se escaló](img/observabilidad/04-traza-explicada.png)
 
@@ -583,7 +634,7 @@ Al lado de la captura:
 
 ---
 
-## 23 · Entender: explicabilidad
+## 25 · Entender: explicabilidad
 
 Captura a pantalla completa de la slide anterior, sin título: solo la imagen, con borde gris.
 
@@ -597,7 +648,43 @@ Captura a pantalla completa de la slide anterior, sin título: solo la imagen, c
 
 ---
 
-## 24 · Entender: Reasoning Replay y What-if
+## 26 · Entender: evidencias verificadas
+
+![Ficha del mensaje: diez evidencias resaltadas y la regla A5 que lo manda a revisión](img/observabilidad/41-evidencias.png)
+
+Al lado de la captura:
+
+- `scan-text` **El modelo cita, la plataforma comprueba**: solo se resalta una cita que aparece de verdad en el mensaje.
+- `tags` **Un color por tipo de evidencia**: ramo, dato extraído, fecha, regla que se cumple y regla que se incumple.
+- `circle-alert` **Lo que falta, también**: si un dato esencial no está en el texto, se marca «no consta» y no se inventa.
+
+**Cada dato y cada regla, con la frase literal del cliente que lo prueba.**
+
+> **Notas del ponente:**
+>
+> La explicabilidad se apoya en el propio texto del cliente. El modelo devuelve citas literales y el navegador comprueba que están en el mensaje antes de resaltarlas.
+>
+> Nunca se piden posiciones al modelo, porque los modelos cuentan mal los caracteres. Y si una cita no aparece, se marca como no localizada.
+>
+> A remarcar: si el cliente pregunta por qué, la respuesta es su propia frase.
+
+---
+
+## 27 · Entender: evidencias verificadas
+
+Captura a pantalla completa de la slide anterior, sin título: solo la imagen, con borde gris.
+
+**Pie de foto** (va bajo la captura de la slide anterior): Ficha del mensaje: diez evidencias resaltadas y la regla A5 que lo manda a revisión
+
+![Ficha del mensaje: diez evidencias resaltadas y la regla A5 que lo manda a revisión](img/observabilidad/41-evidencias.png)
+
+> **Notas del ponente:**
+>
+> Pasar el ratón por una evidencia: el título cambia a su tipo. Señalar la regla A5 en rojo: la frase «fractura de clavícula y dos costillas» es la que lo frena.
+
+---
+
+## 28 · Entender: Reasoning Replay y What-if
 
 ![Reasoning & Replay: razonamiento registrado por agente y lista de trazas](img/observabilidad/05-reasoning-replay.png)
 
@@ -629,7 +716,7 @@ Dos tarjetas:
 
 ---
 
-## 25 · Entender: Reasoning Replay y What-if (1/2)
+## 29 · Entender: Reasoning Replay y What-if (1/2)
 
 Captura a pantalla completa de la slide anterior, sin título: solo la imagen, con borde gris.
 
@@ -643,7 +730,7 @@ Captura a pantalla completa de la slide anterior, sin título: solo la imagen, c
 
 ---
 
-## 26 · Entender: Reasoning Replay y What-if (2/2)
+## 30 · Entender: Reasoning Replay y What-if (2/2)
 
 Captura a pantalla completa de la slide anterior, sin título: solo la imagen, con borde gris.
 
@@ -657,7 +744,7 @@ Captura a pantalla completa de la slide anterior, sin título: solo la imagen, c
 
 ---
 
-## 27 · Entender: causa raíz del comportamiento
+## 31 · Entender: causa raíz del comportamiento
 
 Pregunta central: **¿Por qué se equivocó el agente?**
 
@@ -691,7 +778,7 @@ Siete causas posibles, en dos columnas:
 
 ---
 
-## 28 · Limitar: identidad y permisos por agente
+## 32 · Limitar: identidad y permisos por agente
 
 ![Ficha del agente de Reglas: identidad, responsable, qué puede y qué no puede hacer, histórico de autonomía](img/observabilidad/06-ficha-agente.png)
 
@@ -723,7 +810,7 @@ Al lado de la captura:
 
 ---
 
-## 29 · Limitar: identidad y permisos por agente
+## 33 · Limitar: identidad y permisos por agente
 
 Captura a pantalla completa de la slide anterior, sin título: solo la imagen, con borde gris.
 
@@ -737,7 +824,7 @@ Captura a pantalla completa de la slide anterior, sin título: solo la imagen, c
 
 ---
 
-## 30 · Limitar: autonomía progresiva
+## 34 · Limitar: autonomía progresiva
 
 ![Registro de auditoría de la bajada de nivel del agente de Reglas: de L3 a L2, motivo, aprobador, reversibilidad y estado del agente en esa fecha](img/observabilidad/13-autonomia-auditoria.png)
 
@@ -771,7 +858,7 @@ Escala en flechas:
 
 ---
 
-## 31 · Limitar: autonomía progresiva (1/2)
+## 35 · Limitar: autonomía progresiva (1/2)
 
 Captura a pantalla completa de la slide anterior, sin título: solo la imagen, con borde gris.
 
@@ -785,7 +872,7 @@ Captura a pantalla completa de la slide anterior, sin título: solo la imagen, c
 
 ---
 
-## 32 · Limitar: autonomía progresiva (2/2)
+## 36 · Limitar: autonomía progresiva (2/2)
 
 Captura a pantalla completa de la slide anterior, sin título: solo la imagen, con borde gris.
 
@@ -799,7 +886,7 @@ Captura a pantalla completa de la slide anterior, sin título: solo la imagen, c
 
 ---
 
-## 33 · Limitar: Trust Score y supervisión adaptativa
+## 37 · Limitar: Trust Score y supervisión adaptativa
 
 ![Ficha del agente de Reglas: comportamiento por periodo (precisión, escalado, override, coste y latencia) y variables que afectan a su comportamiento](img/observabilidad/14-agente-comportamiento.png)
 
@@ -835,7 +922,7 @@ Diagrama de tres pasos:
 
 ---
 
-## 34 · Limitar: Trust Score y supervisión adaptativa
+## 38 · Limitar: Trust Score y supervisión adaptativa
 
 Captura a pantalla completa de la slide anterior, sin título: solo la imagen, con borde gris.
 
@@ -849,7 +936,7 @@ Captura a pantalla completa de la slide anterior, sin título: solo la imagen, c
 
 ---
 
-## 35 · Limitar: guardrails
+## 39 · Limitar: guardrails
 
 ![Ficha del guardrail G-02 (importe): 118 disparos en 14 días, media diaria, parte de los escalados, override tras el disparo, resolución humana y disparos por día, canal y ramo](img/observabilidad/15-guardrail-g02.png)
 
@@ -894,7 +981,7 @@ Tipos de guardrail, con ejemplos del caso de seguros:
 
 ---
 
-## 36 · Limitar: guardrails
+## 40 · Limitar: guardrails
 
 Captura a pantalla completa de la slide anterior, sin título: solo la imagen, con borde gris.
 
@@ -908,7 +995,7 @@ Captura a pantalla completa de la slide anterior, sin título: solo la imagen, c
 
 ---
 
-## 37 · Limitar: kill switch y resiliencia
+## 41 · Limitar: kill switch y resiliencia
 
 ![Tarjetas de agente con estado, nivel de autonomía, coste frente al cap e interruptor de pausa](img/observabilidad/02-agentes-kill-switch.png)
 
@@ -942,7 +1029,7 @@ Dos bloques:
 
 ---
 
-## 38 · Limitar: kill switch y resiliencia
+## 42 · Limitar: kill switch y resiliencia
 
 Captura a pantalla completa de la slide anterior, sin título: solo la imagen, con borde gris.
 
@@ -956,7 +1043,93 @@ Captura a pantalla completa de la slide anterior, sin título: solo la imagen, c
 
 ---
 
-## 39 · Pagar: caps y presupuesto
+## 43 · Conocer: el conocimiento también se degrada
+
+![Knowledge bases: inventario con la salud de cada base y su tendencia](img/observabilidad/31-knowledge.png)
+
+Al lado de la captura:
+
+- `book-open` **Un inventario de todo el conocimiento**: índices RAG de SharePoint o Drive, Markdown, runbooks, tablas de referencia y plantillas.
+- `activity` **Salud medida contra umbrales**: recall, fidelidad, citas, frescura, obsoletos, duplicados, deriva y datos personales.
+- `chart-column` **Comparativa de configuraciones**: el mismo corpus con distintos tamaños de chunk y solapamiento, para decidir con datos.
+
+**Los agentes deciden con conocimiento que no está en el modelo, y ese conocimiento envejece.**
+
+> **Notas del ponente:**
+>
+> Un agente puede estar perfecto y aun así equivocarse, porque el conocimiento que consulta se ha degradado: documentos obsoletos, duplicados, un índice que crece sin control.
+>
+> En el ejemplo, alguien sincronizó 340 condicionados de 2024 y el recall cayó seis puntos. La comparativa muestra que un filtro de vigencia lo arregla.
+>
+> A remarcar: el conocimiento se vigila igual que los agentes, con métricas, umbrales y versiones.
+
+---
+
+## 44 · Conocer: el conocimiento también se degrada (1/2)
+
+Captura a pantalla completa de la slide anterior, sin título: solo la imagen, con borde gris.
+
+**Pie de foto** (va bajo la captura de la slide anterior): Knowledge bases: inventario con la salud de cada base y su tendencia
+
+![Knowledge bases: inventario con la salud de cada base y su tendencia](img/observabilidad/31-knowledge.png)
+
+> **Notas del ponente:**
+>
+> Señalar las tres degradadas y la crítica: la red de talleres lleva nueve días sin sincronizar.
+
+---
+
+## 45 · Conocer: el conocimiento también se degrada (2/2)
+
+Captura a pantalla completa de la slide anterior, sin título: solo la imagen, con borde gris.
+
+**Pie de foto** (va bajo la captura de la slide anterior): Comparativa de configuraciones de Condicionados Auto: la recomendada recupera el recall
+
+![Comparativa de configuraciones de Condicionados Auto: la recomendada recupera el recall](img/observabilidad/32-kb-comparativa.png)
+
+> **Notas del ponente:**
+>
+> Señalar que el filtro de vigencia devuelve el recall a 0,88: 340 documentos de 2024 competían con los de 2026.
+
+---
+
+## 46 · Conocer: rúbricas que vigilan el conocimiento
+
+![Editor de la rúbrica de Condicionados Auto: criterios con peso y preguntas de referencia](img/observabilidad/33-rubrica.png)
+
+Al lado de la captura:
+
+- `flask-conical` **Preguntas de referencia por base**: factuales, de cláusula, de exclusión, de plazo y preguntas trampa sin respuesta.
+- `scale` **Criterios con peso**: fidelidad, cláusula correcta, completitud y rechazo correcto; los pesos deben sumar 100.
+- `users` **Juez calibrado con personas**: el acuerdo entre el modelo juez y los revisores dice si la evaluación es fiable.
+
+**La salud solo es tan buena como las pruebas con las que se mide.**
+
+> **Notas del ponente:**
+>
+> Las rúbricas son un activo más, versionado y con responsable. Cada una tiene sus criterios con peso y un juego de preguntas de referencia.
+>
+> Se ejecutan cada noche, en cada reindexado y en cada cambio de configuración. Si una base empeora, no se publica: es una puerta de calidad.
+>
+> A remarcar: si el juez y las personas dejan de coincidir, la evaluación deja de ser fiable, y el panel lo dice.
+
+---
+
+## 47 · Conocer: rúbricas que vigilan el conocimiento
+
+Captura a pantalla completa de la slide anterior, sin título: solo la imagen, con borde gris.
+
+**Pie de foto** (va bajo la captura de la slide anterior): Editor de la rúbrica de Condicionados Auto: criterios con peso y preguntas de referencia
+
+![Editor de la rúbrica de Condicionados Auto: criterios con peso y preguntas de referencia](img/observabilidad/33-rubrica.png)
+
+> **Notas del ponente:**
+>
+> Señalar que cada guardado crea una versión nueva y que la rúbrica se ejecuta en cada reindexado: si empeora, no se publica.
+
+---
+
+## 48 · Pagar: caps y presupuesto
 
 ![Ficha del cap CAP-03 (coste diario del agente de Reglas): al 114 % del límite, consumo de los últimos 14 días frente al límite y al aviso, agentes implicados y guardrail vinculado](img/observabilidad/17-cap03-consumo.png)
 
@@ -989,7 +1162,7 @@ Al lado de las capturas:
 
 ---
 
-## 40 · Pagar: caps y presupuesto (1/2)
+## 49 · Pagar: caps y presupuesto (1/2)
 
 Captura a pantalla completa de la slide anterior, sin título: solo la imagen, con borde gris.
 
@@ -1003,7 +1176,7 @@ Captura a pantalla completa de la slide anterior, sin título: solo la imagen, c
 
 ---
 
-## 41 · Pagar: caps y presupuesto (2/2)
+## 50 · Pagar: caps y presupuesto (2/2)
 
 Captura a pantalla completa de la slide anterior, sin título: solo la imagen, con borde gris.
 
@@ -1017,7 +1190,7 @@ Captura a pantalla completa de la slide anterior, sin título: solo la imagen, c
 
 ---
 
-## 42 · Pagar: de la alerta a la acción
+## 51 · Pagar: de la alerta a la acción
 
 ![Caps superados: porcentaje de consumo de cada cap frente al 100 %](img/observabilidad/19-caps-superados.png)
 
@@ -1049,7 +1222,7 @@ Tres tipos de respuesta, de menos a más intervención:
 
 ---
 
-## 43 · Pagar: de la alerta a la acción (1/2)
+## 52 · Pagar: de la alerta a la acción (1/2)
 
 Captura a pantalla completa de la slide anterior, sin título: solo la imagen, con borde gris.
 
@@ -1063,7 +1236,7 @@ Captura a pantalla completa de la slide anterior, sin título: solo la imagen, c
 
 ---
 
-## 44 · Pagar: de la alerta a la acción (2/2)
+## 53 · Pagar: de la alerta a la acción (2/2)
 
 Captura a pantalla completa de la slide anterior, sin título: solo la imagen, con borde gris.
 
@@ -1077,7 +1250,7 @@ Captura a pantalla completa de la slide anterior, sin título: solo la imagen, c
 
 ---
 
-## 45 · Pagar: el modelo adecuado para cada agente
+## 54 · Pagar: el modelo adecuado para cada agente
 
 ![Comparativa de modelos: precio, agentes que lo usan, tokens, coste, latencia y calidad](img/observabilidad/10-finops-modelos.png)
 
@@ -1101,7 +1274,7 @@ Al lado de la captura:
 
 ---
 
-## 46 · Pagar: el modelo adecuado para cada agente
+## 55 · Pagar: el modelo adecuado para cada agente
 
 Captura a pantalla completa de la slide anterior, sin título: solo la imagen, con borde gris.
 
@@ -1115,7 +1288,7 @@ Captura a pantalla completa de la slide anterior, sin título: solo la imagen, c
 
 ---
 
-## 47 · Antes de cambiar, simular
+## 56 · Antes de cambiar, simular
 
 ![Nuevo cap de FinOps: formulario con vista previa del consumo frente al nuevo límite en los últimos 14 días](img/observabilidad/18-nuevo-cap.png)
 
@@ -1143,7 +1316,7 @@ Tres simulaciones, una por tipo de cambio:
 
 ---
 
-## 48 · Antes de cambiar, simular (1/2)
+## 57 · Antes de cambiar, simular (1/2)
 
 Captura a pantalla completa de la slide anterior, sin título: solo la imagen, con borde gris.
 
@@ -1157,7 +1330,7 @@ Captura a pantalla completa de la slide anterior, sin título: solo la imagen, c
 
 ---
 
-## 49 · Antes de cambiar, simular (2/2)
+## 58 · Antes de cambiar, simular (2/2)
 
 Captura a pantalla completa de la slide anterior, sin título: solo la imagen, con borde gris.
 
@@ -1171,7 +1344,7 @@ Captura a pantalla completa de la slide anterior, sin título: solo la imagen, c
 
 ---
 
-## 50 · Auditar: libro de registro
+## 59 · Auditar: libro de registro
 
 ![Histórico de gobierno: línea de tiempo de overrides, incidentes, caps, replays y cambios de nivel](img/observabilidad/11-historico.png)
 
@@ -1208,7 +1381,7 @@ Una línea de tiempo única, filtrable por tipo:
 
 ---
 
-## 51 · Auditar: libro de registro
+## 60 · Auditar: libro de registro
 
 Captura a pantalla completa de la slide anterior, sin título: solo la imagen, con borde gris.
 
@@ -1222,7 +1395,7 @@ Captura a pantalla completa de la slide anterior, sin título: solo la imagen, c
 
 ---
 
-## 52 · Cumplimiento por diseño
+## 61 · Cumplimiento por diseño
 
 ![Etiqueta normativa en el panel: al pasar el ratón explica qué exige el artículo y si está en vigor](img/observabilidad/12-etiqueta-normativa.png)
 
@@ -1253,7 +1426,7 @@ Tabla capacidad → norma:
 
 ---
 
-## 53 · Cumplimiento por diseño
+## 62 · Cumplimiento por diseño
 
 Captura a pantalla completa de la slide anterior, sin título: solo la imagen, con borde gris.
 
@@ -1267,13 +1440,99 @@ Captura a pantalla completa de la slide anterior, sin título: solo la imagen, c
 
 ---
 
-## 54 · Separador 05 · Cómo implantarlo
+## 63 · Auditar: la prueba en cada decisión
+
+![Respuesta cruda de MSG-A-12 con el bloque _gobernanza que añade la plataforma](img/observabilidad/42-respuesta-cruda.png)
+
+Al lado de la captura:
+
+- `fingerprint` **Datos personales detectados y seudonimizados**: identificativos, contacto, salud, menores y terceros, con su valor en la traza.
+- `lightbulb` **Por qué este ramo y por qué no los otros**: con las evidencias verificadas que lo justifican.
+- `link` **Sello y retención**: hash SHA-256 de entrada y salida, plazos de conservación y supervisión humana.
+
+**La plataforma, no el modelo, deja en cada decisión la evidencia que pide la norma.**
+
+> **Notas del ponente:**
+>
+> Esta es la respuesta cruda del modelo para un menor que llega a urgencias. Debajo, la plataforma añade el bloque de gobierno: los datos personales detectados y cómo se guardan, por qué es Salud y no Auto ni Hogar, el sello de la traza y cuánto tiempo se conserva.
+>
+> Nada de esto lo genera el modelo. Se calcula de forma determinista y se puede recalcular en cualquier momento.
+>
+> A remarcar: el modelo no se autocertifica.
+
+---
+
+## 64 · Auditar: la prueba en cada decisión
+
+Captura a pantalla completa de la slide anterior, sin título: solo la imagen, con borde gris.
+
+**Pie de foto** (va bajo la captura de la slide anterior): Respuesta cruda de MSG-A-12 con el bloque _gobernanza que añade la plataforma
+
+![Respuesta cruda de MSG-A-12 con el bloque _gobernanza que añade la plataforma](img/observabilidad/42-respuesta-cruda.png)
+
+> **Notas del ponente:**
+>
+> Señalar que el bloque lo añade la plataforma, no el modelo, y que cada parte lleva su norma: AI Act art. 12, RGPD art. 9 y 22.
+
+---
+
+## 65 · Auditar: termómetro de cumplimiento
+
+![Termómetro de cumplimiento: cobertura por marco y matriz norma → control](img/observabilidad/34-termometro.png)
+
+Al lado de la captura:
+
+- `thermometer` **Un termómetro por marco**: AI Act, RGPD y LOPDGDD, DORA, y EIOPA y Solvencia II, con los controles en ámbar a la vista.
+- `list-checks` **Norma, control y medida**: qué exige cada artículo, cómo se resuelve y la cifra en vivo, medida o declarada.
+- `link` **Inventario de datos e integridad**: datos personales por mensaje y una cadena de hashes que detecta cualquier alteración.
+
+**Cobertura de controles con evidencia medible, no un certificado.**
+
+> **Notas del ponente:**
+>
+> El termómetro agrega los bloques de gobierno de todas las trazas. Cada control dice qué exige la norma, cómo lo resuelve la solución y la medida en vivo.
+>
+> Hay controles en ámbar, y eso es bueno: el panel no maquilla. La minimización, por ejemplo, está en ámbar porque hoy el texto llega completo al modelo.
+>
+> A remarcar: no sustituye al DPO; le da la evidencia que necesita, recalculada con cada traza.
+
+---
+
+## 66 · Auditar: termómetro de cumplimiento (1/2)
+
+Captura a pantalla completa de la slide anterior, sin título: solo la imagen, con borde gris.
+
+**Pie de foto** (va bajo la captura de la slide anterior): Termómetro de cumplimiento: cobertura por marco y matriz norma → control
+
+![Termómetro de cumplimiento: cobertura por marco y matriz norma → control](img/observabilidad/34-termometro.png)
+
+> **Notas del ponente:**
+>
+> Señalar los controles en ámbar: minimización, EIPD pendiente y aviso de IA en WhatsApp. Un 100 % no sería creíble.
+
+---
+
+## 67 · Auditar: termómetro de cumplimiento (2/2)
+
+Captura a pantalla completa de la slide anterior, sin título: solo la imagen, con borde gris.
+
+**Pie de foto** (va bajo la captura de la slide anterior): Ficha de cumplimiento de una traza: datos personales detectados y su valor en la traza
+
+![Ficha de cumplimiento de una traza: datos personales detectados y su valor en la traza](img/observabilidad/35-inventario-pii.png)
+
+> **Notas del ponente:**
+>
+> Señalar «es diabético»: dato de salud que no hacía falta para decidir; es el argumento para seudonimizar antes del modelo.
+
+---
+
+## 68 · Separador 05 · Cómo implantarlo
 
 De forma progresiva, con capacidades que se activan cuando el negocio lo decide.
 
 ---
 
-## 55 · Marco de madurez GenAIOps
+## 69 · Marco de madurez GenAIOps
 
 Escalera de cinco niveles:
 
@@ -1303,7 +1562,7 @@ Escalera de cinco niveles:
 
 ---
 
-## 56 · Cadena de confianza operacional
+## 70 · Cadena de confianza operacional
 
 Ciclo de cinco pasos en flechas:
 
@@ -1335,7 +1594,7 @@ Ciclo de mejora continua debajo: **observar → analizar → ajustar → validar
 
 ---
 
-## 57 · Piezas sueltas frente a integración
+## 71 · Piezas sueltas frente a integración
 
 **Hay piezas sueltas** (panel gris):
 
@@ -1366,7 +1625,7 @@ Banda azul: **No es un producto. Es una forma de implementar agentes en una empr
 
 ---
 
-## 58 · Mensajes clave
+## 72 · Mensajes clave
 
 Cinco mensajes, cada uno con su icono:
 
@@ -1390,7 +1649,7 @@ Cinco mensajes, cada uno con su icono:
 
 ---
 
-## 59 · Fuentes
+## 73 · Fuentes
 
 Fuentes de las cifras y de la normativa citadas en la presentación, con enlace:
 
@@ -1408,6 +1667,6 @@ Fuentes de las cifras y de la normativa citadas en la presentación, con enlace:
 
 ---
 
-## 60 · Gracias
+## 74 · Gracias
 
 Contraportada con www.logicalis.com.

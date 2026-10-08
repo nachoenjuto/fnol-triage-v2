@@ -171,8 +171,40 @@
         "hash_entrada": "sha256:e5388ed3ca559b7c2a2651c2b87dd8ade85eafa21844f55bd51d09ba8ecddaac",
         "hash_salida": "sha256:913aeffad74802418177c5504c33bcaea5f0e2c43bc43d07b0b9ff783181aabb",
         "hash_registro": "sha256:0c8e736fd531305403eb2b97482118016b6b6522980d50916e9e1a344f830749",
+        "conocimiento": [
+          {
+            "kb": "KB-01",
+            "nombre": "Reglas de negocio Auto / Hogar / Salud",
+            "version": "v2.3"
+          },
+          {
+            "kb": "KB-04",
+            "nombre": "Manual de tramitación de siniestros",
+            "version": "4.2",
+            "simulada": true
+          },
+          {
+            "kb": "KB-08",
+            "nombre": "Corpus normativo (LCS, LOSSEAR, RGPD, AI Act)",
+            "version": "2026.07",
+            "simulada": true
+          },
+          {
+            "kb": "KB-03",
+            "nombre": "Condicionados Hogar 2026",
+            "version": "2026.08.1",
+            "simulada": true
+          },
+          {
+            "kb": "KB-09",
+            "nombre": "Plantillas de comunicación al cliente",
+            "version": "v3.0",
+            "simulada": true
+          }
+        ],
         "normas": [
           "AI Act art. 12",
+          "AI Act art. 10",
           "RGPD art. 5.2"
         ]
       },
@@ -481,8 +513,34 @@
         "hash_entrada": "sha256:2e79a70701ca08e53168bf8157a667fe5ca229a5d1f3168347958598cc4b7e30",
         "hash_salida": "sha256:5996cda9d156af78a422f08c6db07f18424fbd0ff0a0d947a095a5b8542c794e",
         "hash_registro": "sha256:f96c181e2f307aae2b2ad71f9e9572a03433f89f27a7148bf45bdcf7c17fdee1",
+        "conocimiento": [
+          {
+            "kb": "KB-01",
+            "nombre": "Reglas de negocio Auto / Hogar / Salud",
+            "version": "v2.3"
+          },
+          {
+            "kb": "KB-04",
+            "nombre": "Manual de tramitación de siniestros",
+            "version": "4.2",
+            "simulada": true
+          },
+          {
+            "kb": "KB-08",
+            "nombre": "Corpus normativo (LCS, LOSSEAR, RGPD, AI Act)",
+            "version": "2026.07",
+            "simulada": true
+          },
+          {
+            "kb": "KB-05",
+            "nombre": "Cuadro médico concertado",
+            "version": "2026-09-16",
+            "simulada": true
+          }
+        ],
         "normas": [
           "AI Act art. 12",
+          "AI Act art. 10",
           "RGPD art. 5.2"
         ]
       },
@@ -885,8 +943,40 @@
         "hash_entrada": "sha256:bb537a5147b7ee1ce2e2119c5c87d8cbb63049ef4ac35df0aa1902edbe0aed2c",
         "hash_salida": "sha256:472b3b2e11203b2c6819654345a837c71f71aeb3454078aefce4929a98c7422a",
         "hash_registro": "sha256:4a4acae28111566f05db9242884b72833a97bd5e977bc383f743dddb31290a62",
+        "conocimiento": [
+          {
+            "kb": "KB-01",
+            "nombre": "Reglas de negocio Auto / Hogar / Salud",
+            "version": "v2.3"
+          },
+          {
+            "kb": "KB-04",
+            "nombre": "Manual de tramitación de siniestros",
+            "version": "4.2",
+            "simulada": true
+          },
+          {
+            "kb": "KB-08",
+            "nombre": "Corpus normativo (LCS, LOSSEAR, RGPD, AI Act)",
+            "version": "2026.07",
+            "simulada": true
+          },
+          {
+            "kb": "KB-02",
+            "nombre": "Condicionados Auto 2026",
+            "version": "2026.09.2",
+            "simulada": true
+          },
+          {
+            "kb": "KB-06",
+            "nombre": "Red de talleres y peritos",
+            "version": "2026-09-08",
+            "simulada": true
+          }
+        ],
         "normas": [
           "AI Act art. 12",
+          "AI Act art. 10",
           "RGPD art. 5.2"
         ]
       },
@@ -1228,8 +1318,34 @@
         "hash_entrada": "sha256:d4a3589e2e8f21e81a8cf01fc1460921447d2244a58b5c5baac30cf95c328c16",
         "hash_salida": "sha256:bd282bd738da7b9f56b2dd01ac55a81d05f28c2722189152302261b6f5c31869",
         "hash_registro": "sha256:d602081f3356ee6ad2d9bfcac4be451cfd9a5e4c8acb2e375ef37c65a3887c7b",
+        "conocimiento": [
+          {
+            "kb": "KB-01",
+            "nombre": "Reglas de negocio Auto / Hogar / Salud",
+            "version": "v2.3"
+          },
+          {
+            "kb": "KB-04",
+            "nombre": "Manual de tramitación de siniestros",
+            "version": "4.2",
+            "simulada": true
+          },
+          {
+            "kb": "KB-08",
+            "nombre": "Corpus normativo (LCS, LOSSEAR, RGPD, AI Act)",
+            "version": "2026.07",
+            "simulada": true
+          },
+          {
+            "kb": "KB-05",
+            "nombre": "Cuadro médico concertado",
+            "version": "2026-09-16",
+            "simulada": true
+          }
+        ],
         "normas": [
           "AI Act art. 12",
+          "AI Act art. 10",
           "RGPD art. 5.2"
         ]
       },
@@ -1745,8 +1861,34 @@
         "hash_entrada": "sha256:03b1af5c3936fcf3586d25a6d3f9b1b50e1e770d0cfc4d29ace4ace190c4eddd",
         "hash_salida": "sha256:4bdb1ace45341aa55c4758fa9a7057db037172d56fa2f701aa8a558199ecad80",
         "hash_registro": "sha256:74a203e8d0544c158d9c1805b8c559213e0a8aa2abbe89039590224573ab3cf3",
+        "conocimiento": [
+          {
+            "kb": "KB-01",
+            "nombre": "Reglas de negocio Auto / Hogar / Salud",
+            "version": "v2.3"
+          },
+          {
+            "kb": "KB-04",
+            "nombre": "Manual de tramitación de siniestros",
+            "version": "4.2",
+            "simulada": true
+          },
+          {
+            "kb": "KB-08",
+            "nombre": "Corpus normativo (LCS, LOSSEAR, RGPD, AI Act)",
+            "version": "2026.07",
+            "simulada": true
+          },
+          {
+            "kb": "KB-03",
+            "nombre": "Condicionados Hogar 2026",
+            "version": "2026.08.1",
+            "simulada": true
+          }
+        ],
         "normas": [
           "AI Act art. 12",
+          "AI Act art. 10",
           "RGPD art. 5.2"
         ]
       },
@@ -2102,8 +2244,52 @@
         "hash_entrada": "sha256:c4a2896621d07f5da3e69fb9ee01c5278c6e7aa63e70a0265e413c648f4089fd",
         "hash_salida": "sha256:2b531cf825de66829a913329ae8bcfadd7b6e4055514ddffb13448887a0873fa",
         "hash_registro": "sha256:ab7fab7b53eeb8da8083866595b05403a17d0a4d49e442f9605d5e66ed727a43",
+        "conocimiento": [
+          {
+            "kb": "KB-01",
+            "nombre": "Reglas de negocio Auto / Hogar / Salud",
+            "version": "v2.3"
+          },
+          {
+            "kb": "KB-04",
+            "nombre": "Manual de tramitación de siniestros",
+            "version": "4.2",
+            "simulada": true
+          },
+          {
+            "kb": "KB-08",
+            "nombre": "Corpus normativo (LCS, LOSSEAR, RGPD, AI Act)",
+            "version": "2026.07",
+            "simulada": true
+          },
+          {
+            "kb": "KB-02",
+            "nombre": "Condicionados Auto 2026",
+            "version": "2026.09.2",
+            "simulada": true
+          },
+          {
+            "kb": "KB-06",
+            "nombre": "Red de talleres y peritos",
+            "version": "2026-09-08",
+            "simulada": true
+          },
+          {
+            "kb": "KB-07",
+            "nombre": "Runbook de daños corporales",
+            "version": "v1.4",
+            "simulada": true
+          },
+          {
+            "kb": "KB-09",
+            "nombre": "Plantillas de comunicación al cliente",
+            "version": "v3.0",
+            "simulada": true
+          }
+        ],
         "normas": [
           "AI Act art. 12",
+          "AI Act art. 10",
           "RGPD art. 5.2"
         ]
       },
@@ -2561,8 +2747,40 @@
         "hash_entrada": "sha256:16005e65beed86bd1c5de7111cbac44b09dfba32250db48b07e9d9fe1f11efa8",
         "hash_salida": "sha256:1405aa21c3539ef65c2f866e590a5c67ca9ba1fa3cf37d6761097200cea1e6a5",
         "hash_registro": "sha256:63440afdff2131c1130fed1bebd6ca50694cf843b7a50e16bca4cb2ee51d746b",
+        "conocimiento": [
+          {
+            "kb": "KB-01",
+            "nombre": "Reglas de negocio Auto / Hogar / Salud",
+            "version": "v2.3"
+          },
+          {
+            "kb": "KB-04",
+            "nombre": "Manual de tramitación de siniestros",
+            "version": "4.2",
+            "simulada": true
+          },
+          {
+            "kb": "KB-08",
+            "nombre": "Corpus normativo (LCS, LOSSEAR, RGPD, AI Act)",
+            "version": "2026.07",
+            "simulada": true
+          },
+          {
+            "kb": "KB-02",
+            "nombre": "Condicionados Auto 2026",
+            "version": "2026.09.2",
+            "simulada": true
+          },
+          {
+            "kb": "KB-06",
+            "nombre": "Red de talleres y peritos",
+            "version": "2026-09-08",
+            "simulada": true
+          }
+        ],
         "normas": [
           "AI Act art. 12",
+          "AI Act art. 10",
           "RGPD art. 5.2"
         ]
       },
@@ -2898,8 +3116,34 @@
         "hash_entrada": "sha256:7aba7f189df002acc112df081f5b654c454766d69acf11b99a3f3012bffc5f47",
         "hash_salida": "sha256:32da33495aad7c2ba8e86f9c57defada75ee173adcb02553ea8740a744decf60",
         "hash_registro": "sha256:c7230f4e615ef6324ff992794e6f52fb74334df5404c3fc24652880994d84b15",
+        "conocimiento": [
+          {
+            "kb": "KB-01",
+            "nombre": "Reglas de negocio Auto / Hogar / Salud",
+            "version": "v2.3"
+          },
+          {
+            "kb": "KB-04",
+            "nombre": "Manual de tramitación de siniestros",
+            "version": "4.2",
+            "simulada": true
+          },
+          {
+            "kb": "KB-08",
+            "nombre": "Corpus normativo (LCS, LOSSEAR, RGPD, AI Act)",
+            "version": "2026.07",
+            "simulada": true
+          },
+          {
+            "kb": "KB-05",
+            "nombre": "Cuadro médico concertado",
+            "version": "2026-09-16",
+            "simulada": true
+          }
+        ],
         "normas": [
           "AI Act art. 12",
+          "AI Act art. 10",
           "RGPD art. 5.2"
         ]
       },
@@ -3333,8 +3577,34 @@
         "hash_entrada": "sha256:c7fc2c367d8de1a2f9a015d1b6c0f77fdc7b25d4b0e684d015e018ab4655ec7a",
         "hash_salida": "sha256:a92bd3c218fb9dc7255d4c0a3bec308e4dff7f00c2edcd43507b49c3efc63b20",
         "hash_registro": "sha256:faaa843e64a3b1d0b7a7315d5e2d6227ad7970ea54cfc4c70f29f36b8073a08e",
+        "conocimiento": [
+          {
+            "kb": "KB-01",
+            "nombre": "Reglas de negocio Auto / Hogar / Salud",
+            "version": "v2.3"
+          },
+          {
+            "kb": "KB-04",
+            "nombre": "Manual de tramitación de siniestros",
+            "version": "4.2",
+            "simulada": true
+          },
+          {
+            "kb": "KB-08",
+            "nombre": "Corpus normativo (LCS, LOSSEAR, RGPD, AI Act)",
+            "version": "2026.07",
+            "simulada": true
+          },
+          {
+            "kb": "KB-03",
+            "nombre": "Condicionados Hogar 2026",
+            "version": "2026.08.1",
+            "simulada": true
+          }
+        ],
         "normas": [
           "AI Act art. 12",
+          "AI Act art. 10",
           "RGPD art. 5.2"
         ]
       },
@@ -3695,8 +3965,46 @@
         "hash_entrada": "sha256:8038a22a215eadfe78562c89cdbdf91811d47f95f4dba85aa6d17a54fb16e5a7",
         "hash_salida": "sha256:3032f80943cfad3b36aa9cc58c3640e77564c36b6b1227f598f042d5162183d4",
         "hash_registro": "sha256:d8c662037cda499ea3bce831f9b9c54cc02f23bdc29706a8cb0e9983924ef4e0",
+        "conocimiento": [
+          {
+            "kb": "KB-01",
+            "nombre": "Reglas de negocio Auto / Hogar / Salud",
+            "version": "v2.3"
+          },
+          {
+            "kb": "KB-04",
+            "nombre": "Manual de tramitación de siniestros",
+            "version": "4.2",
+            "simulada": true
+          },
+          {
+            "kb": "KB-08",
+            "nombre": "Corpus normativo (LCS, LOSSEAR, RGPD, AI Act)",
+            "version": "2026.07",
+            "simulada": true
+          },
+          {
+            "kb": "KB-02",
+            "nombre": "Condicionados Auto 2026",
+            "version": "2026.09.2",
+            "simulada": true
+          },
+          {
+            "kb": "KB-06",
+            "nombre": "Red de talleres y peritos",
+            "version": "2026-09-08",
+            "simulada": true
+          },
+          {
+            "kb": "KB-09",
+            "nombre": "Plantillas de comunicación al cliente",
+            "version": "v3.0",
+            "simulada": true
+          }
+        ],
         "normas": [
           "AI Act art. 12",
+          "AI Act art. 10",
           "RGPD art. 5.2"
         ]
       },
@@ -4048,8 +4356,34 @@
         "hash_entrada": "sha256:3caecb521bff9ec06b8255467b7e5fb6b2ca717fa861d4b1607cf6c8806d4b29",
         "hash_salida": "sha256:c8014231c402205a63bbe7b6c2ba7137621ed2b74acf2cb11e78832b1e1e46a9",
         "hash_registro": "sha256:c994bf0e8d6bfd0812e595e7a1612ffc00102e119228335c77c5203725ecc057",
+        "conocimiento": [
+          {
+            "kb": "KB-01",
+            "nombre": "Reglas de negocio Auto / Hogar / Salud",
+            "version": "v2.3"
+          },
+          {
+            "kb": "KB-04",
+            "nombre": "Manual de tramitación de siniestros",
+            "version": "4.2",
+            "simulada": true
+          },
+          {
+            "kb": "KB-08",
+            "nombre": "Corpus normativo (LCS, LOSSEAR, RGPD, AI Act)",
+            "version": "2026.07",
+            "simulada": true
+          },
+          {
+            "kb": "KB-05",
+            "nombre": "Cuadro médico concertado",
+            "version": "2026-09-16",
+            "simulada": true
+          }
+        ],
         "normas": [
           "AI Act art. 12",
+          "AI Act art. 10",
           "RGPD art. 5.2"
         ]
       },
@@ -4487,8 +4821,34 @@
         "hash_entrada": "sha256:1d8cedc8bad20a4ec38730bdeb49b0251ff52d973007981db4ab171a38b7c292",
         "hash_salida": "sha256:29264a429ee6939efcc5f2b1c542d365f00d8e51abd80c81a3e8936a2eefcaf8",
         "hash_registro": "sha256:51be7b0f55d30b0311c346e897c097c10a94f4a77399a820c0538622cb414fb3",
+        "conocimiento": [
+          {
+            "kb": "KB-01",
+            "nombre": "Reglas de negocio Auto / Hogar / Salud",
+            "version": "v2.3"
+          },
+          {
+            "kb": "KB-04",
+            "nombre": "Manual de tramitación de siniestros",
+            "version": "4.2",
+            "simulada": true
+          },
+          {
+            "kb": "KB-08",
+            "nombre": "Corpus normativo (LCS, LOSSEAR, RGPD, AI Act)",
+            "version": "2026.07",
+            "simulada": true
+          },
+          {
+            "kb": "KB-03",
+            "nombre": "Condicionados Hogar 2026",
+            "version": "2026.08.1",
+            "simulada": true
+          }
+        ],
         "normas": [
           "AI Act art. 12",
+          "AI Act art. 10",
           "RGPD art. 5.2"
         ]
       },
@@ -4872,8 +5232,40 @@
         "hash_entrada": "sha256:dab24fbace5400cb0f1e86d542a68de9451957fa5054a7c550e61d9928a22efc",
         "hash_salida": "sha256:d16ea13cb3725f9cebe45a10af31f17caf4bd426d51cd61cbd1752692087a4d7",
         "hash_registro": "sha256:f83f31ff23a6e83bab85c32976efaa53c6a0d3c8524f88779af1afa3f332cc93",
+        "conocimiento": [
+          {
+            "kb": "KB-01",
+            "nombre": "Reglas de negocio Auto / Hogar / Salud",
+            "version": "v2.3"
+          },
+          {
+            "kb": "KB-04",
+            "nombre": "Manual de tramitación de siniestros",
+            "version": "4.2",
+            "simulada": true
+          },
+          {
+            "kb": "KB-08",
+            "nombre": "Corpus normativo (LCS, LOSSEAR, RGPD, AI Act)",
+            "version": "2026.07",
+            "simulada": true
+          },
+          {
+            "kb": "KB-02",
+            "nombre": "Condicionados Auto 2026",
+            "version": "2026.09.2",
+            "simulada": true
+          },
+          {
+            "kb": "KB-06",
+            "nombre": "Red de talleres y peritos",
+            "version": "2026-09-08",
+            "simulada": true
+          }
+        ],
         "normas": [
           "AI Act art. 12",
+          "AI Act art. 10",
           "RGPD art. 5.2"
         ]
       },

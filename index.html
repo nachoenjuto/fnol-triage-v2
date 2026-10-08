@@ -5,9 +5,9 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>FNOL — Primer Aviso de Siniestro</title>
   <meta name="description" content="Demo de triaje multicanal de mensajes de clientes de una aseguradora: clasificación por ramo, extracción de datos y aplicación de reglas con un proveedor de IA.">
-  <link rel="stylesheet" href="styles.css?v=19">
-  <link rel="stylesheet" href="header.css?v=19">
-  <link rel="stylesheet" href="cumplimiento.css?v=19">
+  <link rel="stylesheet" href="styles.css?v=20">
+  <link rel="stylesheet" href="header.css?v=20">
+  <link rel="stylesheet" href="cumplimiento.css?v=20">
 </head>
 <body>
   <header class="topbar">
@@ -42,62 +42,20 @@
     </div>
   </nav>
 
-  <!-- Conexión Azure AI Foundry (arriba, plegable) -->
-  <section id="config-panel" class="card config" hidden>
-    <h2>Azure AI Foundry</h2>
-    <p class="hint">
-      La configuración se guarda solo en <code>sessionStorage</code> (se borra al cerrar la pestaña) y la clave se envía
-      directamente a tu endpoint de Azure. Sin clave, el triaje usa un motor local de reglas por palabras clave (modo degradado).
-    </p>
-    <div class="grid-2">
-      <label>
-        <span>Endpoint</span>
-        <input id="cfg-endpoint" type="url" placeholder="https://mi-recurso.services.ai.azure.com/openai/v1/responses" autocomplete="off" spellcheck="false">
-        <small>URL del recurso. Si pegas la URL completa del portal (<code>…/openai/v1/responses</code> o <code>…/chat/completions</code>) la ruta se selecciona sola.</small>
-      </label>
-      <label>
-        <span>Deployment / modelo</span>
-        <input id="cfg-deployment" type="text" placeholder="gpt-5-nano" autocomplete="off" spellcheck="false">
-      </label>
-      <label>
-        <span>Ruta de API</span>
-        <select id="cfg-route">
-          <option value="v1">v1 — /openai/v1/chat/completions (sin api-version)</option>
-          <option value="responses">Responses API — /openai/v1/responses (sin api-version)</option>
-          <option value="deployments">Clásica — /openai/deployments/{deployment}/chat/completions</option>
-          <option value="models">Foundry Models — /models/chat/completions</option>
-        </select>
-      </label>
-      <label>
-        <span>API version <small>(solo rutas clásica y Foundry Models)</small></span>
-        <input id="cfg-api-version" type="text" placeholder="2024-10-21 · 2024-05-01-preview" autocomplete="off" spellcheck="false">
-      </label>
-      <label>
-        <span>API key</span>
-        <input id="cfg-api-key" type="password" placeholder="••••••••••••••••" autocomplete="off" spellcheck="false">
-      </label>
-    </div>
-    <div class="row">
-      <button id="btn-test-ai" class="btn" type="button">Probar conexión</button>
-      <button id="btn-clear-ai" class="btn btn-ghost" type="button">Borrar clave</button>
-      <span id="ai-status" class="status" role="status" aria-live="polite"></span>
-    </div>
-  </section>
-
-  <div class="layout">
-    <div class="sidebar-rail"><button id="btn-toggle-sidebar" class="sidebar-toggle" type="button" aria-controls="sidebar" aria-expanded="true"></button></div>
-    <!-- Barra lateral de ajustes -->
-    <aside class="sidebar" id="sidebar" aria-label="Ajustes">
-      <details class="card section">
-        <summary><span class="section-ico" data-lucide="inbox" aria-hidden="true"></span> Paquete de mensajes</summary>
+  <!-- Marco común con gobierno.html (shell.js): menú lateral plegable (plegado, solo iconos) con usuario y botón al pie -->
+  <div class="shell" id="shell" data-pagina="triaje">
+    <nav class="sidenav" aria-label="Ajustes del triaje">
+      <div class="sidenav-body" id="sidebar">
+      <details class="nav-sec">
+        <summary class="nav-item" title="Paquete de mensajes"><span data-lucide="inbox" aria-hidden="true"></span><span class="lbl">Paquete de mensajes</span><span class="nav-chev" aria-hidden="true"></span></summary>
         <div class="section-body">
           <select id="sel-paquete" aria-label="Paquete de mensajes"></select>
           <p id="paquete-desc" class="hint"></p>
           <ol id="paquete-lista" class="msg-list"></ol>
         </div>
       </details>
-      <details class="card section">
-        <summary><span class="section-ico" data-lucide="settings" aria-hidden="true"></span> Configuración</summary>
+      <details class="nav-sec">
+        <summary class="nav-item" title="Configuración"><span data-lucide="settings" aria-hidden="true"></span><span class="lbl">Configuración</span><span class="nav-chev" aria-hidden="true"></span></summary>
         <div class="section-body">
           <label>
             <span>Motor de triaje</span>
@@ -123,13 +81,58 @@
           </label>
         </div>
       </details>
-      <details class="card section">
-        <summary><span class="section-ico" data-lucide="file-text" aria-hidden="true"></span> Prompt</summary>
+      <details class="nav-sec">
+        <summary class="nav-item" title="Prompt"><span data-lucide="file-text" aria-hidden="true"></span><span class="lbl">Prompt</span><span class="nav-chev" aria-hidden="true"></span></summary>
         <div class="section-body" id="prompt-sections"></div>
       </details>
-    </aside>
+      </div>
+      <div class="sidenav-foot"></div>
+    </nav>
+    <div class="shell-main">
 
     <!-- Panel principal -->
+      <!-- Conexión Azure AI Foundry (arriba, plegable) -->
+      <section id="config-panel" class="card config" hidden>
+        <h2>Azure AI Foundry</h2>
+        <p class="hint">
+          La configuración se guarda solo en <code>sessionStorage</code> (se borra al cerrar la pestaña) y la clave se envía
+          directamente a tu endpoint de Azure. Sin clave, el triaje usa un motor local de reglas por palabras clave (modo degradado).
+        </p>
+        <div class="grid-2">
+          <label>
+            <span>Endpoint</span>
+            <input id="cfg-endpoint" type="url" placeholder="https://mi-recurso.services.ai.azure.com/openai/v1/responses" autocomplete="off" spellcheck="false">
+            <small>URL del recurso. Si pegas la URL completa del portal (<code>…/openai/v1/responses</code> o <code>…/chat/completions</code>) la ruta se selecciona sola.</small>
+          </label>
+          <label>
+            <span>Deployment / modelo</span>
+            <input id="cfg-deployment" type="text" placeholder="gpt-5-nano" autocomplete="off" spellcheck="false">
+          </label>
+          <label>
+            <span>Ruta de API</span>
+            <select id="cfg-route">
+              <option value="v1">v1 — /openai/v1/chat/completions (sin api-version)</option>
+              <option value="responses">Responses API — /openai/v1/responses (sin api-version)</option>
+              <option value="deployments">Clásica — /openai/deployments/{deployment}/chat/completions</option>
+              <option value="models">Foundry Models — /models/chat/completions</option>
+            </select>
+          </label>
+          <label>
+            <span>API version <small>(solo rutas clásica y Foundry Models)</small></span>
+            <input id="cfg-api-version" type="text" placeholder="2024-10-21 · 2024-05-01-preview" autocomplete="off" spellcheck="false">
+          </label>
+          <label>
+            <span>API key</span>
+            <input id="cfg-api-key" type="password" placeholder="••••••••••••••••" autocomplete="off" spellcheck="false">
+          </label>
+        </div>
+        <div class="row">
+          <button id="btn-test-ai" class="btn" type="button">Probar conexión</button>
+          <button id="btn-clear-ai" class="btn btn-ghost" type="button">Borrar clave</button>
+          <span id="ai-status" class="status" role="status" aria-live="polite"></span>
+        </div>
+      </section>
+
     <main class="content">
       <section class="counters" aria-label="Indicadores">
         <article class="card counter counter-ok">
@@ -199,7 +202,22 @@
         </div>
       </section>
     </main>
+      <footer class="pie">
+        <span>Demo estática · HTML + JavaScript · sin backend · datos solo en esta sesión</span>
+        <a href="https://github.com/nachoenjuto/fnol-triage" target="_blank" rel="noopener">Código en GitHub</a>
+      </footer>
+    </div>
   </div>
+
+  <!-- Editor ancho de un bloque de prompt (el menú lateral es estrecho) -->
+  <dialog id="modal-prompt" class="modal modal-prompt" aria-labelledby="modal-prompt-title">
+    <div class="modal-head"><h2 id="modal-prompt-title"></h2><button class="btn btn-ghost btn-icon" type="button" aria-label="Cerrar" onclick="this.closest('dialog').close()"><span data-lucide="x" aria-hidden="true"></span></button></div>
+    <div class="modal-prompt-body">
+      <textarea id="prompt-grande" spellcheck="false" aria-label="Texto del bloque de prompt"></textarea>
+      <div class="row between"><small class="muted" id="prompt-grande-count"></small>
+        <span class="row"><button class="btn btn-ghost btn-sm" type="button" id="prompt-grande-restaurar">Restaurar original</button><button class="btn btn-sm" type="button" onclick="this.closest('dialog').close()">Cancelar</button><button class="btn btn-primary btn-sm" type="button" id="prompt-grande-guardar"><span data-lucide="check" aria-hidden="true"></span> Guardar</button></span></div>
+    </div>
+  </dialog>
 
   <!-- Ficha de un mensaje -->
   <dialog id="modal" class="modal ficha" aria-labelledby="modal-title">
@@ -289,17 +307,14 @@
     </div>
   </dialog>
 
-  <footer class="footer">
-    <span>Demo estática · HTML + JavaScript · sin backend · datos solo en esta sesión</span>
-    <a href="https://github.com/nachoenjuto/fnol-triage" target="_blank" rel="noopener">Código en GitHub</a>
-  </footer>
 
-  <script src="icons.js?v=19"></script>
-  <script src="data/mensajes.js?v=19"></script>
-  <script src="data/resultados.js?v=19"></script>
-  <script src="prompts.js?v=19"></script>
-  <script src="evidencias.js?v=19"></script>
-  <script src="cumplimiento.js?v=19"></script>
-  <script src="app.js?v=19"></script>
+  <script src="icons.js?v=20"></script>
+  <script src="shell.js?v=20"></script>
+  <script src="data/mensajes.js?v=20"></script>
+  <script src="data/resultados.js?v=20"></script>
+  <script src="prompts.js?v=20"></script>
+  <script src="evidencias.js?v=20"></script>
+  <script src="cumplimiento.js?v=20"></script>
+  <script src="app.js?v=20"></script>
 </body>
 </html>

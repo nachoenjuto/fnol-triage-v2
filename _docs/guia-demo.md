@@ -1,6 +1,8 @@
 # Guía de referencia de la demo FNOL
 
-Guía práctica de las dos pantallas de la demo: **Triaje FNOL** (`index.html`) y **Gobierno de Agentes** (`gobierno.html`). Para cada pestaña explica qué es, qué información muestra y para qué sirve.
+Guía práctica de las dos pantallas de la demo: **Triaje FNOL** (`index.html`) y **Gobierno de Agentes** (`gobierno.html`). Para cada sección explica qué es, qué información muestra y para qué sirve.
+
+Las dos pantallas comparten el mismo marco: cabecera azul, **menú lateral** a la izquierda (se pliega con el botón de su pie y queda solo con iconos; el estado se mantiene al cambiar de pantalla), el usuario de la demo al pie del menú («Ignacio Sánchez», sesión simulada) y un pie de página fino al final del contenido.
 
 ---
 
@@ -42,9 +44,7 @@ Se navega entre pantallas con el botón **Gobierno de Agentes** de la cabecera d
 
 ### 2.2 Barra de fases (breadcrumb)
 
-Cada fase lleva su número de paso (1 a 6) en un círculo del color de la cabecera.
-
-Seis botones que representan el proceso de extremo a extremo. Al pasar el ratón o hacer clic sobre cada uno aparece una ficha explicativa. Sirve para **contar el caso de negocio antes de lanzar el lote**.
+Seis botones numerados (del 1 al 6, en un círculo del color de la cabecera con el número en blanco) que representan el proceso de extremo a extremo. Al pasar el ratón o hacer clic sobre cada uno aparece una ficha explicativa. Sirve para **contar el caso de negocio antes de lanzar el lote**.
 
 | Fase | Qué explica | Tipo |
 |---|---|---|
@@ -55,13 +55,15 @@ Seis botones que representan el proceso de extremo a extremo. Al pasar el ratón
 | **Trazabilidad** | Qué se registra (ramo, decisión, motivo, criterios, motor, tokens, tiempo) y qué se puede hacer con ello | Lógica |
 | **Automatización** | Las dos salidas: Aprobado (sigue sin intervención) y A revisar (va a un tramitador con la información preparada) | Lógica |
 
-### 2.3 Barra lateral (tres secciones plegables)
+### 2.3 Menú lateral (tres secciones plegables)
+
+Es el mismo menú que el del panel de gobierno (`shell.js`), con el mismo ancho (248 px): al pie están el usuario de la demo («Ignacio Sánchez», sesión simulada) y el botón **Plegar menú**. Plegado deja solo los iconos; un clic en un icono despliega el menú y abre esa sección. El estado plegado o desplegado se recuerda y se comparte entre las dos páginas. El pie de la página es una línea fina, alineada con el menú.
 
 | Sección | Qué contiene | Para qué sirve |
 |---|---|---|
-| **Paquete de mensajes** | Selector de tres paquetes fijos (A: 13 mensajes, B: 23, C: 15) con su lista | Elegir el lote de la demo. Son mixtos en ramos y canales, e incluyen casos que deben ir a revisión |
+| **Paquete de mensajes** | Selector de tres paquetes fijos (A: 13 mensajes, B: 23, C: 15) con su lista | Elegir el lote de la demo. Son mixtos en ramos y canales, e incluyen casos que deben ir a revisión. Los del Paquete A son más largos y llevan datos personales ficticios (DNI, teléfonos, IBAN, salud, menores, terceros) para la capa de cumplimiento |
 | **Configuración** | **Motor de triaje** (Automático / Resultados guardados / Archivo cargado), **Reproducir desde archivo** y **Llamadas a la IA por mensaje** (1 paso / 2 pasos) | Decidir cómo se procesa. «2 pasos» ahorra tokens de entrada (solo se envía el bloque de reglas del ramo) a cambio de dos llamadas |
-| **Prompt** | Prompt base y los tres bloques de reglas (Auto, Hogar, Salud), editables | Cambiar las reglas de negocio en caliente y ver cómo cambian las decisiones: la llamada usa siempre el texto vigente |
+| **Prompt** | Prompt base y los tres bloques de reglas (Auto, Hogar, Salud), editables. Como el menú es estrecho, **Editar en grande** abre cada bloque en un editor ancho (con «Restaurar original» y «Guardar») | Cambiar las reglas de negocio en caliente y ver cómo cambian las decisiones: la llamada usa siempre el texto vigente |
 
 ### 2.4 Panel principal
 
@@ -128,13 +130,13 @@ Al pasar el ratón por una norma aparece qué exige. «Copiar JSON» copia lo qu
 
 ## 3. Gobierno de Agentes (`gobierno.html`)
 
-Panel de control de los cuatro agentes. Ofrece cinco capacidades: **ver** (observabilidad), **entender** (razonamiento y replay), **limitar** (autonomía y guardrails), **demostrar** (termómetro de cumplimiento) y **pagar** (FinOps). Las secciones están en un **menú lateral** que se pliega con el botón de arriba; plegado muestra solo los iconos (el nombre sale al pasar el ratón).
+Panel de control de los cuatro agentes. Ofrece siete capacidades (en diez secciones más una portada, **Inicio**): **ver** (observabilidad), **entender** (razonamiento y replay), **limitar** (autonomía y guardrails), **conocer** (knowledge bases), **cumplimiento** (termómetro), **costes** (FinOps) y **auditar** (histórico). Las secciones están en el mismo **menú lateral** que el triaje: plegado muestra solo los iconos (el nombre sale al pasar el ratón) y los nombres largos se recortan con «…». Las tarjetas de los agentes están en el Resumen y su ficha completa, en la sección **Agentes**.
 
 ### 3.1 Cabecera: fuente y periodo
 
 | Control | Opciones y uso |
 |---|---|
-| **Fuente** | **Demo**: Paquete A + 14 días de histórico inventado pero coherente con el triaje. **Sesión actual**: convierte el lote que acabas de procesar en el triaje en trazas reales (tokens, ciclo, decisión, coste); el histórico, caps y guardrails siguen siendo de demostración. **Archivo JSON**: dataset cargado |
+| **Fuente** | **Demo**: Paquete A + 14 días de histórico inventado pero coherente con el triaje. **Sesión actual**: convierte el lote que acabas de procesar en el triaje en trazas reales (tokens, ciclo, decisión, coste), con el mismo id de traza y el mismo bloque `_gobernanza` que su ficha; el histórico, caps, guardrails y knowledge bases siguen siendo de demostración. **Archivo JSON**: dataset cargado |
 | **Periodo** | Últimos 14 días / 7 días / Hoy. Reescala KPIs y gráficos |
 | **Cargar JSON / Exportar trazas** | Carga un dataset propio o descarga el activo con el mismo esquema |
 | **Volver al triaje** | Regresa a `index.html` |
@@ -143,32 +145,69 @@ Panel de control de los cuatro agentes. Ofrece cinco capacidades: **ver** (obser
 
 **Etiquetas de marco normativo.** Junto al título de los bloques principales aparecen etiquetas (⚖ AI Act art. 12, RGPD art. 22, DORA art. 28, EIOPA, Solvencia II art. 41…). Al pasar el ratón muestran qué exige el artículo y si está en vigor o es exigible solo a sistemas de alto riesgo desde el 02/12/2027 (el triaje no lo es; ahí se aplica como buena práctica).
 
-### 3.2 Resumen
+### 3.2 Inicio (portada)
+
+**Es lo primero que se ve al abrir el panel.** Arriba, una franja con el estado actual: alertas críticas y avisos (de todas las fuentes), cobertura de cumplimiento y knowledge bases sanas, y el botón **Ver el Resumen**. Debajo, una ficha por cada sección del menú, agrupadas por la pregunta a la que responden:
+
+| Grupo | Secciones |
+|---|---|
+| **Ver** | Resumen · Agentes |
+| **Entender** | Trazabilidad · Reasoning & Replay |
+| **Limitar** | Autonomía · Guardrails |
+| **Conocer** | Knowledge bases |
+| **Cumplimiento** | Termómetro de cumplimiento |
+| **Costes** | FinOps |
+| **Auditar** | Histórico |
+
+Cada ficha lleva la pregunta que responde, dos cifras en vivo calculadas con los mismos datos que su sección (cambian con la fuente Demo, Sesión o Archivo), una etiqueta de estado (**Al día**, **Revisar** o **Atención**, en verde, ámbar o rojo), sus etiquetas de norma y «Abrir →». Toda la ficha se puede pulsar.
+
+**Modo presentador.** Debajo de «Ver el Resumen» hay un interruptor. Apagado (por defecto), no se ve nada más. Encendido, aparece el botón **Recorrido de la demo**, que abre un panel flotante (también en el triaje) con los 10 pasos del guion del apartado 4: minuto, qué enseñar y frase clave. «Ir» lleva a la pantalla exacta aunque esté en la otra página (por ejemplo, abre la ficha de MSG-A-08 o la KB-02 en la pestaña Comparativa); «Anterior» y «Siguiente» recorren los pasos, los vistos quedan marcados y, si falta algo (como procesar el Paquete A), el panel lo avisa. El interruptor se recuerda en el navegador; el progreso, en la pestaña.
+
+### 3.3 Resumen
 
 **Es la vista de dirección: el estado del sistema en una pantalla.**
 
 | Bloque | Qué muestra | Para qué sirve |
 |---|---|---|
-| **KPIs** | Mensajes procesados · Autonomía efectiva (81 %) · Escalados a humano (19 %, con su causa principal) · Overrides humanos (2,1 %, objetivo ≤ 3 %) · Coste del periodo vs cap mensual · Alertas activas | Saber en 10 segundos si el sistema va bien |
-| **Tarjetas de agente** | Modelo, versión de prompt, nivel de autonomía, estado (Activo / Degradado / Pausado), coste del día frente a su cap y **kill switch** | Ver el estado de cada agente y **pararlo** al instante |
+| **KPIs (8)** | Mensajes procesados · Autonomía efectiva (81 %) · Escalados a humano (19 %, con su causa principal) · Overrides humanos (2,1 %, objetivo ≤ 3 %) · Coste del periodo vs cap mensual · Alertas activas · **Cumplimiento** (cobertura de controles) · **Knowledge bases** (KB sanas). Los dos últimos llevan a su sección | Saber en 10 segundos si el sistema va bien |
+| **Tarjetas de agente** | Icono y nombre en grande; descripción, estado (Activo / Degradado / Pausado) y nivel de autonomía; al pie, en pequeño, modelo, versión de prompt, latencia y coste del día frente a su cap (barra verde, ámbar o roja). Todas en el mismo color: el color por agente solo se usa en los gráficos, para distinguir las series. Incluye el **kill switch** | Ver el estado de cada agente y **pararlo** al instante |
 | **Coste diario** | Gráfico €/día con línea discontinua del cap diario; días ≥ 80 % en ámbar | Detectar picos de gasto |
-| **Alertas activas** | Avisos críticos y de aviso con su causa y acción aplicada | Priorizar qué atender |
-| **Últimas trazas** | Las cinco más recientes | Atajo a la trazabilidad |
+| **Alertas activas** | Todas las fuentes en una lista: caps de coste superados, knowledge bases críticas o degradadas, controles de cumplimiento pendientes (EIPD, aviso de IA en WhatsApp) y la cadena de integridad si se rompe. Cada alerta indica su origen y lleva a él | Priorizar qué atender |
+| **Cumplimiento** | Los cuatro marcos con su %, los tres controles parciales más relevantes, los datos personales del periodo (total, de salud y de menores) y el estado de la cadena de integridad | Ver de un vistazo si se puede demostrar que se cumple |
+| **Knowledge bases** | KB sanas, degradadas y críticas, el acuerdo juez-humano medio de las rúbricas y la lista de KB con problemas con su motivo (clic para abrir su ficha) | Saber si el conocimiento con el que deciden los agentes sigue siendo bueno |
+| **Últimas trazas** | Las cinco más recientes, con sus **datos personales** (y si hay de salud o de menores) y el número de **KB** que usaron | Atajo a la trazabilidad |
 
-Capacidades: clic en una **traza** abre su ficha explicada (qué llegó, qué hizo cada agente, decisión, coste); clic en un **agente** abre su ficha; el **kill switch** pausa el agente, los mensajes que dependen de él se encolan (no se pierde ninguno) y queda registrado en el Histórico.
+Capacidades: clic en una **traza** abre su ficha explicada (qué llegó, qué hizo cada agente, decisión, coste; el botón **Cumplimiento** abre su ficha de datos personales y su bloque `_gobernanza`); clic en un **agente** lleva a su pestaña de la sección **Agentes** (3.4); el **kill switch** pausa el agente, los mensajes que dependen de él se encolan (no se pierde ninguno) y queda registrado en el Histórico.
 
-### 3.3 Trazabilidad
+### 3.4 Agentes
+
+**Todo lo que hay que saber de cada agente, en una pestaña por agente.** Arriba, los cuatro en el orden de la cadena (Multicanalidad → Clasificación → Extracción → Reglas), con lo que se pasan entre ellos (texto normalizado → ramo e indicios → 10 campos); cada pestaña muestra estado, nivel y coste del día frente al cap.
+
+| Bloque | Qué muestra |
+|---|---|
+| **Cabecera** | Descripción, estado, nivel de autonomía, responsable y **kill switch**; modelo, prompt, trazas del periodo, latencia p50/p95, coste de hoy frente al cap, coste medio por traza, escalado y override de 14 días |
+| **Identidad y permisos** | Identidad administrada, credencial, responsable, proveedor y región, datos que trata, qué puede y qué no puede hacer |
+| **Configuración y variables** | Umbrales, importes máximos, reasoning effort…; guardrails con sus disparos y caps con su estado (clic para abrir el cap) |
+| **Rendimiento y coste** | Coste diario de 14 días, tokens de entrada, salida y razonamiento, comportamiento por modelo en el tiempo y la recomendación de FinOps que le afecte |
+| **Calidad** | Métricas propias de cada agente sobre el Paquete A: canales normalizados (Multicanalidad), acierto de ramo y ramos descartados explicados (Clasificación), campos extraídos y nulos honestos (Extracción), acierto de la decisión, confianza, evidencias y reglas que más frenan (Reglas); e incidencias |
+| **Knowledge bases** | Las que consume, con su estado de salud (clic para abrir su ficha) |
+| **Datos personales que trata** | Categorías que ve: el texto completo (Multicanalidad y Clasificación) o solo los campos extraídos (Extracción y Reglas, minimización) |
+| **Histórico** | Cambios de autonomía y de modelo, prompt e incidencias con motivo y quién los aprobó |
+| **Últimas trazas** | El paso de este agente en cada traza: inicio, duración, modelo, tokens y coste |
+| **Contrato de entrada y salida** (plegado) | Para perfiles técnicos: qué recibe y qué devuelve el agente (campos y tipos) y un **ejemplo real** de una traza elegible del Paquete A |
+
+### 3.5 Trazabilidad
 
 **Es la auditoría mensaje a mensaje.**
 
-- **Panel de detalle fijo** bajo las pestañas, que no se oculta al recorrer la lista. Muestra el **waterfall de spans**: cuánto tardó cada agente, con qué modelo y cuántos tokens consumió. Incluye el guardrail disparado y el override humano si los hubo.
+- **Panel de detalle fijo** arriba de la sección, que no se oculta al recorrer la lista. Muestra el **waterfall de spans**: cuánto tardó cada agente, con qué modelo y cuántos tokens consumió. Incluye el guardrail disparado y el override humano si los hubo.
 - **Lista de trazas** con columnas: traza, hora, mensaje, canal, ramo, decisión, autonomía, confianza, ciclo, tokens, coste e incidencias.
 - **Filtros**: agente, canal, decisión y resultado (Autónomo / Escalado a humano / Con override / Con incidencia).
 - **Exportar trazas** descarga el dataset.
 
-Para qué sirve: responder a auditoría o a un reclamante «¿qué pasó con este mensaje, quién lo decidió y cuánto costó?». Desde cada traza, **Ver razonamiento** y **Replay** saltan a la pestaña siguiente con esa traza cargada.
+Para qué sirve: responder a auditoría o a un reclamante «¿qué pasó con este mensaje, quién lo decidió y cuánto costó?». Desde cada traza, **Ver razonamiento** y **Replay** saltan a la sección siguiente con esa traza cargada.
 
-### 3.4 Reasoning & Replay
+### 3.6 Reasoning & Replay
 
 **Es el «porqué» y el «¿y si…?».** Pantalla dividida con un separador que se puede arrastrar.
 
@@ -181,7 +220,7 @@ Para qué sirve: responder a auditoría o a un reclamante «¿qué pasó con est
 
 Ejemplo de uso: probar `gpt-5-mini` en lugar de `gpt-5` en Reglas; si la decisión se mantiene y el coste baja un 80 %, hay base para aprobar el cambio.
 
-### 3.5 Autonomía
+### 3.7 Autonomía
 
 **Define cuánta libertad tiene cada agente y deja constancia de cada cambio.**
 
@@ -192,15 +231,14 @@ Ejemplo de uso: probar `gpt-5-mini` en lugar de `gpt-5` en Reglas; si la decisi�
 | **L2 Supervisado** | El agente decide dentro de los guardrails; fuera de ellos escala a humano |
 | **L3 Autónomo** | El agente decide y ejecuta; solo se audita a posteriori |
 
-Bloques de la pestaña:
+Bloques de la sección:
 - **KPIs**: decisiones autónomas (objetivo ≥ 80 %), escaladas por guardrail, tasa de override (umbral de bajada de nivel: 3 %) y precisión frente a lo esperado.
-- **Niveles** coloreados de rojo (manual) a verde (autónomo).
-- **Tarjetas de agente** con nivel, umbral y tasas. Clic abre la **ficha del agente**: **identidad y permisos** (identidad administrada, responsable, proveedor y región, datos que trata, qué puede y qué no puede hacer), histórico de autonomía, cambios de modelo y de prompt, comportamiento por modelo en el tiempo y variables que le afectan (umbrales, importes máximos, cap).
+- **Niveles** coloreados de rojo (manual) a verde (autónomo), con los agentes que hay en cada uno. Las tarjetas de los agentes están en el **Resumen** (3.3) y su ficha, en **Agentes** (3.4).
 - **Auditoría de cambios**: cada subida o bajada de nivel, cambio de modelo o de guardrail, con **motivo y quién lo aprobó**; clic en una fila abre el registro completo.
 
 Para qué sirve: la autonomía se **gana con datos y se pierde con datos**. En la demo, Reglas bajó de L3 a L2 cuando el override superó el 3 %.
 
-### 3.6 Guardrails
+### 3.8 Guardrails
 
 **Son las condiciones que limitan lo que un agente puede hacer solo.** Nueve en la demo (G-01 a G-09).
 
@@ -225,7 +263,22 @@ Qué muestra y qué permite:
 
 Para qué sirve: es el **mecanismo de control** que permite dar autonomía sin perder el control. Los guardrails de importe y lesionados explican la mayoría de los escalados.
 
-### 3.7 Termómetro de cumplimiento
+### 3.9 Knowledge bases
+
+**Panel de control del conocimiento que usan los agentes**: índices RAG alimentados desde SharePoint o Google Drive, documentos Markdown, runbooks deterministas, tablas de referencia y plantillas.
+
+| Bloque | Qué muestra |
+|---|---|
+| **KPI** | Número de KB (una real y ocho simuladas), cuántas están sanas, degradadas o críticas, recall medio, consultas sin respuesta y rúbricas con su acuerdo juez-humano |
+| **Inventario** | Una tarjeta por KB: tipo, fuente, documentos y chunks, frecuencia de sincronización, tendencia de 14 días, motivos de degradación, agentes que la consumen y rúbrica. Filtros por tipo y «Con problemas» |
+| **Ficha de la KB** | **Salud** (cada métrica frente a su umbral), **Configuración** (chunking, tamaño de chunk, solapamiento, embeddings, índice y métrica, top-k, umbral, búsqueda híbrida, reranker, filtros), **Comparativa** (el mismo corpus con varias configuraciones y botón «Aplicar»), **Evaluación** (última ejecución y preguntas que fallan), **Fuente y sincronización**, **Uso** (lo más consultado y las consultas sin respuesta) y **Versiones** («Volver a esta versión»). La ventana tiene tamaño fijo: al cambiar de pestaña no se mueve ni cambia de tamaño; solo hace scroll el contenido. Acciones simuladas: reindexar, ejecutar la rúbrica, cuarentena de obsoletos, suprimir chunks con datos personales y pausar |
+| **Rúbricas** | Colección versionada: criterios con pesos, preguntas de referencia por tipo (factual, cláusula, exclusión, plazo, trampa), acuerdo juez-humano, responsable. **Se pueden editar**: el editor obliga a que los pesos sumen 100 y guarda una versión nueva con su historial |
+
+Historias que cuenta la demo: **Condicionados Auto** pierde 6 puntos de recall porque se sincronizaron 340 documentos de 2024 (la comparativa recomienda un filtro de vigencia); la **Red de talleres** está en rojo porque la API devuelve 401 desde el 08/09; el **Manual de tramitación** tiene 3 chunks con datos de clientes reales y su rúbrica tiene un acuerdo juez-humano bajo.
+
+Enlace con el resto: cada traza registra las KB y versiones que usó (`_gobernanza.trazabilidad.conocimiento`), y el Termómetro mide con este catálogo el **AI Act art. 10** (9 de 9 versionadas, 7 de 9 con rúbrica) y el **RGPD art. 17** (supresión también en los índices vectoriales).
+
+### 3.10 Termómetro de cumplimiento
 
 **Cómo se guardan las trazas, las evidencias y los datos personales que exigen las normas**, con una cifra por marco:
 
@@ -239,11 +292,11 @@ Para qué sirve: es el **mecanismo de control** que permite dar autonomía sin p
 | **Integridad del registro** | Cadena de hashes sobre las trazas. «Simular una alteración» cambia la decisión de una traza ya registrada y la cadena se rompe a partir de ella |
 | **Seudonimizar no es anonimizar** | La diferencia en dos columnas (RGPD art. 4.5 frente al considerando 26) |
 
-Los controles en ámbar son reales: la **minimización** (el texto llega completo al modelo y parte de los datos no hacía falta para decidir), la **EIPD** pendiente de revisión por un cambio de modelo, el **aviso de IA** pendiente en WhatsApp, la **formación** de dos tramitadores nuevos, la **concentración** en un único proveedor de modelos y las **pruebas de sesgo** por canal. Dan conversación: muestran que el panel no maquilla.
+Los controles en ámbar son reales: la **minimización** (el texto llega completo al modelo y parte de los datos no hacía falta para decidir), la **EIPD** pendiente de revisión por un cambio de modelo, el **aviso de IA** pendiente en WhatsApp, la **formación** de dos tramitadores nuevos y las **pruebas de sesgo** por canal. Dan conversación: muestran que el panel no maquilla. **DORA** está al 100 % (en verde): el riesgo de concentración en un único proveedor de modelos está mitigado con un plan de salida probado y un segundo proveedor validado.
 
 > Aviso que aparece en pantalla: es un indicador técnico de cobertura de controles, no un certificado; no sustituye la evaluación del DPO ni de Cumplimiento.
 
-### 3.8 FinOps
+### 3.11 FinOps
 
 **Controla cuánto cuesta cada decisión y actúa antes de pasarse del presupuesto.**
 
@@ -259,7 +312,7 @@ Los controles en ámbar son reales: la **minimización** (el texto llega complet
 
 Mensaje clave: en la demo, el agente de Reglas (`gpt-5`) concentra el ~79 % del coste. Es el candidato obvio a optimizar, y los replays permiten hacerlo sin riesgo.
 
-### 3.9 Histórico
+### 3.12 Histórico
 
 **Línea de tiempo única de todo lo que ha ocurrido.** Filtrable por chips de tipo:
 
@@ -277,24 +330,29 @@ Para qué sirve: es el **libro de registro para auditoría**: qué cambió, cuá
 
 ---
 
-## 4. Guion sugerido de demo (10 minutos)
+## 4. Guion sugerido de demo (12 minutos)
+
+El mismo guion está en el **Recorrido de la demo** (modo presentador de Inicio), con un botón «Ir» por paso.
 
 | Min | Dónde | Qué mostrar | Mensaje |
 |---|---|---|---|
 | 0–2 | Triaje · fases | Recorrer las seis fases | «Así funciona el proceso de punta a punta» |
 | 2–4 | Triaje · Procesar Paquete A | Contadores y registro en vivo | «Aprobados y a revisar en segundos» |
-| 4–5 | Triaje · ficha de un «A revisar» | Criterio que incumple + evidencia | «Cada decisión es explicable» |
-| 5–6 | Gobierno · Resumen (fuente Sesión actual) | KPIs y tarjetas; probar el kill switch | «Control total y parada inmediata» |
+| 4–5 | Triaje · ficha de un «A revisar» | Criterio que incumple + evidencias resaltadas (el título cambia al tipo de evidencia) | «Cada decisión es explicable» |
+| 5–6 | Gobierno · Inicio → Resumen → Agentes (fuente Sesión actual) | KPIs y tarjetas; clic en Reglas: su ficha completa y el kill switch | «Control total y parada inmediata» |
 | 6–7 | Trazabilidad → Reasoning & Replay | Waterfall y replay What-if | «Auditamos y probamos antes de cambiar» |
 | 7–8 | Autonomía y Guardrails | Niveles, G-02 y G-04 | «Autonomía graduada con límites claros» |
 | 8–9 | Triaje · Respuesta cruda de MSG-A-12 → Gobierno · Termómetro | Bloque `_gobernanza`: datos de un menor y de salud, por qué Salud y no Auto ni Hogar; después el termómetro, el inventario y «Simular una alteración» | «La solución deja a la aseguradora en condiciones de demostrar que cumple» |
-| 9–10 | FinOps → Histórico | Cap superado, recomendaciones, línea de tiempo | «Coste bajo control y todo auditado» |
+| 9–10 | Gobierno · Knowledge bases | Condicionados Auto degradada por 340 documentos de 2024: comparativa de configuraciones y «Aplicar»; editar una rúbrica | «El conocimiento también se degrada, y se vigila igual que los agentes» |
+| 10–12 | FinOps → Histórico | Cap superado, recomendaciones, línea de tiempo con todo lo tocado en la demo | «Coste bajo control y todo auditado» |
 
 ---
 
 ## 5. Cosas a tener en cuenta
 
 - **Los datos del panel son de demostración**: inventados pero coherentes con el Paquete A. Solo las trazas de «Sesión actual» proceden del lote real; histórico, caps y guardrails siguen siendo de demo.
-- **Los cambios hechos en el panel** (kill switch, guardrails, caps nuevos, acciones correctivas) son simulados y viven en `sessionStorage`: se pierden al cerrar la pestaña.
+- **Los cambios hechos en el panel** (kill switch, guardrails, caps nuevos, acciones correctivas, acciones sobre las knowledge bases y rúbricas editadas) son simulados y viven en `sessionStorage`: se pierden al cerrar la pestaña. El estado plegado del menú es una preferencia y se guarda en el navegador.
+- **Los datos personales de los mensajes son ficticios**: están para que se vea cómo se detectan, se seudonimizan y se protegen.
+- **Solo una knowledge base es real** («Reglas de negocio», los bloques de `prompts.js`); el resto aparece marcado como «simulada».
 - **Aplicación estática**: sin backend. La clave de IA solo se guarda en la sesión del navegador.
 - **Mensajes con resultado esperado**: el triaje compara cada resultado con un «esperado» interno que no se envía a la IA; de ahí los ✔/✖ de la columna Ramo.

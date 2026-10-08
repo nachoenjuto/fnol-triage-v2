@@ -96,6 +96,34 @@ AMPLIADAS = {
         ("12-etiqueta-normativa.png", "Etiqueta normativa: qué exige el artículo y si ya está en vigor",
          "Leer el texto de la etiqueta: AI Act art. 14, exigible a alto riesgo desde 2027; aquí se aplica como buena práctica."),
     ],
+    "Ver: la portada del panel": [
+        ("00-inicio.png", "Inicio: una ficha por pregunta, con dos cifras en vivo, su semáforo y su norma",
+         "Recorrer los grupos de izquierda a derecha y señalar el semáforo rojo de Knowledge bases y FinOps: el panel dice dónde mirar primero."),
+    ],
+    "Entender: evidencias verificadas": [
+        ("41-evidencias.png", "Ficha del mensaje: diez evidencias resaltadas y la regla A5 que lo manda a revisión",
+         "Pasar el ratón por una evidencia: el título cambia a su tipo. Señalar la regla A5 en rojo: la frase «fractura de clavícula y dos costillas» es la que lo frena."),
+    ],
+    "Conocer: el conocimiento también se degrada": [
+        ("31-knowledge.png", "Knowledge bases: inventario con la salud de cada base y su tendencia",
+         "Señalar las tres degradadas y la crítica: la red de talleres lleva nueve días sin sincronizar."),
+        ("32-kb-comparativa.png", "Comparativa de configuraciones de Condicionados Auto: la recomendada recupera el recall",
+         "Señalar que el filtro de vigencia devuelve el recall a 0,88: 340 documentos de 2024 competían con los de 2026."),
+    ],
+    "Conocer: rúbricas que vigilan el conocimiento": [
+        ("33-rubrica.png", "Editor de la rúbrica de Condicionados Auto: criterios con peso y preguntas de referencia",
+         "Señalar que cada guardado crea una versión nueva y que la rúbrica se ejecuta en cada reindexado: si empeora, no se publica."),
+    ],
+    "Auditar: la prueba en cada decisión": [
+        ("42-respuesta-cruda.png", "Respuesta cruda de MSG-A-12 con el bloque _gobernanza que añade la plataforma",
+         "Señalar que el bloque lo añade la plataforma, no el modelo, y que cada parte lleva su norma: AI Act art. 12, RGPD art. 9 y 22."),
+    ],
+    "Auditar: termómetro de cumplimiento": [
+        ("34-termometro.png", "Termómetro de cumplimiento: cobertura por marco y matriz norma → control",
+         "Señalar los controles en ámbar: minimización, EIPD pendiente y aviso de IA en WhatsApp. Un 100 % no sería creíble."),
+        ("35-inventario-pii.png", "Ficha de cumplimiento de una traza: datos personales detectados y su valor en la traza",
+         "Señalar «es diabético»: dato de salud que no hacía falta para decidir; es el argumento para seudonimizar antes del modelo."),
+    ],
 }
 
 
@@ -151,7 +179,7 @@ class BuilderAmpliadas(B.Builder):
         for p in pics:
             p._element.getparent().remove(p._element)
         img = COMPUESTAS.get(titulo, extras[0][0])
-        pie = extras[0][1] if len(extras) == 1 else f"Arriba: {extras[0][1]}. Abajo: {extras[1][1]}."
+        pie = extras[0][1] if len(extras) == 1 or titulo not in COMPUESTAS else f"Arriba: {extras[0][1]}. Abajo: {extras[1][1]}."
         pie_h = B.n_lines(pie, PIE_W - 0.1, "Montserrat", PIE_PT) * PIE_PT * 1.2 / 72 + 0.06
         w, h = encajar(IMG + img, CAP_W, B.CONTENT_BOTTOM - CAP_Y - PIE_GAP - pie_h)
         pic = B.add_picture(slide, IMG + img, CAP_X, CAP_Y, w, h)

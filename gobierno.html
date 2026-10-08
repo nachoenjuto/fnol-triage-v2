@@ -5,9 +5,9 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Gobierno, Observabilidad y FinOps de Agentes IA para FNOL</title>
   <meta name="description" content="Panel de control agéntico del triaje de seguros: trazabilidad y observabilidad de los agentes, Reasoning & Replay, Autonomy engine y FinOps con caps de consumo.">
-  <link rel="stylesheet" href="gobierno.css?v=19">
-  <link rel="stylesheet" href="header.css?v=19">
-  <link rel="stylesheet" href="cumplimiento.css?v=19">
+  <link rel="stylesheet" href="gobierno.css?v=20">
+  <link rel="stylesheet" href="header.css?v=20">
+  <link rel="stylesheet" href="cumplimiento.css?v=20">
 </head>
 <body>
 <header class="topbar">
@@ -38,19 +38,26 @@
 </header>
 <p id="fuente-status" class="foot" role="status" aria-live="polite" style="padding:.5rem 1rem 0"></p>
 <div class="tip" id="tip"></div>
-<div class="gb-layout" id="gb-layout">
-<!-- Menú lateral de secciones: colapsable; plegado muestra solo los iconos -->
-<nav class="sidenav" id="sidenav" aria-label="Secciones">
-  <button id="btn-toggle-nav" class="sidebar-toggle" type="button" aria-controls="tabs" aria-expanded="true"></button>
-  <div id="tabs" class="sidenav-list" role="tablist" aria-orientation="vertical"></div>
+<!-- Marco común con index.html (shell.js): menú lateral plegable (plegado, solo iconos) con usuario y botón al pie -->
+<div class="shell" id="shell" data-pagina="gobierno">
+<nav class="sidenav" aria-label="Secciones">
+  <div id="tabs" class="sidenav-body" role="tablist" aria-orientation="vertical"></div>
+  <div class="sidenav-foot"></div>
 </nav>
+<div class="shell-main">
 <main class="gb-main">
 
+<!-- ───────────── INICIO (landing) ───────────── -->
+<section class="view is-active" data-view="inicio">
+  <div class="card inicio-hero" id="inicio-hero"></div>
+  <div class="inicio-grupos" id="inicio-grupos"></div>
+</section>
+
 <!-- ───────────── RESUMEN ───────────── -->
-<section class="view is-active" data-view="resumen">
+<section class="view" data-view="resumen">
   <div class="kpis" id="kpis"></div>
   <div class="card">
-    <div class="card-head"><h2 id="h-agentes"></h2><span class="muted small">Estado en vivo · nivel de autonomía · consumo del día frente al cap · interruptor de pausa por agente · clic en un agente para ver su ficha</span></div>
+    <div class="card-head"><h2 id="h-agentes"></h2><span class="muted small">Estado en vivo · nivel de autonomía · consumo del día frente al cap · interruptor de pausa por agente · clic en un agente para ver su ficha completa en «Agentes»</span></div>
     <div class="agents" id="agents"></div>
   </div>
   <div class="two">
@@ -64,10 +71,26 @@
       <div class="alerts" id="alerts"></div>
     </div>
   </div>
+  <div class="two">
+    <div class="card">
+      <div class="card-head"><h2 id="h-res-cmp"></h2><button class="btn btn-sm" type="button" data-goto="cumplimiento">Abrir el termómetro</button></div>
+      <div id="res-cumplimiento"></div>
+    </div>
+    <div class="card">
+      <div class="card-head"><h2 id="h-res-kb"></h2><button class="btn btn-sm" type="button" data-goto="knowledge">Abrir knowledge bases</button></div>
+      <div id="res-conocimiento"></div>
+    </div>
+  </div>
   <div class="card">
     <div class="card-head"><h2 id="h-ultimas"></h2><span class="muted small">Clic en una traza para abrir su ficha explicada</span><button class="btn btn-sm" type="button" data-goto="trazas">Abrir trazabilidad</button></div>
-    <div class="tw"><table><thead><tr><th>Traza</th><th>Hora</th><th>Mensaje</th><th>Canal</th><th>Ramo</th><th>Decisión</th><th>Autonomía</th><th>Ciclo</th><th>Coste</th></tr></thead><tbody id="ultimas"></tbody></table></div>
+    <div class="tw"><table><thead><tr><th>Traza</th><th>Hora</th><th>Mensaje</th><th>Canal</th><th>Ramo</th><th>Decisión</th><th>Autonomía</th><th>Ciclo</th><th>Coste</th><th>Datos pers.</th><th>KB</th></tr></thead><tbody id="ultimas"></tbody></table></div>
   </div>
+</section>
+
+<!-- ───────────── AGENTES ───────────── -->
+<section class="view" data-view="agentes">
+  <div class="ag-tabs" id="ag-tabs" role="tablist" aria-label="Agentes en el orden de la cadena"></div>
+  <div class="ag-ficha" id="ag-ficha"></div>
 </section>
 
 <!-- ───────────── TRAZABILIDAD ───────────── -->
@@ -142,10 +165,6 @@
     <div class="levels" id="levels"></div>
   </div>
   <div class="card">
-    <div class="card-head"><h2 id="h-agentes-aut"></h2><span class="muted small">Clic en un agente para ver su histórico; el interruptor pausa el agente</span></div>
-    <div class="agents" id="agents-aut"></div>
-  </div>
-  <div class="card">
     <div class="card-head"><h2 id="h-cambios"></h2><span class="muted small">Cambios de nivel, de modelo y de guardrails con su motivo y quién los aprobó · clic en una fila para ver el registro completo</span></div>
     <div class="tw"><table><thead><tr><th>Fecha</th><th>Agente</th><th>Cambio</th><th>Motivo</th><th>Usuario</th></tr></thead><tbody id="cambios"></tbody></table></div>
   </div>
@@ -168,7 +187,7 @@
 <section class="view" data-view="finops">
   <div class="kpis" id="kpis-fin"></div>
   <div class="card" id="card-correctivas" hidden>
-    <div class="card-head"><h2 id="h-correctivas"></h2><span class="muted small">Una acción por cap superado · «Aplicar» la registra en el histórico (simulado en esta demo)</span></div>
+    <div class="card-head"><h2 id="h-correctivas"></h2><button class="btn btn-sm" type="button" data-goto="medidas">Ver todas las medidas correctivas</button><span class="muted small">Una acción por cap superado · «Aplicar» la registra en el histórico (simulado en esta demo)</span></div>
     <div class="alerts" id="correctivas"></div>
   </div>
   <div class="card">
@@ -209,11 +228,38 @@
   </div>
 </section>
 
+<!-- ───────────── MEDIDAS CORRECTIVAS ───────────── -->
+<section class="view" data-view="medidas">
+  <div class="card med-hero">
+    <div><h2 id="h-med"></h2><p class="small muted">Lo que hay que hacer para que el sistema esté sano: sin sobrecostes, sin riesgos normativos, con las knowledge bases sanas y los agentes rindiendo bien. Cada problema sale de otra sección y trae sus alternativas; al verificar una medida, el Termómetro se actualiza.</p></div>
+    <div id="med-termo"></div>
+  </div>
+  <div class="kpis" id="kpis-med"></div>
+  <div class="card">
+    <div class="card-head"><div class="chips" id="med-filtros"></div><div class="row" id="med-orden"></div></div>
+    <div class="med-lista" id="med-lista"></div>
+  </div>
+</section>
+
 <!-- ───────────── HISTÓRICO ───────────── -->
 <section class="view" data-view="historico">
   <div class="card">
     <div class="card-head"><h2 id="h-hist"></h2><div class="chips" id="hist-chips"></div></div>
     <div class="timeline" id="timeline"></div>
+  </div>
+</section>
+
+<!-- ───────────── KNOWLEDGE BASES ───────────── -->
+<section class="view" data-view="knowledge">
+  <div class="kpis" id="kpis-kb"></div>
+  <div class="card">
+    <div class="card-head"><h2 id="h-kb"></h2><div class="chips" id="kb-filtro"></div></div>
+    <p class="muted small" style="margin-bottom:.8rem">Índices RAG alimentados desde SharePoint o Google Drive, documentos Markdown, runbooks deterministas, tablas de referencia y plantillas. Salud evaluada de forma continua contra rúbricas · clic en una tarjeta para ver su ficha. Solo «Reglas de negocio» es real en la demo; el resto está simulado.</p>
+    <div class="kb-grid" id="kb-lista"></div>
+  </div>
+  <div class="card">
+    <div class="card-head"><h2 id="h-rub"></h2><span class="muted small">Se ejecutan cada noche, en cada reindexado y en cada cambio de configuración · clic para editar</span></div>
+    <div class="tw"><table><thead><tr><th>Rúbrica</th><th>Nombre</th><th>KB</th><th>Versión</th><th>Criterios</th><th>Preguntas</th><th>Acuerdo juez-humano</th><th>Responsable</th><th>Actualizada</th><th></th></tr></thead><tbody id="rub-lista"></tbody></table></div>
   </div>
 </section>
 
@@ -247,7 +293,30 @@
 </section>
 
 </main>
+<footer class="pie">
+  <span>Panel «Gobierno de Agentes» · demo estática · datos de demostración inventados y coherentes con el Paquete A del triaje</span>
+  <a href="https://github.com/nachoenjuto/fnol-triage" target="_blank" rel="noopener">Código en GitHub</a>
+</footer>
 </div>
+</div>
+
+<!-- Ficha de una medida correctiva -->
+<dialog id="modal-med" class="modal wide" aria-labelledby="modal-med-title">
+  <div class="modal-head"><h2 id="modal-med-title"></h2><button class="btn btn-sm" type="button" data-close="modal-med" aria-label="Cerrar"></button></div>
+  <div class="modal-body" id="modal-med-body"></div>
+</dialog>
+
+<!-- Ficha de una base de conocimiento -->
+<dialog id="modal-kb" class="modal wide" aria-labelledby="modal-kb-title">
+  <div class="modal-head"><h2 id="modal-kb-title"></h2><button class="btn btn-sm" type="button" data-close="modal-kb" aria-label="Cerrar"></button></div>
+  <div class="modal-body" id="modal-kb-body"></div>
+</dialog>
+
+<!-- Editor de una rúbrica -->
+<dialog id="modal-rub" class="modal wide" aria-labelledby="modal-rub-title">
+  <div class="modal-head"><h2 id="modal-rub-title"></h2><button class="btn btn-sm" type="button" data-close="modal-rub" aria-label="Cerrar"></button></div>
+  <div class="modal-body" id="modal-rub-body"></div>
+</dialog>
 
 <!-- Ficha de cumplimiento de una traza -->
 <dialog id="modal-cmp" class="modal wide" aria-labelledby="modal-cmp-title">
@@ -261,11 +330,7 @@
   <div class="modal-body" id="modal-traza-body"></div>
 </dialog>
 
-<!-- Ficha de un agente (Resumen y Autonomía) -->
-<dialog id="modal-agente" class="modal" aria-labelledby="modal-agente-title">
-  <div class="modal-head"><h2 id="modal-agente-title"></h2><button class="btn btn-sm" type="button" data-close="modal-agente" aria-label="Cerrar"></button></div>
-  <div class="modal-body" id="modal-agente-body"></div>
-</dialog>
+
 
 <!-- Detalle de un KPI de FinOps -->
 <dialog id="modal-kpi-fin" class="modal wide" aria-labelledby="modal-kpi-fin-title">
@@ -303,14 +368,14 @@
   <div class="modal-body" id="modal-gr-nuevo-body"></div>
 </dialog>
 
-<p class="foot">Panel «Gobierno de Agentes» · demo estática · los datos de demostración son inventados y coherentes con el Paquete A del triaje · <a href="https://github.com/nachoenjuto/fnol-triage" target="_blank" rel="noopener">Código en GitHub</a></p>
-  <script src="icons.js?v=19"></script>
-  <script src="data/mensajes.js?v=19"></script>
-  <script src="data/resultados.js?v=19"></script>
-  <script src="prompts.js?v=19"></script>
-  <script src="evidencias.js?v=19"></script>
-  <script src="cumplimiento.js?v=19"></script>
-  <script src="data/gobierno.js?v=19"></script>
-  <script src="gobierno.js?v=19"></script>
+  <script src="icons.js?v=20"></script>
+  <script src="shell.js?v=20"></script>
+  <script src="data/mensajes.js?v=20"></script>
+  <script src="data/resultados.js?v=20"></script>
+  <script src="prompts.js?v=20"></script>
+  <script src="evidencias.js?v=20"></script>
+  <script src="cumplimiento.js?v=20"></script>
+  <script src="data/gobierno.js?v=20"></script>
+  <script src="gobierno.js?v=20"></script>
 </body>
 </html>
