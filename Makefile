@@ -1,5 +1,5 @@
 # Flujos de trabajo habituales (la demo es estática: no hay build)
-.PHONY: run test test-ia datos
+.PHONY: run test test-ia datos capturas
 
 run: ## Sirve la demo en http://localhost:8792
 	python3 -m http.server 8792
@@ -13,3 +13,7 @@ test-ia: ## Mide las evidencias con un modelo real (variables TRIAGE_*, ver test
 
 datos: ## Regenera los JSON de ejemplo de data/ desde las fuentes JS (tras cambiar mensajes o resultados)
 	node scripts/generar-datos.js
+
+capturas: ## Regenera las capturas de las slides y sus compuestas (requiere make run en otra terminal y Google Chrome)
+	node scripts/capturas.mjs
+	python3 scripts/componer-capturas.py

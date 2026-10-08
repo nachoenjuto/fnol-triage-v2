@@ -47,6 +47,8 @@ AMPLIADAS = {
     "Limitar: identidad y permisos por agente": [
         ("06-ficha-agente.png", "Ficha del agente de Reglas: identidad, permisos e histórico de cambios",
          "Señalar las columnas «Puede» y «No puede», y debajo el histórico de autonomía con su motivo y aprobador."),
+        ("06b-agente-calidad.png", "Calidad del agente de Reglas: índice de calidad y barra por indicador",
+         "Señalar el círculo del 98 %: media de acierto, confianza y evidencias. El sobrecoste de Reglas no es de calidad; se corrige en Medidas correctivas."),
     ],
     "Limitar: autonomía progresiva": [
         ("13-autonomia-auditoria.png", "Registro de auditoría de la bajada de nivel L3 → L2",
@@ -88,6 +90,18 @@ AMPLIADAS = {
         ("16-nuevo-guardrail.png", "Nuevo guardrail: vista previa e impacto estimado",
          "Señalar el impacto estimado: unos 47 disparos en 14 días y el 0,28 % de los mensajes pasaría a una persona."),
     ],
+    "Corregir: medidas correctivas": [
+        ("37-medidas.png", "Medidas correctivas: lista priorizada con sus alternativas y el termómetro arriba a la derecha",
+         "Señalar M-01 arriba del todo, con su alternativa recomendada, y el círculo del termómetro: cambia al verificar medidas."),
+        ("38-medida-m01.png", "Ficha de M-01: qué pasa, de dónde viene y tres alternativas comparadas",
+         "Comparar las tres alternativas: modelo pequeño (−237 €/mes), prompt con menos razonamiento (−96 €/mes) o subir el cap, que no ahorra y necesita al Comité IA."),
+        ("39-ahorro-conseguido.png", "Ahorro conseguido al aplicar las medidas de coste: 237 € al mes y 41 € pendientes de aprobación",
+         "Pulsar «Aplicar» en M-01 y «Solicitar aprobación» en M-02: el ahorro sube y la barra avanza; lo pendiente se suma al verificar."),
+    ],
+    "Proteger: seudonimizar antes del modelo": [
+        ("43-enviado-al-modelo.png", "Enviado al modelo: el mensaje de MSG-A-08 con los datos personales cambiados por marcadores",
+         "Señalar [PERSONA_2] y [POLIZA_AU_1] y, a la vez, que «fractura de clavícula» y «diabético» siguen: hacen falta para decidir."),
+    ],
     "Auditar: libro de registro": [
         ("11-historico.png", "Histórico de gobierno: overrides, incidentes, caps, replays y cambios de nivel",
          "Señalar los filtros por tipo y que cada evento lleva agente y responsable, incluido «Sistema»."),
@@ -95,6 +109,34 @@ AMPLIADAS = {
     "Cumplimiento por diseño": [
         ("12-etiqueta-normativa.png", "Etiqueta normativa: qué exige el artículo y si ya está en vigor",
          "Leer el texto de la etiqueta: AI Act art. 14, exigible a alto riesgo desde 2027; aquí se aplica como buena práctica."),
+    ],
+    "Ver: la portada del panel": [
+        ("00-inicio.png", "Inicio: una ficha por pregunta, con dos cifras en vivo, su semáforo y su norma",
+         "Recorrer los grupos de izquierda a derecha y señalar el semáforo rojo de Knowledge bases y FinOps: el panel dice dónde mirar primero."),
+    ],
+    "Entender: evidencias verificadas": [
+        ("41-evidencias.png", "Ficha del mensaje: diez evidencias resaltadas y la regla A5 que lo manda a revisión",
+         "Pasar el ratón por una evidencia: el título cambia a su tipo. Señalar la regla A5 en rojo: la frase «fractura de clavícula y dos costillas» es la que lo frena."),
+    ],
+    "Conocer: el conocimiento también se degrada": [
+        ("31-knowledge.png", "Knowledge bases: inventario con la salud de cada base y su tendencia",
+         "Señalar las tres degradadas y la crítica: la red de talleres lleva nueve días sin sincronizar."),
+        ("32-kb-comparativa.png", "Comparativa de configuraciones de Condicionados Auto: la recomendada recupera el recall",
+         "Señalar que el filtro de vigencia devuelve el recall a 0,88: 340 documentos de 2024 competían con los de 2026."),
+    ],
+    "Conocer: rúbricas que vigilan el conocimiento": [
+        ("33-rubrica.png", "Editor de la rúbrica de Condicionados Auto: criterios con peso y preguntas de referencia",
+         "Señalar que cada guardado crea una versión nueva y que la rúbrica se ejecuta en cada reindexado: si empeora, no se publica."),
+    ],
+    "Auditar: la prueba en cada decisión": [
+        ("42-respuesta-cruda.png", "Respuesta cruda de MSG-A-12 con el bloque _gobernanza que añade la plataforma",
+         "Señalar que el bloque lo añade la plataforma, no el modelo, y que cada parte lleva su norma: AI Act art. 12, RGPD art. 9 y 22."),
+    ],
+    "Auditar: termómetro de cumplimiento": [
+        ("34-termometro.png", "Termómetro de cumplimiento: cobertura por marco y matriz norma → control",
+         "Señalar los controles en ámbar: minimización, EIPD pendiente y aviso de IA en WhatsApp. Un 100 % no sería creíble."),
+        ("35-inventario-pii.png", "Ficha de cumplimiento de una traza: datos personales detectados y su valor en la traza",
+         "Señalar el inventario de datos personales y su valor en la traza: nunca el dato en claro."),
     ],
 }
 
@@ -151,7 +193,7 @@ class BuilderAmpliadas(B.Builder):
         for p in pics:
             p._element.getparent().remove(p._element)
         img = COMPUESTAS.get(titulo, extras[0][0])
-        pie = extras[0][1] if len(extras) == 1 else f"Arriba: {extras[0][1]}. Abajo: {extras[1][1]}."
+        pie = extras[0][1] if len(extras) == 1 or titulo not in COMPUESTAS else f"Arriba: {extras[0][1]}. Abajo: {extras[1][1]}."
         pie_h = B.n_lines(pie, PIE_W - 0.1, "Montserrat", PIE_PT) * PIE_PT * 1.2 / 72 + 0.06
         w, h = encajar(IMG + img, CAP_W, B.CONTENT_BOTTOM - CAP_Y - PIE_GAP - pie_h)
         pic = B.add_picture(slide, IMG + img, CAP_X, CAP_Y, w, h)

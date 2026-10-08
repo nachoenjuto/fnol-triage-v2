@@ -87,11 +87,75 @@ test('termómetro: porcentajes entre 0 y 100 y la minimización queda en ámbar'
   assert.strictEqual(t.marcos.find((mc) => mc.id === 'rgpd').controles.find((c) => c.id === 'rgpd-5c').estado, 'ambar');
   assert.strictEqual(t.resumen.trazas, 13);
 });
+console.log('seudonimización antes de enviar al modelo');
+const enviado = (m) => C.seudonimizarMensaje(m);
+const textoEnviado = (e) => [e.asunto, e.remitente.nombre, e.remitente.contacto, e.texto].join('\n');
+test('no sale ningún dato personal en claro hacia el modelo (salvo salud y edad de menores)', () => {
+  for (const m of A) {
+    const { mensaje } = enviado(m);
+    const json = textoEnviado(mensaje);
+    for (const h of cats(m)) if (!['salud', 'menor'].includes(h.categoria)) assert.ok(!json.includes(h.cita), `${m.id}: «${h.cita}» enviado en claro`);
+  }
+});
+test('los datos de salud se mantienen para poder decidir (MSG-A-12)', () => {
+  const m = A.find((x) => x.id === 'MSG-A-12');
+  for (const h of cats(m).filter((x) => x.categoria === 'salud')) assert.ok(enviado(m).mensaje.texto.includes(h.cita), h.cita);
+});
+test('el mismo dato lleva siempre el mismo marcador y la póliza conserva el ramo (MSG-A-08)', () => {
+  const m = A.find((x) => x.id === 'MSG-A-08');
+  const { mapa } = enviado(m);
+  assert.strictEqual(new Set(mapa.map((x) => x.token)).size, mapa.length);
+  assert.ok(mapa.some((x) => x.token === '[POLIZA_AU_1]' && x.valor === 'AU-662371'));
+  assert.ok(mapa.some((x) => x.token.startsWith('[POLIZA_SA_')));
+});
+test('la reconstrucción devuelve exactamente el original', () => {
+  for (const m of A) {
+    const { mensaje, mapa } = enviado(m);
+    assert.strictEqual(C.rehidratar(mensaje.texto, mapa), m.texto, m.id);
+    assert.strictEqual(C.rehidratar(mensaje.remitente.nombre, mapa), m.remitente.nombre, m.id);
+    const r = entrada(m);
+    const ida = JSON.parse(C.seudonimizarTexto(JSON.stringify(r.datos_extraidos), mapa));
+    assert.deepStrictEqual(C.rehidratar(ida, mapa), r.datos_extraidos, m.id);
+  }
+});
+test('con el envío seudonimizado la minimización pasa a verde y la traza no guarda la tabla', () => {
+  const its = A.filter((m) => RESULTADOS_GUARDADOS[m.id]).map((m) => {
+    const { mensaje, mapa } = enviado(m);
+    const e = { ...entrada(m), seudonimizacion: C.resumenSeudonimizacion({ texto: mensaje.texto }, mapa, { simulada: true }) };
+    return C.gobernanza(e, { traza_id: TRAZA_DEMO[m.id] });
+  });
+  const g = its.find((x) => x.datos_personales.total > 0);
+  assert.strictEqual(g.datos_personales.envio_al_modelo.seudonimizado, true);
+  const json = JSON.stringify(its);
+  for (const m of A) for (const h of cats(m)) if (h.categoria !== 'salud' && h.cita.length > 6) assert.ok(!json.includes(h.cita), `${m.id}: «${h.cita}» en la traza`);
+  const t = C.termometro(its, {}, null);
+  assert.strictEqual(t.marcos.find((mc) => mc.id === 'rgpd').controles.find((c) => c.id === 'rgpd-5c').estado, 'ok');
+});
 test('el JSON coloreado no altera el texto del JSON', () => {
   const g = items[0].gob;
   const html = C.jsonHtml({ _gobernanza: g }, { gob: true });
   const texto = html.replace(/<[^>]+>/g, '').replace(/&quot;/g, '"').replace(/&amp;/g, '&').replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&#39;/g, "'");
   assert.deepStrictEqual(JSON.parse(texto), { _gobernanza: g });
+});
+
+console.log('conocimiento (Knowledge bases)');
+const GOB = cargar('data/gobierno.js', 'GOBIERNO_DEMO');
+test('el catálogo común y el panel tienen las mismas KB, nombres y versiones', () => {
+  assert.deepStrictEqual(GOB.knowledge.map((k) => k.id).sort(), Object.keys(C.CONOCIMIENTO).sort());
+  for (const k of GOB.knowledge) { assert.strictEqual(k.nombre, C.CONOCIMIENTO[k.id].nombre, k.id); assert.strictEqual(k.version, C.CONOCIMIENTO[k.id].version, k.id); assert.strictEqual(k.simulada, C.CONOCIMIENTO[k.id].simulada, k.id); }
+});
+test('cada traza registra las KB que usó, con KB-01 en la versión del prompt', () => {
+  const g = C.gobernanza(entrada(A[7]), { prompt: 'reglas v2.3' });
+  const ids = g.trazabilidad.conocimiento.map((c) => c.kb);
+  assert.strictEqual(g.trazabilidad.conocimiento[0].version, 'v2.3');
+  ['KB-01', 'KB-02', 'KB-06', 'KB-07'].forEach((id) => assert.ok(ids.includes(id), id));
+  assert.ok(!ids.includes('KB-05'), 'una moto no consulta el cuadro médico');
+});
+test('las rúbricas suman 100 y apuntan a KB existentes', () => {
+  for (const r of GOB.rubricas) {
+    assert.strictEqual(r.criterios.reduce((a, c) => a + c[1], 0), 100, r.id);
+    r.kb.forEach((id) => assert.ok(C.CONOCIMIENTO[id], `${r.id} → ${id}`));
+  }
 });
 
 console.log(`\n${n} pruebas ejecutadas${process.exitCode ? ' con fallos' : ' correctamente'}`);

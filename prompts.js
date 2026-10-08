@@ -105,7 +105,7 @@ function buildSystemPrompt(bloques, ramo = null) {
   return [bloques.base, ...reglas].join('\n\n');
 }
 
-function buildUserPrompt(mensaje, ramoPrevio = null) {
+function buildUserPrompt(mensaje, ramoPrevio = null, seudonimizado = false) {
   const cabecera = [
     ...(ramoPrevio ? [`Ramo ya clasificado en el paso anterior: ${ramoPrevio}`] : []),
     `Canal: ${mensaje.canal}`,
@@ -113,8 +113,13 @@ function buildUserPrompt(mensaje, ramoPrevio = null) {
     `Remitente: ${mensaje.remitente.nombre} (${mensaje.remitente.contacto})`,
     `Asunto: ${mensaje.asunto}`,
   ].join('\n');
-  return `Mensaje a evaluar. Responde solo con el objeto JSON indicado.\n\n${cabecera}\n\nTexto del mensaje:\n"""\n${mensaje.texto}\n"""`;
+  return `Mensaje a evaluar. Responde solo con el objeto JSON indicado.${seudonimizado ? `\n\n${PROMPT_SEUDONIMOS}` : ''}\n\n${cabecera}\n\nTexto del mensaje:\n"""\n${mensaje.texto}\n"""`;
 }
+
+// Aviso al modelo cuando el mensaje llega seudonimizado (los marcadores se reconstruyen en la plataforma)
+const PROMPT_SEUDONIMOS = 'Los datos personales del mensaje están seudonimizados con marcadores entre corchetes, como [PERSONA_1], [DNI_1] o [POLIZA_AU_1]. '
+  + 'Cópialos tal cual en datos_extraidos y en las citas de las evidencias, y no intentes adivinar el valor real. '
+  + 'El marcador de póliza conserva el prefijo del ramo (AU, HO, SA), que sí puedes usar para clasificar.';
 
 // Versión del prompt de reglas: se registra en cada traza (_gobernanza.trazabilidad.prompt) y coincide con el panel de gobierno
 const PROMPT_VERSION = 'reglas v2.3';

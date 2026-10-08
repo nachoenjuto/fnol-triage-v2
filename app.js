@@ -13,6 +13,7 @@
     prompts: 'triage.prompts',
     paquete: 'triage.paquete',
     estrategia: 'triage.estrategia',
+    seudonimizar: 'triage.seudonimizar',
     motor: 'triage.motor',
     log: 'triage.log',
   };
@@ -54,6 +55,7 @@
   // ---------------------------------------------------------------------------
   const state = {
     paqueteId: ssGet(SS.paquete, PAQUETES[0].id),
+    seudonimizar: ssGet(SS.seudonimizar, true), // datos personales como marcadores antes de llamar al modelo (RGPD art. 5.1.c)
     estrategia: ssGet(SS.estrategia, '1paso'), // '1paso' (todas las reglas, por defecto) | '2pasos' (ramo → reglas del ramo)
     motor: ssGet(SS.motor, 'auto'), // 'auto' | 'guardado' | 'archivo'
     archivo: null, // { nombre, entradas: [...] } cargado con «Reproducir desde archivo» (solo memoria)
@@ -357,12 +359,30 @@
     reasoning: (a?.reasoning || 0) + (b?.reasoning || 0),
   });
 
+  // Seudonimiza el mensaje si está activado; devuelve lo que se envía y cómo deshacerlo al volver
+  function prepararEnvio(msg) {
+    if (!state.seudonimizar) return { envio: msg, mapa: [], seud: false };
+    const { mensaje, mapa } = Cumplimiento.seudonimizarMensaje(msg);
+    return { envio: mensaje, mapa, seud: true };
+  }
+  const resumenEnvio = (envio, mapa, extra) => Cumplimiento.resumenSeudonimizacion(
+    { asunto: envio.asunto, remitente: `${envio.remitente.nombre} (${envio.remitente.contacto})`, texto: envio.texto }, mapa, extra);
+
   async function aiTriage(msg, cfg, onProgress) {
+    const { envio, mapa, seud } = prepararEnvio(msg);
+    const r = await aiTriageEnvio(envio, cfg, onProgress, seud);
+    if (!seud) return r;
+    // La respuesta llega con marcadores: se reconstruyen los valores reales (la salida cruda se conserva tal cual)
+    const { raw, usage, pasos, ...resto } = r;
+    return { ...Cumplimiento.rehidratar(resto, mapa), raw, usage, pasos, seudonimizacion: resumenEnvio(envio, mapa) };
+  }
+
+  async function aiTriageEnvio(msg, cfg, onProgress, seud) {
     if (state.estrategia === '1paso') {
       const t0 = performance.now();
       const { text, usage } = await callChat(cfg, [
         { role: 'system', content: buildSystemPrompt(state.prompts) },
-        { role: 'user', content: buildUserPrompt(msg) },
+        { role: 'user', content: buildUserPrompt(msg, null, seud) },
       ], { onProgress });
       const duracion_ms = Math.round(performance.now() - t0);
       const parsed = parseTriage(text);
@@ -374,7 +394,7 @@
     const t1 = performance.now();
     const p1 = await callChat(cfg, [
       { role: 'system', content: state.prompts.ramo },
-      { role: 'user', content: buildUserPrompt(msg) },
+      { role: 'user', content: buildUserPrompt(msg, null, seud) },
     ], { maxTokens: 800, onProgress: (p) => onProgress && onProgress(`paso 1/2 ramo · ${p}`) });
     const ms1 = Math.round(performance.now() - t1);
     const ramoInfo = parseRamo(p1.text);
@@ -385,7 +405,7 @@
     const t2 = performance.now();
     const p2 = await callChat(cfg, [
       { role: 'system', content: buildSystemPrompt(state.prompts, ramoPrevio) },
-      { role: 'user', content: buildUserPrompt(msg, ramoPrevio) },
+      { role: 'user', content: buildUserPrompt(msg, ramoPrevio, seud) },
     ], { onProgress: (p) => onProgress && onProgress(`paso 2/2 reglas ${ramoInfo.ramo} · ${p}`) });
     const ms2 = Math.round(performance.now() - t2);
     const parsed = parseTriage(p2.text);
@@ -456,6 +476,7 @@
       ? `${lucide('play')} Reproducir archivo (${state.archivo.entradas.length})`
       : `${lucide('play')} Procesar ${escapeHtml(p.nombre)} (${p.mensajes.length})`;
     $('sel-estrategia').value = state.estrategia;
+    $('chk-seud').checked = state.seudonimizar;
     syncEstrategiaUI();
     syncMotorUI();
   }
@@ -504,6 +525,19 @@
       sync();
     });
     root.querySelector(`[data-restore="${key}"]`).addEventListener('click', () => { ta.value = def.texto; ta.dispatchEvent(new Event('input')); });
+    root.querySelector(`[data-grande="${key}"]`).addEventListener('click', () => abrirEditorPrompt(def, ta));
+  }
+
+  // Editor ancho de un bloque de prompt: el menú lateral es estrecho, así que se edita aquí y se devuelve al guardar
+  function abrirEditorPrompt(def, ta) {
+    const dlg = $('modal-prompt'); const area = $('prompt-grande');
+    $('modal-prompt-title').textContent = def.titulo;
+    area.value = ta.value;
+    const cuenta = () => { $('prompt-grande-count').textContent = `${area.value.length} caracteres${area.value === def.texto ? '' : ' · editado'}`; };
+    area.oninput = cuenta; cuenta();
+    $('prompt-grande-restaurar').onclick = () => { area.value = def.texto; cuenta(); };
+    $('prompt-grande-guardar').onclick = () => { ta.value = area.value; ta.dispatchEvent(new Event('input')); dlg.close(); };
+    dlg.showModal(); area.focus();
   }
 
   function renderPromptSections() {
@@ -512,7 +546,7 @@
       <textarea data-prompt="${key}" rows="14" spellcheck="false"></textarea>
       <div class="row between">
         <small class="muted"><span data-count="${key}"></span> caracteres</small>
-        <button class="btn btn-ghost btn-sm" type="button" data-restore="${key}">Restaurar original</button>
+        <span class="row"><button class="btn btn-ghost btn-sm" type="button" data-grande="${key}" title="Abrir el bloque en un editor ancho">${lucide('maximize-2')} Editar en grande</button><button class="btn btn-ghost btn-sm" type="button" data-restore="${key}">Restaurar</button></span>
       </div>`;
 
     // «Prompt base» va directo, sin colapsable propio: es el bloque principal del prompt
@@ -719,9 +753,13 @@
   // Respuesta cruda: la salida del modelo tal cual y, debajo, el bloque añadido por la plataforma
   function pintarRaw(entry) {
     const gob = gobDe(entry);
-    const conGob = modalState.raw !== 'modelo';
-    document.querySelectorAll('#tab-json .seg-btn').forEach((b) => b.setAttribute('aria-pressed', String((b.dataset.raw === 'gobierno') === conGob)));
+    const vista = modalState.raw === 'modelo' || modalState.raw === 'enviado' ? modalState.raw : 'gobierno';
+    const conGob = vista === 'gobierno';
+    document.querySelectorAll('#tab-json .seg-btn').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.raw === vista)));
     $('raw-leyenda').classList.toggle('sin-gob', !conGob);
+    $('raw-leyenda').style.display = vista === 'enviado' ? 'none' : '';
+    $('modal-copy-raw').innerHTML = `${lucide('copy')} ${vista === 'enviado' ? 'Copiar texto' : 'Copiar JSON'}`;
+    if (vista === 'enviado') { pintarEnviado(entry); return; }
     let modelo = null;
     try { const m = String(entry.raw || '').match(/^\s*\{[\s\S]*\}\s*$/); if (m) modelo = JSON.parse(m[0]); } catch { modelo = null; }
     const opts = { sensibles: Cumplimiento.camposSensibles(entry), claves: Cumplimiento.CLAVES_NORMA };
@@ -741,6 +779,27 @@
       ? `El bloque «_gobernanza» lo añade la plataforma, no el modelo. ${dp.total} datos personales detectados (${dp.categoria_especial_salud} de salud, ${dp.menores} de menores, ${dp.terceros} de terceros): esta ficha es la vista operativa del tramitador; la traza persistida guarda «valor_en_traza», nunca el dato en claro.`
       : 'Salida del modelo tal y como llegó, sin metadatos de gobierno.';
   }
+
+  // Lo que recibió el modelo: el mensaje con los datos personales cambiados por marcadores
+  function pintarEnviado(entry) {
+    const sd = entry.seudonimizacion;
+    const envio = gob_envio(entry);
+    if (!sd || !sd.activa) {
+      const texto = envio.aplica === false ? envio.motivo : `${envio.motivo}. Activa «Seudonimizar antes de enviar al modelo» en Configuración y vuelve a procesar el lote.`;
+      $('modal-raw').textContent = texto; modalState.rawTexto = texto;
+      $('raw-nota').textContent = '';
+      return;
+    }
+    const e = sd.enviado || {};
+    const texto = `Asunto: ${e.asunto}\nRemitente: ${e.remitente}\n\n${e.texto}`;
+    $('modal-raw').innerHTML = escapeHtml(texto).replace(/\[[A-Z_]+_\d+\]/g, (t) => `<mark class="raw-tok">${t}</mark>`);
+    modalState.rawTexto = texto;
+    const NOMBRE_TIPO = { nombre: ['nombre', 'nombres'], nombre_tercero: ['nombre de tercero', 'nombres de terceros'], dni: ['DNI', 'DNI'], nie: ['NIE', 'NIE'], email: ['email', 'emails'], telefono: ['teléfono', 'teléfonos'], iban: ['IBAN', 'IBAN'], tarjeta_sanitaria: ['tarjeta sanitaria', 'tarjetas sanitarias'], poliza: ['póliza', 'pólizas'], matricula: ['matrícula', 'matrículas'], expediente: ['expediente', 'expedientes'], direccion: ['dirección', 'direcciones'] };
+    const tipos = Object.entries(sd.por_tipo || {}).map(([k, n]) => `${n} ${(NOMBRE_TIPO[k] || [k, k])[n === 1 ? 0 : 1]}`).join(', ');
+    $('raw-nota').textContent = `${sd.simulada ? 'Reproducción de una respuesta guardada: así habría llegado el mensaje al modelo. ' : ''}${sd.sustituidos} datos personales sustituidos por marcadores (${tipos || 'ninguno'}). `
+      + 'La tabla de correspondencias solo existe en memoria durante la llamada: la plataforma la usa para reconstruir la respuesta y no se guarda en la traza. Los datos de salud se mantienen porque hacen falta para decidir (RGPD art. 9.2.f).';
+  }
+  const gob_envio = (entry) => (entry.gobernanza && entry.gobernanza.datos_personales.envio_al_modelo) || {};
 
   function pintarSiguientePaso(entry) {
     const paso = Evidencias.siguientePaso(entry);
@@ -871,14 +930,18 @@
       if (!guardado) return { ...localTriage(msg), origen: 'reglas locales (sin ficha guardada)' };
       const r = expandirResultadoGuardado(guardado);
       const { usage, ...json } = r;
-      return { ...r, raw: JSON.stringify(json, null, 2), origen: 'IA (guardado)' };
+      const raw = JSON.stringify(json, null, 2);
+      const { envio, mapa, seud } = prepararEnvio(msg);
+      // Reproducción: se muestra la salida tal y como la habría devuelto el modelo con el mensaje seudonimizado
+      if (seud) return { ...r, raw: Cumplimiento.seudonimizarTexto(raw, mapa), origen: 'IA (guardado)', seudonimizacion: resumenEnvio(envio, mapa, { simulada: true }) };
+      return { ...r, raw, origen: 'IA (guardado)' };
     }
     if (state.motor === 'archivo') {
       const e = msg.__entrada; // entrada del archivo asociada a este mensaje
       await simulateModelWait(onProgress);
       return {
         ramo: e.ramo, criterios_ramo: e.criterios_ramo || [], datos_extraidos: e.datos_extraidos || {}, criterios: e.criterios || [],
-        decision: e.decision, motivo: e.motivo, confianza: e.confianza ?? 0.5, evidencias: e.evidencias || [], raw: e.raw || null, usage: e.usage || null, pasos: e.pasos || null,
+        decision: e.decision, motivo: e.motivo, confianza: e.confianza ?? 0.5, evidencias: e.evidencias || [], raw: e.raw || null, usage: e.usage || null, pasos: e.pasos || null, seudonimizacion: e.seudonimizacion || null,
         origen: `${e.origen || 'IA'} (archivo)`,
       };
     }
@@ -949,6 +1012,7 @@
           datos_extraidos: result.datos_extraidos,
           evidencias: result.evidencias || [],
           raw: result.raw || null,
+          seudonimizacion: result.seudonimizacion || null,
           usage: result.usage || null,
           duracion_ms: Math.round(performance.now() - t0),
           timestamp: new Date().toISOString(),
@@ -1023,20 +1087,27 @@
   // ---------------------------------------------------------------------------
   // Eventos
   // ---------------------------------------------------------------------------
-  // Panel lateral (paquete, configuración y prompt) plegable; el estado se recuerda en la sesión
-  function setSidebar(abierto) {
-    document.querySelector('.layout').classList.toggle('sidebar-collapsed', !abierto);
-    $('sidebar').hidden = !abierto;
-    const b = $('btn-toggle-sidebar');
-    b.setAttribute('aria-expanded', String(abierto));
-    b.innerHTML = lucide(abierto ? 'panel-left-close' : 'panel-left-open');
-    b.title = b.ariaLabel = abierto ? 'Ocultar el panel lateral' : 'Mostrar el panel lateral';
-    ssSet('triage.sidebar', abierto);
-  }
-
   function bind() {
-    setSidebar(ssGet('triage.sidebar', true));
-    $('btn-toggle-sidebar').addEventListener('click', () => setSidebar($('sidebar').hidden));
+    // Menú lateral común con el panel de gobierno (shell.js): plegado deja solo los iconos de las secciones
+    Shell.initShell();
+    // Recorrido de la demo (modo presentador): acciones de los pasos que ocurren en el triaje
+    Shell.Recorrido.init({
+      fases: () => { window.scrollTo({ top: 0 }); const f = document.querySelector('.phase'); if (f) f.click(); return ''; },
+      procesar: () => {
+        if (state.running) return 'El lote ya se está procesando.';
+        if (state.log.some((e) => e.paquete === 'A')) return 'El Paquete A ya está procesado. Para repetirlo, pulsa «Reiniciar lote».';
+        $('sel-motor').value = 'guardado'; $('sel-motor').dispatchEvent(new Event('change'));
+        $('sel-paquete').value = 'A'; $('sel-paquete').dispatchEvent(new Event('change'));
+        $('btn-run').click();
+        return '';
+      },
+      ficha: (id, tab) => {
+        const e = state.log.find((x) => x.id === id);
+        if (!e) return `Todavía no hay ficha de ${id}: haz antes el paso 2 (Procesar el Paquete A) y espera a que termine.`;
+        openModal(e); if (tab) setTab(tab);
+        return '';
+      },
+    });
     $('btn-toggle-config').addEventListener('click', () => {
       const panel = $('config-panel');
       panel.hidden = !panel.hidden;
@@ -1084,6 +1155,7 @@
       }
       renderPaquete();
     });
+    $('chk-seud').addEventListener('change', () => { state.seudonimizar = $('chk-seud').checked; ssSet(SS.seudonimizar, state.seudonimizar); });
     $('sel-estrategia').addEventListener('change', () => { state.estrategia = $('sel-estrategia').value; ssSet(SS.estrategia, state.estrategia); syncEstrategiaUI(); });
     $('sel-paquete').addEventListener('change', () => { state.paqueteId = $('sel-paquete').value; ssSet(SS.paquete, state.paqueteId); renderPaquete(); });
 
@@ -1157,7 +1229,7 @@
     $('modal-copy-raw').addEventListener('click', async () => {
       const b = $('modal-copy-raw');
       try { await navigator.clipboard.writeText(modalState.rawTexto || $('modal-raw').textContent); b.innerHTML = `${lucide('check')} Copiado`; } catch { b.textContent = 'No se pudo copiar'; }
-      setTimeout(() => { b.innerHTML = `${lucide('copy')} Copiar JSON`; }, 1800);
+      setTimeout(() => { b.innerHTML = `${lucide('copy')} ${modalState.raw === 'enviado' ? 'Copiar texto' : 'Copiar JSON'}`; }, 1800);
     });
     $('tab-json').addEventListener('click', (ev) => {
       const b = ev.target.closest('.seg-btn'); if (!b || !modalState.entry) return;

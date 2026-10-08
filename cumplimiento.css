@@ -38,3 +38,8 @@
 .pii-identificativo { background: #a0522d; } .pii-contacto { background: #8a5a2b; } .pii-indirecto { background: #4a5578; } .pii-localizacion { background: #2f6f6e; }
 .pii-financiero { background: #6b4c7a; } .pii-salud { background: #9f2d2d; } .pii-menor { background: #b3412f; } .pii-tercero { background: #55608a; }
 .pii-dot { display: inline-block; width: .7rem; height: .7rem; border-radius: 3px; vertical-align: -.05rem; }
+
+/* Seudonimización: marcadores en «Enviado al modelo» y casilla de Configuración */
+.raw mark.raw-tok { background: color-mix(in srgb, var(--accent, #2563eb) 14%, transparent); color: inherit; border-radius: 3px; padding: 0 .15rem; font-weight: 600; }
+.check-row .check-line { display: flex; align-items: center; gap: .45rem; font-weight: 600; }
+.check-row .check-line input { width: auto; margin: 0; flex: none; }

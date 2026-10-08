@@ -163,11 +163,21 @@
       kpi({ cls: 'primary', icono: 'activity', etiqueta: 'Mensajes procesados', valor: num(totalMsgs), sub: `${dias.length} día${dias.length > 1 ? 's' : ''} · ${num(Math.round(totalMsgs / dias.length))} / día de media`, id: 'res-msgs' }),
       kpi({ ...aut, id: 'res-aut' }), kpi({ ...esc1, id: 'res-esc' }), kpi({ ...ovr, id: 'res-ovr' }),
       kpi({ cls: 'warn', icono: 'euro', etiqueta: 'Coste del periodo', valor: eur(coste, coste < 10 ? 2 : 0), sub: `${Math.round((coste / capMes) * 100)} % del cap mensual (${eur(capMes, 0)}) · ${eur(totalMsgs ? coste / totalMsgs : 0, 4)} por mensaje`, medidor: (coste / capMes) * 100, id: 'res-coste' }),
-      kpi({ ...alr, id: 'res-alertas' }),
+      (() => { const al = alertasTodas(); const c = al.filter((x) => x.sev === 'crit').length; return kpi({ ...alr, id: 'res-alertas', cls: c ? 'crit' : 'warn', valor: String(al.length), sub: `${c} ${c === 1 ? 'crítica' : 'críticas'} · ${al.length - c} avisos · coste, conocimiento y cumplimiento` }); })(),
+      (() => { const { T } = estadoCumplimiento(); const p = T.marcos.reduce((a, m) => a + m.cuenta.ambar + m.cuenta.rojo, 0); return conGoto(kpi({ cls: T.global >= 90 ? 'ok' : 'warn', icono: 'thermometer', etiqueta: 'Cumplimiento', valor: `${T.global} %`, sub: `cobertura de controles · ${p} parciales`, medidor: T.global }), 'cumplimiento'); })(),
+      (() => { const E = estadoKB(); const ok = E.filter(({ s }) => s.estado === 'ok').length; const r = E.filter(({ s }) => s.estado === 'rojo').length; return conGoto(kpi({ cls: r ? 'crit' : ok < E.length ? 'warn' : 'ok', icono: 'book-open', etiqueta: 'Knowledge Bases', valor: `${ok} / ${E.length}`, sub: `knowledge bases sanas · ${r} ${r === 1 ? 'crítica' : 'críticas'}` }), 'knowledge'); })(),
     ].join('');
     $('agents').innerHTML = agentesPrincipales().map((a) => agentCard(a, false)).join('');
-    $('alerts').innerHTML = (G.alertas || []).map((a) => `<div class="alert ${a.sev}"><span class="ico">${ic(SEV_ICON[a.sev] || 'info')}</span><div><b>${conGuardrails(esc(a.titulo))}</b><small>${conGuardrails(esc(a.detalle))}</small></div><span class="muted small" style="white-space:nowrap">${esc(a.cuando || '')}</span></div>`).join('') || '<p class="muted">Sin alertas activas.</p>';
-    $('ultimas').innerHTML = G.trazas.slice(-5).reverse().map((t) => rowTraza(t, false)).join('');
+    $('alerts').innerHTML = alertasTodas().map(alertaHtml).join('') || '<p class="muted">Sin alertas activas.</p>';
+    $('res-cumplimiento').innerHTML = resumenCumplimiento();
+    $('res-conocimiento').innerHTML = resumenConocimiento();
+    // Últimas trazas con sus datos personales y las knowledge bases que usaron (del bloque _gobernanza)
+    const gobDe = Object.fromEntries(cmpItems.map((x) => [x.gob.trazabilidad.traza_id, x.gob]));
+    $('ultimas').innerHTML = G.trazas.slice(-5).reverse().map((t) => {
+      const g = gobDe[t.id];
+      const extra = g ? `<td class="tnum">${g.datos_personales.total}${g.datos_personales.categoria_especial_salud ? ` <span class="pill pill-crit" title="Datos de salud (RGPD art. 9)">${g.datos_personales.categoria_especial_salud} salud</span>` : ''}${g.datos_personales.menores ? ` <span class="pill pill-warn">menor</span>` : ''}</td><td class="tnum" title="${esc(g.trazabilidad.conocimiento.map((c) => `${c.kb} ${c.version}`).join(' · '))}">${g.trazabilidad.conocimiento.length}</td>` : '<td class="muted">—</td><td class="muted">—</td>';
+      return rowTraza(t, false).replace(/<\/tr>$/, `${extra}</tr>`);
+    }).join('');
     $('h-ultimas').innerHTML = `${ic('route')} Últimas trazas`;
     $('coste-sub').textContent = `€/día · línea discontinua = cap diario ${eur(capDiario(), 0)}`;
     $('chart-coste').innerHTML = chartCoste();
@@ -181,12 +191,15 @@
     const uso = a.cap_hoy ? a.coste_hoy / a.cap_hoy : 0;
     const lvl = G.niveles[a.nivel] || { nombre: '—', desc: '' };
     const guardrails = G.politicas.filter((p) => p.agente === a.id).map((p) => grRef(p.id)).join(', ') || '—';
-    return `<article class="card agent${estado === 'pausado' ? ' is-off' : ''}" style="--c:${agColor(a.id)}" data-agente="${esc(a.id)}" role="button" tabindex="0" title="Ver ficha del agente">
-      <div class="top"><span class="ag-ico" style="--c:${agColor(a.id)}">${ic(a.icono || 'cpu')}</span><div><strong>${agLbl(a.id)}</strong><br><span class="muted small">${esc(a.descripcion || '')}</span></div></div>
-      <div class="row"><span class="pill ${pc}">${ic(pi)} ${pl}</span>${lvlBadge(a.nivel)}<span class="small muted">${esc(lvl.nombre)}</span><label class="switch${estado === 'pausado' ? ' off' : ''}" title="${estado === 'pausado' ? 'Reanudar el agente' : 'Pausar el agente (kill switch)'}" data-switch="${esc(a.id)}"><i></i>${ic('power')}</label></div>
+    // Icono y nombre grandes arriba; estado y nivel en medio; los datos de detalle al pie, en letra pequeña
+    return `<article class="card agent${estado === 'pausado' ? ' is-off' : ''}" data-agente="${esc(a.id)}" role="button" tabindex="0" title="Ver el agente en la sección Agentes">
+      <div class="ag-head"><span class="ag-ico ag-ico-lg">${ic(a.icono || 'cpu')}</span><div class="ag-titulo"><span class="ag-eyebrow">Agente</span><strong class="ag-nombre">${esc(a.nombre)}</strong></div>
+        <label class="switch${estado === 'pausado' ? ' off' : ''}" title="${estado === 'pausado' ? 'Reanudar el agente' : 'Pausar el agente (kill switch)'}" data-switch="${esc(a.id)}"><i></i>${ic('power')}</label></div>
+      <p class="ag-desc">${esc(a.descripcion || '')}</p>
+      <div class="row ag-estado"><span class="pill ${pc}">${ic(pi)} ${pl}</span>${lvlBadge(a.nivel)}<span class="small muted">${esc(lvl.nombre)}</span></div>
       ${aut
-        ? `<dl><dt>Umbral confianza</dt><dd>${conGuardrails(esc(a.umbral || '—'))}</dd><dt>Guardrails</dt><dd>${guardrails}</dd><dt>Escalado 14 d</dt><dd>${esc(a.escalado_14d || '—')}</dd><dt>Override 14 d</dt><dd>${esc(a.override_14d || '—')}</dd></dl>`
-        : `<dl><dt>Modelo</dt><dd class="mono">${esc(a.modelo)}</dd><dt>Prompt</dt><dd class="mono">${esc(a.prompt)}</dd><dt>Latencia p95</dt><dd>${ms(a.p95_ms || 0)}</dd><dt>Coste hoy</dt><dd>${eur(a.coste_hoy)} / ${eur(a.cap_hoy, 0)} <span class="${uso >= 1 ? 'delta up' : 'muted'}">(${Math.round(uso * 100)} %)</span><div class="meter" style="--c:${uso >= 1 ? 'var(--crit)' : uso >= .8 ? 'var(--warn)' : agColor(a.id)}"><i style="width:${Math.min(100, uso * 100)}%"></i></div></dd></dl>`}
+        ? `<dl class="ag-det"><dt>Umbral confianza</dt><dd>${conGuardrails(esc(a.umbral || '—'))}</dd><dt>Guardrails</dt><dd>${guardrails}</dd><dt>Escalado 14 d</dt><dd>${esc(a.escalado_14d || '—')}</dd><dt>Override 14 d</dt><dd>${esc(a.override_14d || '—')}</dd></dl>`
+        : `<dl class="ag-det"><dt>Modelo</dt><dd class="mono">${esc(a.modelo)}</dd><dt>Prompt</dt><dd class="mono">${esc(a.prompt)}</dd><dt>Latencia p95</dt><dd>${ms(a.p95_ms || 0)}</dd><dt>Coste hoy</dt><dd>${eur(a.coste_hoy)} / ${eur(a.cap_hoy, 0)} <span class="${uso >= 1 ? 'delta up' : 'muted'}">(${Math.round(uso * 100)} %)</span><div class="meter" style="--c:${uso >= 1 ? 'var(--crit)' : uso >= .8 ? 'var(--warn)' : 'var(--ok)'}"><i style="width:${Math.min(100, uso * 100)}%"></i></div></dd></dl>`}
     </article>`;
   }
 
@@ -327,7 +340,6 @@
   function renderAutonomia() {
     $('kpis-aut').innerHTML = G.kpis.autonomia.map(kpi).join('');
     $('levels').innerHTML = G.niveles.map((l) => `<div class="level l${l.n}"><b>${lvlBadge(l.n, l.desc)} ${esc(l.nombre)}</b><span class="muted">${esc(l.desc)}</span><span class="small">${agentesPrincipales().filter((a) => a.nivel === l.n).map((a) => agTag(a.id)).join(' ') || '<span class="muted">sin agentes</span>'}</span></div>`).join('');
-    $('agents-aut').innerHTML = agentesPrincipales().map((a) => agentCard(a, true)).join('');
     $('cambios').innerHTML = (G.cambios_autonomia || []).map((c, i) => `<tr class="clickable" data-cambio="${i}" tabindex="0"><td class="tnum">${fechaHora(c.fecha)}</td><td>${agTag(c.agente)}</td><td>${c.de === c.a ? `${lvlBadge(c.a)} <span class="muted small">sin cambio</span>` : `${lvlBadge(c.de)} → ${lvlBadge(c.a)}`}</td><td class="wrap">${conGuardrails(esc(c.motivo))}</td><td>${esc(c.usuario)}</td></tr>`).join('');
   }
 
@@ -344,33 +356,182 @@
     </tbody></table></div></div>`;
   }
 
-  function abrirModalAgente(id) {
-    const a = AG[id]; if (!a) return;
-    const estado = estadoAgente(a); const [pc, pi, pl] = ESTADO[estado] || ESTADO.activo;
-    const lvl = G.niveles[a.nivel] || { nombre: '—', desc: '' };
-    const hist = [...(a.historial || [])].sort((x, y) => y.fecha.localeCompare(x.fecha));
-    const tl = (items) => items.length ? `<ul class="mini-tl">${items.map((h) => `<li><span class="t">${fechaHora(h.fecha)}</span><span class="ico" style="--c:${agColor(a.id)}">${ic(CAMBIO_ICON[h.tipo] || 'info')}</span><div><b>${esc(h.tipo === 'nivel' ? 'Nivel' : h.tipo === 'modelo' ? 'Modelo' : h.tipo === 'prompt' ? 'Prompt' : h.tipo === 'guardrail' ? 'Guardrail' : 'Incidencia')}: ${conGuardrails(esc(h.de))} → ${conGuardrails(esc(h.a))}</b><small>${conGuardrails(esc(h.motivo))} · ${esc(h.usuario)}</small></div></li>`).join('')}</ul>` : '<p class="muted small">Sin registros.</p>';
-    $('modal-agente-title').innerHTML = `<span class="ag-ico" style="--c:${agColor(a.id)}">${ic(a.icono || 'cpu')}</span> ${agLbl(a.id)} <span class="pill ${pc}">${ic(pi)} ${pl}</span> ${lvlBadge(a.nivel)} <span class="muted small" style="font-weight:400">${esc(lvl.nombre)}</span>`;
-    $('modal-agente-body').innerHTML = `
-      <p class="small muted">${esc(a.descripcion || '')}</p>
-      <div class="kpi-mini">
-        <div class="box"><span class="muted small">Modelo actual</span><b class="mono" style="font-size:.95rem">${esc(a.modelo)}</b></div>
-        <div class="box"><span class="muted small">Prompt</span><b class="mono" style="font-size:.95rem">${esc(a.prompt)}</b></div>
-        <div class="box"><span class="muted small">Escalado 14 d</span><b>${esc(a.escalado_14d || '—')}</b></div>
-        <div class="box"><span class="muted small">Override 14 d</span><b>${esc(a.override_14d || '—')}</b></div>
-        <div class="box"><span class="muted small">Coste hoy / cap</span><b>${eur(a.coste_hoy || 0)} / ${eur(a.cap_hoy || 0, 0)}</b></div>
-        <div class="box"><span class="muted small">Latencia p95</span><b>${ms(a.p95_ms || 0)}</b></div>
-      </div>
-      ${identidadAgente(a)}
-      <div class="two">
-        <div><h3>Histórico de autonomía</h3>${tl(hist.filter((h) => h.tipo === 'nivel' || h.tipo === 'guardrail'))}</div>
-        <div><h3>Cambios de modelo, prompt e incidencias</h3>${tl(hist.filter((h) => h.tipo === 'modelo' || h.tipo === 'prompt' || h.tipo === 'incidencia'))}</div>
-      </div>
-      <div><h3>Comportamiento según el modelo</h3><div class="tw tabla-compacta"><table><thead><tr><th>Modelo</th><th>Periodo</th><th>Precisión</th><th>Escalado</th><th>Override</th><th>Coste / mensaje</th><th>p95</th></tr></thead><tbody>${(a.modelos || []).map((mo) => `<tr><td class="mono">${esc(mo.modelo)}</td><td>${esc(mo.periodo)}</td><td>${esc(mo.precision)}</td><td class="tnum">${esc(mo.escalado)}</td><td class="tnum">${esc(mo.override)}</td><td class="tnum">${esc(mo.coste_msg)}</td><td class="tnum">${ms(mo.p95_ms)}</td></tr>`).join('') || '<tr><td colspan="7" class="muted">Sin datos por modelo.</td></tr>'}</tbody></table></div></div>
-      <div><h3>Variables que afectan a su comportamiento</h3><div class="tw"><table><thead><tr><th>Variable</th><th>Valor</th><th>Efecto</th></tr></thead><tbody>${(a.variables || []).map((v) => `<tr><td><b>${esc(v.nombre)}</b></td><td class="wrap">${conGuardrails(esc(v.valor))}</td><td class="wrap">${conGuardrails(esc(v.efecto))}</td></tr>`).join('') || '<tr><td colspan="3" class="muted">Sin variables registradas.</td></tr>'}</tbody></table></div></div>
-      <div><h3>Guardrails que lo limitan</h3><p class="small">${G.politicas.filter((p) => p.agente === a.id).map((p) => `${grRef(p.id)} ${politicaActiva(p) ? '' : '<span class="muted small">(inactivo)</span>'}`).join(' · ') || '<span class="muted">Ninguno</span>'}</p></div>`;
-    $('modal-agente').showModal();
+  // ---------------------------------------------------------------------------
+  // Agentes: una pestaña por agente (en el orden de la cadena) con su ficha completa en el propio panel
+  // ---------------------------------------------------------------------------
+  let agSel = ssGet('gobierno.agente', 'multicanal'); let agEjemplo = null;
+  const PASA = { multicanal: 'texto normalizado', clasificacion: 'ramo + indicios', extraccion: '10 campos' };
+  // Contrato de entrada y salida: qué recibe y qué devuelve cada agente (esquema resumido)
+  const CONTRATO = {
+    multicanal: { entrada: [['canal', 'email · web · chat · whatsapp · telefono'], ['contenido', 'asunto y cuerpo, campos del formulario, varios mensajes de chat o audio de la llamada'], ['adjuntos', 'lista de ficheros (fotos, partes, facturas)']],
+      salida: [['id', 'texto · MSG-…'], ['canal', 'texto'], ['fecha_recepcion', 'fecha ISO'], ['remitente', '{ nombre, contacto }'], ['asunto', 'texto'], ['texto', 'texto normalizado (sin emojis, abreviaturas expandidas, audio transcrito)']] },
+    clasificacion: { entrada: [['id', 'texto'], ['canal', 'texto'], ['texto', 'texto normalizado']],
+      salida: [['ramo', 'Auto · Hogar · Salud · Indeterminado'], ['criterios_ramo', 'lista de «"cita literal": explicación»'], ['confianza', 'número 0-1 (por debajo de 0,85, G-01)']] },
+    extraccion: { entrada: [['texto', 'texto normalizado'], ['ramo', 'el que asignó Clasificación']],
+      salida: [['nombre_cliente', 'texto | null'], ['numero_poliza', 'texto | null'], ['tipo_siniestro', 'texto | null'], ['fecha_hecho', 'AAAA-MM-DD | null'], ['importe_estimado_eur', 'número | null'], ['lugar', 'texto | null'], ['terceros_implicados', 'sí / no'], ['lesionados', 'sí / no'], ['documentacion_mencionada', 'lista de textos'], ['observaciones', 'texto | null']] },
+    reglas: { entrada: [['datos_extraidos', 'los 10 campos de Extracción'], ['ramo', 'texto'], ['bloque de reglas', `prompts.js · ${PROMPT_VERSION}`], ['knowledge bases', 'condicionados, cuadro médico, red de talleres, manual (según el ramo)']],
+      salida: [['criterios', 'lista de { regla, resultado: cumple | incumple | no_aplica, evidencia }'], ['evidencias', 'lista de { ref, cita literal, nota } (5 a 12)'], ['decision', 'DESPEJADO · REVISION'], ['motivo', 'texto, máximo 200 caracteres'], ['confianza', 'número 0-1']] },
+  };
+  const INCID_AG = { multicanal: /STT|transcrip/i, clasificacion: /G-0[36]/, extraccion: /429|CAP-06/, reglas: /CAP-0[45]|razonamiento/i };
+  const pctil = (xs, p) => { if (!xs.length) return 0; const o = [...xs].sort((a, b) => a - b); return o[Math.min(o.length - 1, Math.ceil(p * o.length) - 1)]; };
+
+  function verAgente(id) {
+    if (!AG[id]) return;
+    cerrarTodos(); agSel = id; ssSet('gobierno.agente', id); agEjemplo = null;
+    goto('agentes'); renderAgentes();
   }
+
+  function datosAgente(a) {
+    const spans = G.trazas.flatMap((t) => t.spans.filter((s) => s[0] === a.id).map((s) => ({ t, s })));
+    const dur = spans.map(({ s }) => s[2]);
+    const tok = spans.reduce((acc, { s }) => [acc[0] + s[4], acc[1] + s[5], acc[2] + s[6]], [0, 0, 0]);
+    const coste = spans.reduce((acc, { s }) => acc + spanCost(s), 0);
+    const guard = new Set(G.politicas.filter((p) => p.agente === a.id).map((p) => p.id));
+    const escaladas = spans.filter(({ t }) => (String(t.guardrail || '').match(/G-\d{2}/g) || []).some((g) => guard.has(g)));
+    const incid = spans.filter(({ t }) => (t.incidencias || []).some((i) => INCID_AG[a.id] && INCID_AG[a.id].test(i)));
+    const k = G.agentes.findIndex((x) => x.id === a.id);
+    const serie = G.diario.slice(-14).map((d) => d[2][k] || 0);
+    return { spans, p50: pctil(dur, 0.5), p95: pctil(dur, 0.95), tok, coste, escaladas, incid, serie };
+  }
+
+  // Métricas de calidad propias de cada agente, calculadas sobre las trazas y sus bloques _gobernanza
+  // Índice de calidad del agente: media de las filas medibles, en un círculo de porcentaje con el color del semáforo
+  function calidadIndice(Q) {
+    const ps = Q.filter((q) => q.p != null).map((q) => q.p);
+    if (!ps.length) return '';
+    const v = Math.round(ps.reduce((s, x) => s + x, 0) / ps.length);
+    const r = 30; const L = 2 * Math.PI * r; const c = colorPct(v);
+    const txt = v >= 90 ? 'Calidad alta' : v >= 70 ? 'Calidad a vigilar' : 'Calidad baja';
+    return `<div class="ag-q-ring"><svg viewBox="0 0 76 76" width="76" height="76" aria-hidden="true"><circle cx="38" cy="38" r="${r}" fill="none" stroke="var(--border)" stroke-width="7"/><circle cx="38" cy="38" r="${r}" fill="none" stroke="${c}" stroke-width="7" stroke-linecap="round" stroke-dasharray="${(L * v) / 100} ${L}" transform="rotate(-90 38 38)"/><text x="38" y="43" text-anchor="middle" style="font-size:17px;font-weight:800;fill:${c}">${v}%</text></svg>
+      <div><b style="color:${c}">${txt}</b><span class="muted small">Índice de calidad: media de ${ps.length} indicadores medibles (acierto, explicación${ps.length > 2 ? ', confianza' : ''}…) sobre el Paquete A. Verde ≥ 90 %, ámbar ≥ 70 %.</span></div></div>`;
+  }
+
+  function calidadAgente(a) {
+    const items = cmpItems;
+    const esperado = Object.fromEntries(PAQUETES.flatMap((p) => p.mensajes).map((m) => [m.id, m.esperado || {}]));
+    const n = items.length || 1;
+    // p: porcentaje de la fila (0-100) cuando se puede medir; entra en el índice de calidad del agente
+    const fila = (l, v, s, ok, p = null) => ({ l, v, s, ok, p: p == null ? null : Math.max(0, Math.min(100, Math.round(p))) });
+    if (a.id === 'multicanal') {
+      const canales = {}; items.forEach((x) => { const c = x.entry.mensaje.canal; canales[c] = (canales[c] || 0) + 1; });
+      return [fila('Mensajes normalizados', `${items.length}/${items.length}`, 'al formato único, sin pérdidas', true, 100), fila('Canales', Object.entries(canales).map(([c, v]) => `${canalInfo(c)[1]} ${v}`).join(' · '), 'el canal no cambia el tratamiento', true), fila('Datos personales transportados', num(items.reduce((s, x) => s + x.gob.datos_personales.total, 0)), 'solo los transporta; no los interpreta', true)];
+    }
+    if (a.id === 'clasificacion') {
+      const ok = items.filter((x) => !esperado[x.entry.id].ramo || esperado[x.entry.id].ramo === x.entry.ramo).length;
+      const desc = items.filter((x) => x.gob.explicabilidad.descartados.length >= 2).length;
+      const ramos = {}; items.forEach((x) => { ramos[x.entry.ramo] = (ramos[x.entry.ramo] || 0) + 1; });
+      return [fila('Acierto de ramo frente al esperado', `${ok}/${items.length}`, `${Math.round((ok / n) * 100)} %`, ok === items.length, (ok / n) * 100), fila('Ramos descartados explicados', `${desc}/${items.length}`, 'por qué no es de los otros dos', desc === items.length, (desc / n) * 100), fila('Reparto', Object.entries(ramos).map(([r, v]) => `${r} ${v}`).join(' · '), 'Auto / Hogar / Salud', true)];
+    }
+    if (a.id === 'extraccion') {
+      const campos = ['nombre_cliente', 'numero_poliza', 'tipo_siniestro', 'fecha_hecho', 'importe_estimado_eur', 'lugar'];
+      const llenos = items.reduce((s, x) => s + campos.filter((c) => x.entry.datos_extraidos[c] != null).length, 0);
+      const nulos = items.reduce((s, x) => s + campos.filter((c) => x.entry.datos_extraidos[c] == null).length, 0);
+      const evDatos = items.reduce((s, x) => s + Evidencias.construir(x.texto, x.entry.evidencias, x.entry).lista.filter((e) => e.verificada && e.ref !== 'ramo' && !e.ref.startsWith('regla:')).length, 0);
+      return [fila('Campos clave extraídos', `${Math.round((llenos / (campos.length * n)) * 100)} %`, `${llenos} de ${campos.length * items.length}`, true, (llenos / (campos.length * n)) * 100), fila('Campos en nulo (no aparecen en el texto)', num(nulos), 'nunca se inventan: MSG-A-13 deja fecha, importe y lugar en nulo', true), fila('Evidencias de datos verificadas', dec2(evDatos / n), 'por mensaje, citas literales localizadas (objetivo ≥ 4)', evDatos / n >= 4, (evDatos / n / 4) * 100)];
+    }
+    const ok = items.filter((x) => esperado[x.entry.id].revision == null || esperado[x.entry.id].revision === (x.entry.decision === 'REVISION')).length;
+    const conf = items.reduce((s, x) => s + (x.entry.confianza || 0), 0) / n;
+    const inc = {}; items.forEach((x) => (x.entry.criterios || []).filter((c) => c.resultado === 'incumple').forEach((c) => { inc[c.regla] = (inc[c.regla] || 0) + 1; }));
+    const ov = G.trazas.filter((t) => t.resultado === 'override').length;
+    return [fila('Acierto de la decisión frente al esperado', `${ok}/${items.length}`, `${Math.round((ok / n) * 100)} %`, ok === items.length, (ok / n) * 100), fila('Confianza media', dec2(conf), 'umbral G-01: 0,85', conf >= 0.85, conf * 100), fila('Evidencias verificadas', dec2(items.reduce((s, x) => s + x.gob.explicabilidad.evidencias_verificadas, 0) / n), 'por decisión (mínimo 5)', true, (items.reduce((s, x) => s + x.gob.explicabilidad.evidencias_verificadas, 0) / n / 5) * 100), fila('Reglas que más frenan', Object.entries(inc).sort((x, y) => y[1] - x[1]).map(([r, v]) => `${r} ×${v}`).join(' · ') || '—', 'en el periodo', true), fila('Overrides humanos', num(ov), 'decisiones cambiadas por una persona', ov <= 1)];
+  }
+
+  // Ejemplo real de lo que recibe y devuelve el agente, sacado de una traza del Paquete A
+  function ejemploAgente(a, x) {
+    const e = x.entry; const m = e.mensaje;
+    if (a.id === 'multicanal') return { id: m.id, canal: m.canal, fecha_recepcion: m.fecha_recepcion, remitente: m.remitente, asunto: m.asunto, texto: `${m.texto.slice(0, 160)}…` };
+    if (a.id === 'clasificacion') return { ramo: e.ramo, criterios_ramo: e.criterios_ramo, confianza: e.confianza };
+    if (a.id === 'extraccion') return { datos_extraidos: e.datos_extraidos };
+    return { criterios: (e.criterios || []).filter((c) => c.resultado === 'incumple').concat((e.criterios || []).filter((c) => c.resultado !== 'incumple').slice(0, 2)), evidencias: (e.evidencias || []).slice(0, 3), decision: e.decision, motivo: e.motivo, confianza: e.confianza };
+  }
+
+  function renderAgentes() {
+    const ags = agentesPrincipales();
+    if (!AG[agSel]) agSel = ags[0] && ags[0].id;
+    $('ag-tabs').innerHTML = ags.map((a, i) => {
+      const est = estadoAgente(a); const [pc] = ESTADO[est] || ESTADO.activo; const uso = a.cap_hoy ? a.coste_hoy / a.cap_hoy : 0;
+      return `${i ? `<span class="ag-pasa" aria-hidden="true">${ic('arrow-right')}<small>${esc(PASA[ags[i - 1].id] || '')}</small></span>` : ''}<button type="button" class="ag-tab${a.id === agSel ? ' is-active' : ''}" role="tab" aria-selected="${a.id === agSel}" data-ag-tab="${esc(a.id)}" >
+        <span class="ag-ico">${ic(a.icono || 'cpu')}</span><span class="ag-tab-txt"><b>${esc(a.nombre)}</b><span class="small"><span class="pill ${pc}" style="padding:.05rem .4rem">${esc((ESTADO[est] || ESTADO.activo)[2].replace(/ \(.*\)/, ''))}</span> ${lvlBadge(a.nivel)} <span class="muted">${eur(a.coste_hoy)} / ${eur(a.cap_hoy, 0)}</span></span><span class="meter" style="--c:${uso >= 1 ? 'var(--crit)' : uso >= 0.8 ? 'var(--warn)' : 'var(--ok)'}"><i style="width:${Math.min(100, uso * 100)}%"></i></span></span></button>`;
+    }).join('');
+    const a = AG[agSel]; if (!a) { $('ag-ficha').innerHTML = ''; return; }
+    const est = estadoAgente(a); const [pc, pi, pl] = ESTADO[est] || ESTADO.activo;
+    const lvl = G.niveles[a.nivel] || { nombre: '—', desc: '' };
+    const D = datosAgente(a); const Q = calidadAgente(a);
+    const uso = a.cap_hoy ? a.coste_hoy / a.cap_hoy : 0;
+    const hist = [...(a.historial || [])].sort((x, y) => y.fecha.localeCompare(x.fecha));
+    const tl = (items) => (items.length ? `<ul class="mini-tl">${items.map((h) => `<li><span class="t">${fechaHora(h.fecha)}</span><span class="ico">${ic(CAMBIO_ICON[h.tipo] || 'info')}</span><div><b>${esc({ nivel: 'Nivel', modelo: 'Modelo', prompt: 'Prompt', guardrail: 'Guardrail' }[h.tipo] || 'Incidencia')}: ${conGuardrails(esc(h.de))} → ${conGuardrails(esc(h.a))}</b><small>${conGuardrails(esc(h.motivo))} · ${esc(h.usuario)}</small></div></li>`).join('')}</ul>` : '<p class="muted small">Sin registros.</p>');
+    const caja = (l, v, s) => `<div class="box"><span class="muted small">${l}</span><b>${v}</b>${s ? `<small class="muted">${s}</small>` : ''}</div>`;
+    const caps = G.caps.filter((c) => c.ambito === a.nombre || (a.id === 'reglas' && c.id === 'CAP-04'));
+    const kbs = (G.knowledge || GOBIERNO_DEMO.knowledge || []).filter((k) => (k.agentes || []).includes(a.id));
+    const recos = (G.recomendaciones || []).filter((r) => `${r.titulo} ${r.detalle}`.includes(a.nombre));
+    // Datos personales que ve el agente: los dos primeros, el texto completo; Extracción y Reglas, solo los campos extraídos
+    const cats = {};
+    cmpItems.forEach((x) => {
+      if (a.id === 'multicanal' || a.id === 'clasificacion') Object.entries(x.gob.datos_personales.por_categoria).forEach(([c, v]) => { cats[c] = (cats[c] || 0) + v; });
+      else Object.values(Cumplimiento.camposSensibles(x.entry)).forEach((c) => { cats[c] = (cats[c] || 0) + 1; });
+    });
+    if (!agEjemplo || !cmpItems[agEjemplo]) agEjemplo = Math.max(0, cmpItems.findIndex((x) => x.entry.id === 'MSG-A-12'));
+    const ej = cmpItems[agEjemplo];
+    const raz = ej && ((G.razonamiento || {})[ej.gob.trazabilidad.traza_id] || []).find((r) => r.agente === a.id);
+    const C = CONTRATO[a.id] || { entrada: [], salida: [] };
+    const tablaC = (xs) => `<table class="kv-tabla"><tbody>${xs.map(([k, v]) => `<tr><th class="mono">${esc(k)}</th><td>${esc(v)}</td></tr>`).join('')}</tbody></table>`;
+
+    $('ag-ficha').innerHTML = `
+      <div class="card ag-cab">
+        <div class="ag-cab-top"><span class="ag-ico ag-ico-xl">${ic(a.icono || 'cpu')}</span>
+          <div><h2>${agLbl(a.id)}</h2><p class="small muted">${esc(a.descripcion || '')}</p>
+            <div class="row" style="margin-top:.4rem"><span class="pill ${pc}">${ic(pi)} ${pl}</span>${lvlBadge(a.nivel)}<span class="small muted">${esc(lvl.nombre)} · ${esc(lvl.desc || '')}</span><span class="small muted">· responsable ${esc((a.identidad || {}).responsable || '—')}</span></div></div>
+          <label class="switch${est === 'pausado' ? ' off' : ''}" title="${est === 'pausado' ? 'Reanudar el agente' : 'Pausar el agente (kill switch)'}" data-switch="${esc(a.id)}"><i></i>${ic('power')} ${est === 'pausado' ? 'Pausado' : 'Kill switch'}</label></div>
+        <div class="kpi-mini">
+          ${caja('Modelo', `<span class="mono">${esc(a.modelo)}</span>`)}${caja('Prompt', `<span class="mono">${esc(a.prompt)}</span>`)}
+          ${caja('Trazas del periodo', num(D.spans.length), `${num(D.tok[0] + D.tok[1] + D.tok[2])} tokens`)}
+          ${caja('Latencia p50 / p95', `${ms(D.p50)} / ${ms(D.p95)}`, `p95 declarado ${ms(a.p95_ms || 0)}`)}
+          ${caja('Coste hoy / cap', `${eur(a.coste_hoy || 0)} / ${eur(a.cap_hoy || 0, 0)}`, `<span class="meter" style="--c:${uso >= 1 ? 'var(--crit)' : uso >= 0.8 ? 'var(--warn)' : 'var(--ok)'}"><i style="width:${Math.min(100, uso * 100)}%"></i></span>`)}
+          ${caja('Coste medio por traza', eur(D.spans.length ? D.coste / D.spans.length : 0, 4))}
+          ${caja('Escalado 14 d', esc(a.escalado_14d || '—'), `${D.escaladas.length} ${D.escaladas.length === 1 ? 'traza' : 'trazas'} por sus guardrails`)}
+          ${caja('Override 14 d', esc(a.override_14d || '—'))}
+        </div>
+      </div>
+      <div class="two">
+        <div class="card">${identidadAgente(a)}</div>
+        <div class="card"><h3>${ic('sliders-horizontal')} Configuración y variables</h3><div class="tw"><table><thead><tr><th>Variable</th><th>Valor</th><th>Efecto</th></tr></thead><tbody>${(a.variables || []).map((v) => `<tr><td><b>${esc(v.nombre)}</b></td><td class="wrap">${conGuardrails(esc(v.valor))}</td><td class="wrap">${conGuardrails(esc(v.efecto))}</td></tr>`).join('') || '<tr><td colspan="3" class="muted">Sin variables registradas.</td></tr>'}</tbody></table></div>
+          <h3 style="margin-top:1rem">${ic('shield-check')} Guardrails y caps que lo limitan</h3>
+          <p class="small">${G.politicas.filter((p) => p.agente === a.id).map((p) => `${grRef(p.id)} <span class="muted">${num(p.disparos)} disparos</span>${politicaActiva(p) ? '' : ' <span class="muted small">(inactivo)</span>'}`).join(' · ') || '<span class="muted">Ningún guardrail</span>'}</p>
+          <p class="small" style="margin-top:.3rem">${caps.map((c) => `<a href="#" data-cap="${esc(c.id)}" class="mono">${esc(c.id)}</a> <span class="muted">${esc(c.tipo)}</span> <span class="pill ${capEstadoDe(c) === 'superado' ? 'pill-crit' : capEstadoDe(c) === 'aviso' ? 'pill-warn' : 'pill-ok'}">${capEstadoDe(c)}</span>`).join(' · ') || '<span class="muted">Sin caps propios (le aplican los globales)</span>'}</p></div>
+      </div>
+      <div class="two">
+        <div class="card"><h3>${ic('activity')} Rendimiento y coste</h3>
+          <div class="ag-serie"><span class="muted small">Coste diario · 14 días · ${eur(D.serie.reduce((s, v) => s + v, 0))}</span>${sparkSvg(D.serie, 'var(--primary)')}</div>
+          <div class="kpi-mini" style="margin-top:.6rem">${caja('Tokens de entrada', num(D.tok[0]))}${caja('Tokens de salida', num(D.tok[1]))}${caja('Razonamiento', num(D.tok[2]))}</div>
+          <h3 style="margin-top:1rem">Comportamiento según el modelo</h3><div class="tw tabla-compacta"><table><thead><tr><th>Modelo</th><th>Periodo</th><th>Precisión</th><th>Escalado</th><th>Override</th><th>Coste / msg</th><th>p95</th></tr></thead><tbody>${(a.modelos || []).map((mo) => `<tr><td class="mono">${esc(mo.modelo)}</td><td>${esc(mo.periodo)}</td><td>${esc(mo.precision)}</td><td class="tnum">${esc(mo.escalado)}</td><td class="tnum">${esc(mo.override)}</td><td class="tnum">${esc(mo.coste_msg)}</td><td class="tnum">${ms(mo.p95_ms)}</td></tr>`).join('') || '<tr><td colspan="7" class="muted">Sin datos por modelo.</td></tr>'}</tbody></table></div>
+          ${recos.length ? `<div class="box" style="margin-top:.8rem">${ic('lightbulb')} <b>FinOps:</b> ${recos.map((r) => `${esc(r.titulo)}. <span class="muted">${esc(r.detalle)}</span>`).join(' ')}</div>` : ''}</div>
+        <div class="card"><h3>${ic('badge-check')} Calidad (Paquete A)</h3>
+          ${calidadIndice(Q)}
+          <div class="tw ag-q-tabla"><table><tbody>${Q.map((q) => `<tr><td>${esc(q.l)}${q.p != null ? `<div class="ag-q-bar" style="--c:${colorPct(q.p)}" title="${q.p} %"><i style="width:${q.p}%"></i></div>` : ''}</td><td class="tnum"><b style="color:${q.ok ? 'var(--ok)' : 'var(--warn)'}">${esc(q.v)}</b></td><td class="muted small wrap">${esc(q.s)}</td></tr>`).join('')}</tbody></table></div>
+          <h3 style="margin-top:1rem">${ic('circle-alert')} Incidencias</h3>
+          ${D.incid.length ? `<ul class="kb-acc-lista">${D.incid.map(({ t }) => `<li><a href="#" class="mono" data-traza="${esc(t.id)}">${esc(t.id)}</a> ${esc(t.mensaje)} · ${conGuardrails(esc((t.incidencias || []).join(' · ')))}</li>`).join('')}</ul>` : '<p class="small muted">Sin incidencias en el periodo.</p>'}</div>
+      </div>
+      <div class="two">
+        <div class="card"><h3>${ic('book-open')} Knowledge Bases que consume</h3>${kbs.length ? `<ul class="ag-kbs">${kbs.map((k) => `<li data-kb="${esc(k.id)}" tabindex="0" role="button"><span class="mono">${esc(k.id)}</span> <b>${esc(k.nombre)}</b> <span class="muted small">v ${esc(k.version)}</span> ${saludPill(saludKB(k).estado)}${k.simulada ? ' <span class="pill pill-muted">simulada</span>' : ''}</li>`).join('')}</ul>` : '<p class="small muted">No consulta knowledge bases: trabaja solo con el mensaje.</p>'}</div>
+        <div class="card"><h3>${ic('fingerprint')} Datos personales que trata${normas(...(cats.salud ? ['rgpd-9', 'rgpd-5c'] : ['rgpd-5c', 'rgpd-25']))}</h3><p class="small">${esc((a.identidad || {}).datos || '')}</p>
+          <p class="small" style="margin-top:.4rem">${Object.entries(cats).map(([c, v]) => `<span class="pill pill-muted" data-tip="${esc(Cumplimiento.CATEGORIAS[c].tratamiento)}"><span class="pii-dot pii-${c}"></span> ${esc(Cumplimiento.CATEGORIAS[c].etiqueta)} · ${v}</span>`).join(' ') || '<span class="muted">Ninguno</span>'}</p>
+          <p class="muted small" style="margin-top:.4rem">${a.id === 'multicanal' || a.id === 'clasificacion' ? 'Recibe el texto completo del mensaje.' : 'Solo ve los campos extraídos (minimización).'} Detalle por mensaje en el <a href="#" data-goto="cumplimiento">Termómetro de cumplimiento</a>.</p></div>
+      </div>
+      <div class="two">
+        <div class="card"><h3>${ic('sliders-horizontal')} Histórico de autonomía</h3>${tl(hist.filter((h) => h.tipo === 'nivel' || h.tipo === 'guardrail'))}</div>
+        <div class="card"><h3>${ic('history')} Cambios de modelo, prompt e incidencias</h3>${tl(hist.filter((h) => h.tipo === 'modelo' || h.tipo === 'prompt' || h.tipo === 'incidencia'))}</div>
+      </div>
+      <div class="card"><div class="card-head"><h3>${ic('route')} Últimas trazas del agente</h3><button class="btn btn-sm" type="button" data-goto="trazas">Abrir trazabilidad</button></div>
+        <div class="tw"><table><thead><tr><th>Traza</th><th>Mensaje</th><th>Inicio del paso</th><th>Duración</th><th>Modelo</th><th>Tokens</th><th>Coste</th><th>Decisión final</th></tr></thead><tbody>${D.spans.slice(-6).reverse().map(({ t, s }) => `<tr class="clickable" data-traza="${esc(t.id)}" tabindex="0"><td class="mono">${esc(t.id)}</td><td>${esc(t.mensaje)}</td><td class="tnum">+${ms(s[1])}</td><td class="tnum">${ms(s[2])}</td><td class="mono">${esc(s[3])}</td><td class="tnum">${num(s[4])}↑ ${num(s[5])}↓${s[6] ? ` ${num(s[6])}⟳` : ''}</td><td class="tnum">${eur(spanCost(s), 4)}</td><td>${decPill(t.decision)}</td></tr>`).join('')}</tbody></table></div></div>
+      <details class="card ag-contrato"><summary><h3>${ic('braces')} Contrato de entrada y salida <span class="muted" style="font-weight:400;text-transform:none;letter-spacing:0">· para perfiles técnicos: qué recibe y qué devuelve, con un ejemplo real</span></h3></summary>
+        <div class="two" style="margin-top:.8rem"><div><h3>Recibe</h3>${tablaC(C.entrada)}</div><div><h3>Devuelve</h3>${tablaC(C.salida)}</div></div>
+        ${ej ? `<div style="margin-top:1rem"><div class="row" style="margin-bottom:.5rem"><h3>Ejemplo real</h3><label class="f">Traza<select id="ag-ejemplo">${cmpItems.map((x, i) => `<option value="${i}"${i === agEjemplo ? ' selected' : ''}>${esc(x.gob.trazabilidad.traza_id)} · ${esc(x.entry.id)} · ${esc(x.entry.ramo)}</option>`).join('')}</select></label></div>
+          ${raz ? `<p class="small"><b>Entrada:</b> ${esc(raz.entrada)}</p><ul class="small" style="margin:.3rem 0 .5rem 1.1rem">${raz.pasos.map((p) => `<li>${conGuardrails(esc(p))}</li>`).join('')}</ul><p class="small"><b>Salida:</b> ${esc(raz.salida)}</p>` : ''}
+          <pre class="raw-json" style="margin-top:.5rem">${Cumplimiento.jsonHtml(ejemploAgente(a, ej), { sensibles: Cumplimiento.camposSensibles(ej.entry) })}</pre></div>` : ''}
+      </details>`;
+    ajustarAgentes();
+  }
+
 
   // ---------------------------------------------------------------------------
   // Guardrails
@@ -840,15 +1001,15 @@
   KPI_FIN['res-alertas'] = {
     icono: 'bell', titulo: 'Alertas activas',
     render: () => {
-      const d = datosResumen(); const act = G.alertas || []; const evs = (G.eventos || []).filter((e) => e.tipo === 'alerta' || e.tipo === 'incidente');
+      const d = datosResumen(); const act = alertasTodas(); const evs = (G.eventos || []).filter((e) => e.tipo === 'alerta' || e.tipo === 'incidente');
       const fechasEv = fechasSerie(); const porDia = (sev) => fechasEv.map((f) => evs.filter((e) => e.fecha.slice(0, 10) === f && e.sev === sev).length);
       const series = [{ label: 'Crítica', color: 'var(--crit)', vals: porDia('crit') }, { label: 'Aviso', color: 'var(--warn)', vals: porDia('warn') }, { label: 'Informativa', color: 'var(--time)', vals: porDia('info') }, { label: 'Cerrada', color: 'var(--ok)', vals: porDia('ok') }];
       const nCrit = act.filter((a) => a.sev === 'crit').length, nWarn = act.filter((a) => a.sev === 'warn').length;
-      return `<p class="small muted">Situaciones que requieren atención ahora: caps de coste superados, errores del proveedor o deriva del comportamiento. Las críticas pueden activar una acción automática (por ejemplo degradar el modelo).</p>
+      return `<p class="small muted">Situaciones que requieren atención ahora, de todas las fuentes: caps de coste superados, knowledge bases críticas o degradadas y controles de cumplimiento pendientes. Clic en una alerta para ir a su origen. Las críticas pueden activar una acción automática (por ejemplo degradar el modelo).</p>
         <div class="kpi-mini">${kmini('bell', 'Alertas activas', cnt(act.length))}${kmini('triangle-alert', 'Críticas', `<span style="color:var(--crit)">${cnt(nCrit)}</span>`)}${kmini('circle-alert', 'Avisos', `<span style="color:var(--warn)">${cnt(nWarn)}</span>`)}${kmini('history', 'Eventos en 14 días', cnt(evs.length), 'alertas e incidentes')}</div>
         <div class="two"><div><h3>Alertas activas por severidad</h3>${anilloConLeyenda([['Crítica', nCrit, 'var(--crit)'], ['Aviso', nWarn, 'var(--warn)'], ['Informativa', act.length - nCrit - nWarn, 'var(--time)']].filter((x) => x[1] > 0), String(act.length), 'activas')}</div>
         <div><h3>Alertas e incidentes por día</h3>${chartApilada(series, fechasEv, { H: 200, fmt: (v) => String(Math.round(v)), aria: 'Alertas por día y severidad' })}${leyenda(series.map((s) => [s.label, s.color]))}</div></div>
-        <div><h3>Alertas activas</h3><div class="alerts">${act.map((a) => `<div class="alert ${a.sev}"><span class="ico${a.sev === 'crit' ? ' pulse' : ''}">${ic(SEV_ICON[a.sev] || 'info')}</span><div><b>${conGuardrails(esc(a.titulo))}</b><small>${conGuardrails(esc(a.detalle))}</small></div><span class="muted small" style="white-space:nowrap">${esc(a.cuando || '')}</span></div>`).join('') || '<p class="muted">Sin alertas activas.</p>'}</div>
+        <div><h3>Alertas activas</h3><div class="alerts">${act.map(alertaHtml).join('') || '<p class="muted">Sin alertas activas.</p>'}</div>
         <div class="row" style="margin-top:.6rem"><button class="btn btn-sm" type="button" data-goto="finops">${ic('coins')} Ir a FinOps</button><button class="btn btn-sm" type="button" data-goto="historico">${ic('history')} Ver el histórico</button></div></div>`;
     },
   };
@@ -1422,11 +1583,477 @@
   // Render completo, navegación y eventos
   // ---------------------------------------------------------------------------
   // ---------------------------------------------------------------------------
+  // Knowledge Bases: inventario, salud contra umbrales, comparativa de configuraciones y rúbricas editables
+  // ---------------------------------------------------------------------------
+  const KB_TIPO = { rag: ['database', 'Índice RAG'], markdown: ['file-text', 'Markdown'], runbook: ['list-ordered', 'Runbook'], tabla: ['table-2', 'Tabla de referencia'], plantilla: ['mail', 'Plantillas'] };
+  const KB_FUENTE_ICO = { SharePoint: 'folder', 'Google Drive': 'folder', Git: 'git-branch' };
+  const dec2 = (v) => (v == null ? '—' : v.toLocaleString('es-ES', { minimumFractionDigits: 2, maximumFractionDigits: 2 }));
+  const horas = (h) => (h == null ? '—' : h < 48 ? `${num(h)} h` : `${num(Math.round(h / 24))} días`);
+  // [clave, etiqueta, formato, ok, rojo, umbral]
+  const UMBRAL_KB = [
+    ['recall', 'Recall de recuperación', dec2, (v) => v >= 0.85, (v) => v < 0.75, '≥ 0,85'],
+    ['precision', 'Precisión del contexto', dec2, (v) => v >= 0.80, (v) => v < 0.70, '≥ 0,80'],
+    ['fidelidad', 'Fidelidad (groundedness)', dec2, (v) => v >= 0.90, (v) => v < 0.80, '≥ 0,90'],
+    ['citas', 'Exactitud de las citas', dec2, (v) => v >= 0.95, (v) => v < 0.85, '≥ 0,95'],
+    ['exactitud', 'Exactitud de la respuesta', dec2, (v) => v >= 0.98, (v) => v < 0.90, '≥ 0,98'],
+    ['sin_respuesta', 'Consultas sin respuesta', (v) => `${dec2(v)} %`, (v) => v <= 5, (v) => v > 15, '≤ 5 %'],
+    ['frescura_h', 'Antigüedad de la última sincronización', horas, (v, k) => !k.fuente.sla_h || v <= k.fuente.sla_h, (v, k) => k.fuente.sla_h && v > 3 * k.fuente.sla_h, 'según SLA'],
+    ['obsoletos', 'Documentos obsoletos indexados', (v) => num(v), (v) => v === 0, () => false, '0'],
+    ['duplicados', 'Casi duplicados (similitud > 0,97)', (v) => `${dec2(v)} %`, (v) => v <= 2, (v) => v > 10, '≤ 2 %'],
+    ['deriva_pp', 'Deriva tras el último reindexado', (v) => `${num(v)} pp`, (v) => v <= 3, (v) => v > 10, '≤ 3 pp'],
+    ['p95_ms', 'Latencia p95 de la recuperación', (v) => ms(v), (v) => v <= 400, (v) => v > 1000, '≤ 400 ms'],
+    ['pii', 'Chunks con datos personales', (v) => num(v), (v) => v === 0, () => false, '0'],
+  ];
+  const kbAcciones = ssGet('gobierno.kb_acciones', {});      // { 'KB-02': [{ fecha, texto }] } acciones de esta sesión
+  const rubEditadas = ssGet('gobierno.rubricas', {});         // rúbricas editadas en esta sesión
+  let kbFiltro = ''; let kbSel = null; let kbSec = 'salud'; let rubSel = null;
+  const rubricas = () => (G.rubricas || GOBIERNO_DEMO.rubricas || []).map((r) => rubEditadas[r.id] || r);
+  const rubricaDe = (kb) => rubricas().find((r) => r.id === kb.rubrica);
+
+  function saludKB(kb) {
+    const fuente = kb.fuente || {};
+    const checks = UMBRAL_KB.filter(([k]) => kb.metricas[k] != null).map(([k, l, fmt, ok, rojo, umbral]) => {
+      const v = kb.metricas[k]; const nivel = rojo(v, kb) ? 'rojo' : ok(v, kb) ? 'ok' : 'ambar';
+      return { k, l, valor: fmt(v), umbral: k === 'frescura_h' ? (fuente.sla_h ? `≤ ${horas(fuente.sla_h)}` : 'sin SLA') : umbral, nivel };
+    });
+    const motivos = checks.filter((c) => c.nivel !== 'ok').map((c) => `${c.l}: ${c.valor}`);
+    if (fuente.errores) motivos.push(`${fuente.errores} errores de sincronización`);
+    const r = rubricaDe(kb);
+    if (r && r.acuerdo < 0.9) motivos.push(`Acuerdo juez-humano de ${r.id} bajo (${dec2(r.acuerdo)})`);
+    const estado = checks.some((c) => c.nivel === 'rojo') ? 'rojo' : motivos.length ? 'ambar' : 'ok';
+    return { estado, checks, motivos };
+  }
+  const SALUD_PILL = { ok: ['pill-ok', 'circle-check', 'Sana'], ambar: ['pill-warn', 'circle-alert', 'Degradada'], rojo: ['pill-crit', 'circle-x', 'Crítica'] };
+  const saludPill = (e) => { const [c, i, t] = SALUD_PILL[e]; return `<span class="pill ${c}">${ic(i)} ${t}</span>`; };
+  function sparkSvg(vals, color) {
+    if (!vals || vals.length < 2) return '';
+    // Escala mínima del 15 % del máximo: variaciones de 0,01 no deben parecer una caída
+    const W = 120; const H = 28; const mx = Math.max(...vals); const r = Math.max(mx - Math.min(...vals), Math.abs(mx) * 0.15) || 1; const mn = mx - r;
+    const pts = vals.map((v, i) => `${(i / (vals.length - 1)) * W},${H - 3 - ((v - mn) / r) * (H - 6)}`).join(' ');
+    return `<svg class="spark" viewBox="0 0 ${W} ${H}" preserveAspectRatio="none" aria-hidden="true"><polyline points="${pts}" fill="none" stroke="${color}" stroke-width="2" vector-effect="non-scaling-stroke" stroke-linejoin="round"/></svg>`;
+  }
+  const kbEvento = (kb, titulo, detalle, sev = 'info') => {
+    (kbAcciones[kb.id] = kbAcciones[kb.id] || []).unshift({ fecha: new Date().toISOString(), texto: titulo });
+    ssSet('gobierno.kb_acciones', kbAcciones);
+    G.eventos.unshift({ fecha: new Date().toISOString(), tipo: 'politica', sev, agente: (kb.agentes || [])[0] || null, titulo: `${kb.id} · ${titulo}`, detalle, usuario: 'Operador (esta sesión)' });
+  };
+
+  function renderKnowledge() {
+    const KB = G.knowledge || GOBIERNO_DEMO.knowledge || [];
+    const salud = Object.fromEntries(KB.map((k) => [k.id, saludKB(k)]));
+    const cuenta = (e) => KB.filter((k) => salud[k.id].estado === e).length;
+    const rag = KB.filter((k) => k.metricas.recall != null);
+    const sinResp = KB.filter((k) => k.metricas.sin_respuesta != null);
+    const R = rubricas();
+    $('kpis-kb').innerHTML = [
+      { cls: 'time', icono: 'book-open', etiqueta: 'Bases de conocimiento', valor: String(KB.length), sub: `${KB.filter((k) => !k.simulada).length} real · ${KB.filter((k) => k.simulada).length} simuladas en la demo` },
+      { cls: cuenta('rojo') ? 'crit' : cuenta('ambar') ? 'warn' : 'ok', icono: 'activity', etiqueta: 'Salud', valor: `${cuenta('ok')} / ${KB.length}`, sub: `${cuenta('ok')} sanas · ${cuenta('ambar')} degradadas · ${cuenta('rojo')} críticas` },
+      { cls: 'review', icono: 'scan-text', etiqueta: 'Recall medio (RAG)', valor: dec2(rag.reduce((a, k) => a + k.metricas.recall, 0) / (rag.length || 1)), sub: `${rag.length} índices vectoriales · umbral 0,85` },
+      { cls: 'time', icono: 'circle-help', etiqueta: 'Consultas sin respuesta', valor: `${dec2(sinResp.reduce((a, k) => a + k.metricas.sin_respuesta, 0) / (sinResp.length || 1))} %`, sub: 'media · candidatas a contenido nuevo' },
+      { cls: 'ok', icono: 'flask-conical', etiqueta: 'Rúbricas', valor: String(R.length), sub: `${KB.filter((k) => k.rubrica).length} de ${KB.length} KB evaluadas · acuerdo juez-humano ${dec2(R.reduce((a, r) => a + r.acuerdo, 0) / (R.length || 1))}` },
+    ].map(kpi).join('');
+    titulo('h-kb', 'book-open', 'Inventario de conocimiento');
+    $('kb-filtro').innerHTML = [['', 'Todas'], ...Object.entries(KB_TIPO).map(([k, [, l]]) => [k, l]), ['!ambar', 'Con problemas']].map(([k, l]) => `<button type="button" class="chip${kbFiltro === k ? ' is-active' : ''}" data-kb-filtro="${k}">${esc(l)}</button>`).join('');
+    const vis = KB.filter((k) => !kbFiltro || (kbFiltro === '!ambar' ? salud[k.id].estado !== 'ok' : k.tipo === kbFiltro));
+    $('kb-lista').innerHTML = vis.map((k) => {
+      const s = salud[k.id]; const [ti, tl] = KB_TIPO[k.tipo];
+      const color = s.estado === 'ok' ? 'var(--ok)' : s.estado === 'ambar' ? 'var(--warn)' : 'var(--crit)';
+      return `<article class="card kb kb-${s.estado}" data-kb="${esc(k.id)}" role="button" tabindex="0" title="Ver la ficha de ${esc(k.nombre)}">
+        <div class="kb-top"><span class="ag-ico ag-ico-lg">${ic(ti)}</span><div class="kb-tit"><strong class="ag-nombre">${esc(k.nombre)}</strong><span class="muted small">${esc(k.id)} · ${esc(tl)} · v ${esc(k.version)}</span></div>${saludPill(s.estado)}</div>
+        <p class="small kb-desc">${esc(k.descripcion)}</p>
+        <div class="kb-det">
+        <div class="kb-meta small"><span>${ic(KB_FUENTE_ICO[k.fuente.sistema] || 'plug-zap')} ${esc(k.fuente.sistema)}</span><span>${ic('file-text')} ${num(k.documentos)} ${k.tipo === 'tabla' ? 'registros' : 'doc.'}${k.chunks ? ` · ${num(k.chunks)} chunks` : ''}</span><span>${ic('timer')} ${esc(k.fuente.sync)}</span></div>
+        <div class="kb-spark"><span class="muted small">${esc(k.serie.nombre)} · 14 d</span>${sparkSvg(k.serie.valores, color)}</div>
+        ${s.motivos.length ? `<ul class="kb-motivos">${s.motivos.slice(0, 2).map((m) => `<li>${ic('circle-alert')} ${esc(m)}</li>`).join('')}${s.motivos.length > 2 ? `<li class="muted">+${s.motivos.length - 2} más</li>` : ''}</ul>` : ''}
+        <div class="kb-pie small"><span>${(k.agentes || []).map(agTag).join(' ')}</span><span>${k.rubrica ? `<span class="pill pill-muted">${ic('flask-conical')} ${esc(k.rubrica)}</span>` : '<span class="pill pill-warn">sin rúbrica</span>'}${k.simulada ? ' <span class="pill pill-muted">simulada</span>' : ' <span class="pill pill-time">real</span>'}</span></div>
+        </div>
+      </article>`;
+    }).join('') || '<p class="muted">Ninguna base de conocimiento con este filtro.</p>';
+
+    titulo('h-rub', 'flask-conical', 'Rúbricas de evaluación');
+    $('rub-lista').innerHTML = R.map((r) => {
+      const tipos = {}; r.preguntas.forEach((p) => { tipos[p[1]] = (tipos[p[1]] || 0) + 1; });
+      const pesos = r.criterios.reduce((a, c) => a + Number(c[1]), 0);
+      return `<tr class="clickable" data-rub="${esc(r.id)}" tabindex="0"><td class="mono"><b>${esc(r.id)}</b>${rubEditadas[r.id] ? ' <span class="pill pill-time">editada</span>' : ''}</td><td class="wrap">${esc(r.nombre)}</td><td>${r.kb.map((id) => `<span class="pill pill-muted">${esc(id)}</span>`).join(' ')}</td><td class="mono">${esc(r.version)}</td>
+        <td>${r.criterios.length}${pesos !== 100 ? ` <span class="pill pill-crit">pesos ${pesos}</span>` : ''}</td><td>${r.preguntas.length} <span class="muted small">${Object.entries(tipos).map(([t, n]) => `${esc(TIPO_PREG[t] || t)} ${n}`).join(' · ')}</span></td>
+        <td><span class="tnum" style="color:${r.acuerdo >= 0.9 ? 'var(--ok)' : 'var(--warn)'}"><b>${dec2(r.acuerdo)}</b></span><div class="meter" style="--c:${r.acuerdo >= 0.9 ? 'var(--ok)' : 'var(--warn)'}"><i style="width:${r.acuerdo * 100}%"></i></div></td>
+        <td>${esc(r.responsable)}</td><td class="tnum">${esc(r.actualizada)}</td><td><button class="btn btn-sm" type="button" data-rub-editar="${esc(r.id)}">${ic('pencil')} Editar</button></td></tr>`;
+    }).join('');
+    if (kbSel && $('modal-kb').open) pintarModalKB();
+  }
+
+  const TIPO_PREG = { factual: 'factual', clausula: 'cláusula', exclusion: 'exclusión', plazo: 'plazo', trampa: 'trampa (sin respuesta)' };
+  const KB_SECS = [['salud', 'activity', 'Salud'], ['config', 'sliders-horizontal', 'Configuración'], ['comparativa', 'chart-column', 'Comparativa'], ['evaluacion', 'flask-conical', 'Evaluación'], ['fuente', 'refresh-cw', 'Fuente y sincronización'], ['uso', 'scan-text', 'Uso'], ['versiones', 'history', 'Versiones']];
+
+  // Al navegar entre knowledge bases con la ventana abierta se mantiene la pestaña elegida; solo al abrirla empieza en Salud
+  function abrirModalKB(id) { kbSel = id; if (!$('modal-kb').open) kbSec = 'salud'; pintarModalKB(); if (!$('modal-kb').open) $('modal-kb').showModal(); }
+  function pintarModalKB() {
+    const k = (G.knowledge || GOBIERNO_DEMO.knowledge).find((x) => x.id === kbSel); if (!k) return;
+    const s = saludKB(k); const [ti, tl] = KB_TIPO[k.tipo]; const r = rubricaDe(k);
+    $('modal-kb-title').innerHTML = `${ic(ti)} ${esc(k.id)} · ${esc(k.nombre)} ${saludPill(s.estado)} ${k.simulada ? '<span class="pill pill-muted">simulada en la demo</span>' : '<span class="pill pill-time">real</span>'}`;
+    const secs = KB_SECS.filter(([id]) => id !== 'comparativa' || (k.comparativa || []).length);
+    // Si la pestaña elegida no existe en esta KB (p. ej. sin comparativa), se muestra Salud sin olvidar la elección
+    const secActual = secs.some(([id]) => id === kbSec) ? kbSec : 'salud';
+    const tabla = (filas) => `<div class="tw"><table class="kv-tabla"><tbody>${filas.filter(([, v]) => v != null && v !== '').map(([l, v]) => `<tr><th>${esc(l)}</th><td>${v}</td></tr>`).join('')}</tbody></table></div>`;
+    const c = k.config || {};
+    let cuerpo = '';
+    if (secActual === 'salud') {
+      cuerpo = `${k.nota ? `<div class="box kb-nota">${ic('circle-alert')} ${esc(k.nota)}</div>` : ''}
+        <div class="two"><div class="tw"><table><thead><tr><th>Métrica</th><th>Valor</th><th>Umbral</th><th>Estado</th></tr></thead><tbody>${s.checks.map((x) => `<tr><td>${esc(x.l)}</td><td class="tnum"><b>${esc(x.valor)}</b></td><td class="muted">${esc(x.umbral)}</td><td>${saludPill(x.nivel)}</td></tr>`).join('')}</tbody></table></div>
+        <div><h3>${esc(k.serie.nombre)} · 14 días</h3><div class="kb-spark-grande">${sparkSvg(k.serie.valores, s.estado === 'ok' ? 'var(--ok)' : s.estado === 'ambar' ? 'var(--warn)' : 'var(--crit)')}</div>
+          <p class="small" style="margin-top:.6rem">${s.motivos.length ? `<b>Motivos:</b> ${esc(s.motivos.join(' · '))}` : 'Todas las métricas dentro de sus umbrales.'}</p>
+          <p class="small muted" style="margin-top:.4rem">Agentes que la consumen: ${(k.agentes || []).map(agTag).join(' ')} · responsable ${esc(k.responsable)}</p></div></div>`;
+    } else if (secActual === 'config') {
+      cuerpo = tabla([['Estrategia de chunking', esc(c.chunking)], ['Tamaño de chunk', c.chunk != null ? `${esc(String(c.chunk))}${typeof c.chunk === 'number' ? ' tokens' : ''}` : null], ['Solapamiento (overlap)', c.overlap != null ? `${c.overlap} %` : null], ['Modelo de embeddings', c.embeddings && esc(c.embeddings)], ['Índice y métrica', c.indice && esc(c.indice)], ['top-k', c.top_k], ['Umbral de similitud', c.umbral != null ? dec2(c.umbral) : null], ['Búsqueda híbrida', c.hibrida && esc(c.hibrida)], ['Reranker', c.reranker && esc(c.reranker)], ['Filtros por metadatos', c.filtros && esc(c.filtros)], ['Clave de consulta', c.clave && esc(c.clave)], ['Pasos', c.pasos], ['Plantillas', c.plantillas], ['Versiones del índice retenidas', c.versiones]])
+        + `<p class="muted small" style="margin-top:.5rem">Cambiar el modelo de embeddings obliga a reindexar todo: los vectores de modelos distintos no son comparables.</p>`;
+    } else if (secActual === 'comparativa') {
+      const cmp = k.comparativa; const mx = Math.max(...cmp.map((x) => x.recall));
+      cuerpo = `<p class="small" style="margin-bottom:.6rem">El mismo corpus indexado con varias configuraciones y evaluado con la rúbrica ${esc(k.rubrica || '—')}. Así se decide el tamaño de chunk y el solapamiento con datos.</p>
+        <div class="tw"><table><thead><tr><th>Configuración</th><th>Recall</th><th></th><th>Precisión</th><th>Fidelidad</th><th>p95</th><th>Tokens de contexto</th><th></th></tr></thead><tbody>${cmp.map((x, i) => `<tr class="${x.actual ? 'is-sel' : ''}"><td><b>${esc(x.config)}</b> ${x.actual ? '<span class="pill pill-time">actual</span>' : ''} ${x.recomendada ? '<span class="pill pill-ok">recomendada</span>' : ''}</td>
+          <td class="tnum"><b>${dec2(x.recall)}</b></td><td style="min-width:110px"><div class="meter" style="--c:${x.recall === mx ? 'var(--ok)' : 'var(--primary)'}"><i style="width:${x.recall * 100}%"></i></div></td><td class="tnum">${dec2(x.precision)}</td><td class="tnum">${dec2(x.fidelidad)}</td><td class="tnum">${ms(x.p95_ms)}</td><td class="tnum">${num(x.tokens)}</td>
+          <td>${x.actual ? '' : `<button class="btn btn-sm" type="button" data-kb-acc="aplicar:${i}">${ic('check')} Aplicar</button>`}</td></tr>`).join('')}</tbody></table></div>
+        <p class="muted small" style="margin-top:.5rem">«Aplicar» programa un reindexado con esa configuración; solo se publica si la rúbrica no empeora (puerta de calidad).</p>`;
+    } else if (secActual === 'evaluacion') {
+      const e = k.evaluacion;
+      cuerpo = !e ? `<p class="small">Esta base de conocimiento <b>no tiene rúbrica</b>: no se evalúa. ${k.tipo === 'runbook' ? 'Al ser un runbook determinista, se comprueba que cada ejecución sigue los pasos.' : ''}</p>`
+        : `<div class="row" style="margin-bottom:.6rem"><span class="pill ${e.aciertos / e.preguntas >= 0.9 ? 'pill-ok' : 'pill-warn'}">${ic('flask-conical')} ${e.aciertos} de ${e.preguntas} aciertos (${Math.round((e.aciertos / e.preguntas) * 100)} %)</span><span class="muted small">Última ejecución ${fechaHora(e.fecha)} · rúbrica ${esc(r ? `${r.id} ${r.version}` : '—')} · acuerdo juez-humano ${r ? dec2(r.acuerdo) : '—'}</span>${r ? `<button class="btn btn-sm" type="button" data-rub-editar="${esc(r.id)}">${ic('pencil')} Editar rúbrica</button>` : ''}</div>
+          ${e.fallos.length ? `<div class="tw"><table><thead><tr><th>Pregunta</th><th>Esperado</th><th>Obtenido</th><th>Motivo</th></tr></thead><tbody>${e.fallos.map((x) => `<tr><td class="wrap">${esc(x.pregunta)}</td><td class="wrap">${esc(x.esperado)}</td><td class="wrap">${esc(x.obtenido)}</td><td class="wrap"><span class="pill pill-warn">${esc(x.motivo)}</span></td></tr>`).join('')}</tbody></table></div>` : '<p class="small">Sin fallos en la última ejecución.</p>'}`;
+    } else if (secActual === 'fuente') {
+      const f = k.fuente;
+      cuerpo = tabla([['Sistema', `${ic(KB_FUENTE_ICO[f.sistema] || 'plug-zap')} ${esc(f.sistema)}`], ['Ruta', `<span class="mono">${esc(f.ruta)}</span>`], ['Sincronización', esc(f.sync)], ['Última', fechaHora(f.ultima)], ['SLA de frescura', f.sla_h ? horas(f.sla_h) : 'sin SLA'], ['Altas · cambios · bajas', `${num(f.altas)} · ${num(f.cambios)} · ${num(f.bajas)} (14 días)`], ['Errores', f.errores ? `<span class="pill pill-crit">${num(f.errores)}</span>` : '<span class="pill pill-ok">0</span>']]);
+    } else if (secActual === 'uso') {
+      cuerpo = `<div class="two"><div><h3>Más consultado (14 días · ${num(k.uso.consultas_14d)} consultas)</h3><ol class="kb-top-lista">${k.uso.top.map((x) => `<li>${esc(x)}</li>`).join('')}</ol></div>
+        <div><h3>Consultas sin respuesta</h3>${k.uso.sin_respuesta.length ? `<ul class="kb-top-lista">${k.uso.sin_respuesta.map((x) => `<li>${ic('circle-help')} ${esc(x)}</li>`).join('')}</ul><p class="muted small">Candidatas a contenido nuevo o a una pregunta trampa de la rúbrica.</p>` : '<p class="small muted">Ninguna.</p>'}</div></div>`;
+    } else if (secActual === 'versiones') {
+      cuerpo = `<div class="tw"><table><thead><tr><th>Versión</th><th>Fecha</th><th>Cambio</th><th>${esc(k.serie.nombre)}</th><th></th></tr></thead><tbody>${k.versiones.map(([v, f, ch, m], i) => `<tr><td class="mono"><b>${esc(v)}</b>${i === 0 ? ' <span class="pill pill-time">en uso</span>' : ''}</td><td class="tnum">${esc(f)}</td><td class="wrap">${esc(ch)}</td><td class="tnum">${m == null ? '—' : dec2(m)}</td><td>${i ? `<button class="btn btn-sm" type="button" data-kb-acc="version:${esc(v)}">${ic('undo-2')} Volver a esta versión</button>` : ''}</td></tr>`).join('')}</tbody></table></div>
+        <p class="muted small" style="margin-top:.5rem">Cada traza registra la versión que usó (bloque <span class="mono">_gobernanza.trazabilidad.conocimiento</span>): así el replay es determinista.</p>`;
+    }
+    const acc = kbAcciones[k.id] || [];
+    $('modal-kb-body').innerHTML = `<div class="chips kb-secs">${secs.map(([id, i, l]) => `<button type="button" class="chip${secActual === id ? ' is-active' : ''}" data-kb-sec="${id}">${ic(i)} ${l}</button>`).join('')}</div>
+      <div class="kb-sec">${cuerpo}</div>
+      <div class="kb-acciones"><h3>Acciones</h3><div class="row">
+        ${k.tipo === 'rag' || k.tipo === 'tabla' ? `<button class="btn btn-sm" type="button" data-kb-acc="reindexar">${ic('refresh-cw')} ${k.tipo === 'tabla' ? 'Sincronizar ahora' : 'Reindexar'}</button>` : ''}
+        ${k.rubrica ? `<button class="btn btn-sm" type="button" data-kb-acc="rubricas">${ic('flask-conical')} Ejecutar rúbrica</button>` : ''}
+        ${k.metricas.obsoletos ? `<button class="btn btn-sm" type="button" data-kb-acc="cuarentena">${ic('archive')} Cuarentena de ${num(k.metricas.obsoletos)} obsoletos</button>` : ''}
+        ${k.metricas.pii ? `<button class="btn btn-sm" type="button" data-kb-acc="suprimir">${ic('eye-off')} Suprimir ${num(k.metricas.pii)} chunks con datos personales</button>` : ''}
+        <button class="btn btn-sm" type="button" data-kb-acc="pausar">${ic('pause')} Pausar la KB</button></div>
+        ${acc.length ? `<ul class="kb-acc-lista">${acc.map((a) => `<li><span class="muted tnum">${hora(a.fecha)}</span> ${esc(a.texto)}</li>`).join('')}</ul>` : '<p class="muted small">Las acciones son simuladas y quedan registradas en el Histórico.</p>'}</div>`;
+  }
+
+  function accionKB(acc) {
+    const k = (G.knowledge || GOBIERNO_DEMO.knowledge).find((x) => x.id === kbSel); if (!k) return;
+    const r = rubricaDe(k);
+    const [tipo, arg] = acc.split(':');
+    if (tipo === 'reindexar') kbEvento(k, k.tipo === 'tabla' ? 'Sincronización manual lanzada' : 'Reindexado lanzado', `Se reconstruye el índice con la configuración actual; ${r ? `se publica solo si ${r.id} no empeora` : 'sin rúbrica: se publica directamente'}.`);
+    if (tipo === 'rubricas') kbEvento(k, `Rúbrica ${r.id} ${r.version} en ejecución`, `${r.preguntas.length} preguntas de muestra · resultado en el próximo informe nocturno.`);
+    if (tipo === 'cuarentena') kbEvento(k, `${num(k.metricas.obsoletos)} documentos obsoletos en cuarentena`, 'Dejan de recuperarse hasta que Producto confirme su baja; se espera recuperar el recall previo.', 'ok');
+    if (tipo === 'suprimir') kbEvento(k, `Supresión de ${num(k.metricas.pii)} chunks con datos personales`, 'Se borran de la fuente y del índice vectorial y se comprueba que no vuelven a recuperarse (RGPD art. 17).', 'ok');
+    if (tipo === 'pausar') kbEvento(k, 'KB pausada', 'Los agentes dejan de consultarla y responden «no consta» o escalan a una persona.', 'warn');
+    if (tipo === 'aplicar') { const x = k.comparativa[Number(arg)]; kbEvento(k, `Configuración «${x.config}» programada`, `Reindexado nocturno con puerta de calidad${r ? ` (${r.id})` : ''}: recall esperado ${dec2(x.recall)}.`); }
+    if (tipo === 'version') kbEvento(k, `Vuelta a la versión ${arg} solicitada`, 'Requiere aprobación del responsable de la KB; las trazas nuevas registrarán esa versión.', 'warn');
+    renderHistorico(); pintarModalKB();
+  }
+
+  // Editor de rúbricas (simulado: se guarda en esta sesión y sube la versión menor)
+  function abrirModalRub(id) {
+    const r = rubricas().find((x) => x.id === id); if (!r) return;
+    rubSel = id;
+    const fila = (c) => `<div class="rub-fila rub-crit"><input class="rc-nombre" value="${esc(c[0])}" aria-label="Criterio" placeholder="Criterio"><input class="rc-peso" type="number" min="0" max="100" value="${esc(c[1])}" aria-label="Peso"><input class="rc-desc" value="${esc(c[2])}" aria-label="Descripción" placeholder="Qué se puntúa"><button type="button" class="btn btn-sm" data-rub-quitar aria-label="Quitar">${ic('x')}</button></div>`;
+    const preg = (p) => `<div class="rub-fila rub-preg"><input class="rp-q" value="${esc(p[0])}" aria-label="Pregunta" placeholder="Pregunta"><select class="rp-tipo" aria-label="Tipo">${Object.entries(TIPO_PREG).map(([k, l]) => `<option value="${k}"${p[1] === k ? ' selected' : ''}>${esc(l)}</option>`).join('')}</select><input class="rp-esp" value="${esc(p[2])}" aria-label="Respuesta esperada" placeholder="Respuesta esperada"><input class="rp-fu" value="${esc(p[3])}" aria-label="Fuentes esperadas" placeholder="Fuentes"><button type="button" class="btn btn-sm" data-rub-quitar aria-label="Quitar">${ic('x')}</button></div>`;
+    $('modal-rub-title').innerHTML = `${ic('flask-conical')} ${esc(r.id)} · editar rúbrica <span class="mono muted" style="font-weight:400">${esc(r.version)}</span>`;
+    $('modal-rub-body').innerHTML = `<form id="form-rub" class="rub-form">
+      <label class="f">Nombre<input id="rub-nombre" value="${esc(r.nombre)}" required></label>
+      <div><div class="card-head" style="margin-bottom:.4rem"><h3>Criterios y pesos <span class="muted" id="rub-suma"></span></h3><button type="button" class="btn btn-sm" data-rub-add="crit">${ic('plus')} Criterio</button></div><div id="rub-crits">${r.criterios.map(fila).join('')}</div></div>
+      <div><div class="card-head" style="margin-bottom:.4rem"><h3>Preguntas de referencia (golden set)</h3><button type="button" class="btn btn-sm" data-rub-add="preg">${ic('plus')} Pregunta</button></div><div id="rub-pregs">${r.preguntas.map(preg).join('')}</div></div>
+      <div><h3>Historial</h3><ul class="kb-acc-lista">${(r.historial || []).map(([v, f, ch, u]) => `<li><span class="mono">${esc(v)}</span> <span class="muted tnum">${esc(f)}</span> ${esc(ch)} <span class="muted">· ${esc(u)}</span></li>`).join('')}</ul></div>
+      <p class="small" id="rub-error" role="alert" style="color:var(--crit)"></p>
+      <div class="row" style="justify-content:flex-end"><button class="btn" type="button" data-close="modal-rub">Cancelar</button><button class="btn btn-primary" type="submit">${ic('save')} Guardar como nueva versión</button></div>
+    </form>`;
+    $('modal-rub').dataset.plantillaCrit = fila(['', 0, '']); $('modal-rub').dataset.plantillaPreg = preg(['', 'factual', '', '']);
+    sumaRub();
+    if (!$('modal-rub').open) $('modal-rub').showModal();
+  }
+  function sumaRub() {
+    const s = [...document.querySelectorAll('#rub-crits .rc-peso')].reduce((a, i) => a + (Number(i.value) || 0), 0);
+    $('rub-suma').textContent = `· suman ${s}${s === 100 ? '' : ' (deben sumar 100)'}`;
+    $('rub-suma').style.color = s === 100 ? '' : 'var(--crit)';
+    return s;
+  }
+  function guardarRub(ev) {
+    ev.preventDefault();
+    const r = rubricas().find((x) => x.id === rubSel); if (!r) return;
+    const criterios = [...document.querySelectorAll('#rub-crits .rub-crit')].map((f) => [f.querySelector('.rc-nombre').value.trim(), Number(f.querySelector('.rc-peso').value) || 0, f.querySelector('.rc-desc').value.trim()]).filter((c) => c[0]);
+    const preguntas = [...document.querySelectorAll('#rub-pregs .rub-preg')].map((f) => [f.querySelector('.rp-q').value.trim(), f.querySelector('.rp-tipo').value, f.querySelector('.rp-esp').value.trim(), f.querySelector('.rp-fu').value.trim()]).filter((p) => p[0]);
+    const suma = criterios.reduce((a, c) => a + c[1], 0);
+    if (!criterios.length || !preguntas.length) { $('rub-error').textContent = 'La rúbrica necesita al menos un criterio y una pregunta.'; return; }
+    if (suma !== 100) { $('rub-error').textContent = `Los pesos suman ${suma}: deben sumar 100.`; return; }
+    const version = String(r.version).replace(/(\d+)$/, (m) => String(Number(m) + 1));
+    const hoy = new Date().toISOString().slice(0, 10);
+    const nueva = { ...r, nombre: $('rub-nombre').value.trim() || r.nombre, criterios, preguntas, version, actualizada: hoy, historial: [[version, hoy, `Editada en el panel: ${criterios.length} criterios, ${preguntas.length} preguntas`, 'Operador (esta sesión)'], ...(r.historial || [])] };
+    rubEditadas[r.id] = nueva; ssSet('gobierno.rubricas', rubEditadas);
+    G.eventos.unshift({ fecha: new Date().toISOString(), tipo: 'politica', sev: 'info', agente: null, titulo: `Rúbrica ${r.id} actualizada a ${version}`, detalle: `${criterios.length} criterios · ${preguntas.length} preguntas de referencia. Se aplicará en la próxima evaluación de ${r.kb.join(', ')}.`, usuario: 'Operador (esta sesión)' });
+    $('modal-rub').close();
+    renderKnowledge(); renderHistorico();
+  }
+
+  // ---------------------------------------------------------------------------
+  // Medidas correctivas: lo que hay que hacer para que el sistema esté sano, con sus alternativas.
+  // Las de coste comparten estado con las acciones correctivas de FinOps; al verificar una medida, los controles
+  // del Termómetro que corrige pasan a verde.
+  // ---------------------------------------------------------------------------
+  const medidasEstado = ssGet('gobierno.medidas', {});   // { 'M-01': { estado, alt, sim } } en esta sesión
+  let medOrden = 'prioridad'; let medDim = ''; let medRapidas = false; let medOcultar = false;
+  const MED_DIM = { coste: ['coins', 'Coste'], conocimiento: ['book-open', 'Conocimiento'], cumplimiento: ['scale', 'Cumplimiento'], calidad: ['badge-check', 'Calidad'], resiliencia: ['activity', 'Resiliencia'] };
+  const MED_SEV = { crit: ['pill-crit', 'Crítico', 3], warn: ['pill-warn', 'Aviso', 2], info: ['pill-time', 'Mejora', 1] };
+  const MED_EST = { abierta: ['pill-muted', 'Abierta'], pendiente: ['pill-time', 'Pendiente de aprobación'], aplicada: ['pill-warn', 'Aplicada · por verificar'], verificada: ['pill-ok', 'Verificada'] };
+  const ESF = { bajo: 1, medio: 2, alto: 3 };
+  const APRUEBA_FUERA = ['Comité IA', 'DPO', 'Legal'];
+  const medidas = () => G.medidas || GOBIERNO_DEMO.medidas || [];
+  const recomendada = (m) => m.alternativas.find((a) => a.rec) || m.alternativas[0];
+  const prioridad = (m) => (MED_SEV[m.sev][2] * m.impacto) / ESF[recomendada(m).esfuerzo];
+  const rapida = (m) => recomendada(m).esfuerzo === 'bajo' && m.impacto >= 2;
+  const corrDe = (a) => { if (!a.corr) return null; const [cap, k] = a.corr.split(':'); const c = (G.caps || []).find((x) => x.id === cap); const x = c && capCorrectivas(c)[Number(k)]; return x ? { cap, k: Number(k), x, estado: x.estado === 'aplicada' ? 'aplicada' : correctivasEstado[a.corr] || '' } : null; };
+  // Controles medidos en verde con las trazas de la fuente actual (sin contar las medidas verificadas a mano)
+  let medidosOk = { items: null, set: new Set() };
+  function controlesMedidosOk() {
+    if (medidosOk.items === cmpItems) return medidosOk.set;
+    const T = Cumplimiento.termometro((cmpItems || []).map((x) => x.gob), {}, null);
+    medidosOk = { items: cmpItems, set: new Set(T.marcos.flatMap((mc) => mc.controles).filter((c) => c.fuente === 'medido' && c.estado === 'ok').map((c) => c.id)) };
+    return medidosOk.set;
+  }
+  function estadoMedida(m) {
+    const e = medidasEstado[m.id] || {};
+    if (e.estado === 'verificada') return 'verificada';
+    // Verificada por las propias trazas: sus controles medidos ya cumplen (p. ej. seudonimización activa en la sesión)
+    const med = controlesMedidosOk();
+    if ((m.controles || []).length && m.controles.every((c) => med.has(c))) return 'verificada';
+    const corrs = m.alternativas.map(corrDe).filter(Boolean);
+    if (corrs.some((c) => c.estado === 'aplicada')) return 'aplicada';
+    if (corrs.some((c) => c.estado === 'pendiente')) return 'pendiente';
+    return e.estado || 'abierta';
+  }
+  const abiertaMed = (m) => !['aplicada', 'verificada'].includes(estadoMedida(m));
+  const necesitaAprobacion = (a) => { const c = corrDe(a); return c ? !!c.x.aprobacion : APRUEBA_FUERA.includes(a.aprueba); };
+  // Controles del Termómetro corregidos por medidas verificadas
+  const controlesVerificados = () => { const r = {}; medidas().filter((m) => estadoMedida(m) === 'verificada').forEach((m) => (m.controles || []).forEach((c) => { r[c] = m.id; })); return r; };
+  function termometroGob(gobs, decl, cadena) {
+    const T = Cumplimiento.termometro(gobs, decl, cadena);
+    const ver = controlesVerificados(); if (!Object.keys(ver).length) return T;
+    const PESO = { ok: 1, ambar: 0.5, rojo: 0 };
+    T.marcos.forEach((mc) => {
+      mc.controles = mc.controles.map((c) => (ver[c.id] && c.estado !== 'ok' ? { ...c, estado: 'ok', medida: `${c.medida} · corregido con la medida ${ver[c.id]} (verificada)` } : c));
+      mc.cuenta = { ok: 0, ambar: 0, rojo: 0 }; mc.controles.forEach((c) => { mc.cuenta[c.estado] += 1; });
+      mc.pct = mc.controles.length ? Math.round((mc.controles.reduce((s, c) => s + PESO[c.estado], 0) / mc.controles.length) * 100) : 0;
+    });
+    const todos = T.marcos.flatMap((mc) => mc.controles);
+    T.global = Math.round((todos.reduce((s, c) => s + PESO[c.estado], 0) / (todos.length || 1)) * 100);
+    return T;
+  }
+
+  // Ahorro de las medidas de coste: conseguido (alternativa aplicada o medida verificada), pendiente de aprobación y aún posible
+  function ahorroMedidas() {
+    let conseguido = 0; let pendiente = 0; let posible = 0;
+    medidas().filter((m) => m.dim === 'coste').forEach((m) => {
+      const est = estadoMedida(m); const e = medidasEstado[m.id] || {};
+      const elegidas = m.alternativas.map((a, k) => ({ a, k, c: corrDe(a) })).filter(({ k, c }) => (c && c.estado) || (e.alt === k && est !== 'abierta'));
+      const hechas = elegidas.filter(({ c }) => est === 'verificada' || (c ? c.estado === 'aplicada' : est === 'aplicada'));
+      const sumar = (l) => l.reduce((x, { a }) => x + (a.ahorro_mes || 0), 0);
+      conseguido += sumar(hechas);
+      pendiente += sumar(elegidas.filter((x) => !hechas.includes(x)));
+      if (!elegidas.length) posible += recomendada(m).ahorro_mes || 0;
+    });
+    return { conseguido, pendiente, posible, total: conseguido + pendiente + posible };
+  }
+
+  function accionMedida(id, tipo, k) {
+    const m = medidas().find((x) => x.id === id); if (!m) return;
+    const e = medidasEstado[id] || (medidasEstado[id] = {});
+    const a = m.alternativas[k];
+    const evento = (titulo, detalle, sev = 'info') => G.eventos.unshift({ fecha: new Date().toISOString(), tipo: 'politica', sev, agente: m.agente, titulo: `${m.id} · ${titulo}`, detalle, usuario: 'Operador (esta sesión)' });
+    if (tipo === 'simular') { e.sim = k; evento(`Simulación de «${a.titulo}»`, `Impacto estimado: ${a.impacto}. Validación: ${a.valida}.`); }
+    if (tipo === 'aplicar') {
+      const c = corrDe(a); e.alt = k;
+      if (c) { ssSet('gobierno.medidas', medidasEstado); aplicarCorrectiva(c.cap, c.k); return; }
+      e.estado = necesitaAprobacion(a) ? 'pendiente' : 'aplicada';
+      evento(e.estado === 'pendiente' ? `Aprobación solicitada a ${a.aprueba}: «${a.titulo}»` : `Medida aplicada: «${a.titulo}»`, `${a.impacto}. Se verificará con: ${a.valida}.`, e.estado === 'pendiente' ? 'info' : 'ok');
+    }
+    if (tipo === 'verificar') { e.estado = 'verificada'; evento('Medida verificada', (m.controles || []).length ? `Controles del Termómetro corregidos: ${m.controles.join(', ')}.` : 'Comprobada en producción.', 'ok'); }
+    if (tipo === 'reabrir') { delete medidasEstado[id]; m.alternativas.forEach((x) => { if (x.corr) delete correctivasEstado[x.corr]; }); ssSet('gobierno.correctivas', correctivasEstado); evento('Medida reabierta', 'Vuelve a la lista de pendientes.'); }
+    ssSet('gobierno.medidas', medidasEstado);
+    renderAll();
+    if ($('modal-med').open) abrirModalMed(id);
+  }
+
+  function altHtml(m, a, k, compacto) {
+    const est = estadoMedida(m); const e = medidasEstado[m.id] || {}; const c = corrDe(a);
+    const elegida = (c && c.estado) || (e.alt === k && est !== 'abierta');
+    const botones = est === 'verificada' ? '' : elegida
+      ? `<button class="btn btn-sm btn-primary" type="button" data-med-acc="verificar:${m.id}:${k}">${ic('circle-check')} Marcar como verificada</button>`
+      : `${a.valida && /replay|Rúbrica|rúbrica|Vista previa|Simulación/i.test(a.valida) ? `<button class="btn btn-sm" type="button" data-med-acc="simular:${m.id}:${k}">${ic('play')} Simular</button>` : ''}<button class="btn btn-sm" type="button" data-med-acc="aplicar:${m.id}:${k}">${necesitaAprobacion(a) ? `${ic('user-check')} Solicitar aprobación` : `${ic('check')} Aplicar`}</button>`;
+    return `<div class="med-alt${a.rec ? ' rec' : ''}${elegida ? ' elegida' : ''}">
+      ${a.rec ? '<span class="pill pill-time">Recomendada</span>' : ''}<b>${esc(a.titulo)}</b>
+      <span class="med-imp">${esc(a.impacto)}</span>
+      ${compacto ? '' : `<span class="muted small">Efecto: ${esc(a.efecto)}</span>`}
+      <span class="muted small">Esfuerzo ${esc(a.esfuerzo)} · aprueba ${esc(a.aprueba)}</span>
+      <span class="muted small">Se valida con: ${esc(a.valida)}</span>
+      ${e.sim === k ? `<span class="small med-sim">${ic('play')} Simulado: ${esc(a.impacto)}</span>` : ''}
+      ${elegida ? `<span class="small"><span class="pill ${MED_EST[est][0]}">${esc(MED_EST[est][1])}</span></span>` : ''}
+      <div class="row">${botones}</div></div>`;
+  }
+
+  function renderMedidas() {
+    const M = medidas();
+    const T = estadoCumplimiento().T;
+    const ab = M.filter(abiertaMed);
+    const AH = ahorroMedidas();
+    $('med-termo').innerHTML = `<div class="med-termo" style="--c:${colorPct(T.global)}" data-goto="cumplimiento" role="button" tabindex="0" title="Termómetro de cumplimiento: cambia al verificar medidas"><span class="v">${T.global}<small>%</small></span><span class="l">cumplimiento</span></div>`;
+    $('kpis-med').innerHTML = [
+      { cls: ab.some((m) => m.sev === 'crit') ? 'crit' : 'warn', icono: 'wrench', etiqueta: 'Medidas abiertas', valor: String(ab.length), sub: `${((n) => `${n} ${n === 1 ? 'crítica' : 'críticas'}`)(ab.filter((m) => m.sev === 'crit').length)} · ${M.length} en total` },
+      { cls: 'ok', icono: 'euro', etiqueta: 'Ahorro conseguido', valor: `${num(AH.conseguido)} €/mes`, sub: `de ${num(AH.total)} €/mes posibles${AH.pendiente ? ` · ${num(AH.pendiente)} € pendientes de aprobación` : ''} · aplica las medidas de Coste`, medidor: AH.total ? (AH.conseguido / AH.total) * 100 : 0, id: null },
+      { cls: 'warn', icono: 'scale', etiqueta: 'Riesgos normativos', valor: String(ab.filter((m) => (m.controles || []).length).length), sub: 'controles del Termómetro por corregir' },
+      { cls: 'review', icono: 'book-open', etiqueta: 'KB por sanear', valor: String(ab.filter((m) => m.kb).length), sub: 'knowledge bases con medida abierta' },
+      { cls: 'time', icono: 'circle-check', etiqueta: 'Aplicadas y verificadas', valor: `${M.length - ab.length}`, sub: `${M.filter((m) => estadoMedida(m) === 'verificada').length} verificadas` },
+    ].map(kpi).join('');
+    $('med-filtros').innerHTML = [['', 'Todas'], ...Object.entries(MED_DIM).map(([k, [, l]]) => [k, l])].map(([k, l]) => `<button type="button" class="chip${medDim === k ? ' is-active' : ''}" data-med-dim="${k}">${esc(l)}</button>`).join('')
+      + `<button type="button" class="chip${medRapidas ? ' is-active' : ''}" data-med-rapidas>${ic('zap')} Victorias rápidas</button><button type="button" class="chip${medOcultar ? ' is-active' : ''}" data-med-ocultar>${ic('eye-off')} Ocultar verificadas</button>`;
+    $('med-orden').innerHTML = `<span class="muted small">Ordenar por</span><div class="seg">${[['prioridad', 'Prioridad'], ['severidad', 'Severidad']].map(([k, l]) => `<button type="button" class="seg-btn" data-med-orden="${k}" aria-pressed="${medOrden === k}">${l}</button>`).join('')}</div>`;
+    const lista = M.filter((m) => (!medDim || m.dim === medDim) && (!medRapidas || rapida(m)) && (!medOcultar || estadoMedida(m) !== 'verificada'))
+      .sort((a, b) => (medOrden === 'prioridad' ? prioridad(b) - prioridad(a) : MED_SEV[b.sev][2] - MED_SEV[a.sev][2] || b.impacto - a.impacto) || a.id.localeCompare(b.id));
+    $('med-lista').innerHTML = lista.map((m, i) => {
+      const est = estadoMedida(m); const [sc, sl] = MED_SEV[m.sev]; const [di, dl] = MED_DIM[m.dim];
+      return `<article class="card med${est === 'verificada' ? ' med-ok' : ''}" data-medida="${esc(m.id)}">
+        <div class="med-cab"><span class="pill ${sc}">${sl}</span><span class="muted small">${ic(di)} ${esc(dl)}${m.agente ? ` · ${agTag(m.agente)}` : ''}</span>${rapida(m) ? `<span class="pill pill-ok">${ic('zap')} Victoria rápida</span>` : ''}<span class="med-num muted small"><span class="pill ${MED_EST[est][0]}">${esc(MED_EST[est][1])}</span> · #${i + 1} · ${esc(m.id)}</span></div>
+        <h3 class="med-tit">${esc(m.titulo)}</h3>
+        <p class="small muted">${esc(m.detalle)} <a href="#" data-goto="${esc(m.origen[0])}">${esc(m.origen[1])} →</a></p>
+        <div class="med-alts" style="--n:${m.alternativas.length}">${m.alternativas.map((a, k) => altHtml(m, a, k, true)).join('')}</div>
+        ${est !== 'abierta' ? `<button type="button" class="med-reabrir" data-med-acc="reabrir:${m.id}:0">${ic('rotate-ccw')} Reabrir</button>` : ''}
+      </article>`;
+    }).join('') || '<p class="muted">Ninguna medida con este filtro.</p>';
+  }
+
+  function abrirModalMed(id) {
+    const m = medidas().find((x) => x.id === id); if (!m) return;
+    const est = estadoMedida(m); const [sc, sl] = MED_SEV[m.sev];
+    $('modal-med-title').innerHTML = `${ic('wrench')} ${esc(m.id)} · ${esc(m.titulo)}`;
+    $('modal-med-body').innerHTML = `<div class="row"><span class="pill ${sc}">${sl}</span><span class="pill ${MED_EST[est][0]}">${esc(MED_EST[est][1])}</span><span class="muted small">${esc(MED_DIM[m.dim][1])}${m.agente ? ` · ${agLbl(m.agente)}` : ''} · prioridad ${dec2(prioridad(m))}</span></div>
+      <div><h3>Qué pasa</h3><p class="small">${esc(m.detalle)}</p><p class="small" style="margin-top:.4rem"><button class="btn btn-sm" type="button" data-goto="${esc(m.origen[0])}">${ic('arrow-right')} ${esc(m.origen[1])}</button>${(m.controles || []).length ? ` <span class="muted">Al verificarla corrige en el Termómetro: ${m.controles.map((c) => `<span class="mono">${esc(c)}</span>`).join(', ')}</span>` : ''}</p></div>
+      <div><h3>Alternativas</h3><div class="med-alts" style="--n:${m.alternativas.length}">${m.alternativas.map((a, k) => altHtml(m, a, k, false)).join('')}</div></div>`;
+    if (!$('modal-med').open) $('modal-med').showModal();
+  }
+
+  // ---------------------------------------------------------------------------
+  // Estado compartido por la landing (Inicio) y el Resumen: alertas de todas las fuentes, cumplimiento y conocimiento
+  // ---------------------------------------------------------------------------
+  const CONTROLES_ALERTA = ['rgpd-35', 'ria-50'];   // controles documentales parciales que se elevan a alerta
+  const estadoCumplimiento = () => { const cadena = Cumplimiento.verificarCadena(cmpItems); return { T: termometroGob(cmpItems.map((x) => x.gob), declaradosConKB(), cadena), cadena }; };
+  const estadoKB = () => { const KB = G.knowledge || GOBIERNO_DEMO.knowledge || []; return KB.map((k) => ({ k, s: saludKB(k) })); };
+  function alertasTodas() {
+    const out = (G.alertas || []).map((a) => ({ ...a, origen: 'Coste', goto: 'finops' }));
+    estadoKB().filter(({ s }) => s.estado !== 'ok').filter(({ k, s }) => s.estado === 'rojo' || k.metricas.obsoletos > 10 || k.metricas.pii).forEach(({ k, s }) => out.push({ sev: s.estado === 'rojo' ? 'crit' : 'warn', titulo: `${k.id} · ${k.nombre}: ${s.estado === 'rojo' ? 'crítica' : 'degradada'}`, detalle: k.nota || s.motivos.slice(0, 2).join(' · '), cuando: 'conocimiento', origen: 'Knowledge Bases', goto: 'knowledge', kb: k.id }));
+    const { T, cadena } = estadoCumplimiento();
+    if (cadena.roto !== null) out.push({ sev: 'crit', titulo: 'Cadena de integridad del registro rota', detalle: `La traza ${cadena.items[cadena.roto].traza_id} no coincide con su sello.`, cuando: 'cumplimiento', origen: 'Cumplimiento', goto: 'cumplimiento' });
+    T.marcos.flatMap((m) => m.controles).filter((c) => c.estado !== 'ok' && CONTROLES_ALERTA.includes(c.id)).forEach((c) => out.push({ sev: 'warn', titulo: `${c.normas.join(' · ')}: ${c.exige}`, detalle: c.medida, cuando: 'cumplimiento', origen: 'Cumplimiento', goto: 'cumplimiento' }));
+    const orden = { crit: 0, warn: 1, info: 2, ok: 3 };
+    return out.sort((a, b) => (orden[a.sev] ?? 9) - (orden[b.sev] ?? 9));
+  }
+  const alertaHtml = (a) => `<div class="alert ${a.sev} alert-link" data-goto="${esc(a.goto)}" role="button" tabindex="0" title="Ir a ${esc(a.origen)}"><span class="ico">${ic(SEV_ICON[a.sev] || 'info')}</span><div><b>${conGuardrails(esc(a.titulo))}</b><small>${conGuardrails(esc(a.detalle))}</small></div><span class="muted small alert-meta"><span class="pill pill-muted">${esc(a.origen)}</span>${a.cuando && !['conocimiento', 'cumplimiento'].includes(a.cuando) ? `<br>${esc(a.cuando)}` : ''}</span></div>`;
+  const conGoto = (html, vista) => html.replace('<article class="card kpi', `<article data-goto="${vista}" role="button" tabindex="0" class="card kpi kpi-goto`);
+
+  // Bloques de cumplimiento y conocimiento del Resumen
+  function resumenCumplimiento() {
+    const { T, cadena } = estadoCumplimiento();
+    const parciales = T.marcos.flatMap((m) => m.controles).filter((c) => c.estado !== 'ok').sort((a, b) => (CONTROLES_ALERTA.includes(b.id) ? 1 : 0) - (CONTROLES_ALERTA.includes(a.id) ? 1 : 0) || (a.fuente === 'medido' ? -1 : 1)).slice(0, 3);
+    const r = T.resumen;
+    return `<div class="res-termos">${T.marcos.map((m) => `<div class="res-termo"><span class="small"><b>${esc(m.nombre)}</b></span><div class="meter" style="--c:${colorPct(m.pct)}"><i style="width:${m.pct}%"></i></div><b class="tnum" style="color:${colorPct(m.pct)}">${m.pct} %</b></div>`).join('')}</div>
+      <h3 style="margin-top:.9rem">Controles parciales destacados</h3>
+      <ul class="res-lista">${parciales.map((c) => `<li><span class="pill pill-warn">${ic('circle-alert')} ${esc(c.normas[0])}</span> ${esc(c.exige)} <span class="muted small">· ${esc(c.medida)}</span></li>`).join('')}</ul>
+      <div class="res-datos">
+        <div class="box"><span class="muted small">Datos personales</span><b>${num(r.datos_personales)}</b><small class="muted">en ${r.trazas} mensajes</small></div>
+        <div class="box"><span class="muted small">De salud (art. 9)</span><b>${num(r.salud)}</b><small class="muted">cifrados</small></div>
+        <div class="box"><span class="muted small">De menores</span><b>${num(r.menores)}</b><small class="muted">protección reforzada</small></div>
+        <div class="box"><span class="muted small">Cadena de integridad</span><b style="color:${cadena.roto === null ? 'var(--ok)' : 'var(--crit)'}">${cadena.roto === null ? `${ic('check')} Íntegra` : `${ic('x')} Rota`}</b><small class="muted">${cadena.items.length} eslabones</small></div>
+      </div>`;
+  }
+  function resumenConocimiento() {
+    const E = estadoKB(); const R = rubricas();
+    const mal = E.filter(({ s }) => s.estado !== 'ok').sort((a, b) => (a.s.estado === 'rojo' ? -1 : 1) - (b.s.estado === 'rojo' ? -1 : 1));
+    return `<div class="res-datos" style="margin-bottom:.8rem">
+        <div class="box"><span class="muted small">Sanas</span><b style="color:var(--ok)">${E.filter(({ s }) => s.estado === 'ok').length} / ${E.length}</b></div>
+        <div class="box"><span class="muted small">Degradadas</span><b style="color:var(--warn)">${E.filter(({ s }) => s.estado === 'ambar').length}</b></div>
+        <div class="box"><span class="muted small">Críticas</span><b style="color:var(--crit)">${E.filter(({ s }) => s.estado === 'rojo').length}</b></div>
+        <div class="box"><span class="muted small">Acuerdo juez-humano</span><b>${dec2(R.reduce((a, x) => a + x.acuerdo, 0) / (R.length || 1))}</b><small class="muted">${R.length} rúbricas</small></div>
+      </div>
+      <ul class="res-lista">${mal.map(({ k, s }) => `<li data-kb="${esc(k.id)}" role="button" tabindex="0" class="res-kb">${saludPill(s.estado)} <b>${esc(k.nombre)}</b> <span class="muted small">· ${esc(s.motivos[0] || '')}</span></li>`).join('') || '<li class="muted">Todas las knowledge bases están sanas.</li>'}</ul>`;
+  }
+
+  // Landing: una ficha por cada sección del menú, agrupadas por la pregunta a la que responden
+  function renderInicio() {
+    const alertas = alertasTodas(); const crit = alertas.filter((a) => a.sev === 'crit').length; const avisos = alertas.length - crit;
+    const { T } = estadoCumplimiento(); const E = estadoKB();
+    const ags = agentesPrincipales(); const noActivos = ags.filter((a) => estadoAgente(a) !== 'activo');
+    const dias = diarioVisible(); const coste = dias.reduce((a, d) => a + costeDia(d), 0);
+    const pol = G.politicas || []; const activos = pol.filter(politicaActiva).length;
+    const capsSup = (G.caps || []).filter((c) => capEstadoDe(c) === 'superado').length;
+    const niveles = [3, 2, 1, 0].map((n) => [n, ags.filter((a) => a.nivel === n).length]).filter(([, c]) => c).map(([n, c]) => `${c} en L${n}`).join(' · ');
+    const kbCrit = E.filter(({ s }) => s.estado === 'rojo'); const kbOk = E.filter(({ s }) => s.estado === 'ok').length;
+    const repl = G.replays || []; const cambios = repl.filter((r) => String(r.decision).startsWith('DISTINTA')).length;
+    const ev = G.eventos || [];
+    const F = {
+      resumen: ['¿Va bien el sistema ahora mismo?', [`${G.kpis.resumen[0].valor} de autonomía efectiva`, `${alertas.length} alertas · ${crit} críticas`], crit ? 'crit' : avisos ? 'warn' : 'ok', ['ai-14', 'eiopa']],
+      agentes: ['¿Quién es, qué hace y cómo rinde cada agente?', [`${ags.length} agentes en cadena`, noActivos.length ? `${noActivos.map((a) => a.nombre).join(', ')}: ${noActivos.map((a) => (ESTADO[estadoAgente(a)] || ESTADO.activo)[2].replace(/ \(.*\)/, '').toLowerCase()).join(', ')}` : 'todos activos'], noActivos.length ? 'warn' : 'ok', ['dora-9', 'ai-14']],
+      trazas: ['¿Qué pasó con este mensaje, quién decidió y cuánto costó?', [`${G.trazas.length} trazas en el periodo`, `${G.trazas.filter((t) => (t.incidencias || []).length).length} con incidencia · ${G.trazas.filter((t) => t.resultado !== 'auto').length} con intervención humana`], G.trazas.some((t) => (t.incidencias || []).length) ? 'warn' : 'ok', ['ai-12', 'rgpd-5']],
+      replay: ['¿Por qué decidió eso y qué pasaría si cambio el modelo?', [`${repl.length} replays registrados`, `${cambios} ${cambios === 1 ? 'cambio' : 'cambios'} de decisión`], cambios ? 'warn' : 'ok', ['rgpd-15', 'ai-15']],
+      autonomia: ['¿Cuánta libertad tiene cada agente y quién la cambió?', [niveles || '—', `override ${G.kpis.resumen[2].valor} (objetivo ≤ 3 %)`], 'ok', ['ai-14', 'rgpd-22']],
+      guardrails: ['¿Qué límites frenan a los agentes?', [`${activos} de ${pol.length} activos`, `${num(pol.reduce((a, p) => a + (p.disparos || 0), 0))} disparos en 14 días`], activos < pol.length ? 'warn' : 'ok', ['ai-9', 'ai-14']],
+      knowledge: ['¿Con qué conocimiento deciden y sigue siendo bueno?', [`${kbOk} de ${E.length} sanas`, kbCrit.length ? `${kbCrit.map(({ k }) => k.id).join(', ')} crítica` : 'ninguna crítica'], kbCrit.length ? 'crit' : kbOk < E.length ? 'warn' : 'ok', ['ai-10', 'rgpd-17']],
+      cumplimiento: ['¿Podemos demostrar que cumplimos?', [`${T.global} % de cobertura de controles`, `${T.marcos.reduce((a, m) => a + m.cuenta.ambar + m.cuenta.rojo, 0)} controles parciales`], T.global >= 90 ? 'ok' : 'warn', ['ai-12', 'rgpd-5']],
+      finops: ['¿Cuánto cuesta y estamos dentro del presupuesto?', [`${eur(coste, 0)} en el periodo`, `${capsSup} caps superados`], capsSup ? 'crit' : 'ok', ['sii-41']],
+      medidas: (() => { const ab = medidas().filter(abiertaMed); const crit = ab.filter((m) => m.sev === 'crit').length; const AH = ahorroMedidas(); return ['¿Qué hay que hacer para que el sistema esté sano?', [`${ab.length} medidas abiertas`, `${AH.conseguido ? `${num(AH.conseguido)} de ${num(AH.total)} €/mes ahorrados` : `${num(AH.posible)} €/mes de ahorro posible`} · ${crit} ${crit === 1 ? 'crítica' : 'críticas'}`], crit ? 'crit' : ab.length ? 'warn' : 'ok', ['ai-9', 'rgpd-5']]; })(),
+      historico: ['¿Qué ha cambiado, cuándo y quién lo aprobó?', [`${num(ev.length)} eventos`, ev.length ? `último: ${fechaHora(ev.reduce((a, e) => (e.fecha > a ? e.fecha : a), ev[0].fecha))}` : '—'], 'ok', ['ai-12', 'rgpd-5']],
+    };
+    // Resumen y Trazabilidad son vistas de consulta: sin etiqueta de estado (sus alertas ya están en las demás fichas)
+    const SIN_ESTADO = ['resumen', 'trazas', 'replay'];
+    const GRUPOS = [['Ver', ['resumen', 'agentes']], ['Entender', ['trazas', 'replay']], ['Limitar', ['autonomia', 'guardrails']], ['Conocer', ['knowledge']], ['Cumplimiento', ['cumplimiento']], ['Costes', ['finops']], ['Corregir', ['medidas']], ['Auditar', ['historico']]];
+    const SEM = { ok: ['var(--ok)', 'Sin incidencias', 'pill-ok', 'circle-check', 'Al día'], warn: ['var(--warn)', 'Hay algo que mirar', 'pill-warn', 'circle-alert', 'Revisar'], crit: ['var(--crit)', 'Requiere atención', 'pill-crit', 'triangle-alert', 'Atención'] };
+    const tab = Object.fromEntries(TABS.map(([v, i, l]) => [v, [i, l]]));
+    $('inicio-hero').innerHTML = `<div><h2>${ic('house')} Gobierno de los agentes del triaje FNOL</h2>
+        <p>Qué pasa, por qué, con qué límites, con qué conocimiento, si cumple y cuánto cuesta: un panel por cada pregunta.</p>
+        <div class="row" style="margin-top:.6rem">${crit ? `<span class="pill pill-crit">${ic('triangle-alert')} ${crit} ${crit === 1 ? 'alerta crítica' : 'alertas críticas'}</span>` : ''}<span class="pill pill-warn">${ic('circle-alert')} ${avisos} avisos</span><span class="pill" style="background:color-mix(in srgb, ${colorPct(T.global)} 14%, transparent);color:${colorPct(T.global)}">${ic('thermometer')} cumplimiento ${T.global} %</span><span class="pill pill-muted">${ic('book-open')} ${kbOk} de ${E.length} KB sanas</span></div></div>
+      <div class="inicio-acc"><button class="btn btn-primary" type="button" data-goto="resumen">${ic('layout-dashboard')} Ver el Resumen</button>
+        <div class="inicio-pres"><label class="switch${Shell.Recorrido.presentador() ? '' : ' off'}" data-presentador role="switch" aria-checked="${Shell.Recorrido.presentador()}" tabindex="0" title="Activa el recorrido guiado de la demo en las dos páginas"><i></i>Modo presentador</label>
+        ${Shell.Recorrido.presentador() ? `<button class="btn btn-sm" type="button" data-rec-empezar>${ic('route')} Recorrido de la demo</button>` : ''}</div></div>`;
+    $('inicio-grupos').innerHTML = GRUPOS.map(([g, vs]) => `<div class="inicio-grupo"><h3>${esc(g)}</h3><div class="inicio-fichas">${vs.map((v) => {
+      const [preg, cifras, sem, ns] = F[v]; const [color, semTxt, semCls, semIco, semLbl] = SEM[sem]; const [i, l] = tab[v] || ['info', v];
+      // Icono y nombre de la sección con protagonismo; la pregunta debajo; cifras, normas y «Abrir» al pie, en pequeño.
+      // Un solo color para todas las fichas: el estado solo lo da el semáforo
+      return `<article class="card inicio-ficha" data-goto="${v}" role="button" tabindex="0" title="Abrir ${esc(l)}">
+        <div class="inicio-top"><span class="ag-ico ag-ico-lg">${ic(i)}</span><div class="ag-titulo"><strong class="ag-nombre">${esc(l)}</strong></div>${SIN_ESTADO.includes(v) ? '' : `<span class="pill ${semCls} inicio-estado" title="${semTxt}">${ic(semIco)} ${semLbl}</span>`}</div>
+        <p class="inicio-preg">${esc(preg)}</p>
+        <div class="inicio-det"><ul class="inicio-cifras">${cifras.map((c) => `<li>${esc(c)}</li>`).join('')}</ul>
+          <div class="inicio-pie">${normas(...ns)}<span class="inicio-abrir">Abrir ${ic('arrow-right')}</span></div></div>
+      </article>`;
+    }).join('')}</div></div>`).join('');
+  }
+
+  // ---------------------------------------------------------------------------
   // Termómetro de cumplimiento: controles medidos en las trazas (cumplimiento.js) + declarados (documentales)
   // ---------------------------------------------------------------------------
   const ESTADO_CMP = { ok: ['pill-ok', 'circle-check', 'Cubierto'], ambar: ['pill-warn', 'circle-alert', 'Parcial'], rojo: ['pill-crit', 'circle-x', 'Sin cubrir'] };
   const CAT_ICONO = { identificativo: 'user', contacto: 'phone', indirecto: 'fingerprint', localizacion: 'map-pin', financiero: 'wallet', salud: 'heart-pulse', menor: 'users', tercero: 'user-check' };
   let cmpFiltro = ''; let cmpSoloAmbar = false; let cmpAlterada = null; let cmpItems = [];
+
+  // Controles documentales + los dos que se miden con el catálogo de Knowledge Bases (AI Act art. 10 y RGPD art. 17)
+  function declaradosConKB() {
+    const base = G.cumplimiento_declarado || GOBIERNO_DEMO.cumplimiento_declarado || {};
+    const KB = G.knowledge || GOBIERNO_DEMO.knowledge || [];
+    if (!KB.length) return base;
+    const conRub = KB.filter((k) => k.rubrica).length;
+    const conPii = KB.filter((k) => k.metricas.pii);
+    const medido = (id, normas, exige, como, medida, estado) => ({ id, normas, exige, como, medida, estado, fuente: 'medido', trazas: [] });
+    const ria10 = medido('ria-10', ['AI Act art. 10'], 'Gobierno de los datos y del conocimiento que usa el sistema', 'Catálogo de knowledge bases con versión, responsable y rúbrica; cada traza registra la versión de cada KB que usó', `${KB.length}/${KB.length} KB versionadas y registradas en las trazas · ${conRub}/${KB.length} con rúbrica de evaluación`, conRub === KB.length ? 'ok' : 'ambar');
+    const rgpd17 = medido('rgpd-17', ['RGPD art. 17'], 'Supresión también en los índices derivados', 'Al suprimir un dato en la fuente se comprueba que su chunk desaparece del índice vectorial', conPii.length ? `${conPii.map((k) => `${num(k.metricas.pii)} chunks con datos personales en ${k.id}`).join(' · ')} pendientes de supresión` : 'Ningún chunk con datos personales en las KB', conPii.length ? 'ambar' : 'ok');
+    return { ...base, ria: (base.ria || []).map((c) => (c.id === 'ria-10' ? ria10 : c)), rgpd: [...(base.rgpd || []), rgpd17] };
+  }
 
   // Mismas entradas que la ficha del triaje: el mensaje, la salida del modelo y su bloque _gobernanza
   function entradasCumplimiento() {
@@ -1462,7 +2089,7 @@
     cmpItems = entradasCumplimiento();
     const items = cmpItems.map((x, i) => (i === cmpAlterada ? { ...x, raw: String(x.raw || '').replace(/"decision": "(DESPEJADO|REVISION)"/, (s0, d) => `"decision": "${d === 'DESPEJADO' ? 'REVISION' : 'DESPEJADO'}"`) } : x));
     const cadena = Cumplimiento.verificarCadena(items);
-    const T = Cumplimiento.termometro(cmpItems.map((x) => x.gob), G.cumplimiento_declarado || GOBIERNO_DEMO.cumplimiento_declarado || {}, cadena);
+    const T = termometroGob(cmpItems.map((x) => x.gob), declaradosConKB(), cadena);
     const todos = T.marcos.flatMap((mc) => mc.controles.map((c) => ({ ...c, marco: mc.id })));
     const cuenta = (e) => todos.filter((c) => c.estado === e).length;
     const fuente = $('fuente').value === 'sesion' && ssGet('triage.log', []).length ? 'la sesión actual del triaje' : 'las 13 trazas del Paquete A (demo)';
@@ -1556,7 +2183,7 @@
   }
 
   function exportarCumplimiento() {
-    const T = Cumplimiento.termometro(cmpItems.map((x) => x.gob), G.cumplimiento_declarado || {}, Cumplimiento.verificarCadena(cmpItems));
+    const T = termometroGob(cmpItems.map((x) => x.gob), declaradosConKB(), Cumplimiento.verificarCadena(cmpItems));
     const datos = { esquema: Cumplimiento.ESQUEMA, generado: new Date().toISOString(), aviso: 'Indicador técnico de cobertura de controles; no sustituye la evaluación del DPO ni de Cumplimiento.', termometro: T, cadena: Cumplimiento.encadenar(cmpItems.map((x) => x.gob)), trazas: cmpItems.map((x) => x.gob) };
     const url = URL.createObjectURL(new Blob([JSON.stringify(datos, null, 2)], { type: 'application/json' }));
     const a = Object.assign(document.createElement('a'), { href: url, download: `evidencias-cumplimiento-${new Date().toISOString().slice(0, 10)}.json` });
@@ -1570,6 +2197,9 @@
     cmpItems = entradasCumplimiento();
     if (!G.trazas.some((t) => t.id === selId)) selId = G.trazas.length ? G.trazas[G.trazas.length - 1].id : null;
     renderResumen();
+    renderInicio();
+    titulo('h-res-cmp', 'thermometer', 'Cumplimiento');
+    titulo('h-res-kb', 'book-open', 'Knowledge Bases');
     titulo('h-trazas', 'route', `Trazas (${G.trazas.length})`);
     $('r-summary').innerHTML = `${ic('route')} Trazas (${G.trazas.length}) · filtros`;
     listaTrazas('t'); listaTrazas('r');
@@ -1580,12 +2210,15 @@
     renderGuardrails();
     renderFinops();
     renderHistorico();
+    renderKnowledge();
     renderCumplimiento();
+    renderAgentes();
+    renderMedidas();
     $('tabs').querySelector('[data-view="finops"] .n').textContent = G.caps.filter((c) => c.estado === 'superado').length || '';
     ajustarAgentes();
   }
 
-  const TABS = [['resumen', 'layout-dashboard', 'Resumen'], ['trazas', 'route', 'Trazabilidad'], ['replay', 'brain', 'Reasoning & Replay'], ['autonomia', 'sliders-horizontal', 'Autonomía'], ['guardrails', 'shield-check', 'Guardrails'], ['cumplimiento', 'thermometer', 'Termómetro de cumplimiento'], ['finops', 'coins', 'FinOps'], ['historico', 'history', 'Histórico']];
+  const TABS = [['inicio', 'house', 'Inicio'], ['resumen', 'layout-dashboard', 'Resumen'], ['agentes', 'bot', 'Agentes'], ['trazas', 'route', 'Trazabilidad'], ['replay', 'brain', 'Reasoning & Replay'], ['autonomia', 'sliders-horizontal', 'Autonomía'], ['guardrails', 'shield-check', 'Guardrails'], ['knowledge', 'book-open', 'Knowledge Bases'], ['cumplimiento', 'thermometer', 'Termómetro de cumplimiento'], ['finops', 'coins', 'FinOps'], ['medidas', 'wrench', 'Medidas correctivas'], ['historico', 'history', 'Histórico']];
   function goto(v, opts = {}) {
     document.querySelectorAll('.tab').forEach((b) => { b.classList.toggle('is-active', b.dataset.view === v); b.setAttribute('aria-selected', String(b.dataset.view === v)); });
     document.querySelectorAll('.view').forEach((s) => s.classList.toggle('is-active', s.dataset.view === v));
@@ -1620,29 +2253,71 @@
     });
   }
 
-  // Menú lateral plegable: el estado se recuerda en este navegador (preferencia del usuario)
-  function initNav() {
-    const lay = $('gb-layout'); const b = $('btn-toggle-nav');
-    const set = (abierto) => {
-      lay.classList.toggle('nav-collapsed', !abierto);
-      b.setAttribute('aria-expanded', String(abierto));
-      b.setAttribute('aria-label', abierto ? 'Plegar el menú' : 'Desplegar el menú');
-      b.title = abierto ? 'Plegar el menú' : 'Desplegar el menú';
-      b.innerHTML = ic(abierto ? 'panel-left-close' : 'panel-left-open');
-      // Plegado: el nombre de cada sección aparece como tooltip sobre su icono
-      lay.querySelectorAll('.tab').forEach((t) => { if (abierto) delete t.dataset.tip; else t.dataset.tip = t.getAttribute('aria-label'); });
-      try { localStorage.setItem('gobierno.nav', abierto ? '1' : '0'); } catch { /* sin almacenamiento */ }
-      setTimeout(() => ajustarAgentes(), 200);
-    };
-    let abierto = true;
-    try { abierto = localStorage.getItem('gobierno.nav') !== '0'; } catch { /* sin almacenamiento */ }
-    set(abierto);
-    b.addEventListener('click', () => set(lay.classList.contains('nav-collapsed')));
+  // ---------------------------------------------------------------------------
+  // Navegación entre los elementos de una lista desde su ventana emergente (‹ 3 de 13 ›), para todas las ventanas
+  // que se abren desde una lista: recuerda la lista de origen y «pulsa» el elemento anterior o siguiente.
+  // ---------------------------------------------------------------------------
+  const NAV_ATTR = ['data-id', 'data-gr', 'data-cap', 'data-cambio', 'data-kb', 'data-rub', 'data-cmp-item', 'data-kpi-fin', 'data-medida'];
+  let nav = null; // { dlg, attr, cont, valor }
+  const itemsNav = () => (nav ? [...nav.cont.querySelectorAll(`:scope > [${nav.attr}]`)] : []);
+  function pintarNav() {
+    document.querySelectorAll('.mh-nav').forEach((x) => x.remove());
+    if (!nav || !nav.dlg.open) return;
+    const items = itemsNav(); const i = items.findIndex((x) => x.getAttribute(nav.attr) === nav.valor);
+    if (items.length < 2 || i < 0) return;
+    const head = nav.dlg.querySelector('.modal-head'); if (!head) return;
+    const div = document.createElement('div'); div.className = 'mh-nav';
+    div.innerHTML = `<span class="mh-pos">${i + 1} de ${items.length}</span><button class="btn btn-sm" type="button" data-nav="-1" aria-label="Anterior" title="Anterior (←)" ${i ? '' : 'disabled'}>${ic('chevron-left')}</button><button class="btn btn-sm" type="button" data-nav="1" aria-label="Siguiente" title="Siguiente (→)" ${i < items.length - 1 ? '' : 'disabled'}>${ic('chevron-right')}</button>`;
+    head.insertBefore(div, head.querySelector('[data-close]'));
+  }
+  function navegar(d) {
+    const items = itemsNav(); const i = items.findIndex((x) => x.getAttribute(nav.attr) === nav.valor);
+    const sig = items[i + d]; if (sig) sig.click();
+  }
+  function initNavModales() {
+    document.addEventListener('click', (e) => {
+      if (e.target.closest('dialog')) return;
+      let el = e.target; let attr = null;
+      while (el && el.nodeType === 1 && !(attr = NAV_ATTR.find((x) => el.hasAttribute(x)))) el = el.parentElement;
+      if (!attr) return;
+      const antes = new Set(document.querySelectorAll('dialog[open]'));
+      const cont = el.parentElement; const valor = el.getAttribute(attr);
+      setTimeout(() => {
+        const abiertos = [...document.querySelectorAll('dialog[open]')];
+        const dlg = abiertos.find((d) => !antes.has(d)) || (nav && nav.cont === cont && abiertos.includes(nav.dlg) ? nav.dlg : null);
+        if (!dlg) return;
+        nav = { dlg, attr, cont, valor }; pintarNav();
+      }, 0);
+    }, true);
+    document.addEventListener('click', (e) => { const b = e.target.closest('[data-nav]'); if (b && nav) { e.stopPropagation(); navegar(Number(b.dataset.nav)); } }, true);
+    document.addEventListener('keydown', (e) => {
+      if (!nav || !nav.dlg.open || (e.key !== 'ArrowLeft' && e.key !== 'ArrowRight')) return;
+      if (e.target.closest && e.target.closest('input, textarea, select')) return;
+      e.preventDefault(); navegar(e.key === 'ArrowLeft' ? -1 : 1);
+    });
   }
 
   function bind() {
-    $('tabs').innerHTML = TABS.map(([v, i, l]) => `<button class="tab${v === 'resumen' ? ' is-active' : ''}" type="button" role="tab" data-view="${v}" aria-selected="${v === 'resumen'}" aria-label="${l}">${ic(i)} <span class="lbl">${l}</span>${v === 'finops' ? '<span class="n"></span>' : ''}</button>`).join('');
-    initNav();
+    initNavModales();
+    document.addEventListener('submit', (e) => { if (e.target.id === 'form-rub') guardarRub(e); });
+    document.addEventListener('change', (e) => { if (e.target.id === 'ag-ejemplo') { agEjemplo = Number(e.target.value); renderAgentes(); } });
+    document.addEventListener('input', (e) => { if (e.target.classList && e.target.classList.contains('rc-peso')) sumaRub(); });
+    document.addEventListener('keydown', (e) => { if (e.key === 'Enter' && e.target.matches && e.target.matches('[data-kb], tr[data-rub], tr[data-traza]')) e.target.click(); });
+    $('tabs').innerHTML = TABS.map(([v, i, l]) => `<button class="tab nav-item${v === 'inicio' ? ' is-active' : ''}" type="button" role="tab" data-view="${v}" aria-selected="${v === 'inicio'}" aria-label="${l}" title="${l}">${ic(i)}<span class="lbl">${l}</span>${v === 'finops' ? '<span class="n"></span>' : ''}</button>`).join('');
+    // Menú lateral común con el triaje (shell.js); al plegar o desplegar se reajustan las tarjetas de agentes
+    Shell.initShell({ onChange: () => ajustarAgentes() });
+    // Recorrido de la demo (modo presentador): acciones de los pasos que ocurren en el panel
+    Shell.Recorrido.init({
+      agentes: () => {
+        const hayLote = (ssGet('triage.log', []) || []).length > 0;
+        if (hayLote && $('fuente').value !== 'sesion') { $('fuente').value = 'sesion'; setFuente('sesion'); }
+        verAgente('reglas');
+        return hayLote ? '' : 'Sin lote procesado en esta pestaña: se ven los datos de demostración.';
+      },
+      goto: (v) => { cerrarTodos(); goto(v); return ''; },
+      kb: (id, sec) => { cerrarTodos(); goto('knowledge'); abrirModalKB(id); kbSec = sec || 'salud'; pintarModalKB(); return ''; },
+    });
+    document.addEventListener('recorrido:presentador', () => renderInicio());
     $('tabs').addEventListener('click', (e) => { const b = e.target.closest('.tab'); if (b) goto(b.dataset.view); });
     // Navegación, modales, kill switch, guardrails y leyendas: un único delegado de clic
     document.addEventListener('click', (e) => {
@@ -1652,10 +2327,27 @@
       const sw = e.target.closest('[data-switch]'); if (sw) { e.preventDefault(); e.stopPropagation(); toggleAgente(sw.dataset.switch); return; }
       const gr = e.target.closest('[data-guardrail]'); if (gr) { e.preventDefault(); toggleGuardrail(gr.dataset.guardrail); if (gr.dataset.reabrir) abrirModalGr(gr.dataset.reabrir); return; }
       const cb = e.target.closest('[data-cambio]'); if (cb) { abrirModalCambio(Number(cb.dataset.cambio)); return; }
-      const va = e.target.closest('[data-ver-agente]'); if (va) { cerrarTodos(); abrirModalAgente(va.dataset.verAgente); return; }
+      const va = e.target.closest('[data-ver-agente]'); if (va) { verAgente(va.dataset.verAgente); return; }
       const co = e.target.closest('[data-corr]'); if (co) { const [cid, k] = co.dataset.corr.split(':'); aplicarCorrectiva(cid, Number(k)); return; }
       const cp = e.target.closest('[data-cap]'); if (cp) { abrirModalCap(cp.dataset.cap); return; }
       const lg = e.target.closest('[data-legend]'); if (lg) { const set = lg.dataset.legend === 'agente' ? ocultos : tokOcultos; set.has(lg.dataset.key) ? set.delete(lg.dataset.key) : set.add(lg.dataset.key); renderCharts(); return; }
+      const pr = e.target.closest('[data-presentador]'); if (pr) { e.preventDefault(); Shell.Recorrido.setPresentador(!Shell.Recorrido.presentador()); return; }
+      if (e.target.closest('[data-rec-empezar]')) { Shell.Recorrido.empezar(); return; }
+      const at = e.target.closest('[data-ag-tab]'); if (at) { agSel = at.dataset.agTab; ssSet('gobierno.agente', agSel); renderAgentes(); return; }
+      const ma = e.target.closest('[data-med-acc]'); if (ma) { e.stopPropagation(); const [t, id, k] = ma.dataset.medAcc.split(':'); accionMedida(id, t, Number(k)); return; }
+      const md = e.target.closest('[data-med-dim]'); if (md) { medDim = md.dataset.medDim; renderMedidas(); return; }
+      const mo = e.target.closest('[data-med-orden]'); if (mo) { medOrden = mo.dataset.medOrden; renderMedidas(); return; }
+      if (e.target.closest('[data-med-rapidas]')) { medRapidas = !medRapidas; renderMedidas(); return; }
+      if (e.target.closest('[data-med-ocultar]')) { medOcultar = !medOcultar; renderMedidas(); return; }
+      const mc = e.target.closest('[data-medida]'); if (mc && !e.target.closest('a, button')) { abrirModalMed(mc.dataset.medida); return; }
+      const re = e.target.closest('[data-rub-editar]'); if (re) { e.stopPropagation(); abrirModalRub(re.dataset.rubEditar); return; }
+      const ra = e.target.closest('[data-rub-add]'); if (ra) { const cont = ra.dataset.rubAdd === 'crit' ? $('rub-crits') : $('rub-pregs'); cont.insertAdjacentHTML('beforeend', ra.dataset.rubAdd === 'crit' ? $('modal-rub').dataset.plantillaCrit : $('modal-rub').dataset.plantillaPreg); sumaRub(); return; }
+      const rq = e.target.closest('[data-rub-quitar]'); if (rq) { rq.closest('.rub-fila').remove(); sumaRub(); return; }
+      const rb = e.target.closest('[data-rub]'); if (rb) { abrirModalRub(rb.dataset.rub); return; }
+      const kf2 = e.target.closest('[data-kb-filtro]'); if (kf2) { kbFiltro = kf2.dataset.kbFiltro; renderKnowledge(); return; }
+      const ks = e.target.closest('[data-kb-sec]'); if (ks) { kbSec = ks.dataset.kbSec; pintarModalKB(); return; }
+      const ka = e.target.closest('[data-kb-acc]'); if (ka) { accionKB(ka.dataset.kbAcc); return; }
+      const kb = e.target.closest('[data-kb]'); if (kb) { abrirModalKB(kb.dataset.kb); return; }
       const cm = e.target.closest('[data-cmp-marco]'); if (cm) { cmpFiltro = cmpFiltro === cm.dataset.cmpMarco ? '' : cm.dataset.cmpMarco; renderCumplimiento(); return; }
       const ca = e.target.closest('[data-cmp-ambar]'); if (ca) { cmpSoloAmbar = !cmpSoloAmbar; renderCumplimiento(); return; }
       const cf = e.target.closest('[data-cmp-ficha]'); if (cf) { const k = cmpItems.findIndex((x) => x.gob.trazabilidad.traza_id === cf.dataset.cmpFicha); if (k >= 0) { cerrarTodos(); abrirModalCmp(k); } return; }
@@ -1665,7 +2357,7 @@
       if (e.target.closest('#btn-cmp-alterar')) { cmpAlterada = cmpAlterada === null ? Math.min(4, cmpItems.length - 1) : null; renderCumplimiento(); return; }
       const tz = e.target.closest('[data-traza]'); if (tz) { cerrarTodos(); goto('trazas'); selectTraza(tz.dataset.traza); return; }
       const gf = e.target.closest('#policies tr[data-gr]'); if (gf) { abrirModalGr(gf.dataset.gr); return; }
-      const ag = e.target.closest('.agent[data-agente]'); if (ag) { abrirModalAgente(ag.dataset.agente); return; }
+      const ag = e.target.closest('.agent[data-agente]'); if (ag) { verAgente(ag.dataset.agente); return; }
       const kf = e.target.closest('[data-kpi-fin]'); if (kf) { abrirModalKpiFin(kf.dataset.kpiFin); return; }
       const ult = e.target.closest('#ultimas tr[data-id]'); if (ult) { abrirModalTraza(ult.dataset.id); return; }
       const row = e.target.closest('#t-trazas tr[data-id], #r-trazas tr[data-id]'); if (row) { selectTraza(row.dataset.id); return; }
@@ -1673,7 +2365,7 @@
     });
     document.addEventListener('keydown', (e) => {
       if (e.key !== 'Enter' || !e.target.matches) return;
-      if (e.target.matches('.agent[data-agente]')) abrirModalAgente(e.target.dataset.agente);
+      if (e.target.matches('.agent[data-agente]')) verAgente(e.target.dataset.agente);
       else if (e.target.matches('[data-kpi-fin]')) abrirModalKpiFin(e.target.dataset.kpiFin);
       else if (e.target.matches('#caps tr[data-cap]')) abrirModalCap(e.target.dataset.cap);
       else if (e.target.matches('#policies tr[data-gr]')) abrirModalGr(e.target.dataset.gr);
@@ -1699,7 +2391,7 @@
     $('file-json').addEventListener('change', () => { const f = $('file-json').files[0]; if (f) cargarArchivo(f); $('file-json').value = ''; });
     $('fuente').addEventListener('change', () => setFuente($('fuente').value));
     $('periodo').addEventListener('change', () => { periodoDias = Number($('periodo').value); renderResumen(); renderFinops(); });
-    const H = { 'h-agentes': ['cpu', 'Agentes'], 'h-coste': ['euro', 'Coste diario frente al cap'], 'h-alertas': ['bell', 'Alertas activas'], 'h-reasoning': ['brain', 'Razonamiento registrado'], 'h-replay': ['repeat', 'Replay'], 'h-replays': ['history', 'Replays anteriores'], 'h-niveles': ['sliders-horizontal', 'Niveles de autonomía'], 'h-agentes-aut': ['cpu', 'Histórico de la autonomía y comportamiento de los agentes'], 'h-correctivas': ['lightbulb', 'Caps superados: acciones correctivas sugeridas'], 'h-guardrails': ['shield-check', 'Guardrails'], 'h-cambios': ['history', 'Cambios de nivel (auditoría)'], 'h-caps': ['scale', 'Caps configurados'], 'h-coste-ag': ['euro', 'Coste diario por agente'], 'h-tokens': ['cpu', 'Tokens por agente'], 'h-modelos': ['database', 'Modelos'], 'h-reco': ['lightbulb', 'Recomendaciones de ahorro'], 'h-hist': ['history', 'Histórico de gobierno'] };
+    const H = { 'h-agentes': ['cpu', 'Agentes'], 'h-coste': ['euro', 'Coste diario frente al cap'], 'h-alertas': ['bell', 'Alertas activas'], 'h-reasoning': ['brain', 'Razonamiento registrado'], 'h-replay': ['repeat', 'Replay'], 'h-replays': ['history', 'Replays anteriores'], 'h-niveles': ['sliders-horizontal', 'Niveles de autonomía'], 'h-correctivas': ['lightbulb', 'Caps superados: acciones correctivas sugeridas'], 'h-guardrails': ['shield-check', 'Guardrails'], 'h-cambios': ['history', 'Cambios de nivel (auditoría)'], 'h-caps': ['scale', 'Caps configurados'], 'h-coste-ag': ['euro', 'Coste diario por agente'], 'h-tokens': ['cpu', 'Tokens por agente'], 'h-modelos': ['database', 'Modelos'], 'h-reco': ['lightbulb', 'Recomendaciones de ahorro'], 'h-hist': ['history', 'Histórico de gobierno'], 'h-med': ['wrench', 'Medidas correctivas'] };
     Object.entries(H).forEach(([id, [i, t]]) => titulo(id, i, t));
     document.querySelectorAll('[data-close]').forEach((b) => { b.innerHTML = ic('x'); });
     $('btn-export-trazas').innerHTML = `${ic('download')} Exportar trazas`;
