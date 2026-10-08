@@ -2611,7 +2611,7 @@
           4940,
           7420,
           "gpt-5",
-          1499,
+          22600,
           668,
           2610
         ]
@@ -3199,7 +3199,7 @@
       },
       {
         "agente": "reglas",
-        "entrada": "Datos + reglas Auto v2.3",
+        "entrada": "Datos + reglas Auto v2.3 + atestado e informe médico adjuntos completos (≈ 21.000 tokens de entrada)",
         "pasos": [
           "El modelo razona extensamente sobre la coordinación Auto / Salud y la responsabilidad del tercero (2.610 tokens de razonamiento — pico)",
           "A5 INCUMPLE: lesionado ingresado y tercero implicado",

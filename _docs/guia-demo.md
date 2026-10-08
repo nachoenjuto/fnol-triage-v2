@@ -62,7 +62,7 @@ Es el mismo menú que el del panel de gobierno (`shell.js`), con el mismo ancho 
 | Sección | Qué contiene | Para qué sirve |
 |---|---|---|
 | **Paquete de mensajes** | Selector de tres paquetes fijos (A: 13 mensajes, B: 23, C: 15) con su lista | Elegir el lote de la demo. Son mixtos en ramos y canales, e incluyen casos que deben ir a revisión. Los del Paquete A son más largos y llevan datos personales ficticios (DNI, teléfonos, IBAN, salud, menores, terceros) para la capa de cumplimiento |
-| **Configuración** | **Motor de triaje** (Automático / Resultados guardados / Archivo cargado), **Reproducir desde archivo** y **Llamadas a la IA por mensaje** (1 paso / 2 pasos) | Decidir cómo se procesa. «2 pasos» ahorra tokens de entrada (solo se envía el bloque de reglas del ramo) a cambio de dos llamadas |
+| **Configuración** | **Motor de triaje** (Automático / Resultados guardados / Archivo cargado), **Reproducir desde archivo**, **Llamadas a la IA por mensaje** (1 paso / 2 pasos) y **Seudonimizar antes de enviar al modelo** (activada por defecto) | Decidir cómo se procesa. «2 pasos» ahorra tokens de entrada (solo se envía el bloque de reglas del ramo) a cambio de dos llamadas. La seudonimización cambia los datos personales por marcadores antes de cada llamada (apartado 2.7) |
 | **Prompt** | Prompt base y los tres bloques de reglas (Auto, Hogar, Salud), editables. Como el menú es estrecho, **Editar en grande** abre cada bloque en un editor ancho (con «Restaurar original» y «Guardar») | Cambiar las reglas de negocio en caliente y ver cómo cambian las decisiones: la llamada usa siempre el texto vigente |
 
 ### 2.4 Panel principal
@@ -126,11 +126,30 @@ Al pasar el ratón por una norma aparece qué exige. «Copiar JSON» copia lo qu
 
 > Mensaje clave: **el modelo no se autocertifica**. Los metadatos de cumplimiento los pone la plataforma, se pueden recalcular en cualquier momento y, si alguien altera una traza, el hash deja de coincidir.
 
+### 2.7 Seudonimización antes de enviar al modelo
+
+**El modelo decide sin ver quién es el asegurado.** Con la casilla de Configuración activada (por defecto), antes de cada llamada la plataforma cambia cada dato personal por un marcador estable:
+
+| Se sustituye | Marcador | Se mantiene (hace falta para decidir) |
+|---|---|---|
+| Nombres del remitente y de terceros (también donde vuelven a salir sueltos) | `[PERSONA_1]`, `[PERSONA_2]` | Datos de salud: lesiones, ingreso, tratamientos (RGPD art. 9.2.f) |
+| DNI, NIE, teléfono, email, IBAN | `[DNI_1]`, `[TELEFONO_1]`… | Edad de los menores (RGPD art. 8) |
+| Póliza, matrícula, expediente, dirección, tarjeta sanitaria | `[POLIZA_AU_1]` (conserva el prefijo del ramo), `[MATRICULA_1]`… | Fechas, importes, lugares genéricos |
+
+- **Respuesta:** el prompt pide copiar los marcadores tal cual; al volver, la plataforma pone los valores reales en los datos extraídos y en las citas de las evidencias, y la ficha se ve como siempre.
+- **Tabla de correspondencias:** solo existe en memoria durante la llamada; no viaja al modelo ni se guarda en la traza.
+- **Vista «Enviado al modelo»** en Respuesta cruda: el texto que recibió el modelo, con los marcadores resaltados, y una nota con cuántos datos se sustituyeron y de qué tipo. «Salida del modelo» muestra la respuesta tal cual llegó, con marcadores.
+- **Prueba en la traza:** `_gobernanza.datos_personales.envio_al_modelo` (seudonimizado sí o no, datos sustituidos por tipo, marcadores y hash del texto enviado).
+- **Resultados guardados:** se simula sobre la respuesta guardada («Simulado sobre la respuesta guardada»).
+- **En el panel**, con la fuente «Sesión actual», el control de minimización (RGPD art. 5.1.c) del Termómetro pasa a verde y la medida M-08 sale verificada. Con la fuente «Demo» sigue en ámbar: es el histórico anterior a activarla.
+
+> Mensaje clave: **minimizar no es una política en un documento; es lo que el modelo recibe de verdad.**
+
 ---
 
 ## 3. Gobierno de Agentes (`gobierno.html`)
 
-Panel de control de los cuatro agentes. Ofrece siete capacidades (en diez secciones más una portada, **Inicio**): **ver** (observabilidad), **entender** (razonamiento y replay), **limitar** (autonomía y guardrails), **conocer** (knowledge bases), **cumplimiento** (termómetro), **costes** (FinOps) y **auditar** (histórico). Las secciones están en el mismo **menú lateral** que el triaje: plegado muestra solo los iconos (el nombre sale al pasar el ratón) y los nombres largos se recortan con «…». Las tarjetas de los agentes están en el Resumen y su ficha completa, en la sección **Agentes**.
+Panel de control de los cuatro agentes. Ofrece ocho capacidades (en once secciones más una portada, **Inicio**): **ver** (observabilidad), **entender** (razonamiento y replay), **limitar** (autonomía y guardrails), **conocer** (Knowledge Bases), **cumplimiento** (termómetro), **costes** (FinOps), **corregir** (medidas correctivas) y **auditar** (histórico). Las secciones están en el mismo **menú lateral** que el triaje: plegado muestra solo los iconos (el nombre sale al pasar el ratón) y los nombres largos se recortan con «…». Las tarjetas de los agentes están en el Resumen y su ficha completa, en la sección **Agentes**.
 
 ### 3.1 Cabecera: fuente y periodo
 
@@ -154,12 +173,13 @@ Panel de control de los cuatro agentes. Ofrece siete capacidades (en diez seccio
 | **Ver** | Resumen · Agentes |
 | **Entender** | Trazabilidad · Reasoning & Replay |
 | **Limitar** | Autonomía · Guardrails |
-| **Conocer** | Knowledge bases |
+| **Conocer** | Knowledge Bases |
 | **Cumplimiento** | Termómetro de cumplimiento |
 | **Costes** | FinOps |
+| **Corregir** | Medidas correctivas |
 | **Auditar** | Histórico |
 
-Cada ficha lleva la pregunta que responde, dos cifras en vivo calculadas con los mismos datos que su sección (cambian con la fuente Demo, Sesión o Archivo), una etiqueta de estado (**Al día**, **Revisar** o **Atención**, en verde, ámbar o rojo), sus etiquetas de norma y «Abrir →». Toda la ficha se puede pulsar.
+Cada ficha lleva la pregunta que responde, dos cifras en vivo calculadas con los mismos datos que su sección (cambian con la fuente Demo, Sesión o Archivo), una etiqueta de estado (**Al día**, **Revisar** o **Atención**, en verde, ámbar o rojo; no la llevan Resumen, Trazabilidad ni Reasoning & Replay), sus etiquetas de norma y «Abrir →». Toda la ficha se puede pulsar.
 
 **Modo presentador.** Debajo de «Ver el Resumen» hay un interruptor. Apagado (por defecto), no se ve nada más. Encendido, aparece el botón **Recorrido de la demo**, que abre un panel flotante (también en el triaje) con los 10 pasos del guion del apartado 4: minuto, qué enseñar y frase clave. «Ir» lleva a la pantalla exacta aunque esté en la otra página (por ejemplo, abre la ficha de MSG-A-08 o la KB-02 en la pestaña Comparativa); «Anterior» y «Siguiente» recorren los pasos, los vistos quedan marcados y, si falta algo (como procesar el Paquete A), el panel lo avisa. El interruptor se recuerda en el navegador; el progreso, en la pestaña.
 
@@ -189,8 +209,8 @@ Capacidades: clic en una **traza** abre su ficha explicada (qué llegó, qué hi
 | **Identidad y permisos** | Identidad administrada, credencial, responsable, proveedor y región, datos que trata, qué puede y qué no puede hacer |
 | **Configuración y variables** | Umbrales, importes máximos, reasoning effort…; guardrails con sus disparos y caps con su estado (clic para abrir el cap) |
 | **Rendimiento y coste** | Coste diario de 14 días, tokens de entrada, salida y razonamiento, comportamiento por modelo en el tiempo y la recomendación de FinOps que le afecte |
-| **Calidad** | Métricas propias de cada agente sobre el Paquete A: canales normalizados (Multicanalidad), acierto de ramo y ramos descartados explicados (Clasificación), campos extraídos y nulos honestos (Extracción), acierto de la decisión, confianza, evidencias y reglas que más frenan (Reglas); e incidencias |
-| **Knowledge bases** | Las que consume, con su estado de salud (clic para abrir su ficha) |
+| **Calidad** | Un **índice de calidad** en un círculo de porcentaje (media de los indicadores medibles; verde desde el 90 %, ámbar desde el 70 %), una barra de color bajo cada indicador y las métricas propias de cada agente sobre el Paquete A: canales normalizados (Multicanalidad), acierto de ramo y ramos descartados explicados (Clasificación), campos extraídos y nulos honestos (Extracción), acierto de la decisión, confianza, evidencias y reglas que más frenan (Reglas); e incidencias |
+| **Knowledge Bases** | Las que consume, con su estado de salud (clic para abrir su ficha) |
 | **Datos personales que trata** | Categorías que ve: el texto completo (Multicanalidad y Clasificación) o solo los campos extraídos (Extracción y Reglas, minimización) |
 | **Histórico** | Cambios de autonomía y de modelo, prompt e incidencias con motivo y quién los aprobó |
 | **Últimas trazas** | El paso de este agente en cada traza: inicio, duración, modelo, tokens y coste |
@@ -263,7 +283,7 @@ Qué muestra y qué permite:
 
 Para qué sirve: es el **mecanismo de control** que permite dar autonomía sin perder el control. Los guardrails de importe y lesionados explican la mayoría de los escalados.
 
-### 3.9 Knowledge bases
+### 3.9 Knowledge Bases
 
 **Panel de control del conocimiento que usan los agentes**: índices RAG alimentados desde SharePoint o Google Drive, documentos Markdown, runbooks deterministas, tablas de referencia y plantillas.
 
@@ -292,7 +312,7 @@ Enlace con el resto: cada traza registra las KB y versiones que usó (`_gobernan
 | **Integridad del registro** | Cadena de hashes sobre las trazas. «Simular una alteración» cambia la decisión de una traza ya registrada y la cadena se rompe a partir de ella |
 | **Seudonimizar no es anonimizar** | La diferencia en dos columnas (RGPD art. 4.5 frente al considerando 26) |
 
-Los controles en ámbar son reales: la **minimización** (el texto llega completo al modelo y parte de los datos no hacía falta para decidir), la **EIPD** pendiente de revisión por un cambio de modelo, el **aviso de IA** pendiente en WhatsApp, la **formación** de dos tramitadores nuevos y las **pruebas de sesgo** por canal. Dan conversación: muestran que el panel no maquilla. **DORA** está al 100 % (en verde): el riesgo de concentración en un único proveedor de modelos está mitigado con un plan de salida probado y un segundo proveedor validado.
+Los controles en ámbar son reales: la **minimización** (en el histórico de la demo el texto llegaba completo al modelo; con la seudonimización del apartado 2.7, las trazas de «Sesión actual» lo ponen en verde), la **EIPD** pendiente de revisión por un cambio de modelo, el **aviso de IA** pendiente en WhatsApp, la **formación** de dos tramitadores nuevos y las **pruebas de sesgo** por canal. Dan conversación: muestran que el panel no maquilla. **DORA** está al 100 % (en verde): el riesgo de concentración en un único proveedor de modelos está mitigado con un plan de salida probado y un segundo proveedor validado.
 
 > Aviso que aparece en pantalla: es un indicador técnico de cobertura de controles, no un certificado; no sustituye la evaluación del DPO ni de Cumplimiento.
 
@@ -312,7 +332,29 @@ Los controles en ámbar son reales: la **minimización** (el texto llega complet
 
 Mensaje clave: en la demo, el agente de Reglas (`gpt-5`) concentra el ~79 % del coste. Es el candidato obvio a optimizar, y los replays permiten hacerlo sin riesgo.
 
-### 3.12 Histórico
+### 3.12 Medidas correctivas
+
+**¿Qué hay que hacer para que el sistema esté sano?** Una sola lista de trabajo con los problemas que detecta el resto del panel, cada uno con sus alternativas. No inventa nada: cada problema sale de otra sección, así que coincide siempre con Inicio, Resumen, FinOps, Knowledge Bases y el Termómetro.
+
+| Bloque | Qué muestra |
+|---|---|
+| **Cabecera** | Qué es la sección y, arriba a la derecha, un círculo con el **Termómetro de cumplimiento** (cambia al verificar medidas; clic para abrirlo) |
+| **KPIs** | Medidas abiertas (y críticas) · **Ahorro conseguido** (€/mes, con barra de progreso, de los posibles y lo pendiente de aprobación) · Riesgos normativos · KB por sanear · Aplicadas y verificadas |
+| **Filtros y orden** | Por dimensión (Coste, Conocimiento, Cumplimiento, Calidad, Resiliencia), «Victorias rápidas» (esfuerzo bajo, impacto alto), «Ocultar verificadas»; orden por **prioridad** (severidad × impacto ÷ esfuerzo) o por **severidad** |
+| **Tarjeta de cada problema** | Severidad, dimensión, agente, estado y enlace a su origen; sus **alternativas**, con la recomendada marcada: qué se hace, impacto, efecto secundario, esfuerzo, quién la aprueba y cómo se valida antes |
+| **Ficha** (clic) | Qué pasa, de dónde viene y las alternativas comparadas lado a lado, con flechas para pasar a la siguiente medida |
+
+Acciones (simuladas, con evento en el Histórico):
+
+- **Simular**: valida la alternativa con su replay, rúbrica o vista previa.
+- **Aplicar** o **Solicitar aprobación** (si la aprueba el Comité IA, el DPO u otro responsable): la medida pasa a «Aplicada · por verificar» o «Pendiente de aprobación».
+- **Marcar como verificada**: cierra la medida y pone en verde sus controles del Termómetro (también en Inicio y en el Resumen). Si las trazas ya demuestran el control (por ejemplo, la minimización con la seudonimización activa en «Sesión actual»), la medida sale verificada sola.
+
+**El ahorro sube al aplicar las medidas de Coste.** Por ejemplo, «Aplicar» la recomendada de M-01 (gpt-5-mini en despeje directo) suma 237 €/mes; «Solicitar aprobación» en M-02 deja 41 € pendientes, que cuentan al verificarla (278 de 278 €/mes). Las medidas de coste comparten estado con las acciones correctivas de FinOps: aplicarlas en un sitio las marca en el otro.
+
+> Mensaje clave: el gobierno se cierra cuando cada problema detectado tiene **dueño, alternativa y verificación**.
+
+### 3.13 Histórico
 
 **Línea de tiempo única de todo lo que ha ocurrido.** Filtrable por chips de tipo:
 
@@ -343,15 +385,15 @@ El mismo guion está en el **Recorrido de la demo** (modo presentador de Inicio)
 | 6–7 | Trazabilidad → Reasoning & Replay | Waterfall y replay What-if | «Auditamos y probamos antes de cambiar» |
 | 7–8 | Autonomía y Guardrails | Niveles, G-02 y G-04 | «Autonomía graduada con límites claros» |
 | 8–9 | Triaje · Respuesta cruda de MSG-A-12 → Gobierno · Termómetro | Bloque `_gobernanza`: datos de un menor y de salud, por qué Salud y no Auto ni Hogar; después el termómetro, el inventario y «Simular una alteración» | «La solución deja a la aseguradora en condiciones de demostrar que cumple» |
-| 9–10 | Gobierno · Knowledge bases | Condicionados Auto degradada por 340 documentos de 2024: comparativa de configuraciones y «Aplicar»; editar una rúbrica | «El conocimiento también se degrada, y se vigila igual que los agentes» |
-| 10–12 | FinOps → Histórico | Cap superado, recomendaciones, línea de tiempo con todo lo tocado en la demo | «Coste bajo control y todo auditado» |
+| 9–10 | Gobierno · Knowledge Bases | Condicionados Auto degradada por 340 documentos de 2024: comparativa de configuraciones y «Aplicar»; editar una rúbrica | «El conocimiento también se degrada, y se vigila igual que los agentes» |
+| 10–12 | FinOps → Medidas correctivas → Histórico | Cap superado y recomendaciones; en Medidas, «Aplicar» M-01 y ver subir el ahorro conseguido; línea de tiempo con todo lo tocado en la demo | «Coste bajo control, problemas con dueño y todo auditado» |
 
 ---
 
 ## 5. Cosas a tener en cuenta
 
 - **Los datos del panel son de demostración**: inventados pero coherentes con el Paquete A. Solo las trazas de «Sesión actual» proceden del lote real; histórico, caps y guardrails siguen siendo de demo.
-- **Los cambios hechos en el panel** (kill switch, guardrails, caps nuevos, acciones correctivas, acciones sobre las knowledge bases y rúbricas editadas) son simulados y viven en `sessionStorage`: se pierden al cerrar la pestaña. El estado plegado del menú es una preferencia y se guarda en el navegador.
+- **Los cambios hechos en el panel** (kill switch, guardrails, caps nuevos, acciones correctivas, medidas aplicadas o verificadas, acciones sobre las Knowledge Bases y rúbricas editadas) son simulados y viven en `sessionStorage`: se pierden al cerrar la pestaña. El estado plegado del menú es una preferencia y se guarda en el navegador.
 - **Los datos personales de los mensajes son ficticios**: están para que se vea cómo se detectan, se seudonimizan y se protegen.
 - **Solo una knowledge base es real** («Reglas de negocio», los bloques de `prompts.js`); el resto aparece marcado como «simulada».
 - **Aplicación estática**: sin backend. La clave de IA solo se guarda en la sesión del navegador.

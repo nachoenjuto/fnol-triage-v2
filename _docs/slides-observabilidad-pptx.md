@@ -261,13 +261,14 @@ Un mismo trace_id une los tres: del problema técnico a su impacto en negocio y 
 | Valor | Prevenir degradaciones y cumplir SLA | Ver el retorno del proyecto | Explicar y auditar cada decisión |
 
 ## Mapa de capacidades
-<!-- notes: Este es el mapa del bloque. Agrupamos las capacidades en seis verbos:
+<!-- notes: Este es el mapa del bloque. Agrupamos las capacidades en siete verbos:
 
 - ver lo que pasa;
 - entender por qué pasa;
 - limitar lo que el agente puede hacer solo;
 - conocer con qué conocimiento decide y si sigue siendo bueno;
 - pagar solo lo que tiene sentido pagar;
+- corregir lo que no está sano;
 - y auditar todo lo anterior.
 
 Lo que vais a ver a continuación son capturas de una plataforma de gobierno que hemos construido sobre un caso de seguros: el triaje de avisos de siniestro con cuatro agentes. Pero todas las capacidades son las mismas para cualquier proceso.
@@ -276,10 +277,10 @@ A remarcar: cada capacidad responde a una de las cuatro preguntas del principio.
 
 Cada capacidad responde a una de las cuatro preguntas del principio.
 
-| Ver | Entender | Limitar | Conocer | Pagar | Auditar |
-|---|---|---|---|---|---|
-| ¿Qué está pasando? | ¿Por qué decidió eso? | ¿Quién lo controla? | ¿Con qué conocimiento decide? | ¿Cuánto cuesta? | ¿Podemos demostrarlo? |
-| Portada · Vista de dirección · Trazabilidad | Explicabilidad · Evidencias · Reasoning Replay · Causa raíz | Identidad y permisos · Autonomía · Trust Score · Guardrails · Kill switch | Knowledge bases · Rúbricas | Caps · Acciones correctivas · Modelos · Simulación | Libro de registro · Cumplimiento · Prueba en cada decisión · Termómetro |
+| Ver | Entender | Limitar | Conocer | Pagar | Corregir | Auditar |
+|---|---|---|---|---|---|---|
+| ¿Qué está pasando? | ¿Por qué decidió eso? | ¿Quién lo controla? | ¿Con qué conocimiento decide? | ¿Cuánto cuesta? | ¿Qué hay que arreglar? | ¿Podemos demostrarlo? |
+| Portada · Vista de dirección · Trazabilidad | Explicabilidad · Evidencias · Reasoning Replay · Causa raíz | Identidad, permisos y calidad · Autonomía · Trust Score · Guardrails · Kill switch | Knowledge Bases · Rúbricas | Caps · Acciones correctivas · Modelos · Simulación | Medidas correctivas · Ahorro conseguido | Libro de registro · Cumplimiento · Prueba en cada decisión · Seudonimización · Termómetro |
 
 ## Ver: la portada del panel
 <!-- notes: Antes de entrar en detalle, esta es la portada del panel. Cada ficha corresponde a una sección y responde a una pregunta: qué pasa, por qué, con qué límites, con qué conocimiento, si cumple y cuánto cuesta.
@@ -290,7 +291,7 @@ A remarcar: la portada no es decoración; es la forma de que cualquiera sepa en 
 
 Una ficha por pregunta, con su estado en vivo.
 
-- **Una puerta de entrada**: diez fichas agrupadas en ver, entender, limitar, conocer, cumplimiento, costes y auditar.
+- **Una puerta de entrada**: once fichas agrupadas en ver, entender, limitar, conocer, cumplimiento, costes, corregir y auditar.
 - **Dos cifras en vivo por ficha**: calculadas con los mismos datos que su sección, y un semáforo si hay algo que mirar.
 - **La norma de cada bloque**: las etiquetas de cada ficha dicen a qué artículo responde.
 
@@ -441,7 +442,7 @@ En la ficha se ve:
 
 En el ejemplo, el agente de Reglas puede consultar la póliza y proponer una decisión. No puede ordenar pagos, ni rechazar un siniestro, ni modificar el expediente.
 
-Debajo, el histórico: cada cambio de nivel, de modelo o de prompt, con su motivo y quién lo aprobó.
+Debajo, el histórico: cada cambio de nivel, de modelo o de prompt, con su motivo y quién lo aprobó. Y en la misma ficha, su calidad: un índice en un círculo de porcentaje, con el color del semáforo, que resume si acierta, si explica y con cuánta confianza decide.
 
 A remarcar: un agente con permisos de más es el riesgo de seguridad más fácil de evitar. -->
 
@@ -451,6 +452,7 @@ Mínimo privilegio también para los agentes.
 - **Un responsable**: un área de negocio y un comité que responden del agente.
 - **Datos que trata y dónde**: proveedor del modelo y región.
 - **Qué puede y qué no**: el agente de Reglas propone, pero no puede ordenar pagos ni rechazar un siniestro.
+- **Calidad medida**: un índice de calidad con semáforo (acierto, explicación y confianza frente al esperado).
 
 ![Ficha del agente](img/observabilidad/06-ficha-agente.png)
 
@@ -675,6 +677,26 @@ Ningún cambio de gobierno llega a producción sin saber antes su impacto.
 
 ![Nuevo cap y nuevo guardrail](img/observabilidad/c31-simular.png)
 
+## Corregir: medidas correctivas
+<!-- notes: Ver los problemas no basta: hay que arreglarlos. Esta sección reúne en una sola lista de trabajo todo lo que el resto del panel ha detectado: caps superados, knowledge bases degradadas, controles de cumplimiento en ámbar, overrides y caídas del proveedor.
+
+Cada problema trae sus alternativas, no una sola receta: cambiar de modelo, cambiar el prompt o subir el límite. Cada alternativa dice cuánto mejora, qué efecto secundario tiene, cuánto esfuerzo cuesta, quién la aprueba y cómo se valida antes con un replay o una vista previa.
+
+La lista se ordena por prioridad: severidad por impacto, dividido por el esfuerzo. Arriba quedan las victorias rápidas.
+
+Al aplicar las medidas de coste, el KPI de ahorro conseguido sube: en el ejemplo, 237 € al mes con la primera y 41 € más pendientes de aprobación del Comité IA. Al marcar una medida como verificada, el termómetro de cumplimiento se actualiza.
+
+A remarcar: el gobierno se cierra cuando el problema detectado tiene dueño, alternativa y verificación. -->
+
+De lo detectado a lo resuelto: una lista de trabajo priorizada, con alternativas y verificación.
+
+- **Un solo sitio**: coste, conocimiento, cumplimiento, calidad y resiliencia, con el origen de cada problema.
+- **Alternativas comparadas**: impacto, efecto secundario, esfuerzo, quién aprueba y cómo se valida antes.
+- **Prioridad**: severidad × impacto ÷ esfuerzo, con las victorias rápidas marcadas.
+- **Ahorro conseguido y termómetro**: aplicar una medida de coste sube el ahorro; verificar una de cumplimiento mejora el termómetro.
+
+![Medidas correctivas](img/observabilidad/37-medidas.png)
+
 ## Auditar: libro de registro
 <!-- notes: Todo lo que hemos visto deja rastro en un único libro de registro.
 
@@ -740,10 +762,30 @@ La plataforma, no el modelo, deja en cada decisión la evidencia que pide la nor
 
 ![la prueba en cada decisión](img/observabilidad/42-respuesta-cruda.png)
 
+## Proteger: seudonimizar antes del modelo
+<!-- notes: El modelo no necesita saber cómo se llama el asegurado ni su DNI para decidir si un siniestro se aprueba. Por eso, antes de enviarle el mensaje, la plataforma cambia cada dato personal por un marcador: persona 1, teléfono 1, póliza de Auto 1.
+
+Lo que sí se mantiene son los datos de salud y la edad de los menores, porque hacen falta para decidir.
+
+Cuando vuelve la respuesta, la plataforma pone los valores reales en su sitio y el tramitador ve la ficha de siempre. La tabla de correspondencias solo existe en memoria durante la llamada: no viaja al modelo ni se guarda en la traza.
+
+En la traza queda la prueba: cuántos datos se sustituyeron, de qué tipo, y el hash del texto que se envió. Y el control de minimización del termómetro pasa a verde.
+
+A remarcar: minimizar no es una política en un documento; es lo que el modelo recibe de verdad. -->
+
+El modelo decide sin ver quién es el asegurado.
+
+- **Marcadores en lugar de datos**: nombres, DNI, teléfono, IBAN, póliza, matrícula y dirección viajan como [PERSONA_1], [DNI_1]…
+- **Lo necesario se mantiene**: los datos de salud y la edad de los menores, porque hacen falta para decidir.
+- **Reconstrucción en la plataforma**: la tabla de correspondencias solo vive en memoria durante la llamada.
+- **Prueba en la traza**: datos sustituidos, tipos y hash del texto enviado; la minimización (RGPD art. 5.1.c) pasa a verde.
+
+![seudonimizar antes del modelo](img/observabilidad/43-enviado-al-modelo.png)
+
 ## Auditar: termómetro de cumplimiento
 <!-- notes: El termómetro agrega los bloques de gobierno de todas las trazas. Cada control dice qué exige la norma, cómo lo resuelve la solución y la medida en vivo.
 
-Hay controles en ámbar, y eso es bueno: el panel no maquilla. La minimización, por ejemplo, está en ámbar porque hoy el texto llega completo al modelo.
+Hay controles en ámbar, y eso es bueno: el panel no maquilla. La minimización, por ejemplo, está en ámbar en el histórico de la demo, porque entonces el texto llegaba completo al modelo; con la seudonimización que acabamos de ver, las trazas de la sesión la ponen en verde.
 
 A remarcar: no sustituye al DPO; le da la evidencia que necesita, recalculada con cada traza. -->
 

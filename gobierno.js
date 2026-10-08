@@ -395,33 +395,45 @@
   }
 
   // Métricas de calidad propias de cada agente, calculadas sobre las trazas y sus bloques _gobernanza
+  // Índice de calidad del agente: media de las filas medibles, en un círculo de porcentaje con el color del semáforo
+  function calidadIndice(Q) {
+    const ps = Q.filter((q) => q.p != null).map((q) => q.p);
+    if (!ps.length) return '';
+    const v = Math.round(ps.reduce((s, x) => s + x, 0) / ps.length);
+    const r = 30; const L = 2 * Math.PI * r; const c = colorPct(v);
+    const txt = v >= 90 ? 'Calidad alta' : v >= 70 ? 'Calidad a vigilar' : 'Calidad baja';
+    return `<div class="ag-q-ring"><svg viewBox="0 0 76 76" width="76" height="76" aria-hidden="true"><circle cx="38" cy="38" r="${r}" fill="none" stroke="var(--border)" stroke-width="7"/><circle cx="38" cy="38" r="${r}" fill="none" stroke="${c}" stroke-width="7" stroke-linecap="round" stroke-dasharray="${(L * v) / 100} ${L}" transform="rotate(-90 38 38)"/><text x="38" y="43" text-anchor="middle" style="font-size:17px;font-weight:800;fill:${c}">${v}%</text></svg>
+      <div><b style="color:${c}">${txt}</b><span class="muted small">Índice de calidad: media de ${ps.length} indicadores medibles (acierto, explicación${ps.length > 2 ? ', confianza' : ''}…) sobre el Paquete A. Verde ≥ 90 %, ámbar ≥ 70 %.</span></div></div>`;
+  }
+
   function calidadAgente(a) {
     const items = cmpItems;
     const esperado = Object.fromEntries(PAQUETES.flatMap((p) => p.mensajes).map((m) => [m.id, m.esperado || {}]));
     const n = items.length || 1;
-    const fila = (l, v, s, ok) => ({ l, v, s, ok });
+    // p: porcentaje de la fila (0-100) cuando se puede medir; entra en el índice de calidad del agente
+    const fila = (l, v, s, ok, p = null) => ({ l, v, s, ok, p: p == null ? null : Math.max(0, Math.min(100, Math.round(p))) });
     if (a.id === 'multicanal') {
       const canales = {}; items.forEach((x) => { const c = x.entry.mensaje.canal; canales[c] = (canales[c] || 0) + 1; });
-      return [fila('Mensajes normalizados', `${items.length}/${items.length}`, 'al formato único, sin pérdidas', true), fila('Canales', Object.entries(canales).map(([c, v]) => `${canalInfo(c)[1]} ${v}`).join(' · '), 'el canal no cambia el tratamiento', true), fila('Datos personales transportados', num(items.reduce((s, x) => s + x.gob.datos_personales.total, 0)), 'solo los transporta; no los interpreta', true)];
+      return [fila('Mensajes normalizados', `${items.length}/${items.length}`, 'al formato único, sin pérdidas', true, 100), fila('Canales', Object.entries(canales).map(([c, v]) => `${canalInfo(c)[1]} ${v}`).join(' · '), 'el canal no cambia el tratamiento', true), fila('Datos personales transportados', num(items.reduce((s, x) => s + x.gob.datos_personales.total, 0)), 'solo los transporta; no los interpreta', true)];
     }
     if (a.id === 'clasificacion') {
       const ok = items.filter((x) => !esperado[x.entry.id].ramo || esperado[x.entry.id].ramo === x.entry.ramo).length;
       const desc = items.filter((x) => x.gob.explicabilidad.descartados.length >= 2).length;
       const ramos = {}; items.forEach((x) => { ramos[x.entry.ramo] = (ramos[x.entry.ramo] || 0) + 1; });
-      return [fila('Acierto de ramo frente al esperado', `${ok}/${items.length}`, `${Math.round((ok / n) * 100)} %`, ok === items.length), fila('Ramos descartados explicados', `${desc}/${items.length}`, 'por qué no es de los otros dos', desc === items.length), fila('Reparto', Object.entries(ramos).map(([r, v]) => `${r} ${v}`).join(' · '), 'Auto / Hogar / Salud', true)];
+      return [fila('Acierto de ramo frente al esperado', `${ok}/${items.length}`, `${Math.round((ok / n) * 100)} %`, ok === items.length, (ok / n) * 100), fila('Ramos descartados explicados', `${desc}/${items.length}`, 'por qué no es de los otros dos', desc === items.length, (desc / n) * 100), fila('Reparto', Object.entries(ramos).map(([r, v]) => `${r} ${v}`).join(' · '), 'Auto / Hogar / Salud', true)];
     }
     if (a.id === 'extraccion') {
       const campos = ['nombre_cliente', 'numero_poliza', 'tipo_siniestro', 'fecha_hecho', 'importe_estimado_eur', 'lugar'];
       const llenos = items.reduce((s, x) => s + campos.filter((c) => x.entry.datos_extraidos[c] != null).length, 0);
       const nulos = items.reduce((s, x) => s + campos.filter((c) => x.entry.datos_extraidos[c] == null).length, 0);
       const evDatos = items.reduce((s, x) => s + Evidencias.construir(x.texto, x.entry.evidencias, x.entry).lista.filter((e) => e.verificada && e.ref !== 'ramo' && !e.ref.startsWith('regla:')).length, 0);
-      return [fila('Campos clave extraídos', `${Math.round((llenos / (campos.length * n)) * 100)} %`, `${llenos} de ${campos.length * items.length}`, true), fila('Campos en nulo (no aparecen en el texto)', num(nulos), 'nunca se inventan: MSG-A-13 deja fecha, importe y lugar en nulo', true), fila('Evidencias de datos verificadas', dec2(evDatos / n), 'por mensaje, citas literales localizadas', evDatos / n >= 4)];
+      return [fila('Campos clave extraídos', `${Math.round((llenos / (campos.length * n)) * 100)} %`, `${llenos} de ${campos.length * items.length}`, true, (llenos / (campos.length * n)) * 100), fila('Campos en nulo (no aparecen en el texto)', num(nulos), 'nunca se inventan: MSG-A-13 deja fecha, importe y lugar en nulo', true), fila('Evidencias de datos verificadas', dec2(evDatos / n), 'por mensaje, citas literales localizadas (objetivo ≥ 4)', evDatos / n >= 4, (evDatos / n / 4) * 100)];
     }
     const ok = items.filter((x) => esperado[x.entry.id].revision == null || esperado[x.entry.id].revision === (x.entry.decision === 'REVISION')).length;
     const conf = items.reduce((s, x) => s + (x.entry.confianza || 0), 0) / n;
     const inc = {}; items.forEach((x) => (x.entry.criterios || []).filter((c) => c.resultado === 'incumple').forEach((c) => { inc[c.regla] = (inc[c.regla] || 0) + 1; }));
     const ov = G.trazas.filter((t) => t.resultado === 'override').length;
-    return [fila('Acierto de la decisión frente al esperado', `${ok}/${items.length}`, `${Math.round((ok / n) * 100)} %`, ok === items.length), fila('Confianza media', dec2(conf), 'umbral G-01: 0,85', conf >= 0.85), fila('Evidencias verificadas', dec2(items.reduce((s, x) => s + x.gob.explicabilidad.evidencias_verificadas, 0) / n), 'por decisión (mínimo 5)', true), fila('Reglas que más frenan', Object.entries(inc).sort((x, y) => y[1] - x[1]).map(([r, v]) => `${r} ×${v}`).join(' · ') || '—', 'en el periodo', true), fila('Overrides humanos', num(ov), 'decisiones cambiadas por una persona', ov <= 1)];
+    return [fila('Acierto de la decisión frente al esperado', `${ok}/${items.length}`, `${Math.round((ok / n) * 100)} %`, ok === items.length, (ok / n) * 100), fila('Confianza media', dec2(conf), 'umbral G-01: 0,85', conf >= 0.85, conf * 100), fila('Evidencias verificadas', dec2(items.reduce((s, x) => s + x.gob.explicabilidad.evidencias_verificadas, 0) / n), 'por decisión (mínimo 5)', true, (items.reduce((s, x) => s + x.gob.explicabilidad.evidencias_verificadas, 0) / n / 5) * 100), fila('Reglas que más frenan', Object.entries(inc).sort((x, y) => y[1] - x[1]).map(([r, v]) => `${r} ×${v}`).join(' · ') || '—', 'en el periodo', true), fila('Overrides humanos', num(ov), 'decisiones cambiadas por una persona', ov <= 1)];
   }
 
   // Ejemplo real de lo que recibe y devuelve el agente, sacado de una traza del Paquete A
@@ -494,7 +506,8 @@
           <h3 style="margin-top:1rem">Comportamiento según el modelo</h3><div class="tw tabla-compacta"><table><thead><tr><th>Modelo</th><th>Periodo</th><th>Precisión</th><th>Escalado</th><th>Override</th><th>Coste / msg</th><th>p95</th></tr></thead><tbody>${(a.modelos || []).map((mo) => `<tr><td class="mono">${esc(mo.modelo)}</td><td>${esc(mo.periodo)}</td><td>${esc(mo.precision)}</td><td class="tnum">${esc(mo.escalado)}</td><td class="tnum">${esc(mo.override)}</td><td class="tnum">${esc(mo.coste_msg)}</td><td class="tnum">${ms(mo.p95_ms)}</td></tr>`).join('') || '<tr><td colspan="7" class="muted">Sin datos por modelo.</td></tr>'}</tbody></table></div>
           ${recos.length ? `<div class="box" style="margin-top:.8rem">${ic('lightbulb')} <b>FinOps:</b> ${recos.map((r) => `${esc(r.titulo)}. <span class="muted">${esc(r.detalle)}</span>`).join(' ')}</div>` : ''}</div>
         <div class="card"><h3>${ic('badge-check')} Calidad (Paquete A)</h3>
-          <div class="tw"><table><tbody>${Q.map((q) => `<tr><td>${esc(q.l)}</td><td class="tnum"><b style="color:${q.ok ? 'var(--ok)' : 'var(--warn)'}">${esc(q.v)}</b></td><td class="muted small wrap">${esc(q.s)}</td></tr>`).join('')}</tbody></table></div>
+          ${calidadIndice(Q)}
+          <div class="tw ag-q-tabla"><table><tbody>${Q.map((q) => `<tr><td>${esc(q.l)}${q.p != null ? `<div class="ag-q-bar" style="--c:${colorPct(q.p)}" title="${q.p} %"><i style="width:${q.p}%"></i></div>` : ''}</td><td class="tnum"><b style="color:${q.ok ? 'var(--ok)' : 'var(--warn)'}">${esc(q.v)}</b></td><td class="muted small wrap">${esc(q.s)}</td></tr>`).join('')}</tbody></table></div>
           <h3 style="margin-top:1rem">${ic('circle-alert')} Incidencias</h3>
           ${D.incid.length ? `<ul class="kb-acc-lista">${D.incid.map(({ t }) => `<li><a href="#" class="mono" data-traza="${esc(t.id)}">${esc(t.id)}</a> ${esc(t.mensaje)} · ${conGuardrails(esc((t.incidencias || []).join(' · ')))}</li>`).join('')}</ul>` : '<p class="small muted">Sin incidencias en el periodo.</p>'}</div>
       </div>
@@ -1800,9 +1813,20 @@
   const prioridad = (m) => (MED_SEV[m.sev][2] * m.impacto) / ESF[recomendada(m).esfuerzo];
   const rapida = (m) => recomendada(m).esfuerzo === 'bajo' && m.impacto >= 2;
   const corrDe = (a) => { if (!a.corr) return null; const [cap, k] = a.corr.split(':'); const c = (G.caps || []).find((x) => x.id === cap); const x = c && capCorrectivas(c)[Number(k)]; return x ? { cap, k: Number(k), x, estado: x.estado === 'aplicada' ? 'aplicada' : correctivasEstado[a.corr] || '' } : null; };
+  // Controles medidos en verde con las trazas de la fuente actual (sin contar las medidas verificadas a mano)
+  let medidosOk = { items: null, set: new Set() };
+  function controlesMedidosOk() {
+    if (medidosOk.items === cmpItems) return medidosOk.set;
+    const T = Cumplimiento.termometro((cmpItems || []).map((x) => x.gob), {}, null);
+    medidosOk = { items: cmpItems, set: new Set(T.marcos.flatMap((mc) => mc.controles).filter((c) => c.fuente === 'medido' && c.estado === 'ok').map((c) => c.id)) };
+    return medidosOk.set;
+  }
   function estadoMedida(m) {
     const e = medidasEstado[m.id] || {};
     if (e.estado === 'verificada') return 'verificada';
+    // Verificada por las propias trazas: sus controles medidos ya cumplen (p. ej. seudonimización activa en la sesión)
+    const med = controlesMedidosOk();
+    if ((m.controles || []).length && m.controles.every((c) => med.has(c))) return 'verificada';
     const corrs = m.alternativas.map(corrDe).filter(Boolean);
     if (corrs.some((c) => c.estado === 'aplicada')) return 'aplicada';
     if (corrs.some((c) => c.estado === 'pendiente')) return 'pendiente';
@@ -1824,6 +1848,21 @@
     const todos = T.marcos.flatMap((mc) => mc.controles);
     T.global = Math.round((todos.reduce((s, c) => s + PESO[c.estado], 0) / (todos.length || 1)) * 100);
     return T;
+  }
+
+  // Ahorro de las medidas de coste: conseguido (alternativa aplicada o medida verificada), pendiente de aprobación y aún posible
+  function ahorroMedidas() {
+    let conseguido = 0; let pendiente = 0; let posible = 0;
+    medidas().filter((m) => m.dim === 'coste').forEach((m) => {
+      const est = estadoMedida(m); const e = medidasEstado[m.id] || {};
+      const elegidas = m.alternativas.map((a, k) => ({ a, k, c: corrDe(a) })).filter(({ k, c }) => (c && c.estado) || (e.alt === k && est !== 'abierta'));
+      const hechas = elegidas.filter(({ c }) => est === 'verificada' || (c ? c.estado === 'aplicada' : est === 'aplicada'));
+      const sumar = (l) => l.reduce((x, { a }) => x + (a.ahorro_mes || 0), 0);
+      conseguido += sumar(hechas);
+      pendiente += sumar(elegidas.filter((x) => !hechas.includes(x)));
+      if (!elegidas.length) posible += recomendada(m).ahorro_mes || 0;
+    });
+    return { conseguido, pendiente, posible, total: conseguido + pendiente + posible };
   }
 
   function accionMedida(id, tipo, k) {
@@ -1866,11 +1905,11 @@
     const M = medidas();
     const T = estadoCumplimiento().T;
     const ab = M.filter(abiertaMed);
-    const ahorro = ab.filter((m) => m.dim === 'coste').reduce((s, m) => s + (recomendada(m).ahorro_mes || 0), 0);
+    const AH = ahorroMedidas();
     $('med-termo').innerHTML = `<div class="med-termo" style="--c:${colorPct(T.global)}" data-goto="cumplimiento" role="button" tabindex="0" title="Termómetro de cumplimiento: cambia al verificar medidas"><span class="v">${T.global}<small>%</small></span><span class="l">cumplimiento</span></div>`;
     $('kpis-med').innerHTML = [
-      { cls: ab.some((m) => m.sev === 'crit') ? 'crit' : 'warn', icono: 'wrench', etiqueta: 'Medidas abiertas', valor: String(ab.length), sub: `${ab.filter((m) => m.sev === 'crit').length} críticas · ${M.length} en total` },
-      { cls: 'ok', icono: 'euro', etiqueta: 'Ahorro posible', valor: `${num(ahorro)} €/mes`, sub: 'con las alternativas recomendadas de coste' },
+      { cls: ab.some((m) => m.sev === 'crit') ? 'crit' : 'warn', icono: 'wrench', etiqueta: 'Medidas abiertas', valor: String(ab.length), sub: `${((n) => `${n} ${n === 1 ? 'crítica' : 'críticas'}`)(ab.filter((m) => m.sev === 'crit').length)} · ${M.length} en total` },
+      { cls: 'ok', icono: 'euro', etiqueta: 'Ahorro conseguido', valor: `${num(AH.conseguido)} €/mes`, sub: `de ${num(AH.total)} €/mes posibles${AH.pendiente ? ` · ${num(AH.pendiente)} € pendientes de aprobación` : ''} · aplica las medidas de Coste`, medidor: AH.total ? (AH.conseguido / AH.total) * 100 : 0, id: null },
       { cls: 'warn', icono: 'scale', etiqueta: 'Riesgos normativos', valor: String(ab.filter((m) => (m.controles || []).length).length), sub: 'controles del Termómetro por corregir' },
       { cls: 'review', icono: 'book-open', etiqueta: 'KB por sanear', valor: String(ab.filter((m) => m.kb).length), sub: 'knowledge bases con medida abierta' },
       { cls: 'time', icono: 'circle-check', etiqueta: 'Aplicadas y verificadas', valor: `${M.length - ab.length}`, sub: `${M.filter((m) => estadoMedida(m) === 'verificada').length} verificadas` },
@@ -1969,11 +2008,11 @@
       knowledge: ['¿Con qué conocimiento deciden y sigue siendo bueno?', [`${kbOk} de ${E.length} sanas`, kbCrit.length ? `${kbCrit.map(({ k }) => k.id).join(', ')} crítica` : 'ninguna crítica'], kbCrit.length ? 'crit' : kbOk < E.length ? 'warn' : 'ok', ['ai-10', 'rgpd-17']],
       cumplimiento: ['¿Podemos demostrar que cumplimos?', [`${T.global} % de cobertura de controles`, `${T.marcos.reduce((a, m) => a + m.cuenta.ambar + m.cuenta.rojo, 0)} controles parciales`], T.global >= 90 ? 'ok' : 'warn', ['ai-12', 'rgpd-5']],
       finops: ['¿Cuánto cuesta y estamos dentro del presupuesto?', [`${eur(coste, 0)} en el periodo`, `${capsSup} caps superados`], capsSup ? 'crit' : 'ok', ['sii-41']],
-      medidas: (() => { const ab = medidas().filter(abiertaMed); const crit = ab.filter((m) => m.sev === 'crit').length; const ah = ab.filter((m) => m.dim === 'coste').reduce((x, m) => x + (recomendada(m).ahorro_mes || 0), 0); return ['¿Qué hay que hacer para que el sistema esté sano?', [`${ab.length} medidas abiertas`, `${num(ah)} €/mes de ahorro posible · ${crit} ${crit === 1 ? 'crítica' : 'críticas'}`], crit ? 'crit' : ab.length ? 'warn' : 'ok', ['ai-9', 'rgpd-5']]; })(),
+      medidas: (() => { const ab = medidas().filter(abiertaMed); const crit = ab.filter((m) => m.sev === 'crit').length; const AH = ahorroMedidas(); return ['¿Qué hay que hacer para que el sistema esté sano?', [`${ab.length} medidas abiertas`, `${AH.conseguido ? `${num(AH.conseguido)} de ${num(AH.total)} €/mes ahorrados` : `${num(AH.posible)} €/mes de ahorro posible`} · ${crit} ${crit === 1 ? 'crítica' : 'críticas'}`], crit ? 'crit' : ab.length ? 'warn' : 'ok', ['ai-9', 'rgpd-5']]; })(),
       historico: ['¿Qué ha cambiado, cuándo y quién lo aprobó?', [`${num(ev.length)} eventos`, ev.length ? `último: ${fechaHora(ev.reduce((a, e) => (e.fecha > a ? e.fecha : a), ev[0].fecha))}` : '—'], 'ok', ['ai-12', 'rgpd-5']],
     };
     // Resumen y Trazabilidad son vistas de consulta: sin etiqueta de estado (sus alertas ya están en las demás fichas)
-    const SIN_ESTADO = ['resumen', 'trazas'];
+    const SIN_ESTADO = ['resumen', 'trazas', 'replay'];
     const GRUPOS = [['Ver', ['resumen', 'agentes']], ['Entender', ['trazas', 'replay']], ['Limitar', ['autonomia', 'guardrails']], ['Conocer', ['knowledge']], ['Cumplimiento', ['cumplimiento']], ['Costes', ['finops']], ['Corregir', ['medidas']], ['Auditar', ['historico']]];
     const SEM = { ok: ['var(--ok)', 'Sin incidencias', 'pill-ok', 'circle-check', 'Al día'], warn: ['var(--warn)', 'Hay algo que mirar', 'pill-warn', 'circle-alert', 'Revisar'], crit: ['var(--crit)', 'Requiere atención', 'pill-crit', 'triangle-alert', 'Atención'] };
     const tab = Object.fromEntries(TABS.map(([v, i, l]) => [v, [i, l]]));

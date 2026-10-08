@@ -5,9 +5,9 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>FNOL — Primer Aviso de Siniestro</title>
   <meta name="description" content="Demo de triaje multicanal de mensajes de clientes de una aseguradora: clasificación por ramo, extracción de datos y aplicación de reglas con un proveedor de IA.">
-  <link rel="stylesheet" href="styles.css?v=20">
-  <link rel="stylesheet" href="header.css?v=20">
-  <link rel="stylesheet" href="cumplimiento.css?v=20">
+  <link rel="stylesheet" href="styles.css?v=27">
+  <link rel="stylesheet" href="header.css?v=27">
+  <link rel="stylesheet" href="cumplimiento.css?v=27">
 </head>
 <body>
   <header class="topbar">
@@ -78,6 +78,10 @@
               <option value="2pasos">2 pasos — clasificar ramo, luego reglas solo de ese ramo</option>
             </select>
             <small>1 paso: una llamada por mensaje. 2 pasos: menos tokens de entrada pero dos llamadas y dos razonamientos; la ficha muestra los tokens de cada paso.</small>
+          </label>
+          <label class="check-row">
+            <span class="check-line"><input id="chk-seud" type="checkbox" checked> Seudonimizar antes de enviar al modelo</span>
+            <small>Nombres, DNI, teléfono, IBAN, póliza, matrícula y dirección viajan como marcadores ([PERSONA_1], [DNI_1]…) y se reconstruyen al volver. Los datos de salud se mantienen porque hacen falta para decidir. RGPD art. 5.1.c.</small>
           </label>
         </div>
       </details>
@@ -291,6 +295,7 @@
           <h3 style="margin:0;border:0;padding:0">Respuesta cruda del modelo</h3>
           <div class="row">
             <div class="seg" role="group" aria-label="Contenido de la respuesta">
+              <button type="button" class="seg-btn" data-raw="enviado" aria-pressed="false">Enviado al modelo</button>
               <button type="button" class="seg-btn" data-raw="modelo" aria-pressed="false">Salida del modelo</button>
               <button type="button" class="seg-btn" data-raw="gobierno" aria-pressed="true">+ Gobierno</button>
             </div>
@@ -308,13 +313,13 @@
   </dialog>
 
 
-  <script src="icons.js?v=20"></script>
-  <script src="shell.js?v=20"></script>
-  <script src="data/mensajes.js?v=20"></script>
-  <script src="data/resultados.js?v=20"></script>
-  <script src="prompts.js?v=20"></script>
-  <script src="evidencias.js?v=20"></script>
-  <script src="cumplimiento.js?v=20"></script>
-  <script src="app.js?v=20"></script>
+  <script src="icons.js?v=27"></script>
+  <script src="shell.js?v=27"></script>
+  <script src="data/mensajes.js?v=27"></script>
+  <script src="data/resultados.js?v=27"></script>
+  <script src="prompts.js?v=27"></script>
+  <script src="evidencias.js?v=27"></script>
+  <script src="cumplimiento.js?v=27"></script>
+  <script src="app.js?v=27"></script>
 </body>
 </html>

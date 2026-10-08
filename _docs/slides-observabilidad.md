@@ -4,7 +4,7 @@ Presentación genérica sobre las capacidades de observabilidad y gobierno que n
 
 Este fichero es el contenido de referencia: texto, capturas y notas del ponente de cada slide, sin estilo. Iconos de [Lucide](https://lucide.dev). Capturas en [img/observabilidad/](img/observabilidad/), sacadas de `gobierno.html` (fuente «Demo · Paquete A + 14 días») e `index.html` (Paquete A procesado). Se regeneran con `make capturas` (con `make run` en marcha): `scripts/capturas.mjs` las hace con Chrome sin interfaz y `scripts/componer-capturas.py` monta las compuestas.
 
-**Versión en PowerPoint** (plantilla Logicalis 2026, modo avanzado de la skill md-to-pptx): [slides-observabilidad.pptx](slides-observabilidad.pptx), 60 slides. Se genera así:
+**Versión en PowerPoint** (plantilla Logicalis 2026, modo avanzado de la skill md-to-pptx): [slides-observabilidad.pptx](slides-observabilidad.pptx), 81 slides. Se genera así:
 
 | Fichero | Qué es |
 |---|---|
@@ -59,48 +59,55 @@ Si se cambia el contenido, hay que actualizar también `slides-observabilidad-pp
 | 30 | Entender: Reasoning Replay y What-if (2/2) | Captura ampliada |
 | 31 | Entender: causa raíz del comportamiento | Contenido |
 | 32 | Limitar: identidad y permisos por agente | Contenido + captura |
-| 33 | Limitar: identidad y permisos por agente | Captura ampliada |
-| 34 | Limitar: autonomía progresiva | Contenido + captura |
-| 35 | Limitar: autonomía progresiva (1/2) | Captura ampliada |
-| 36 | Limitar: autonomía progresiva (2/2) | Captura ampliada |
-| 37 | Limitar: Trust Score y supervisión adaptativa | Contenido |
-| 38 | Limitar: Trust Score y supervisión adaptativa | Captura ampliada |
-| 39 | Limitar: guardrails | Contenido + captura |
-| 40 | Limitar: guardrails | Captura ampliada |
-| 41 | Limitar: kill switch y resiliencia | Contenido + captura |
-| 42 | Limitar: kill switch y resiliencia | Captura ampliada |
-| 43 | Conocer: el conocimiento también se degrada | Contenido + captura |
-| 44 | Conocer: el conocimiento también se degrada (1/2) | Captura ampliada |
-| 45 | Conocer: el conocimiento también se degrada (2/2) | Captura ampliada |
-| 46 | Conocer: rúbricas que vigilan el conocimiento | Contenido + captura |
-| 47 | Conocer: rúbricas que vigilan el conocimiento | Captura ampliada |
-| 48 | Pagar: caps y presupuesto | Contenido + captura |
-| 49 | Pagar: caps y presupuesto (1/2) | Captura ampliada |
-| 50 | Pagar: caps y presupuesto (2/2) | Captura ampliada |
-| 51 | Pagar: de la alerta a la acción | Contenido + captura |
-| 52 | Pagar: de la alerta a la acción (1/2) | Captura ampliada |
-| 53 | Pagar: de la alerta a la acción (2/2) | Captura ampliada |
-| 54 | Pagar: el modelo adecuado para cada agente | Contenido + captura |
-| 55 | Pagar: el modelo adecuado para cada agente | Captura ampliada |
-| 56 | Antes de cambiar, simular | Contenido + captura |
-| 57 | Antes de cambiar, simular (1/2) | Captura ampliada |
-| 58 | Antes de cambiar, simular (2/2) | Captura ampliada |
-| 59 | Auditar: libro de registro | Contenido + captura |
-| 60 | Auditar: libro de registro | Captura ampliada |
-| 61 | Cumplimiento por diseño | Contenido + captura |
-| 62 | Cumplimiento por diseño | Captura ampliada |
-| 63 | Auditar: la prueba en cada decisión | Contenido + captura |
-| 64 | Auditar: la prueba en cada decisión | Captura ampliada |
-| 65 | Auditar: termómetro de cumplimiento | Contenido + captura |
-| 66 | Auditar: termómetro de cumplimiento (1/2) | Captura ampliada |
-| 67 | Auditar: termómetro de cumplimiento (2/2) | Captura ampliada |
-| 68 | Separador 05 · Cómo implantarlo | Contenido |
-| 69 | Marco de madurez GenAIOps | Contenido |
-| 70 | Cadena de confianza operacional | Contenido |
-| 71 | Piezas sueltas frente a integración | Contenido |
-| 72 | Mensajes clave | Contenido |
-| 73 | Fuentes | Contenido |
-| 74 | Gracias | Cierre |
+| 33 | Limitar: identidad y permisos por agente (1/2) | Captura ampliada |
+| 34 | Limitar: identidad y permisos por agente (2/2) | Captura ampliada |
+| 35 | Limitar: autonomía progresiva | Contenido + captura |
+| 36 | Limitar: autonomía progresiva (1/2) | Captura ampliada |
+| 37 | Limitar: autonomía progresiva (2/2) | Captura ampliada |
+| 38 | Limitar: Trust Score y supervisión adaptativa | Contenido + captura |
+| 39 | Limitar: Trust Score y supervisión adaptativa | Captura ampliada |
+| 40 | Limitar: guardrails | Contenido + captura |
+| 41 | Limitar: guardrails | Captura ampliada |
+| 42 | Limitar: kill switch y resiliencia | Contenido + captura |
+| 43 | Limitar: kill switch y resiliencia | Captura ampliada |
+| 44 | Conocer: el conocimiento también se degrada | Contenido + captura |
+| 45 | Conocer: el conocimiento también se degrada (1/2) | Captura ampliada |
+| 46 | Conocer: el conocimiento también se degrada (2/2) | Captura ampliada |
+| 47 | Conocer: rúbricas que vigilan el conocimiento | Contenido + captura |
+| 48 | Conocer: rúbricas que vigilan el conocimiento | Captura ampliada |
+| 49 | Pagar: caps y presupuesto | Contenido + captura |
+| 50 | Pagar: caps y presupuesto (1/2) | Captura ampliada |
+| 51 | Pagar: caps y presupuesto (2/2) | Captura ampliada |
+| 52 | Pagar: de la alerta a la acción | Contenido + captura |
+| 53 | Pagar: de la alerta a la acción (1/2) | Captura ampliada |
+| 54 | Pagar: de la alerta a la acción (2/2) | Captura ampliada |
+| 55 | Pagar: el modelo adecuado para cada agente | Contenido + captura |
+| 56 | Pagar: el modelo adecuado para cada agente | Captura ampliada |
+| 57 | Antes de cambiar, simular | Contenido + captura |
+| 58 | Antes de cambiar, simular (1/2) | Captura ampliada |
+| 59 | Antes de cambiar, simular (2/2) | Captura ampliada |
+| 60 | Corregir: medidas correctivas | Contenido + captura |
+| 61 | Corregir: medidas correctivas (1/3) | Captura ampliada |
+| 62 | Corregir: medidas correctivas (2/3) | Captura ampliada |
+| 63 | Corregir: medidas correctivas (3/3) | Captura ampliada |
+| 64 | Auditar: libro de registro | Contenido + captura |
+| 65 | Auditar: libro de registro | Captura ampliada |
+| 66 | Cumplimiento por diseño | Contenido + captura |
+| 67 | Cumplimiento por diseño | Captura ampliada |
+| 68 | Auditar: la prueba en cada decisión | Contenido + captura |
+| 69 | Auditar: la prueba en cada decisión | Captura ampliada |
+| 70 | Proteger: seudonimizar antes del modelo | Contenido + captura |
+| 71 | Proteger: seudonimizar antes del modelo | Captura ampliada |
+| 72 | Auditar: termómetro de cumplimiento | Contenido + captura |
+| 73 | Auditar: termómetro de cumplimiento (1/2) | Captura ampliada |
+| 74 | Auditar: termómetro de cumplimiento (2/2) | Captura ampliada |
+| 75 | Separador 05 · Cómo implantarlo | Contenido |
+| 76 | Marco de madurez GenAIOps | Contenido |
+| 77 | Cadena de confianza operacional | Contenido |
+| 78 | Piezas sueltas frente a integración | Contenido |
+| 79 | Mensajes clave | Contenido |
+| 80 | Fuentes | Contenido |
+| 81 | Gracias | Cierre |
 
 ---
 
@@ -467,22 +474,23 @@ Tres columnas unidas por una flecha inferior con el texto «un mismo `trace_id`�
 
 ## 17 · Mapa de capacidades
 
-Seis columnas, una por verbo, cada una con la pregunta que responde:
+Siete columnas, una por verbo, cada una con la pregunta que responde:
 
-| `eye` **Ver** | `lightbulb` **Entender** | `shield` **Limitar** | `book-open` **Conocer** | `wallet` **Pagar** | `book-open-check` **Auditar** |
-|---|---|---|---|---|---|
-| ¿Qué está pasando? | ¿Por qué decidió eso? | ¿Quién lo controla? | ¿Con qué conocimiento decide? | ¿Cuánto cuesta? | ¿Podemos demostrarlo? |
-| Portada · Vista de dirección · Trazabilidad | Explicabilidad · Evidencias · Reasoning Replay · Causa raíz | Identidad y permisos · Autonomía · Trust Score · Guardrails · Kill switch | Knowledge bases · Rúbricas | Caps · Acciones correctivas · Modelos · Simulación | Libro de registro · Cumplimiento · Prueba en cada decisión · Termómetro |
+| `eye` **Ver** | `lightbulb` **Entender** | `shield` **Limitar** | `book-open` **Conocer** | `wallet` **Pagar** | `wrench` **Corregir** | `book-open-check` **Auditar** |
+|---|---|---|---|---|---|---|
+| ¿Qué está pasando? | ¿Por qué decidió eso? | ¿Quién lo controla? | ¿Con qué conocimiento decide? | ¿Cuánto cuesta? | ¿Qué hay que arreglar? | ¿Podemos demostrarlo? |
+| Portada · Vista de dirección · Trazabilidad | Explicabilidad · Evidencias · Reasoning Replay · Causa raíz | Identidad, permisos y calidad · Autonomía · Trust Score · Guardrails · Kill switch | Knowledge Bases · Rúbricas | Caps · Acciones correctivas · Modelos · Simulación | Medidas correctivas · Ahorro conseguido | Libro de registro · Cumplimiento · Prueba en cada decisión · Seudonimización · Termómetro |
 
 > **Notas del ponente:**
 >
-> Este es el mapa del bloque. Agrupamos las capacidades en seis verbos:
+> Este es el mapa del bloque. Agrupamos las capacidades en siete verbos:
 >
 > - ver lo que pasa;
 > - entender por qué pasa;
 > - limitar lo que el agente puede hacer solo;
 > - conocer con qué conocimiento decide y si sigue siendo bueno;
 > - pagar solo lo que tiene sentido pagar;
+> - corregir lo que no está sano;
 > - y auditar todo lo anterior.
 >
 > Lo que vais a ver a continuación son capturas de una plataforma de gobierno que hemos construido sobre un caso de seguros: el triaje de avisos de siniestro con cuatro agentes. Pero todas las capacidades son las mismas para cualquier proceso.
@@ -497,7 +505,7 @@ Seis columnas, una por verbo, cada una con la pregunta que responde:
 
 Al lado de la captura:
 
-- `house` **Una puerta de entrada**: diez fichas agrupadas en ver, entender, limitar, conocer, cumplimiento, costes y auditar.
+- `house` **Una puerta de entrada**: once fichas agrupadas en ver, entender, limitar, conocer, cumplimiento, costes, corregir y auditar.
 - `activity` **Dos cifras en vivo por ficha**: calculadas con los mismos datos que su sección, y un semáforo si hay algo que mirar.
 - `scale` **La norma de cada bloque**: las etiquetas de cada ficha dicen a qué artículo responde.
 
@@ -788,6 +796,7 @@ Al lado de la captura:
 - `user-round` **Un responsable**: un área de negocio y un comité que responden del agente.
 - `database` **Datos que trata y dónde**: proveedor del modelo y región.
 - `check` / `x` **Qué puede y qué no puede hacer**: el agente de Reglas propone, pero no puede ordenar pagos ni rechazar un siniestro.
+- `badge-check` **Calidad medida**: un índice de calidad con semáforo (acierto, explicación y confianza frente al esperado).
 
 **Mínimo privilegio también para los agentes.**
 
@@ -804,13 +813,13 @@ Al lado de la captura:
 >
 > En el ejemplo, el agente de Reglas puede consultar la póliza y proponer una decisión. No puede ordenar pagos, ni rechazar un siniestro, ni modificar el expediente.
 >
-> Debajo, el histórico: cada cambio de nivel, de modelo o de prompt, con su motivo y quién lo aprobó.
+> Debajo, el histórico: cada cambio de nivel, de modelo o de prompt, con su motivo y quién lo aprobó. Y en la misma ficha, su calidad: un índice en un círculo de porcentaje, con el color del semáforo, que resume si acierta, si explica y con cuánta confianza decide.
 >
 > **A remarcar:** un agente con permisos de más es el riesgo de seguridad más fácil de evitar.
 
 ---
 
-## 33 · Limitar: identidad y permisos por agente
+## 33 · Limitar: identidad y permisos por agente (1/2)
 
 Captura a pantalla completa de la slide anterior, sin título: solo la imagen, con borde gris.
 
@@ -824,7 +833,21 @@ Captura a pantalla completa de la slide anterior, sin título: solo la imagen, c
 
 ---
 
-## 34 · Limitar: autonomía progresiva
+## 34 · Limitar: identidad y permisos por agente (2/2)
+
+Captura a pantalla completa de la slide anterior, sin título: solo la imagen, con borde gris.
+
+**Pie de foto** (va bajo la captura de la slide anterior): Calidad del agente de Reglas: índice de calidad y barra por indicador
+
+![Calidad del agente de Reglas: índice de calidad y barra por indicador](img/observabilidad/06b-agente-calidad.png)
+
+> **Notas del ponente:**
+>
+> Señalar el círculo del 98 %: media de acierto, confianza y evidencias. El sobrecoste de Reglas no es de calidad; se corrige en Medidas correctivas.
+
+---
+
+## 35 · Limitar: autonomía progresiva
 
 ![Registro de auditoría de la bajada de nivel del agente de Reglas: de L3 a L2, motivo, aprobador, reversibilidad y estado del agente en esa fecha](img/observabilidad/13-autonomia-auditoria.png)
 
@@ -858,7 +881,7 @@ Escala en flechas:
 
 ---
 
-## 35 · Limitar: autonomía progresiva (1/2)
+## 36 · Limitar: autonomía progresiva (1/2)
 
 Captura a pantalla completa de la slide anterior, sin título: solo la imagen, con borde gris.
 
@@ -872,7 +895,7 @@ Captura a pantalla completa de la slide anterior, sin título: solo la imagen, c
 
 ---
 
-## 36 · Limitar: autonomía progresiva (2/2)
+## 37 · Limitar: autonomía progresiva (2/2)
 
 Captura a pantalla completa de la slide anterior, sin título: solo la imagen, con borde gris.
 
@@ -886,7 +909,7 @@ Captura a pantalla completa de la slide anterior, sin título: solo la imagen, c
 
 ---
 
-## 37 · Limitar: Trust Score y supervisión adaptativa
+## 38 · Limitar: Trust Score y supervisión adaptativa
 
 ![Ficha del agente de Reglas: comportamiento por periodo (precisión, escalado, override, coste y latencia) y variables que afectan a su comportamiento](img/observabilidad/14-agente-comportamiento.png)
 
@@ -922,7 +945,7 @@ Diagrama de tres pasos:
 
 ---
 
-## 38 · Limitar: Trust Score y supervisión adaptativa
+## 39 · Limitar: Trust Score y supervisión adaptativa
 
 Captura a pantalla completa de la slide anterior, sin título: solo la imagen, con borde gris.
 
@@ -936,7 +959,7 @@ Captura a pantalla completa de la slide anterior, sin título: solo la imagen, c
 
 ---
 
-## 39 · Limitar: guardrails
+## 40 · Limitar: guardrails
 
 ![Ficha del guardrail G-02 (importe): 118 disparos en 14 días, media diaria, parte de los escalados, override tras el disparo, resolución humana y disparos por día, canal y ramo](img/observabilidad/15-guardrail-g02.png)
 
@@ -981,7 +1004,7 @@ Tipos de guardrail, con ejemplos del caso de seguros:
 
 ---
 
-## 40 · Limitar: guardrails
+## 41 · Limitar: guardrails
 
 Captura a pantalla completa de la slide anterior, sin título: solo la imagen, con borde gris.
 
@@ -995,7 +1018,7 @@ Captura a pantalla completa de la slide anterior, sin título: solo la imagen, c
 
 ---
 
-## 41 · Limitar: kill switch y resiliencia
+## 42 · Limitar: kill switch y resiliencia
 
 ![Tarjetas de agente con estado, nivel de autonomía, coste frente al cap e interruptor de pausa](img/observabilidad/02-agentes-kill-switch.png)
 
@@ -1029,7 +1052,7 @@ Dos bloques:
 
 ---
 
-## 42 · Limitar: kill switch y resiliencia
+## 43 · Limitar: kill switch y resiliencia
 
 Captura a pantalla completa de la slide anterior, sin título: solo la imagen, con borde gris.
 
@@ -1043,7 +1066,7 @@ Captura a pantalla completa de la slide anterior, sin título: solo la imagen, c
 
 ---
 
-## 43 · Conocer: el conocimiento también se degrada
+## 44 · Conocer: el conocimiento también se degrada
 
 ![Knowledge bases: inventario con la salud de cada base y su tendencia](img/observabilidad/31-knowledge.png)
 
@@ -1065,7 +1088,7 @@ Al lado de la captura:
 
 ---
 
-## 44 · Conocer: el conocimiento también se degrada (1/2)
+## 45 · Conocer: el conocimiento también se degrada (1/2)
 
 Captura a pantalla completa de la slide anterior, sin título: solo la imagen, con borde gris.
 
@@ -1079,7 +1102,7 @@ Captura a pantalla completa de la slide anterior, sin título: solo la imagen, c
 
 ---
 
-## 45 · Conocer: el conocimiento también se degrada (2/2)
+## 46 · Conocer: el conocimiento también se degrada (2/2)
 
 Captura a pantalla completa de la slide anterior, sin título: solo la imagen, con borde gris.
 
@@ -1093,7 +1116,7 @@ Captura a pantalla completa de la slide anterior, sin título: solo la imagen, c
 
 ---
 
-## 46 · Conocer: rúbricas que vigilan el conocimiento
+## 47 · Conocer: rúbricas que vigilan el conocimiento
 
 ![Editor de la rúbrica de Condicionados Auto: criterios con peso y preguntas de referencia](img/observabilidad/33-rubrica.png)
 
@@ -1115,7 +1138,7 @@ Al lado de la captura:
 
 ---
 
-## 47 · Conocer: rúbricas que vigilan el conocimiento
+## 48 · Conocer: rúbricas que vigilan el conocimiento
 
 Captura a pantalla completa de la slide anterior, sin título: solo la imagen, con borde gris.
 
@@ -1129,7 +1152,7 @@ Captura a pantalla completa de la slide anterior, sin título: solo la imagen, c
 
 ---
 
-## 48 · Pagar: caps y presupuesto
+## 49 · Pagar: caps y presupuesto
 
 ![Ficha del cap CAP-03 (coste diario del agente de Reglas): al 114 % del límite, consumo de los últimos 14 días frente al límite y al aviso, agentes implicados y guardrail vinculado](img/observabilidad/17-cap03-consumo.png)
 
@@ -1162,7 +1185,7 @@ Al lado de las capturas:
 
 ---
 
-## 49 · Pagar: caps y presupuesto (1/2)
+## 50 · Pagar: caps y presupuesto (1/2)
 
 Captura a pantalla completa de la slide anterior, sin título: solo la imagen, con borde gris.
 
@@ -1176,7 +1199,7 @@ Captura a pantalla completa de la slide anterior, sin título: solo la imagen, c
 
 ---
 
-## 50 · Pagar: caps y presupuesto (2/2)
+## 51 · Pagar: caps y presupuesto (2/2)
 
 Captura a pantalla completa de la slide anterior, sin título: solo la imagen, con borde gris.
 
@@ -1190,7 +1213,7 @@ Captura a pantalla completa de la slide anterior, sin título: solo la imagen, c
 
 ---
 
-## 51 · Pagar: de la alerta a la acción
+## 52 · Pagar: de la alerta a la acción
 
 ![Caps superados: porcentaje de consumo de cada cap frente al 100 %](img/observabilidad/19-caps-superados.png)
 
@@ -1222,7 +1245,7 @@ Tres tipos de respuesta, de menos a más intervención:
 
 ---
 
-## 52 · Pagar: de la alerta a la acción (1/2)
+## 53 · Pagar: de la alerta a la acción (1/2)
 
 Captura a pantalla completa de la slide anterior, sin título: solo la imagen, con borde gris.
 
@@ -1236,7 +1259,7 @@ Captura a pantalla completa de la slide anterior, sin título: solo la imagen, c
 
 ---
 
-## 53 · Pagar: de la alerta a la acción (2/2)
+## 54 · Pagar: de la alerta a la acción (2/2)
 
 Captura a pantalla completa de la slide anterior, sin título: solo la imagen, con borde gris.
 
@@ -1250,7 +1273,7 @@ Captura a pantalla completa de la slide anterior, sin título: solo la imagen, c
 
 ---
 
-## 54 · Pagar: el modelo adecuado para cada agente
+## 55 · Pagar: el modelo adecuado para cada agente
 
 ![Comparativa de modelos: precio, agentes que lo usan, tokens, coste, latencia y calidad](img/observabilidad/10-finops-modelos.png)
 
@@ -1274,7 +1297,7 @@ Al lado de la captura:
 
 ---
 
-## 55 · Pagar: el modelo adecuado para cada agente
+## 56 · Pagar: el modelo adecuado para cada agente
 
 Captura a pantalla completa de la slide anterior, sin título: solo la imagen, con borde gris.
 
@@ -1288,7 +1311,7 @@ Captura a pantalla completa de la slide anterior, sin título: solo la imagen, c
 
 ---
 
-## 56 · Antes de cambiar, simular
+## 57 · Antes de cambiar, simular
 
 ![Nuevo cap de FinOps: formulario con vista previa del consumo frente al nuevo límite en los últimos 14 días](img/observabilidad/18-nuevo-cap.png)
 
@@ -1298,7 +1321,7 @@ Tres simulaciones, una por tipo de cambio:
 
 - `wallet` **Nuevo cap**: cuántas veces se habría superado el límite en los últimos 14 días y si choca con otro cap existente.
 - `shield` **Nuevo guardrail**: cuántos disparos tendría y qué parte de los mensajes acabaría en manos de una persona.
-- `history` **Cambio de modelo o de prompt**: replay What-if sobre casos reales, con la diferencia en decisión, coste y latencia (slide 24).
+- `history` **Cambio de modelo o de prompt**: replay What-if sobre casos reales, con la diferencia en decisión, coste y latencia (slide 28).
 
 **Ningún cambio de gobierno llega a producción sin saber antes su impacto.**
 
@@ -1316,7 +1339,7 @@ Tres simulaciones, una por tipo de cambio:
 
 ---
 
-## 57 · Antes de cambiar, simular (1/2)
+## 58 · Antes de cambiar, simular (1/2)
 
 Captura a pantalla completa de la slide anterior, sin título: solo la imagen, con borde gris.
 
@@ -1330,7 +1353,7 @@ Captura a pantalla completa de la slide anterior, sin título: solo la imagen, c
 
 ---
 
-## 58 · Antes de cambiar, simular (2/2)
+## 59 · Antes de cambiar, simular (2/2)
 
 Captura a pantalla completa de la slide anterior, sin título: solo la imagen, con borde gris.
 
@@ -1344,7 +1367,76 @@ Captura a pantalla completa de la slide anterior, sin título: solo la imagen, c
 
 ---
 
-## 59 · Auditar: libro de registro
+## 60 · Corregir: medidas correctivas
+
+![Medidas correctivas: lista priorizada de problemas con sus alternativas, KPIs y termómetro de cumplimiento](img/observabilidad/37-medidas.png)
+
+Al lado de la captura:
+
+- `layers` **Un solo sitio**: coste, conocimiento, cumplimiento, calidad y resiliencia, con el origen de cada problema.
+- `git-compare` **Alternativas comparadas**: impacto, efecto secundario, esfuerzo, quién aprueba y cómo se valida antes.
+- `list-ordered` **Prioridad**: severidad × impacto ÷ esfuerzo, con las victorias rápidas marcadas.
+- `euro` **Ahorro conseguido y termómetro**: aplicar una medida de coste sube el ahorro; verificar una de cumplimiento mejora el termómetro.
+
+**De lo detectado a lo resuelto: una lista de trabajo priorizada, con alternativas y verificación.**
+
+> **Notas del ponente:**
+>
+> Ver los problemas no basta: hay que arreglarlos. Esta sección reúne en una sola lista de trabajo todo lo que el resto del panel ha detectado: caps superados, knowledge bases degradadas, controles de cumplimiento en ámbar, overrides y caídas del proveedor.
+>
+> Cada problema trae sus alternativas, no una sola receta: cambiar de modelo, cambiar el prompt o subir el límite. Cada alternativa dice cuánto mejora, qué efecto secundario tiene, cuánto esfuerzo cuesta, quién la aprueba y cómo se valida antes con un replay o una vista previa.
+>
+> La lista se ordena por prioridad: severidad por impacto, dividido por el esfuerzo. Arriba quedan las victorias rápidas.
+>
+> Al aplicar las medidas de coste, el KPI de ahorro conseguido sube: en el ejemplo, 237 € al mes con la primera y 41 € más pendientes de aprobación del Comité IA. Al marcar una medida como verificada, el termómetro de cumplimiento se actualiza.
+>
+> **A remarcar:** el gobierno se cierra cuando el problema detectado tiene dueño, alternativa y verificación.
+
+---
+
+## 61 · Corregir: medidas correctivas (1/3)
+
+Captura a pantalla completa de la slide anterior, sin título: solo la imagen, con borde gris.
+
+**Pie de foto** (va bajo la captura de la slide anterior): Medidas correctivas: lista priorizada con sus alternativas y el termómetro arriba a la derecha
+
+![Medidas correctivas: lista priorizada con sus alternativas y el termómetro arriba a la derecha](img/observabilidad/37-medidas.png)
+
+> **Notas del ponente:**
+>
+> Señalar M-01 arriba del todo, con su alternativa recomendada, y el círculo del termómetro: cambia al verificar medidas.
+
+---
+
+## 62 · Corregir: medidas correctivas (2/3)
+
+Captura a pantalla completa de la slide anterior, sin título: solo la imagen, con borde gris.
+
+**Pie de foto** (va bajo la captura de la slide anterior): Ficha de M-01: qué pasa, de dónde viene y tres alternativas comparadas
+
+![Ficha de M-01: qué pasa, de dónde viene y tres alternativas comparadas](img/observabilidad/38-medida-m01.png)
+
+> **Notas del ponente:**
+>
+> Comparar las tres alternativas: modelo pequeño (−237 €/mes), prompt con menos razonamiento (−96 €/mes) o subir el cap, que no ahorra y necesita al Comité IA.
+
+---
+
+## 63 · Corregir: medidas correctivas (3/3)
+
+Captura a pantalla completa de la slide anterior, sin título: solo la imagen, con borde gris.
+
+**Pie de foto** (va bajo la captura de la slide anterior): Ahorro conseguido al aplicar las medidas de coste: 237 € al mes y 41 € pendientes de aprobación
+
+![Ahorro conseguido al aplicar las medidas de coste: 237 € al mes y 41 € pendientes de aprobación](img/observabilidad/39-ahorro-conseguido.png)
+
+> **Notas del ponente:**
+>
+> Pulsar «Aplicar» en M-01 y «Solicitar aprobación» en M-02: el ahorro sube y la barra avanza; lo pendiente se suma al verificar.
+
+---
+
+## 64 · Auditar: libro de registro
 
 ![Histórico de gobierno: línea de tiempo de overrides, incidentes, caps, replays y cambios de nivel](img/observabilidad/11-historico.png)
 
@@ -1381,7 +1473,7 @@ Una línea de tiempo única, filtrable por tipo:
 
 ---
 
-## 60 · Auditar: libro de registro
+## 65 · Auditar: libro de registro
 
 Captura a pantalla completa de la slide anterior, sin título: solo la imagen, con borde gris.
 
@@ -1395,7 +1487,7 @@ Captura a pantalla completa de la slide anterior, sin título: solo la imagen, c
 
 ---
 
-## 61 · Cumplimiento por diseño
+## 66 · Cumplimiento por diseño
 
 ![Etiqueta normativa en el panel: al pasar el ratón explica qué exige el artículo y si está en vigor](img/observabilidad/12-etiqueta-normativa.png)
 
@@ -1426,7 +1518,7 @@ Tabla capacidad → norma:
 
 ---
 
-## 62 · Cumplimiento por diseño
+## 67 · Cumplimiento por diseño
 
 Captura a pantalla completa de la slide anterior, sin título: solo la imagen, con borde gris.
 
@@ -1440,7 +1532,7 @@ Captura a pantalla completa de la slide anterior, sin título: solo la imagen, c
 
 ---
 
-## 63 · Auditar: la prueba en cada decisión
+## 68 · Auditar: la prueba en cada decisión
 
 ![Respuesta cruda de MSG-A-12 con el bloque _gobernanza que añade la plataforma](img/observabilidad/42-respuesta-cruda.png)
 
@@ -1462,7 +1554,7 @@ Al lado de la captura:
 
 ---
 
-## 64 · Auditar: la prueba en cada decisión
+## 69 · Auditar: la prueba en cada decisión
 
 Captura a pantalla completa de la slide anterior, sin título: solo la imagen, con borde gris.
 
@@ -1476,7 +1568,48 @@ Captura a pantalla completa de la slide anterior, sin título: solo la imagen, c
 
 ---
 
-## 65 · Auditar: termómetro de cumplimiento
+## 70 · Proteger: seudonimizar antes del modelo
+
+![Enviado al modelo: el mensaje de MSG-A-08 con los datos personales cambiados por marcadores](img/observabilidad/43-enviado-al-modelo.png)
+
+Al lado de la captura:
+
+- `scan-face` **Marcadores en lugar de datos**: nombres, DNI, teléfono, IBAN, póliza, matrícula y dirección viajan como [PERSONA_1], [DNI_1]…
+- `heart-pulse` **Lo necesario se mantiene**: los datos de salud y la edad de los menores, porque hacen falta para decidir.
+- `refresh-ccw` **Reconstrucción en la plataforma**: la tabla de correspondencias solo vive en memoria durante la llamada.
+- `file-check` **Prueba en la traza**: datos sustituidos, tipos y hash del texto enviado; la minimización (RGPD art. 5.1.c) pasa a verde.
+
+**El modelo decide sin ver quién es el asegurado.**
+
+> **Notas del ponente:**
+>
+> El modelo no necesita saber cómo se llama el asegurado ni su DNI para decidir si un siniestro se aprueba. Por eso, antes de enviarle el mensaje, la plataforma cambia cada dato personal por un marcador: persona 1, teléfono 1, póliza de Auto 1.
+>
+> Lo que sí se mantiene son los datos de salud y la edad de los menores, porque hacen falta para decidir.
+>
+> Cuando vuelve la respuesta, la plataforma pone los valores reales en su sitio y el tramitador ve la ficha de siempre. La tabla de correspondencias solo existe en memoria durante la llamada: no viaja al modelo ni se guarda en la traza.
+>
+> En la traza queda la prueba: cuántos datos se sustituyeron, de qué tipo, y el hash del texto que se envió. Y el control de minimización del termómetro pasa a verde.
+>
+> **A remarcar:** minimizar no es una política en un documento; es lo que el modelo recibe de verdad.
+
+---
+
+## 71 · Proteger: seudonimizar antes del modelo
+
+Captura a pantalla completa de la slide anterior, sin título: solo la imagen, con borde gris.
+
+**Pie de foto** (va bajo la captura de la slide anterior): Enviado al modelo: el mensaje de MSG-A-08 con los datos personales cambiados por marcadores
+
+![Enviado al modelo: el mensaje de MSG-A-08 con los datos personales cambiados por marcadores](img/observabilidad/43-enviado-al-modelo.png)
+
+> **Notas del ponente:**
+>
+> Señalar [PERSONA_2] y [POLIZA_AU_1] y, a la vez, que «fractura de clavícula» y «diabético» siguen: hacen falta para decidir.
+
+---
+
+## 72 · Auditar: termómetro de cumplimiento
 
 ![Termómetro de cumplimiento: cobertura por marco y matriz norma → control](img/observabilidad/34-termometro.png)
 
@@ -1492,13 +1625,13 @@ Al lado de la captura:
 >
 > El termómetro agrega los bloques de gobierno de todas las trazas. Cada control dice qué exige la norma, cómo lo resuelve la solución y la medida en vivo.
 >
-> Hay controles en ámbar, y eso es bueno: el panel no maquilla. La minimización, por ejemplo, está en ámbar porque hoy el texto llega completo al modelo.
+> Hay controles en ámbar, y eso es bueno: el panel no maquilla. La minimización, por ejemplo, está en ámbar en el histórico de la demo, porque entonces el texto llegaba completo al modelo; con la seudonimización que acabamos de ver, las trazas de la sesión la ponen en verde.
 >
 > A remarcar: no sustituye al DPO; le da la evidencia que necesita, recalculada con cada traza.
 
 ---
 
-## 66 · Auditar: termómetro de cumplimiento (1/2)
+## 73 · Auditar: termómetro de cumplimiento (1/2)
 
 Captura a pantalla completa de la slide anterior, sin título: solo la imagen, con borde gris.
 
@@ -1512,7 +1645,7 @@ Captura a pantalla completa de la slide anterior, sin título: solo la imagen, c
 
 ---
 
-## 67 · Auditar: termómetro de cumplimiento (2/2)
+## 74 · Auditar: termómetro de cumplimiento (2/2)
 
 Captura a pantalla completa de la slide anterior, sin título: solo la imagen, con borde gris.
 
@@ -1522,17 +1655,17 @@ Captura a pantalla completa de la slide anterior, sin título: solo la imagen, c
 
 > **Notas del ponente:**
 >
-> Señalar «es diabético»: dato de salud que no hacía falta para decidir; es el argumento para seudonimizar antes del modelo.
+> Señalar el inventario de datos personales y su valor en la traza: nunca el dato en claro.
 
 ---
 
-## 68 · Separador 05 · Cómo implantarlo
+## 75 · Separador 05 · Cómo implantarlo
 
 De forma progresiva, con capacidades que se activan cuando el negocio lo decide.
 
 ---
 
-## 69 · Marco de madurez GenAIOps
+## 76 · Marco de madurez GenAIOps
 
 Escalera de cinco niveles:
 
@@ -1562,7 +1695,7 @@ Escalera de cinco niveles:
 
 ---
 
-## 70 · Cadena de confianza operacional
+## 77 · Cadena de confianza operacional
 
 Ciclo de cinco pasos en flechas:
 
@@ -1594,7 +1727,7 @@ Ciclo de mejora continua debajo: **observar → analizar → ajustar → validar
 
 ---
 
-## 71 · Piezas sueltas frente a integración
+## 78 · Piezas sueltas frente a integración
 
 **Hay piezas sueltas** (panel gris):
 
@@ -1625,7 +1758,7 @@ Banda azul: **No es un producto. Es una forma de implementar agentes en una empr
 
 ---
 
-## 72 · Mensajes clave
+## 79 · Mensajes clave
 
 Cinco mensajes, cada uno con su icono:
 
@@ -1649,7 +1782,7 @@ Cinco mensajes, cada uno con su icono:
 
 ---
 
-## 73 · Fuentes
+## 80 · Fuentes
 
 Fuentes de las cifras y de la normativa citadas en la presentación, con enlace:
 
@@ -1667,6 +1800,6 @@ Fuentes de las cifras y de la normativa citadas en la presentación, con enlace:
 
 ---
 
-## 74 · Gracias
+## 81 · Gracias
 
 Contraportada con www.logicalis.com.

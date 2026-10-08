@@ -191,6 +191,75 @@
     }
   }
 
+  // ---------------------------------------------------------------------------
+  // Seudonimización antes de enviar al modelo (RGPD art. 4.5 y 5.1.c)
+  // Cada dato personal se cambia por un marcador estable; la tabla de correspondencias
+  // solo vive en memoria durante la llamada y se usa para reconstruir la respuesta.
+  // Se mantienen los datos de salud y la edad de los menores: hacen falta para decidir.
+  // ---------------------------------------------------------------------------
+  const MARCADOR = {
+    nombre: 'PERSONA', nombre_tercero: 'PERSONA', dni: 'DNI', nie: 'NIE', email: 'EMAIL', telefono: 'TELEFONO', iban: 'IBAN',
+    tarjeta_sanitaria: 'TARJETA_SANITARIA', poliza: 'POLIZA', matricula: 'MATRICULA', expediente: 'EXPEDIENTE', direccion: 'DIRECCION',
+  };
+  const SE_MANTIENEN = 'Datos de salud y edad de los menores: hacen falta para decidir (RGPD art. 9.2.f y art. 8)';
+
+  function seudonimizarMensaje(msg = {}) {
+    const mapa = []; const porValor = new Map(); const cuenta = {};
+    const marcador = (tipo, categoria, valor) => {
+      const clave = `${MARCADOR[tipo]}|${valor.toLowerCase()}`;
+      if (porValor.has(clave)) return porValor.get(clave);
+      // La póliza conserva su prefijo de ramo (AU, HO, SA): es un indicio de clasificación, no un dato personal
+      const base = tipo === 'poliza' ? `POLIZA_${valor.slice(0, 2)}` : MARCADOR[tipo];
+      cuenta[base] = (cuenta[base] || 0) + 1;
+      const token = `[${base}_${cuenta[base]}]`;
+      porValor.set(clave, token); mapa.push({ token, valor, tipo, categoria });
+      return token;
+    };
+    const remitente = (msg.remitente && msg.remitente.nombre) || '';
+    const sustituir = (texto) => {
+      const t = String(texto ?? '');
+      let out = ''; let i = 0;
+      for (const h of detectar(t, { remitente }).filter((x) => MARCADOR[x.tipo])) {
+        if (h.inicio < i) continue;
+        out += t.slice(i, h.inicio) + marcador(h.tipo, h.categoria, h.cita); i = h.fin;
+      }
+      return out + t.slice(i);
+    };
+    const nombre = limpiarNombre(remitente);
+    const nombreSeud = nombre.split(' ').length >= 2 ? remitente.replace(nombre, marcador('nombre', 'identificativo', nombre)) : remitente;
+    const texto = sustituir(msg.texto);
+    // Un nombre detectado una vez («mi hijo Pablo») se sustituye también donde vuelve a aparecer suelto
+    const repetidos = (str) => mapa.filter((m) => m.tipo === 'nombre' || m.tipo === 'nombre_tercero')
+      .reduce((acc, m) => acc.replace(new RegExp(`(?<![\\wÁÉÍÓÚáéíóúñÑ])${m.valor.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}(?![\\wÁÉÍÓÚáéíóúñÑ])`, 'g'), m.token), str);
+    const mensaje = {
+      ...msg,
+      asunto: repetidos(sustituir(msg.asunto)),
+      texto: repetidos(texto),
+      remitente: { ...(msg.remitente || {}), nombre: nombreSeud, contacto: sustituir(msg.remitente && msg.remitente.contacto) },
+    };
+    return { mensaje, mapa };
+  }
+
+  // Vuelve a poner los valores reales en la respuesta del modelo (cadenas a cualquier profundidad)
+  function rehidratar(valor, mapa = []) {
+    if (typeof valor === 'string') return mapa.reduce((acc, m) => acc.split(m.token).join(m.valor), valor);
+    if (Array.isArray(valor)) return valor.map((v) => rehidratar(v, mapa));
+    if (valor && typeof valor === 'object') return Object.fromEntries(Object.entries(valor).map(([k, v]) => [k, rehidratar(v, mapa)]));
+    return valor;
+  }
+
+  // Lo contrario, sobre un texto: para mostrar cómo habría llegado una respuesta guardada
+  function seudonimizarTexto(texto, mapa = []) {
+    return [...mapa].sort((a, b) => b.valor.length - a.valor.length).reduce((acc, m) => acc.split(m.valor).join(m.token), String(texto ?? ''));
+  }
+
+  // Resumen que se guarda en la entrada: sin la tabla de correspondencias, solo los marcadores y el texto enviado
+  function resumenSeudonimizacion(enviado, mapa, extra = {}) {
+    const porTipo = {};
+    mapa.forEach((m) => { porTipo[m.tipo] = (porTipo[m.tipo] || 0) + 1; });
+    return { activa: true, sustituidos: mapa.length, por_tipo: porTipo, marcadores: mapa.map((m) => ({ token: m.token, tipo: m.tipo, categoria: m.categoria })), enviado, ...extra };
+  }
+
   // Campos de la salida del modelo que contienen datos personales (para marcarlos en la Respuesta cruda)
   function camposSensibles(entry = {}) {
     const d = entry.datos_extraidos || {};
@@ -271,6 +340,26 @@
   const sumarAnios = (iso, n) => { const d = new Date(iso); d.setFullYear(d.getFullYear() + n); return d.toISOString().slice(0, 10); };
   const sumarMeses = (iso, n) => { const d = new Date(iso); d.setMonth(d.getMonth() + n); return d.toISOString().slice(0, 10); };
 
+  // Qué recibió el modelo: seudonimizado o en claro (sin modelo, no aplica)
+  function envioAlModelo(entry = {}) {
+    const sd = entry.seudonimizacion;
+    if (!/^IA/.test(entry.origen || '')) return { aplica: false, motivo: 'Decisión del motor local: el mensaje no se envió a ningún modelo' };
+    if (!sd || !sd.activa) return { aplica: true, seudonimizado: false, motivo: 'El texto llegó completo al modelo, con los datos personales en claro' };
+    const e = sd.enviado || {};
+    return {
+      aplica: true,
+      seudonimizado: true,
+      ...(sd.simulada ? { modo: 'Simulado sobre la respuesta guardada' } : {}),
+      sustituidos: sd.sustituidos,
+      por_tipo: sd.por_tipo,
+      marcadores: (sd.marcadores || []).map((m) => m.token),
+      se_mantienen: SE_MANTIENEN,
+      correspondencias: 'Solo en memoria durante la llamada; no se envían al modelo ni se guardan en la traza',
+      hash_enviado: `sha256:${sha256(String(e.texto || ''))}`,
+      normas: [N('rgpd-4-5'), N('rgpd-5c'), N('rgpd-25')],
+    };
+  }
+
   function gobernanza(entry = {}, opts = {}) {
     const m = entry.mensaje || {};
     const texto = String(m.texto || '');
@@ -334,6 +423,7 @@
         terceros: porCategoria.tercero || 0,
         no_usados_en_decision: hallazgos.filter((h) => !h.usado_en_decision).length,
         hallazgos: hallazgos.map(({ _cita, ...h }) => h),
+        envio_al_modelo: envioAlModelo(entry),
         normas: [N('rgpd-25'), N('rgpd-5c')],
       },
       explicabilidad: {
@@ -410,6 +500,10 @@
     const financieros = gobs.reduce((s, g) => s + (g.datos_personales.por_categoria.financiero || 0), 0);
     const conRetencion = T((g) => g.retencion.expediente.hasta && g.retencion.traza_seudonimizada.hasta);
     const integra = cadena ? cadena.roto === null : true;
+    const envio = (g) => g.datos_personales.envio_al_modelo || {};
+    const alModelo = T((g) => envio(g).aplica !== false && g.datos_personales.total > 0);
+    const seudonimizadas = T((g) => envio(g).aplica !== false && g.datos_personales.total > 0 && envio(g).seudonimizado);
+    const sustituidos = gobs.reduce((s2, g) => s2 + (envio(g).sustituidos || 0), 0);
 
     const medido = (id, norma, exige, como, medida, estado, trazas) => ({ id, normas: norma, exige, como, medida, estado, fuente: 'medido', trazas: trazas || [] });
     const marcos = [
@@ -426,7 +520,9 @@
         medido('rgpd-9', [N('rgpd-9'), N('lossear-99')], 'Datos de salud solo con base jurídica y protección reforzada', 'Cifrado de campo y acceso restringido al rol Salud', `${salud} datos de salud · 100 % cifrados y con acceso restringido`, 'ok', T((g) => g.datos_personales.categoria_especial_salud > 0)),
         medido('rgpd-8', [N('rgpd-8')], 'Protección específica de los menores', 'Marca de menor y exclusión de cualquier perfilado', `${menores} datos de menores marcados`, 'ok', T((g) => g.datos_personales.menores > 0)),
         medido('rgpd-14', [N('rgpd-13')], 'Informar a los terceros cuyos datos aporta otra persona', 'Los terceros detectados quedan marcados para informarles en la primera comunicación', `${terceros} terceros identificados`, 'ok', T((g) => g.datos_personales.terceros > 0)),
-        medido('rgpd-5c', [N('rgpd-5c')], 'Minimización: enviar al modelo solo lo necesario', `Hoy el texto llega completo al modelo; ${noUsados} de ${totalPII} datos personales no se usaron para decidir (p. ej. ${financieros ? 'IBAN, ' : ''}DNI, teléfono)`, `${pct(totalPII - noUsados, totalPII)} % de los datos enviados fueron necesarios`, 'ambar', T((g) => g.datos_personales.no_usados_en_decision > 0)),
+        seudonimizadas.length && seudonimizadas.length === alModelo.length
+          ? medido('rgpd-5c', [N('rgpd-5c'), N('rgpd-4-5')], 'Minimización: enviar al modelo solo lo necesario', `Seudonimización antes de enviar: los datos personales viajan como marcadores ([PERSONA_1], [DNI_1]…) y se reconstruyen al volver. Se mantienen los datos de salud y la edad de los menores`, `${seudonimizadas.length}/${alModelo.length} trazas con datos personales enviadas seudonimizadas · ${sustituidos} datos sustituidos`, 'ok', seudonimizadas)
+          : medido('rgpd-5c', [N('rgpd-5c')], 'Minimización: enviar al modelo solo lo necesario', seudonimizadas.length ? `${alModelo.length - seudonimizadas.length} de ${alModelo.length} trazas llegaron al modelo con los datos en claro; ${noUsados} de ${totalPII} datos personales no se usaron para decidir` : `Hoy el texto llega completo al modelo; ${noUsados} de ${totalPII} datos personales no se usaron para decidir (p. ej. ${financieros ? 'IBAN, ' : ''}DNI, teléfono)`, seudonimizadas.length ? `${seudonimizadas.length}/${alModelo.length} trazas seudonimizadas` : `${pct(totalPII - noUsados, totalPII)} % de los datos enviados fueron necesarios`, 'ambar', T((g) => g.datos_personales.no_usados_en_decision > 0)),
         medido('rgpd-22', [N('rgpd-22'), N('rgpd-15')], 'No decidir en contra del asegurado solo con la máquina', 'Las aprobaciones son automáticas; las desfavorables las firma una persona con la explicación delante', `${n - revision.length} aprobadas automáticamente · ${revision.length} a persona`, 'ok'),
         medido('rgpd-5e', [N('rgpd-5e'), N('lopdgdd-32'), N('lcs-23')], 'Conservar solo el tiempo necesario', 'Plazo calculado por traza: 6 meses de traza, 2 o 5 años de expediente y después bloqueo', `${conRetencion.length}/${n} trazas con fecha de fin calculada`, conRetencion.length === n ? 'ok' : 'ambar', conRetencion),
         ...(declarados.rgpd || []),
@@ -490,7 +586,7 @@
     return rec(valor, 0, '', { gob });
   }
 
-  const API = { ESQUEMA, NORMAS, CONOCIMIENTO, conocimientoDe, NORMA_POR_ETIQUETA, CATEGORIAS, CLAVES_NORMA, sha256, corto, detectar, enmascarar, camposSensibles, descartados, gobernanza, hallazgosConCita, encadenar, verificarCadena, termometro, jsonHtml };
+  const API = { seudonimizarMensaje, rehidratar, seudonimizarTexto, resumenSeudonimizacion, ESQUEMA, NORMAS, CONOCIMIENTO, conocimientoDe, NORMA_POR_ETIQUETA, CATEGORIAS, CLAVES_NORMA, sha256, corto, detectar, enmascarar, camposSensibles, descartados, gobernanza, hallazgosConCita, encadenar, verificarCadena, termometro, jsonHtml };
   if (typeof module !== 'undefined' && module.exports) module.exports = API;
   root.Cumplimiento = API;
 })(typeof window !== 'undefined' ? window : globalThis);

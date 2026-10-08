@@ -77,7 +77,9 @@ const porTitulo = (raiz, texto, cierre = '.card') => `[...document.querySelector
 // Registro del triaje del Paquete A (como «Resultados guardados»), para no esperar los 13 mensajes
 const LOTE_A = `const A = PAQUETES[0].mensajes; const t0 = Date.parse('2026-09-17T09:02:11Z');
   const log = A.map((m, i) => { const r = expandirResultadoGuardado(RESULTADOS_GUARDADOS[m.id]); const { usage, ...json } = r;
-    const e = { id: m.id, asunto: m.asunto, paquete: 'A', ramo: r.ramo, importe: r.datos_extraidos.importe_estimado_eur ?? null, decision: r.decision, motivo: r.motivo, confianza: r.confianza, origen: 'IA (guardado)', criterios: r.criterios, criterios_ramo: r.criterios_ramo, pasos: null, datos_extraidos: r.datos_extraidos, evidencias: r.evidencias, raw: JSON.stringify(json, null, 2), usage, duracion_ms: 3400 + ((i * 397) % 1400), timestamp: new Date(t0 + i * 7000).toISOString(), esperado: m.esperado, mensaje: m, gob_opts: { traza_id: TRAZA_DEMO[m.id], modelo: 'gpt-5', prompt: PROMPT_VERSION } };
+    const { mensaje: env, mapa } = Cumplimiento.seudonimizarMensaje(m);
+    const seudonimizacion = Cumplimiento.resumenSeudonimizacion({ asunto: env.asunto, remitente: env.remitente.nombre + ' (' + env.remitente.contacto + ')', texto: env.texto }, mapa, { simulada: true });
+    const e = { id: m.id, asunto: m.asunto, paquete: 'A', ramo: r.ramo, importe: r.datos_extraidos.importe_estimado_eur ?? null, decision: r.decision, motivo: r.motivo, confianza: r.confianza, origen: 'IA (guardado)', criterios: r.criterios, criterios_ramo: r.criterios_ramo, pasos: null, datos_extraidos: r.datos_extraidos, evidencias: r.evidencias, raw: Cumplimiento.seudonimizarTexto(JSON.stringify(json, null, 2), mapa), seudonimizacion, usage, duracion_ms: 3400 + ((i * 397) % 1400), timestamp: new Date(t0 + i * 7000).toISOString(), esperado: m.esperado, mensaje: m, gob_opts: { traza_id: TRAZA_DEMO[m.id], modelo: 'gpt-5', prompt: PROMPT_VERSION } };
     e.gobernanza = Cumplimiento.gobernanza(e, e.gob_opts); return e; }).reverse();
   sessionStorage.setItem('triage.log', JSON.stringify(log)); sessionStorage.setItem('triage.motor', JSON.stringify('guardado')); sessionStorage.setItem('triage.paquete', JSON.stringify('A'));`;
 
@@ -102,6 +104,7 @@ const CAPTURAS = [
     const x = cab.left - 12; const y = cab.top - 12; Object.assign(c.style, { left: x + 'px', top: y + 'px', width: (Math.min(cab.right, Math.max(tt.right, b.right + 420)) - x + 12) + 'px', height: (Math.max(cab.bottom, tt.bottom) - y + 12) + 'px' });`, "document.getElementById('clip-captura')"],
   ['13-autonomia-auditoria.png', 'gobierno.html', `${seccion('autonomia')} const f = [...document.querySelectorAll('#cambios tr[data-cambio]')].find((tr) => /Reglas/.test(tr.textContent) && /L3[\\s\\S]*L2/.test(tr.textContent)); f.click(); await new Promise((r) => setTimeout(r, 500));`, "document.getElementById('modal-cambio')"],
   ['13b-autonomia-evolucion.png', 'gobierno.html', `${seccion('autonomia')} const f = [...document.querySelectorAll('#cambios tr[data-cambio]')].find((tr) => /Reglas/.test(tr.textContent) && /L3[\\s\\S]*L2/.test(tr.textContent)); f.click(); await new Promise((r) => setTimeout(r, 500));`, porTitulo('#modal-cambio', 'Evolución del nivel', 'div')],
+  ['06b-agente-calidad.png', 'gobierno.html', seccion('agentes') + clic('[data-ag-tab="reglas"]'), porTitulo('#ag-ficha', 'Calidad (Paquete A)')],
   ['14-agente-comportamiento.png', 'gobierno.html', seccion('agentes') + clic('[data-ag-tab="reglas"]'), porTitulo('#ag-ficha', 'Rendimiento y coste')],
   ['15-guardrail-g02.png', 'gobierno.html', seccion('guardrails') + clic('tr[data-gr="G-02"]', 600), "document.getElementById('modal-gr')"],
   ['16-nuevo-guardrail.png', 'gobierno.html', seccion('guardrails') + clic('#btn-new-policy', 600), "document.getElementById('modal-gr-nuevo')"],
@@ -117,12 +120,17 @@ const CAPTURAS = [
   ['34-termometro.png', 'gobierno.html', seccion('cumplimiento'), null],
   ['35-inventario-pii.png', 'gobierno.html', seccion('cumplimiento') + clic('[data-cmp-item="7"]', 600), "document.getElementById('modal-cmp')"],
   ['36-alertas-resumen.png', 'gobierno.html', `${seccion('resumen')} document.getElementById('res-cumplimiento').scrollIntoView({ block: 'center' });`, "document.getElementById('res-cumplimiento').closest('.two')"],
-  ['sesion-gobierno.png', 'gobierno.html', seccion('resumen'), null, { alto: 626 }],
+  // Medidas correctivas: lista priorizada, ficha de M-01 y el ahorro conseguido al aplicar las de coste
+  ['37-medidas.png', 'gobierno.html', seccion('medidas'), null, { limpiar: true }],
+  ['38-medida-m01.png', 'gobierno.html', `${seccion('medidas')} ${clic('[data-medida="M-01"] h3, [data-medida="M-01"]', 600)}`, "document.getElementById('modal-med')", { limpiar: true }],
+  ['39-ahorro-conseguido.png', 'gobierno.html', `${seccion('medidas')} ${clic('[data-med-acc="aplicar:M-01:0"]', 500)} ${clic('[data-med-acc="aplicar:M-02:0"]', 500)}`, "document.getElementById('kpis-med')", { limpiar: true }],
+  ['sesion-gobierno.png', 'gobierno.html', seccion('resumen'), null, { alto: 626, limpiar: true }],
   // Triaje (con el Paquete A ya procesado)
   ['40-triaje.png', 'index.html', '', null],
   ['sesion-triaje.png', 'index.html', '', null, { alto: 626 }],
   ['41-evidencias.png', 'index.html', `${cerrarModales} ${clic('#log-body tr[data-id="MSG-A-08"]', 600)} const mk = document.querySelector('#modal-texto mark.ev[data-n="7"]') || document.querySelector('#modal-texto mark.ev'); mk.dispatchEvent(new MouseEvent('mouseover', { bubbles: true })); await new Promise((r) => setTimeout(r, 200));`, "document.getElementById('modal')"],
   ['42-respuesta-cruda.png', 'index.html', `${cerrarModales} ${clic('#log-body tr[data-id="MSG-A-12"]', 600)} ${clic('.ficha-tab[data-tab="json"]', 300)} const pre = document.getElementById('modal-raw'); const g = pre.querySelector('.g-bloque'); pre.scrollTop = g.offsetTop - pre.offsetTop - 8; await new Promise((r) => setTimeout(r, 200));`, "document.getElementById('modal')"],
+  ['43-enviado-al-modelo.png', 'index.html', `${cerrarModales} ${clic('#log-body tr[data-id="MSG-A-08"]', 600)} ${clic('.ficha-tab[data-tab="json"]', 300)} ${clic('[data-raw="enviado"]', 300)}`, "document.getElementById('modal')"],
 ];
 
 async function main() {
@@ -143,6 +151,8 @@ async function main() {
     for (const [nombre, pagina, prep, sel, opts] of CAPTURAS) {
       if (filtro.length && !filtro.some((f) => nombre.includes(f))) continue;
       await ir(pagina);
+      // limpiar: medidas y acciones correctivas sin aplicar (algunas capturas las aplican)
+      if (opts && opts.limpiar) { await js("sessionStorage.removeItem('gobierno.medidas'); sessionStorage.removeItem('gobierno.correctivas');"); await ir(pagina, { forzar: true }); }
       if (prep) await js(prep);
       await captura(nombre, sel, opts);
     }

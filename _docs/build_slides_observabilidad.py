@@ -47,6 +47,8 @@ AMPLIADAS = {
     "Limitar: identidad y permisos por agente": [
         ("06-ficha-agente.png", "Ficha del agente de Reglas: identidad, permisos e histórico de cambios",
          "Señalar las columnas «Puede» y «No puede», y debajo el histórico de autonomía con su motivo y aprobador."),
+        ("06b-agente-calidad.png", "Calidad del agente de Reglas: índice de calidad y barra por indicador",
+         "Señalar el círculo del 98 %: media de acierto, confianza y evidencias. El sobrecoste de Reglas no es de calidad; se corrige en Medidas correctivas."),
     ],
     "Limitar: autonomía progresiva": [
         ("13-autonomia-auditoria.png", "Registro de auditoría de la bajada de nivel L3 → L2",
@@ -88,6 +90,18 @@ AMPLIADAS = {
         ("16-nuevo-guardrail.png", "Nuevo guardrail: vista previa e impacto estimado",
          "Señalar el impacto estimado: unos 47 disparos en 14 días y el 0,28 % de los mensajes pasaría a una persona."),
     ],
+    "Corregir: medidas correctivas": [
+        ("37-medidas.png", "Medidas correctivas: lista priorizada con sus alternativas y el termómetro arriba a la derecha",
+         "Señalar M-01 arriba del todo, con su alternativa recomendada, y el círculo del termómetro: cambia al verificar medidas."),
+        ("38-medida-m01.png", "Ficha de M-01: qué pasa, de dónde viene y tres alternativas comparadas",
+         "Comparar las tres alternativas: modelo pequeño (−237 €/mes), prompt con menos razonamiento (−96 €/mes) o subir el cap, que no ahorra y necesita al Comité IA."),
+        ("39-ahorro-conseguido.png", "Ahorro conseguido al aplicar las medidas de coste: 237 € al mes y 41 € pendientes de aprobación",
+         "Pulsar «Aplicar» en M-01 y «Solicitar aprobación» en M-02: el ahorro sube y la barra avanza; lo pendiente se suma al verificar."),
+    ],
+    "Proteger: seudonimizar antes del modelo": [
+        ("43-enviado-al-modelo.png", "Enviado al modelo: el mensaje de MSG-A-08 con los datos personales cambiados por marcadores",
+         "Señalar [PERSONA_2] y [POLIZA_AU_1] y, a la vez, que «fractura de clavícula» y «diabético» siguen: hacen falta para decidir."),
+    ],
     "Auditar: libro de registro": [
         ("11-historico.png", "Histórico de gobierno: overrides, incidentes, caps, replays y cambios de nivel",
          "Señalar los filtros por tipo y que cada evento lleva agente y responsable, incluido «Sistema»."),
@@ -122,7 +136,7 @@ AMPLIADAS = {
         ("34-termometro.png", "Termómetro de cumplimiento: cobertura por marco y matriz norma → control",
          "Señalar los controles en ámbar: minimización, EIPD pendiente y aviso de IA en WhatsApp. Un 100 % no sería creíble."),
         ("35-inventario-pii.png", "Ficha de cumplimiento de una traza: datos personales detectados y su valor en la traza",
-         "Señalar «es diabético»: dato de salud que no hacía falta para decidir; es el argumento para seudonimizar antes del modelo."),
+         "Señalar el inventario de datos personales y su valor en la traza: nunca el dato en claro."),
     ],
 }
 

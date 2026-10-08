@@ -87,6 +87,50 @@ test('termómetro: porcentajes entre 0 y 100 y la minimización queda en ámbar'
   assert.strictEqual(t.marcos.find((mc) => mc.id === 'rgpd').controles.find((c) => c.id === 'rgpd-5c').estado, 'ambar');
   assert.strictEqual(t.resumen.trazas, 13);
 });
+console.log('seudonimización antes de enviar al modelo');
+const enviado = (m) => C.seudonimizarMensaje(m);
+const textoEnviado = (e) => [e.asunto, e.remitente.nombre, e.remitente.contacto, e.texto].join('\n');
+test('no sale ningún dato personal en claro hacia el modelo (salvo salud y edad de menores)', () => {
+  for (const m of A) {
+    const { mensaje } = enviado(m);
+    const json = textoEnviado(mensaje);
+    for (const h of cats(m)) if (!['salud', 'menor'].includes(h.categoria)) assert.ok(!json.includes(h.cita), `${m.id}: «${h.cita}» enviado en claro`);
+  }
+});
+test('los datos de salud se mantienen para poder decidir (MSG-A-12)', () => {
+  const m = A.find((x) => x.id === 'MSG-A-12');
+  for (const h of cats(m).filter((x) => x.categoria === 'salud')) assert.ok(enviado(m).mensaje.texto.includes(h.cita), h.cita);
+});
+test('el mismo dato lleva siempre el mismo marcador y la póliza conserva el ramo (MSG-A-08)', () => {
+  const m = A.find((x) => x.id === 'MSG-A-08');
+  const { mapa } = enviado(m);
+  assert.strictEqual(new Set(mapa.map((x) => x.token)).size, mapa.length);
+  assert.ok(mapa.some((x) => x.token === '[POLIZA_AU_1]' && x.valor === 'AU-662371'));
+  assert.ok(mapa.some((x) => x.token.startsWith('[POLIZA_SA_')));
+});
+test('la reconstrucción devuelve exactamente el original', () => {
+  for (const m of A) {
+    const { mensaje, mapa } = enviado(m);
+    assert.strictEqual(C.rehidratar(mensaje.texto, mapa), m.texto, m.id);
+    assert.strictEqual(C.rehidratar(mensaje.remitente.nombre, mapa), m.remitente.nombre, m.id);
+    const r = entrada(m);
+    const ida = JSON.parse(C.seudonimizarTexto(JSON.stringify(r.datos_extraidos), mapa));
+    assert.deepStrictEqual(C.rehidratar(ida, mapa), r.datos_extraidos, m.id);
+  }
+});
+test('con el envío seudonimizado la minimización pasa a verde y la traza no guarda la tabla', () => {
+  const its = A.filter((m) => RESULTADOS_GUARDADOS[m.id]).map((m) => {
+    const { mensaje, mapa } = enviado(m);
+    const e = { ...entrada(m), seudonimizacion: C.resumenSeudonimizacion({ texto: mensaje.texto }, mapa, { simulada: true }) };
+    return C.gobernanza(e, { traza_id: TRAZA_DEMO[m.id] });
+  });
+  const g = its.find((x) => x.datos_personales.total > 0);
+  assert.strictEqual(g.datos_personales.envio_al_modelo.seudonimizado, true);
+  const json = JSON.stringify(its);
+  for (const m of A) for (const h of cats(m)) if (h.categoria !== 'salud' && h.cita.length > 6) assert.ok(!json.includes(h.cita), `${m.id}: «${h.cita}» en la traza`);
+  const t = C.termometro(its, {}, null);
+  assert.strictEqual(t.marcos.find((mc) => mc.id === 'rgpd').controles.find((c) => c.id === 'rgpd-5c').estado, 'ok');
+});
 test('el JSON coloreado no altera el texto del JSON', () => {
   const g = items[0].gob;
   const html = C.jsonHtml({ _gobernanza: g }, { gob: true });

@@ -604,3 +604,14 @@ tbody tr.is-sel td { background: var(--bg); }
 .seg-btn + .seg-btn { border-left: 1px solid var(--border); }
 .seg-btn[aria-pressed="true"] { background: var(--primary); color: #fff; }
 @media (max-width: 900px) { .med-alts { grid-template-columns: 1fr; } }
+
+/* Agentes · índice de calidad (círculo) y barra por indicador */
+.ag-q-ring { display: flex; align-items: center; gap: .8rem; margin: .2rem 0 .7rem; }
+.ag-q-ring > div { display: flex; flex-direction: column; gap: .15rem; }
+.ag-q-ring svg { flex: none; }
+.ag-q-ring svg circle:last-of-type { transition: stroke-dasharray .6s ease; }
+.ag-q-bar { height: 4px; border-radius: 2px; background: var(--border); margin-top: .3rem; max-width: 220px; overflow: hidden; }
+.ag-q-bar i { display: block; height: 100%; background: var(--c); border-radius: 2px; }
+.ag-q-tabla td { white-space: normal; }
+.ag-q-tabla td.wrap { min-width: 0; }
+.ag-q-tabla td:first-child { min-width: 9rem; }
