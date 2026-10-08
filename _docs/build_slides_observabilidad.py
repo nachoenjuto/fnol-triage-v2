@@ -1,6 +1,11 @@
 """Construye slides-observabilidad.pptx con la skill md-to-pptx (modo avanzado) y añade,
-detrás de cada slide con captura, una o dos slides con la captura en grande
-(título + pie de foto + imagen).
+detrás de cada slide con captura, una o dos slides con la captura en grande.
+
+Estilo de las capturas (definido a mano en PowerPoint sobre las slides 18 y 19):
+- Slide de contenido: captura a la derecha (x 6,96", y 1,43", 5,95" de ancho, borde gris) y
+  pie de foto debajo (Montserrat 14 pt). Si no cabe, se reduce la altura.
+- Slide ampliada: layout «White» sin título; captura en la caja x 0,25", y 0,40",
+  10,61 x 6,63" con borde gris; las muy anchas se centran en vertical.
 
 Uso (desde _docs/):
     python3 build_slides_observabilidad.py
@@ -94,15 +99,67 @@ AMPLIADAS = {
 }
 
 
+# Capturas compuestas (dos capturas apiladas) de las slides de contenido con pareja
+COMPUESTAS = {
+    "Entender: Reasoning Replay y What-if": "c21-replay.png",
+    "Limitar: autonomía progresiva": "c24-autonomia.png",
+    "Pagar: caps y presupuesto": "c28-caps.png",
+    "Pagar: de la alerta a la acción": "c29-acciones.png",
+    "Antes de cambiar, simular": "c31-simular.png",
+}
+
+# Geometría (pulgadas) tomada de las slides 18 y 19 editadas a mano
+CAP_X, CAP_Y, CAP_W = 6.96, 1.43, 5.95      # captura en la slide de contenido
+PIE_X, PIE_W, PIE_GAP, PIE_PT = 6.94, 6.23, 0.17, 14
+AMP_X, AMP_Y, AMP_W, AMP_H = 0.25, 0.40, 10.61, 6.63  # caja de la slide ampliada
+
+
+def borde_gris(pic):
+    """Borde gris como en las slides 18 y 19: color de fondo al 50 %."""
+    spPr = pic._element.spPr
+    ln = B.etree.SubElement(spPr, B.qn("a:ln"))
+    fill = B.etree.SubElement(ln, B.qn("a:solidFill"))
+    clr = B.etree.SubElement(fill, B.qn("a:schemeClr"), val="bg1")
+    B.etree.SubElement(clr, B.qn("a:lumMod"), val="50000")
+
+
+def encajar(path, w, h):
+    with B.Image.open(path) as im:
+        iw, ih = im.size
+    r = min(w / iw, h / ih)
+    return iw * r, ih * r
+
+
 class BuilderAmpliadas(B.Builder):
     def build_content(self, s):
         super().build_content(s)
         extras = AMPLIADAS.pop(s["title"], [])
-        for k, (img, pie, nota) in enumerate(extras, 1):
-            titulo = s["title"] + (f" ({k}/{len(extras)})" if len(extras) > 1 else "")
-            entry = {"title": titulo, "lead": pie, "notes": nota, "fondo": s.get("fondo")}
-            slide, fam, y = self.title_slide_with_lead(entry)
-            self.place_image(slide, IMG + img, B.CONTENT_X, y, B.CONTENT_W, B.CONTENT_BOTTOM - y)
+        if not extras:
+            return
+        self.ajustar_captura(self.prs.slides[-1], s["title"], extras)
+        for img, _pie, nota in extras:
+            slide = self.prs.slides.add_slide(self.layout_by_name("White"))
+            self.add_slide_number(slide)
+            self.notes(slide, nota)
+            w, h = encajar(IMG + img, AMP_W, AMP_H)
+            pic = B.add_picture(slide, IMG + img, AMP_X, AMP_Y + (AMP_H - h) / 2, w, h)
+            borde_gris(pic)
+
+    def ajustar_captura(self, slide, titulo, extras):
+        """Recoloca la captura de la slide de contenido y le pone borde y pie de foto."""
+        pics = [sh for sh in slide.shapes if sh.shape_type == 13]
+        for p in pics:
+            p._element.getparent().remove(p._element)
+        img = COMPUESTAS.get(titulo, extras[0][0])
+        pie = extras[0][1] if len(extras) == 1 else f"Arriba: {extras[0][1]}. Abajo: {extras[1][1]}."
+        pie_h = B.n_lines(pie, PIE_W - 0.1, "Montserrat", PIE_PT) * PIE_PT * 1.2 / 72 + 0.06
+        w, h = encajar(IMG + img, CAP_W, B.CONTENT_BOTTOM - CAP_Y - PIE_GAP - pie_h)
+        pic = B.add_picture(slide, IMG + img, CAP_X, CAP_Y, w, h)
+        borde_gris(pic)
+        tb = B.textbox(slide, PIE_X, CAP_Y + h + PIE_GAP, PIE_W, pie_h)
+        p = tb.text_frame.paragraphs[0]
+        B.set_spacing(p, 1.2, 0)
+        B.add_runs(p, pie, PIE_PT, None, "Montserrat")
 
 
 if __name__ == "__main__":

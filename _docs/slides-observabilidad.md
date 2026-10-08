@@ -9,7 +9,7 @@ Este fichero es el contenido de referencia: texto, capturas y notas del ponente 
 | Fichero | Qué es |
 |---|---|
 | [slides-observabilidad-pptx.md](slides-observabilidad-pptx.md) | Copia de este contenido con la sintaxis de la skill (frontmatter, `#` para secciones, directivas `layout` y `notes`). Es la entrada del build |
-| [build_slides_observabilidad.py](build_slides_observabilidad.py) | Ejecuta la skill y añade las slides de captura ampliada (pie de foto y nota de cada una) |
+| [build_slides_observabilidad.py](build_slides_observabilidad.py) | Ejecuta la skill, aplica el estilo de las capturas (posición, borde gris y pie de foto) y añade las slides de captura ampliada con su nota |
 
 ```bash
 python3 build_slides_observabilidad.py
@@ -20,7 +20,8 @@ Diferencias del .pptx respecto a este fichero, por limitaciones de la plantilla:
 - La agenda y la contraportada las genera la plantilla.
 - Las fuentes de cada slide se agrupan en la slide «Fuentes». En las slides de cifras (4 y 5) solo aparecen las cifras; los datos complementarios de la 5 van en sus notas.
 - En las slides con captura, la plantilla no admite tabla e imagen a la vez: las tablas de esas slides van en viñetas.
-- Las slides con dos capturas muestran ambas apiladas en una sola imagen (`c21`, `c24`, `c28`, `c29` y `c31` en `img/observabilidad/`); las slides ampliadas siguientes las muestran por separado.
+- Las slides con dos capturas muestran ambas apiladas en una sola imagen (`c21`, `c24`, `c28`, `c29` y `c31` en `img/observabilidad/`), con un pie «Arriba: … Abajo: …»; las slides ampliadas siguientes las muestran por separado.
+- Estilo de las capturas: en la slide de contenido, a la derecha (5,95" de ancho) con borde gris y el pie de foto debajo; en la slide ampliada, sin título ni pie, la captura ocupa casi toda la slide con borde gris, y las muy anchas se centran en vertical.
 
 Si se cambia el contenido, hay que actualizar también `slides-observabilidad-pptx.md` y, si afecta a las capturas ampliadas, la tabla `AMPLIADAS` del script.
 
@@ -501,9 +502,9 @@ Al lado de la captura:
 
 ## 19 · Ver: la vista de dirección
 
-Captura a pantalla completa de la slide anterior, con el mismo título y un pie de foto bajo él.
+Captura a pantalla completa de la slide anterior, sin título: solo la imagen, con borde gris.
 
-**Pie de foto:** Resumen: KPIs del periodo, estado de cada agente y coste frente al cap
+**Pie de foto** (va bajo la captura de la slide anterior): Resumen: KPIs del periodo, estado de cada agente y coste frente al cap
 
 ![Resumen: KPIs del periodo, estado de cada agente y coste frente al cap](img/observabilidad/01-resumen.png)
 
@@ -541,9 +542,9 @@ Captura a pantalla completa de la slide anterior, con el mismo título y un pie 
 
 ## 21 · Ver: trazabilidad de extremo a extremo
 
-Captura a pantalla completa de la slide anterior, con el mismo título y un pie de foto bajo él.
+Captura a pantalla completa de la slide anterior, sin título: solo la imagen, con borde gris.
 
-**Pie de foto:** Traza de un mensaje: cascada de agentes, datos de la traza y override humano
+**Pie de foto** (va bajo la captura de la slide anterior): Traza de un mensaje: cascada de agentes, datos de la traza y override humano
 
 ![Traza de un mensaje: cascada de agentes, datos de la traza y override humano](img/observabilidad/03-trazabilidad.png)
 
@@ -584,9 +585,9 @@ Al lado de la captura:
 
 ## 23 · Entender: explicabilidad
 
-Captura a pantalla completa de la slide anterior, con el mismo título y un pie de foto bajo él.
+Captura a pantalla completa de la slide anterior, sin título: solo la imagen, con borde gris.
 
-**Pie de foto:** Ficha explicada: qué llegó, qué hizo cada agente y por qué se escaló
+**Pie de foto** (va bajo la captura de la slide anterior): Ficha explicada: qué llegó, qué hizo cada agente y por qué se escaló
 
 ![Ficha explicada: qué llegó, qué hizo cada agente y por qué se escaló](img/observabilidad/04-traza-explicada.png)
 
@@ -630,9 +631,9 @@ Dos tarjetas:
 
 ## 25 · Entender: Reasoning Replay y What-if (1/2)
 
-Captura a pantalla completa de la slide anterior, con el mismo título y un pie de foto bajo él.
+Captura a pantalla completa de la slide anterior, sin título: solo la imagen, con borde gris.
 
-**Pie de foto:** Razonamiento registrado por agente: entrada, pasos y salida
+**Pie de foto** (va bajo la captura de la slide anterior): Razonamiento registrado por agente: entrada, pasos y salida
 
 ![Razonamiento registrado por agente: entrada, pasos y salida](img/observabilidad/05-reasoning-replay.png)
 
@@ -644,9 +645,9 @@ Captura a pantalla completa de la slide anterior, con el mismo título y un pie 
 
 ## 26 · Entender: Reasoning Replay y What-if (2/2)
 
-Captura a pantalla completa de la slide anterior, con el mismo título y un pie de foto bajo él.
+Captura a pantalla completa de la slide anterior, sin título: solo la imagen, con borde gris.
 
-**Pie de foto:** Replay What-if: misma decisión con un modelo más pequeño
+**Pie de foto** (va bajo la captura de la slide anterior): Replay What-if: misma decisión con un modelo más pequeño
 
 ![Replay What-if: misma decisión con un modelo más pequeño](img/observabilidad/05b-replay-diff.png)
 
@@ -724,9 +725,9 @@ Al lado de la captura:
 
 ## 29 · Limitar: identidad y permisos por agente
 
-Captura a pantalla completa de la slide anterior, con el mismo título y un pie de foto bajo él.
+Captura a pantalla completa de la slide anterior, sin título: solo la imagen, con borde gris.
 
-**Pie de foto:** Ficha del agente de Reglas: identidad, permisos e histórico de cambios
+**Pie de foto** (va bajo la captura de la slide anterior): Ficha del agente de Reglas: identidad, permisos e histórico de cambios
 
 ![Ficha del agente de Reglas: identidad, permisos e histórico de cambios](img/observabilidad/06-ficha-agente.png)
 
@@ -772,9 +773,9 @@ Escala en flechas:
 
 ## 31 · Limitar: autonomía progresiva (1/2)
 
-Captura a pantalla completa de la slide anterior, con el mismo título y un pie de foto bajo él.
+Captura a pantalla completa de la slide anterior, sin título: solo la imagen, con borde gris.
 
-**Pie de foto:** Registro de auditoría de la bajada de nivel L3 → L2
+**Pie de foto** (va bajo la captura de la slide anterior): Registro de auditoría de la bajada de nivel L3 → L2
 
 ![Registro de auditoría de la bajada de nivel L3 → L2](img/observabilidad/13-autonomia-auditoria.png)
 
@@ -786,9 +787,9 @@ Captura a pantalla completa de la slide anterior, con el mismo título y un pie 
 
 ## 32 · Limitar: autonomía progresiva (2/2)
 
-Captura a pantalla completa de la slide anterior, con el mismo título y un pie de foto bajo él.
+Captura a pantalla completa de la slide anterior, sin título: solo la imagen, con borde gris.
 
-**Pie de foto:** Evolución del nivel de autonomía del agente de Reglas
+**Pie de foto** (va bajo la captura de la slide anterior): Evolución del nivel de autonomía del agente de Reglas
 
 ![Evolución del nivel de autonomía del agente de Reglas](img/observabilidad/13b-autonomia-evolucion.png)
 
@@ -836,9 +837,9 @@ Diagrama de tres pasos:
 
 ## 34 · Limitar: Trust Score y supervisión adaptativa
 
-Captura a pantalla completa de la slide anterior, con el mismo título y un pie de foto bajo él.
+Captura a pantalla completa de la slide anterior, sin título: solo la imagen, con borde gris.
 
-**Pie de foto:** Comportamiento por periodo y variables que gobiernan al agente
+**Pie de foto** (va bajo la captura de la slide anterior): Comportamiento por periodo y variables que gobiernan al agente
 
 ![Comportamiento por periodo y variables que gobiernan al agente](img/observabilidad/14-agente-comportamiento.png)
 
@@ -895,9 +896,9 @@ Tipos de guardrail, con ejemplos del caso de seguros:
 
 ## 36 · Limitar: guardrails
 
-Captura a pantalla completa de la slide anterior, con el mismo título y un pie de foto bajo él.
+Captura a pantalla completa de la slide anterior, sin título: solo la imagen, con borde gris.
 
-**Pie de foto:** Ficha del guardrail de importe (G-02): disparos por día, canal y ramo
+**Pie de foto** (va bajo la captura de la slide anterior): Ficha del guardrail de importe (G-02): disparos por día, canal y ramo
 
 ![Ficha del guardrail de importe (G-02): disparos por día, canal y ramo](img/observabilidad/15-guardrail-g02.png)
 
@@ -943,9 +944,9 @@ Dos bloques:
 
 ## 38 · Limitar: kill switch y resiliencia
 
-Captura a pantalla completa de la slide anterior, con el mismo título y un pie de foto bajo él.
+Captura a pantalla completa de la slide anterior, sin título: solo la imagen, con borde gris.
 
-**Pie de foto:** Tarjetas de agente con estado, nivel, coste frente al cap e interruptor de pausa
+**Pie de foto** (va bajo la captura de la slide anterior): Tarjetas de agente con estado, nivel, coste frente al cap e interruptor de pausa
 
 ![Tarjetas de agente con estado, nivel, coste frente al cap e interruptor de pausa](img/observabilidad/02-agentes-kill-switch.png)
 
@@ -990,9 +991,9 @@ Al lado de las capturas:
 
 ## 40 · Pagar: caps y presupuesto (1/2)
 
-Captura a pantalla completa de la slide anterior, con el mismo título y un pie de foto bajo él.
+Captura a pantalla completa de la slide anterior, sin título: solo la imagen, con borde gris.
 
-**Pie de foto:** Cap diario del agente de Reglas (CAP-03): al 114 % del límite
+**Pie de foto** (va bajo la captura de la slide anterior): Cap diario del agente de Reglas (CAP-03): al 114 % del límite
 
 ![Cap diario del agente de Reglas (CAP-03): al 114 % del límite](img/observabilidad/17-cap03-consumo.png)
 
@@ -1004,9 +1005,9 @@ Captura a pantalla completa de la slide anterior, con el mismo título y un pie 
 
 ## 41 · Pagar: caps y presupuesto (2/2)
 
-Captura a pantalla completa de la slide anterior, con el mismo título y un pie de foto bajo él.
+Captura a pantalla completa de la slide anterior, sin título: solo la imagen, con borde gris.
 
-**Pie de foto:** Coste mensual acumulado frente al cap y proyección de cierre
+**Pie de foto** (va bajo la captura de la slide anterior): Coste mensual acumulado frente al cap y proyección de cierre
 
 ![Coste mensual acumulado frente al cap y proyección de cierre](img/observabilidad/20-coste-mensual.png)
 
@@ -1050,9 +1051,9 @@ Tres tipos de respuesta, de menos a más intervención:
 
 ## 43 · Pagar: de la alerta a la acción (1/2)
 
-Captura a pantalla completa de la slide anterior, con el mismo título y un pie de foto bajo él.
+Captura a pantalla completa de la slide anterior, sin título: solo la imagen, con borde gris.
 
-**Pie de foto:** Consumo de cada cap frente al 100 %: superados, en aviso y dentro
+**Pie de foto** (va bajo la captura de la slide anterior): Consumo de cada cap frente al 100 %: superados, en aviso y dentro
 
 ![Consumo de cada cap frente al 100 %: superados, en aviso y dentro](img/observabilidad/19-caps-superados.png)
 
@@ -1064,9 +1065,9 @@ Captura a pantalla completa de la slide anterior, con el mismo título y un pie 
 
 ## 44 · Pagar: de la alerta a la acción (2/2)
 
-Captura a pantalla completa de la slide anterior, con el mismo título y un pie de foto bajo él.
+Captura a pantalla completa de la slide anterior, sin título: solo la imagen, con borde gris.
 
-**Pie de foto:** Acciones correctivas de CAP-03: automática, simular, aplicar o pedir aprobación
+**Pie de foto** (va bajo la captura de la slide anterior): Acciones correctivas de CAP-03: automática, simular, aplicar o pedir aprobación
 
 ![Acciones correctivas de CAP-03: automática, simular, aplicar o pedir aprobación](img/observabilidad/17b-cap03-acciones.png)
 
@@ -1102,9 +1103,9 @@ Al lado de la captura:
 
 ## 46 · Pagar: el modelo adecuado para cada agente
 
-Captura a pantalla completa de la slide anterior, con el mismo título y un pie de foto bajo él.
+Captura a pantalla completa de la slide anterior, sin título: solo la imagen, con borde gris.
 
-**Pie de foto:** Comparativa de modelos: precio, consumo, coste, latencia y calidad
+**Pie de foto** (va bajo la captura de la slide anterior): Comparativa de modelos: precio, consumo, coste, latencia y calidad
 
 ![Comparativa de modelos: precio, consumo, coste, latencia y calidad](img/observabilidad/10-finops-modelos.png)
 
@@ -1144,9 +1145,9 @@ Tres simulaciones, una por tipo de cambio:
 
 ## 48 · Antes de cambiar, simular (1/2)
 
-Captura a pantalla completa de la slide anterior, con el mismo título y un pie de foto bajo él.
+Captura a pantalla completa de la slide anterior, sin título: solo la imagen, con borde gris.
 
-**Pie de foto:** Nuevo cap: vista previa del consumo frente al nuevo límite
+**Pie de foto** (va bajo la captura de la slide anterior): Nuevo cap: vista previa del consumo frente al nuevo límite
 
 ![Nuevo cap: vista previa del consumo frente al nuevo límite](img/observabilidad/18-nuevo-cap.png)
 
@@ -1158,9 +1159,9 @@ Captura a pantalla completa de la slide anterior, con el mismo título y un pie 
 
 ## 49 · Antes de cambiar, simular (2/2)
 
-Captura a pantalla completa de la slide anterior, con el mismo título y un pie de foto bajo él.
+Captura a pantalla completa de la slide anterior, sin título: solo la imagen, con borde gris.
 
-**Pie de foto:** Nuevo guardrail: vista previa e impacto estimado
+**Pie de foto** (va bajo la captura de la slide anterior): Nuevo guardrail: vista previa e impacto estimado
 
 ![Nuevo guardrail: vista previa e impacto estimado](img/observabilidad/16-nuevo-guardrail.png)
 
@@ -1209,9 +1210,9 @@ Una línea de tiempo única, filtrable por tipo:
 
 ## 51 · Auditar: libro de registro
 
-Captura a pantalla completa de la slide anterior, con el mismo título y un pie de foto bajo él.
+Captura a pantalla completa de la slide anterior, sin título: solo la imagen, con borde gris.
 
-**Pie de foto:** Histórico de gobierno: overrides, incidentes, caps, replays y cambios de nivel
+**Pie de foto** (va bajo la captura de la slide anterior): Histórico de gobierno: overrides, incidentes, caps, replays y cambios de nivel
 
 ![Histórico de gobierno: overrides, incidentes, caps, replays y cambios de nivel](img/observabilidad/11-historico.png)
 
@@ -1254,9 +1255,9 @@ Tabla capacidad → norma:
 
 ## 53 · Cumplimiento por diseño
 
-Captura a pantalla completa de la slide anterior, con el mismo título y un pie de foto bajo él.
+Captura a pantalla completa de la slide anterior, sin título: solo la imagen, con borde gris.
 
-**Pie de foto:** Etiqueta normativa: qué exige el artículo y si ya está en vigor
+**Pie de foto** (va bajo la captura de la slide anterior): Etiqueta normativa: qué exige el artículo y si ya está en vigor
 
 ![Etiqueta normativa: qué exige el artículo y si ya está en vigor](img/observabilidad/12-etiqueta-normativa.png)
 
