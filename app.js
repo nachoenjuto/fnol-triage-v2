@@ -1100,7 +1100,8 @@
         $('sel-motor').value = 'guardado'; $('sel-motor').dispatchEvent(new Event('change'));
         $('sel-paquete').value = 'A'; $('sel-paquete').dispatchEvent(new Event('change'));
         $('btn-run').click();
-        return '';
+        // La demo automática no pasa a la ficha de MSG-A-08 hasta que el lote ha terminado
+        return { aviso: '', listo: () => !state.running && state.log.some((e) => e.paquete === 'A') };
       },
       ficha: (id, tab) => {
         const e = state.log.find((x) => x.id === id);

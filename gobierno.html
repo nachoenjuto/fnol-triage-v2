@@ -5,9 +5,9 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Gobierno, Observabilidad y FinOps de Agentes IA para FNOL</title>
   <meta name="description" content="Panel de control agéntico del triaje de seguros: trazabilidad y observabilidad de los agentes, Reasoning & Replay, Autonomy engine y FinOps con caps de consumo.">
-  <link rel="stylesheet" href="gobierno.css?v=29">
-  <link rel="stylesheet" href="header.css?v=29">
-  <link rel="stylesheet" href="cumplimiento.css?v=29">
+  <link rel="stylesheet" href="gobierno.css?v=31">
+  <link rel="stylesheet" href="header.css?v=31">
+  <link rel="stylesheet" href="cumplimiento.css?v=31">
 </head>
 <body>
 <header class="topbar">
@@ -103,7 +103,7 @@
         <label class="f">Agente<select id="t-agente"><option value="">Todos</option><option value="multicanal">Multicanalidad</option><option value="clasificacion">Clasificación</option><option value="extraccion">Extracción</option><option value="reglas">Reglas</option></select></label>
         <label class="f">Canal<select id="t-canal"><option value="">Todos</option><option value="email">Email</option><option value="web">Formulario web</option><option value="chat">Chat</option><option value="telefono">Teléfono</option><option value="whatsapp">WhatsApp</option></select></label>
         <label class="f">Decisión<select id="t-dec"><option value="">Todas</option><option value="DESPEJADO">Aprobado</option><option value="REVISION">A revisar</option></select></label>
-        <label class="f">Resultado<select id="t-res"><option value="">Todos</option><option value="auto">Autónomo</option><option value="humano">Escalado a humano</option><option value="override">Con override</option><option value="incidencia">Con incidencia</option></select></label>
+        <label class="f">Resultado<select id="t-res"><option value="">Todos</option><option value="auto">Autónomo</option><option value="persona">Con intervención humana</option><option value="humano">Escalado a humano</option><option value="override">Con override</option><option value="incidencia">Con incidencia</option></select></label>
       </div>
       <button class="btn btn-sm" type="button" id="btn-export-trazas"></button>
     </div>
@@ -124,7 +124,7 @@
           <label class="f">Agente<select id="r-agente"><option value="">Todos</option><option value="multicanal">Multicanalidad</option><option value="clasificacion">Clasificación</option><option value="extraccion">Extracción</option><option value="reglas">Reglas</option></select></label>
           <label class="f">Canal<select id="r-canal"><option value="">Todos</option><option value="email">Email</option><option value="web">Formulario web</option><option value="chat">Chat</option><option value="telefono">Teléfono</option><option value="whatsapp">WhatsApp</option></select></label>
           <label class="f">Decisión<select id="r-dec"><option value="">Todas</option><option value="DESPEJADO">Aprobado</option><option value="REVISION">A revisar</option></select></label>
-          <label class="f">Resultado<select id="r-res"><option value="">Todos</option><option value="auto">Autónomo</option><option value="humano">Escalado a humano</option><option value="override">Con override</option><option value="incidencia">Con incidencia</option></select></label>
+          <label class="f">Resultado<select id="r-res"><option value="">Todos</option><option value="auto">Autónomo</option><option value="persona">Con intervención humana</option><option value="humano">Escalado a humano</option><option value="override">Con override</option><option value="incidencia">Con incidencia</option></select></label>
         </div>
         <span class="muted small" style="margin-bottom:.5rem">Clic en una traza para cargar su razonamiento y su replay</span>
         <div class="tw pane-scroll"><table><thead><tr><th>Traza</th><th>Hora</th><th>Mensaje</th><th>Canal</th><th>Ramo</th><th>Decisión</th><th>Autonomía</th><th>Conf.</th><th>Ciclo</th><th>Tokens</th><th>Coste</th><th>Incidencias</th></tr></thead><tbody id="r-trazas"></tbody></table></div>
@@ -180,6 +180,30 @@
   <div class="card">
     <div class="card-head"><h2 id="h-disparos"></h2></div>
     <div class="tw"><table><thead><tr><th>Fecha</th><th>Guardrail</th><th>Agente</th><th>Traza</th><th>Resultado</th></tr></thead><tbody id="disparos"></tbody></table></div>
+  </div>
+</section>
+
+<!-- ───────────── INTERVENCIÓN HUMANA (HITL) ───────────── -->
+<section class="view" data-view="hitl">
+  <div class="kpis" id="kpis-hitl"></div>
+  <div class="card">
+    <div class="card-head"><h2 id="h-hitl-mec"></h2><span class="muted small">Cómo interviene una persona en el sistema y dónde se configura cada mecanismo · clic para ir a su sección</span></div>
+    <div class="hitl-mec" id="hitl-mec"></div>
+  </div>
+  <div class="card">
+    <div class="card-head"><h2 id="h-hitl-cola"></h2><span class="muted small">Trazas del periodo que pasaron por una persona · clic en una fila para abrir su ficha</span><button class="btn btn-sm" type="button" id="btn-hitl-trazas"></button></div>
+    <div class="tw"><table><thead><tr><th>Traza</th><th>Llegada</th><th>Mensaje</th><th>Ramo</th><th>Agente</th><th>Por qué se escaló</th><th>Estado</th><th>Revisor</th><th>Tiempo</th></tr></thead><tbody id="hitl-cola"></tbody></table></div>
+  </div>
+  <div class="card anim-vista" id="hitl-escalados"></div>
+  <div class="card anim-vista" id="hitl-overrides"></div>
+  <div class="card anim-vista" id="hitl-calidad"></div>
+  <div class="card">
+    <div class="card-head"><h2 id="h-hitl-agentes"></h2></div>
+    <div class="tw"><table><thead><tr><th>Agente</th><th>Nivel</th><th>Umbral de confianza</th><th>Escalado 14 d</th><th>Override 14 d</th><th></th></tr></thead><tbody id="hitl-agentes"></tbody></table></div>
+  </div>
+  <div class="card">
+    <div class="card-head"><h2 id="h-hitl-med"></h2><button class="btn btn-sm" type="button" data-goto="medidas">Abrir medidas correctivas</button></div>
+    <div class="alerts" id="hitl-med"></div>
   </div>
 </section>
 
@@ -368,14 +392,15 @@
   <div class="modal-body" id="modal-gr-nuevo-body"></div>
 </dialog>
 
-  <script src="icons.js?v=29"></script>
-  <script src="shell.js?v=29"></script>
-  <script src="data/mensajes.js?v=29"></script>
-  <script src="data/resultados.js?v=29"></script>
-  <script src="prompts.js?v=29"></script>
-  <script src="evidencias.js?v=29"></script>
-  <script src="cumplimiento.js?v=29"></script>
-  <script src="data/gobierno.js?v=29"></script>
-  <script src="gobierno.js?v=29"></script>
+  <script src="icons.js?v=31"></script>
+  <script src="data/recorrido.js?v=31"></script>
+  <script src="shell.js?v=31"></script>
+  <script src="data/mensajes.js?v=31"></script>
+  <script src="data/resultados.js?v=31"></script>
+  <script src="prompts.js?v=31"></script>
+  <script src="evidencias.js?v=31"></script>
+  <script src="cumplimiento.js?v=31"></script>
+  <script src="data/gobierno.js?v=31"></script>
+  <script src="gobierno.js?v=31"></script>
 </body>
 </html>

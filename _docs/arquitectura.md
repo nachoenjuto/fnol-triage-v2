@@ -22,7 +22,7 @@ C4Container
   Person(usuario, "Usuario de la demo")
   Container_Boundary(pages, "GitHub Pages (rama main)") {
     Container(triage, "Triage · index.html + app.js", "HTML/JS", "Paquetes, prompts editables, motor local o IA, registro de decisiones y ficha")
-    Container(gobierno, "Gobierno de Agentes · gobierno.html + gobierno.js", "HTML/JS", "Inicio, resumen, agentes, trazabilidad, Reasoning & Replay, autonomía, guardrails, Knowledge Bases, termómetro de cumplimiento, FinOps, medidas correctivas, histórico")
+    Container(gobierno, "Gobierno de Agentes · gobierno.html + gobierno.js", "HTML/JS", "Inicio, resumen, agentes, trazabilidad, razonamiento y replay, autonomía, guardrails, intervención humana, Knowledge Bases, termómetro de cumplimiento, FinOps, medidas correctivas, histórico")
     Container(icons, "icons.js", "JS", "Iconos Lucide compartidos")
     Container(shell, "shell.js + header.css", "JS/CSS", "Marco común: cabecera, menú lateral plegable con usuario al pie y pie fino")
     Container(evid, "evidencias.js", "JS puro", "Ancla en el texto las citas del modelo y reconstruye evidencias sin IA")
@@ -73,6 +73,12 @@ flowchart LR
   G --> replay[Reasoning & Replay · lista + pasos por agente + diff]
   G --> autonomia[Autonomía · KPI, niveles L0–L3 con sus agentes, auditoría]
   G --> guardrails[Guardrails · condiciones, disparos, toggles]
+  G --> hitl[Intervención humana · escalados, overrides, cola de revisión, calidad de la revisión]
+  resumen -. KPI escalados y overrides .-> hitl
+  guardrails -. escalan a persona .-> hitl
+  hitl -. control AI Act art. 14 .-> cumpl
+  hitl -. overrides .-> medidas
+  hitl -. clic en fila de la cola .-> mTraza
   G --> kb[Knowledge Bases · inventario, salud, comparativa de configuraciones, rúbricas]
   kb -. clic en tarjeta .-> mKb([Modal · ficha de la KB])
   kb -. editar rúbrica .-> mRub([Modal · editor de rúbrica])

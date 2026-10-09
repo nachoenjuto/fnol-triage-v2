@@ -65,7 +65,7 @@
   const normas = (...ids) => `<span class="normas">${ids.map((k) => `<span class="norma" data-tip="${esc(NORMA[k][1])}">${ic('scale')} ${esc(NORMA[k][0])}</span>`).join('')}</span>`;
   const NORMAS_BLOQUE = {
     'h-agentes': ['ai-14'], 'h-alertas': ['eiopa'], 'h-trazas': ['ai-12', 'rgpd-5', 'dora-28'], 'h-reasoning': ['rgpd-15', 'ai-13'], 'h-replay': ['ai-15', 'eiopa'],
-    'h-niveles': ['ai-14', 'rgpd-22'], 'h-cambios': ['rgpd-5', 'eiopa'], 'h-guardrails': ['ai-9', 'ai-14'], 'h-caps': ['sii-41'], 'h-modelos': ['dora-28'], 'h-hist': ['ai-12', 'rgpd-5'],
+    'h-niveles': ['ai-14', 'rgpd-22'], 'h-cambios': ['rgpd-5', 'eiopa'], 'h-guardrails': ['ai-9', 'ai-14'], 'h-hitl-mec': ['ai-14', 'rgpd-22'], 'h-hitl-cola': ['ai-14', 'rgpd-22'], 'h-hitl-agentes': ['ai-14'], 'h-caps': ['sii-41'], 'h-modelos': ['dora-28'], 'h-hist': ['ai-12', 'rgpd-5'],
   };
   const titulo = (id, icono, texto) => { $(id).innerHTML = `${ic(icono)} ${texto}${NORMAS_BLOQUE[id] ? normas(...NORMAS_BLOQUE[id]) : ''}`; };
 
@@ -161,7 +161,7 @@
     const [aut, esc1, ovr, alr] = G.kpis.resumen;
     $('kpis').innerHTML = [
       kpi({ cls: 'primary', icono: 'activity', etiqueta: 'Mensajes procesados', valor: num(totalMsgs), sub: `${dias.length} día${dias.length > 1 ? 's' : ''} · ${num(Math.round(totalMsgs / dias.length))} / día de media`, id: 'res-msgs' }),
-      kpi({ ...aut, id: 'res-aut' }), kpi({ ...esc1, id: 'res-esc' }), kpi({ ...ovr, id: 'res-ovr' }),
+      kpi({ ...aut, id: 'res-aut' }), conGoto(kpi(esc1), 'hitl'), conGoto(kpi(ovr), 'hitl'),
       kpi({ cls: 'warn', icono: 'euro', etiqueta: 'Coste del periodo', valor: eur(coste, coste < 10 ? 2 : 0), sub: `${Math.round((coste / capMes) * 100)} % del cap mensual (${eur(capMes, 0)}) · ${eur(totalMsgs ? coste / totalMsgs : 0, 4)} por mensaje`, medidor: (coste / capMes) * 100, id: 'res-coste' }),
       (() => { const al = alertasTodas(); const c = al.filter((x) => x.sev === 'crit').length; return kpi({ ...alr, id: 'res-alertas', cls: c ? 'crit' : 'warn', valor: String(al.length), sub: `${c} ${c === 1 ? 'crítica' : 'críticas'} · ${al.length - c} avisos · coste, conocimiento y cumplimiento` }); })(),
       (() => { const { T } = estadoCumplimiento(); const p = T.marcos.reduce((a, m) => a + m.cuenta.ambar + m.cuenta.rojo, 0); return conGoto(kpi({ cls: T.global >= 90 ? 'ok' : 'warn', icono: 'thermometer', etiqueta: 'Cumplimiento', valor: `${T.global} %`, sub: `cobertura de controles · ${p} parciales`, medidor: T.global }), 'cumplimiento'); })(),
@@ -223,7 +223,7 @@
   function listaTrazas(pre) {
     const v = (k) => ($(`${pre}-${k}`) || {}).value || '';
     const fa = v('agente'), fc = v('canal'), fd = v('dec'), fr = v('res');
-    const rows = G.trazas.filter((t) => (!fc || t.canal === fc) && (!fd || t.decision === fd) && (!fr || (fr === 'incidencia' ? (t.incidencias || []).length : t.resultado === fr)) && (!fa || t.spans.some((s) => s[0] === fa)));
+    const rows = G.trazas.filter((t) => (!fc || t.canal === fc) && (!fd || t.decision === fd) && (!fr || (fr === 'incidencia' ? (t.incidencias || []).length : fr === 'persona' ? t.resultado !== 'auto' : t.resultado === fr)) && (!fa || t.spans.some((s) => s[0] === fa)));
     $(`${pre}-trazas`).innerHTML = rows.length ? rows.map((t) => rowTraza(t, true)).join('') : '<tr><td colspan="12" class="muted" style="text-align:center">Ninguna traza cumple el filtro.</td></tr>';
   }
   function markSel() { document.querySelectorAll('#t-trazas tr, #r-trazas tr, #ultimas tr').forEach((r) => r.classList.toggle('is-sel', r.dataset.id === selId)); }
@@ -545,7 +545,7 @@
     $('kpis-gr').innerHTML = [
       kpi({ cls: 'ok', icono: 'shield-check', etiqueta: 'Guardrails activos', valor: `${activos} / ${P.length}`, sub: `${P.length - activos} inactivo${P.length - activos === 1 ? '' : 's'}` }),
       kpi({ cls: 'review', icono: 'bell', etiqueta: 'Disparos en 14 días', valor: num(disparos), sub: `${num(escaladosGr)} escalados a persona · resto degradaciones y marcas` }),
-      kpi({ cls: 'time', icono: 'user-check', etiqueta: 'Escalados que vienen de un guardrail', valor: `${Math.round((escaladosGr / 3180) * 100)} %`, sub: 'de los 3.180 escalados del periodo; el resto por confianza o discrepancia' }),
+      conGoto(kpi({ cls: 'time', icono: 'user-check', etiqueta: 'Escalan a una persona', valor: `${P.filter((p) => p.severidad === 'humano').length} de ${P.length}`, sub: 'guardrails · qué pasa después, en «Intervención humana»' }), 'hitl'),
       kpi({ cls: 'primary', icono: 'gauge', etiqueta: 'Más disparado', valor: [...P].sort((x, y) => y.disparos - x.disparos)[0]?.id || '—', sub: [...P].sort((x, y) => y.disparos - x.disparos)[0]?.condicion || '' }),
     ].join('');
     $('policies').innerHTML = P.map((p) => { const max = Math.max(1, ...(p.disparos_dia || [1])); const activa = politicaActiva(p); return `<tr class="clickable${activa ? '' : ' muted'}" data-gr="${esc(p.id)}" tabindex="0"><td class="mono"><b>${esc(p.id)}</b>${p.nuevo ? ' <span class="pill pill-time">nuevo</span>' : ''}</td><td>${agTag(p.agente)}</td><td class="wrap">${esc(p.condicion)}<br><small class="muted">${conGuardrails(esc(p.descripcion || ''))}</small></td><td class="wrap">${esc(p.accion)}</td><td><span class="sev sev-${esc(p.severidad || 'humano')}">${SEV[p.severidad] || esc(p.severidad)}</span></td><td><span class="tnum" style="display:inline-block;min-width:2.2rem"><b>${num(p.disparos)}</b></span> <span class="bars" style="--c:${agColor(p.agente)}" data-tip="Disparos por día (últimos 14 días): ${(p.disparos_dia || []).join(' · ')}">${(p.disparos_dia || []).map((v) => `<i style="height:${Math.max(2, (v / max) * 18)}px"></i>`).join('')}</span></td><td><label class="switch${activa ? '' : ' off'}" data-guardrail="${esc(p.id)}" title="${activa ? 'Desactivar' : 'Activar'} ${esc(p.id)}"><i></i>${activa ? 'Activo' : 'Inactivo'}</label></td></tr>`; }).join('');
@@ -842,7 +842,8 @@
       svg.querySelectorAll('polygon, path[opacity]').forEach((a) => a.classList.add('area-a'));
       svg.querySelectorAll('circle[data-tip]').forEach((c, k) => { c.classList.add('dot-a'); c.style.setProperty('--i', k); });
     });
-    root.querySelectorAll('svg.spark polyline').forEach((p) => { p.setAttribute('pathLength', '1'); p.classList.add('line-a'); });
+    // Las minilíneas usan vector-effect=non-scaling-stroke, que mide el trazo discontinuo en píxeles de pantalla:
+    // en lugar de dibujarlas con stroke-dasharray se descubren de izquierda a derecha (clip-path en el CSS)
     root.querySelectorAll('.span .bar i').forEach((b, k) => b.style.setProperty('--i', k));
     root.classList.remove('anim'); void root.offsetWidth;
     if (reducir) return;
@@ -950,40 +951,108 @@
     },
   };
 
-  KPI_FIN['res-esc'] = {
-    icono: 'user-check', titulo: 'Escalados a humano',
-    render: () => {
-      const d = datosResumen();
-      const causas = [...String((d.aut && G.kpis.autonomia && G.kpis.autonomia[1] && G.kpis.autonomia[1].sub) || '').matchAll(/(G-\d{2})[^\d]*(\d+) %/g)].map((m) => [m[1], Number(m[2])]);
-      const base = causas.length ? causas : [['G-02', 62], ['G-04', 20], ['G-05', 11]]; const resto = Math.max(0, 100 - base.reduce((a, [, v]) => a + v, 0));
-      const filas = [...base, ...(resto ? [['otras', resto]] : [])];
-      const colores = ['var(--ag-reglas)', 'var(--review)', 'var(--ag-extraccion)', 'var(--muted)'];
-      const nombre = (id) => { const p = G.politicas.find((x) => x.id === id); return id === 'otras' ? 'Otras (confianza, discrepancia…)' : `${id} · ${p ? p.condicion.split(' · ')[0].replace(/ \(.*$/, '') : ''}`.replace(/(.{40}).+/, '$1…'); };
-      const porDia = d.dias.map((x, i) => { const aut = serieAround('aut-dia', d.n, d.pAut, 1.6, d.pAut)[i]; return Math.round(x[1] * (100 - aut) / 100); });
-      const series = filas.map(([id, pc], k) => ({ label: id === 'otras' ? 'Otras' : id, color: colores[k % colores.length], vals: porDia.map((v, i) => Math.round(v * pc / 100)) }));
-      return `<p class="small muted">Decisiones que un guardrail (o una confianza baja) envía a un tramitador en lugar de ejecutarse solas. Un escalado no es un fallo: es el sistema funcionando como se diseñó.</p>
-        <div class="kpi-mini">${kmini('user-check', 'Escalados en el periodo', cnt(d.nEsc))}${kmini('gauge', '% de los mensajes', cnt(d.pEsc, 'pct0'))}${kmini('shield-check', 'Causa principal', esc(filas[0][0]), `${filas[0][1]} % de los escalados`)}${kmini('timer', 'Resolución humana (mediana)', cnt(14, 'int') + ' min', 'desde que llega a la cola')}</div>
-        <div class="two"><div><h3>Causas de escalado</h3>${anilloConLeyenda(filas.map(([id, pc], k) => [nombre(id), Math.round(d.nEsc * pc / 100), colores[k % colores.length]]), `${Math.round(d.pEsc)} %`, 'escalados')}</div>
-        <div><h3>Ranking de guardrails por disparos</h3>${hbars([...G.politicas].filter((p) => p.severidad === 'humano').sort((a, b) => b.disparos - a.disparos).slice(0, 6).map((p) => [p.id, p.disparos, agColor(p.agente)]), { pl: 56, aria: 'Guardrails con más disparos' })}</div></div>
-        <div><h3>Escalados por día y causa</h3>${chartApilada(series, d.fechas, { aria: 'Escalados por día y causa' })}${leyenda(series.map((s) => [s.label, s.color]))}</div>`;
-    },
-  };
+  // ---------------------------------------------------------------------------
+  // Intervención humana (HITL): escalados, overrides, cola de revisión y calidad de la revisión
+  // ---------------------------------------------------------------------------
+  function hitlEscalados() {
+    const d = datosResumen();
+    const causas = [...String((d.aut && G.kpis.autonomia && G.kpis.autonomia[1] && G.kpis.autonomia[1].sub) || '').matchAll(/(G-\d{2})[^\d]*(\d+) %/g)].map((m) => [m[1], Number(m[2])]);
+    const base = causas.length ? causas : [['G-02', 62], ['G-04', 20], ['G-05', 11]]; const resto = Math.max(0, 100 - base.reduce((a, [, v]) => a + v, 0));
+    const filas = [...base, ...(resto ? [['otras', resto]] : [])];
+    const colores = ['var(--ag-reglas)', 'var(--review)', 'var(--ag-extraccion)', 'var(--muted)'];
+    const nombre = (id) => { const p = G.politicas.find((x) => x.id === id); return id === 'otras' ? 'Otras (confianza, discrepancia…)' : `${id} · ${p ? p.condicion.split(' · ')[0].replace(/ \(.*$/, '') : ''}`.replace(/(.{40}).+/, '$1…'); };
+    const porDia = d.dias.map((x, i) => { const aut = serieAround('aut-dia', d.n, d.pAut, 1.6, d.pAut)[i]; return Math.round(x[1] * (100 - aut) / 100); });
+    const series = filas.map(([id, pc], k) => ({ label: id === 'otras' ? 'Otras' : id, color: colores[k % colores.length], vals: porDia.map((v, i) => Math.round(v * pc / 100)) }));
+    return `<div class="card-head"><h2>${ic('user-check')} Escalados a una persona</h2><button class="btn btn-sm" type="button" data-goto="guardrails">Abrir guardrails</button></div>
+      <p class="small muted">Decisiones que un guardrail (o una confianza baja) envía a un tramitador en lugar de ejecutarse solas. Un escalado no es un fallo: es el sistema funcionando como se diseñó.</p>
+      <div class="kpi-mini">${kmini('user-check', 'Escalados en el periodo', cnt(d.nEsc))}${kmini('gauge', '% de los mensajes', cnt(d.pEsc, 'pct0'))}${kmini('shield-check', 'Causa principal', esc(filas[0][0]), `${filas[0][1]} % de los escalados`)}${kmini('timer', 'Resolución humana (mediana)', cnt(14, 'int') + ' min', 'desde que llega a la cola')}</div>
+      <div class="two"><div><h3>Causas de escalado</h3>${anilloConLeyenda(filas.map(([id, pc], k) => [nombre(id), Math.round(d.nEsc * pc / 100), colores[k % colores.length]]), `${Math.round(d.pEsc)} %`, 'escalados')}</div>
+      <div><h3>Ranking de guardrails por disparos</h3>${hbars([...G.politicas].filter((p) => p.severidad === 'humano').sort((a, b) => b.disparos - a.disparos).slice(0, 6).map((p) => [p.id, p.disparos, agColor(p.agente)]), { pl: 56, aria: 'Guardrails con más disparos' })}</div></div>
+      <div><h3>Escalados por día y causa</h3>${chartApilada(series, d.fechas, { aria: 'Escalados por día y causa' })}${leyenda(series.map((s) => [s.label, s.color]))}</div>`;
+  }
 
-  KPI_FIN['res-ovr'] = {
-    icono: 'repeat', titulo: 'Overrides humanos',
-    render: () => {
-      const d = datosResumen(); const serie = [1.7, 1.9, 1.6, 1.8, 1.9, 2.0, 1.8, 1.7, 2.1, 1.9, 2.2, 3.4, 4.1, d.pOvr].slice(-d.n); const cambiadas = Math.round(numDe(d.ovr && d.ovr.sub, 67));
-      const porAgente = G.agentes.filter((a) => a.cap_hoy != null).map((a) => [`${svgAg(a.id)}`, numDe(a.override_14d && a.override_14d !== '—' ? a.override_14d : '0', 0), agColor(a.id)]);
-      const motivos = [['Dato no accesible al modelo', 41, 'var(--ag-extraccion)'], ['Importe mal interpretado', 22, 'var(--ag-reglas)'], ['Cobertura o exclusión', 19, 'var(--review)'], ['Otros', 18, 'var(--muted)']];
-      const recientes = (G.eventos || []).filter((e) => e.tipo === 'override').slice(0, 3);
-      return `<p class="small muted">Un <b>override</b> es una decisión del agente que un tramitador cambia después. Es la mejor señal de calidad real: si sube por encima del 3 %, el nivel de autonomía del agente se revisa a la baja.</p>
-        <div class="kpi-mini">${kmini('repeat', 'Tasa de override', cnt(d.pOvr, 'pct1'))}${kmini('user-check', 'Decisiones cambiadas', cnt(cambiadas))}${kmini('gauge', 'Objetivo', '≤ 3 %', `<span style="color:var(--${d.pOvr <= 3 ? 'ok' : 'crit'})">${d.pOvr <= 3 ? 'dentro del objetivo' : 'por encima'}</span>`)}${kmini('triangle-alert', 'Pico del periodo', cnt(Math.max(...serie), 'pct1'), 'semana del 15/09')}</div>
-        <div><h3>Tasa de override por día</h3>${chartTendencia(serie, d.fechas, { min: 0, max: 5, ref: { v: 3, label: 'umbral de bajada de nivel 3 %', color: 'var(--crit)' }, aria: 'Tasa de override por día', color: 'var(--time)', puntoDe: (v) => (v > 3 ? 'var(--crit)' : 'var(--time)') })}</div>
-        <div class="two"><div><h3>Override por agente (14 días, %)</h3>${hbars(porAgente.map(([l, v, c]) => [l, v, c]), { pl: 190, fmt: (v) => `${String(v).replace('.', ',')} %`, total: 100, aria: 'Override por agente' })}</div>
-        <div><h3>Por qué cambia una persona la decisión</h3>${anilloConLeyenda(motivos.map(([l, v, c]) => [l, v, c]), `${cambiadas}`, 'overrides')}</div></div>
-        ${recientes.length ? `<div><h3>Overrides recientes</h3><ul class="mini-tl">${recientes.map((e) => `<li><span class="t">${fechaHora(e.fecha)}</span><span class="ico" style="--c:var(--review)">${ic('user-check')}</span><div><b>${conGuardrails(esc(e.titulo))}</b><small>${conGuardrails(esc(e.detalle))} · ${esc(e.usuario)}</small></div></li>`).join('')}</ul></div>` : ''}`;
-    },
-  };
+  function hitlOverrides() {
+    const d = datosResumen(); const serie = [1.7, 1.9, 1.6, 1.8, 1.9, 2.0, 1.8, 1.7, 2.1, 1.9, 2.2, 3.4, 4.1, d.pOvr].slice(-d.n); const cambiadas = Math.round(numDe(d.ovr && d.ovr.sub, 67));
+    const porAgente = G.agentes.filter((a) => a.cap_hoy != null).map((a) => [`${svgAg(a.id)}`, numDe(a.override_14d && a.override_14d !== '—' ? a.override_14d : '0', 0), agColor(a.id)]);
+    const motivos = [['Dato no accesible al modelo', 41, 'var(--ag-extraccion)'], ['Importe mal interpretado', 22, 'var(--ag-reglas)'], ['Cobertura o exclusión', 19, 'var(--review)'], ['Otros', 18, 'var(--muted)']];
+    const recientes = (G.eventos || []).filter((e) => e.tipo === 'override').slice(0, 3);
+    return `<div class="card-head"><h2>${ic('repeat')} Overrides: decisiones que cambia una persona</h2><button class="btn btn-sm" type="button" data-goto="autonomia">Abrir autonomía</button></div>
+      <p class="small muted">Un <b>override</b> es una decisión del agente que un tramitador cambia después. Es la mejor señal de calidad real: si sube por encima del 3 %, el nivel de autonomía del agente se revisa a la baja.</p>
+      <div class="kpi-mini">${kmini('repeat', 'Tasa de override', cnt(d.pOvr, 'pct1'))}${kmini('user-check', 'Decisiones cambiadas', cnt(cambiadas))}${kmini('gauge', 'Objetivo', '≤ 3 %', `<span style="color:var(--${d.pOvr <= 3 ? 'ok' : 'crit'})">${d.pOvr <= 3 ? 'dentro del objetivo' : 'por encima'}</span>`)}${kmini('triangle-alert', 'Pico del periodo', cnt(Math.max(...serie), 'pct1'), 'semana del 15/09')}</div>
+      <div><h3>Tasa de override por día</h3>${chartTendencia(serie, d.fechas, { min: 0, max: 5, ref: { v: 3, label: 'umbral de bajada de nivel 3 %', color: 'var(--crit)' }, aria: 'Tasa de override por día', color: 'var(--time)', puntoDe: (v) => (v > 3 ? 'var(--crit)' : 'var(--time)') })}</div>
+      <div class="two"><div><h3>Override por agente (14 días, %)</h3>${hbars(porAgente.map(([l, v, c]) => [l, v, c]), { pl: 190, fmt: (v) => `${String(v).replace('.', ',')} %`, total: 100, aria: 'Override por agente' })}</div>
+      <div><h3>Por qué cambia una persona la decisión</h3>${anilloConLeyenda(motivos.map(([l, v, c]) => [l, v, c]), `${cambiadas}`, 'overrides')}</div></div>
+      ${recientes.length ? `<div><h3>Overrides recientes</h3><ul class="mini-tl">${recientes.map((e) => `<li><span class="t">${fechaHora(e.fecha)}</span><span class="ico" style="--c:var(--review)">${ic('user-check')}</span><div><b>${conGuardrails(esc(e.titulo))}</b><small>${conGuardrails(esc(e.detalle))} · ${esc(e.usuario)}</small></div></li>`).join('')}</ul></div>` : ''}`;
+  }
+
+  // Tiempo que tarda una persona en revisar un escalado (segundos → texto), por tramos
+  const TRAMOS_REV = [['< 30 s', 4], ['30 s – 2 min', 17], ['2 – 10 min', 38], ['10 – 30 min', 29], ['> 30 min', 12]];
+  // Tramitadores que revisan los escalados: 11 en plantilla, 2 incorporaciones recientes sin la formación en IA (M-10)
+  const TRAMITADORES = [['L. Prieto', 16, 1, 9], ['M. Ortega', 14, 2, 12], ['A. Ruiz', 13, 11, 4], ['S. Gil', 12, 2, 15], ['J. Herrera', 11, 3, 13], ['C. Molina', 10, 2, 16], ['R. Vidal', 9, 1, 18], ['P. Lozano', 7, 3, 14], ['E. Campos', 5, 2, 17], ['I. Soler', 2, 9, 6, true], ['D. Rey', 1, 14, 5, true]];
+  const HITL_MEDIDAS = ['M-14', 'M-15', 'M-11', 'M-10'];
+  const EXPRES_MAX = 5;   // % máximo de revisiones de menos de 30 s antes de sospechar que se firma sin revisar
+
+  // Una fila por traza del periodo que pasó por una persona (escalada por guardrail o cambiada con override)
+  function colaHitl() {
+    const gobDe = Object.fromEntries((cmpItems || []).map((x) => [x.gob.trazabilidad.traza_id, x.gob]));
+    return G.trazas.filter((t) => t.resultado !== 'auto').map((t) => {
+      const cod = (String(t.guardrail || '').match(/G-\d{2}/) || [])[0]; const agente = (cod && POL[cod] && POL[cod].agente) || 'reglas';
+      const sup = (gobDe[t.id] || {}).supervision_humana || {};
+      const r = rng(`rev-${t.id}`);
+      if (t.override) return { t, agente, estado: 'cambiada', revisor: t.override.usuario.replace(/ \(.*\)$/, ''), min: Math.round((new Date(t.override.fecha) - new Date(t.inicio)) / 60000) };
+      if (sup.estado === 'revisada') return { t, agente, estado: 'revisada', revisor: TRAMITADORES[Math.floor(r() * 8)][0], min: Math.round(4 + r() * 30) };
+      return { t, agente, estado: 'pendiente', revisor: null, min: null };
+    });
+  }
+  const EST_HITL = { pendiente: ['pill-review', 'user-check', 'Pendiente de revisión'], revisada: ['pill-ok', 'circle-check', 'Revisada · confirmada'], cambiada: ['pill-time', 'repeat', 'Cambiada (override)'] };
+
+  function hitlCalidad() {
+    const d = datosResumen();
+    const porTramo = distribuir(d.nEsc, TRAMOS_REV.map(([, p]) => p), 'rev-tramos');
+    const expres = (porTramo[0] / (d.nEsc || 1)) * 100;
+    const porTram = distribuir(d.nEsc, TRAMITADORES.map((x) => x[1]), 'rev-tram');
+    const formados = TRAMITADORES.filter((x) => !x[4]).length;
+    const confirman = 100 - (numDe(d.ovr && d.ovr.sub, 67) / (d.nEsc || 1)) * 100;
+    return `<div class="card-head"><h2>${ic('scan-eye')} Calidad de la revisión humana</h2>${normas('rgpd-22', 'ai-14', 'ai-4')}</div>
+      <p class="small muted">Que una persona «vea» la decisión no basta: si la aprueba sin revisarla, no cuenta como intervención humana (TJUE, SCHUFA C-634/21). Aquí se vigila que la revisión sea real: cuánto tarda cada tramitador, cuántas aprobaciones son exprés (menos de 30 s) y si tiene la formación en IA que exige el AI Act.</p>
+      <div class="kpi-mini">${kmini('timer', 'Revisión mediana', `${cnt(14)} min`, 'desde que llega a la cola · p95 52 min')}${kmini('zap', 'Revisiones exprés (< 30 s)', cnt(expres, 'pct1'), `<span style="color:var(--${expres <= EXPRES_MAX ? 'ok' : 'crit'})">${expres <= EXPRES_MAX ? 'dentro' : 'por encima'} del máximo ${EXPRES_MAX} %</span>`)}${kmini('circle-check', 'Confirman la decisión del agente', cnt(confirman, 'pct1'), 'el resto la cambian (override)')}${kmini('graduation-cap', 'Tramitadores formados en IA', `${formados} de ${TRAMITADORES.length}`, 'AI Act art. 4 · ver M-10')}</div>
+      <div class="two"><div><h3>Tiempo que tarda una persona en revisar un escalado</h3>${hbars(TRAMOS_REV.map(([l], i) => [l, porTramo[i], i === 0 ? 'var(--crit)' : i === 1 ? 'var(--warn)' : 'var(--ok)']), { pl: 110, aria: 'Revisiones por tiempo de revisión' })}<p class="muted small">En rojo, las aprobaciones de menos de 30 s: con ese tiempo no da para leer el mensaje ni las evidencias.</p></div>
+      <div><h3>Por tramitador (14 días)</h3><div class="tw tabla-compacta"><table><thead><tr><th>Tramitador</th><th>Revisiones</th><th>Mediana</th><th>Exprés</th><th>Override</th><th>Formación IA</th></tr></thead><tbody>${TRAMITADORES.map(([n, , ex, med, nuevo], i) => `<tr><td>${esc(n)}</td><td class="tnum">${num(porTram[i])}</td><td class="tnum">${med} min</td><td class="tnum"><span style="color:var(--${ex > EXPRES_MAX ? 'crit' : 'text'})">${ex} %</span></td><td class="tnum">${(1.2 + rng(`ovr-${n}`)() * 2.6).toFixed(1).replace('.', ',')} %</td><td>${nuevo ? `<span class="pill pill-warn" data-medida="M-10" role="button" tabindex="0" title="Abrir la medida M-10">${ic('circle-alert')} Pendiente</span>` : `<span class="pill pill-ok">${ic('circle-check')} Sí</span>`}</td></tr>`).join('')}</tbody></table></div></div></div>`;
+  }
+
+  function renderHitl() {
+    const d = datosResumen();
+    const cola = colaHitl(); const pend = cola.filter((c) => c.estado === 'pendiente').length;
+    const porTramo = distribuir(d.nEsc, TRAMOS_REV.map(([, p]) => p), 'rev-tramos'); const expres = (porTramo[0] / (d.nEsc || 1)) * 100;
+    const { T } = estadoCumplimiento(); const ctl = T.marcos.flatMap((m) => m.controles).find((c) => c.id === 'ria-14');
+    const ags = agentesPrincipales(); const activos = ags.filter((a) => estadoAgente(a) === 'activo').length;
+    const grHumano = G.politicas.filter((p) => p.severidad === 'humano'); const grInact = grHumano.filter((p) => !politicaActiva(p)).length;
+    $('kpis-hitl').innerHTML = [
+      kpi({ cls: 'review', icono: 'user-check', etiqueta: 'Escalados a una persona', valor: num(d.nEsc), sub: `${String(Math.round(d.pEsc))} % de los mensajes del periodo` }),
+      kpi({ cls: d.pOvr <= 3 ? 'time' : 'crit', icono: 'repeat', etiqueta: 'Tasa de override', valor: `${d.pOvr.toFixed(1).replace('.', ',')} %`, sub: 'decisiones que cambia un tramitador · objetivo ≤ 3 %', medidor: (d.pOvr / 5) * 100 }),
+      kpi({ cls: pend ? 'warn' : 'ok', icono: 'inbox', etiqueta: 'Pendientes de revisión', valor: String(pend), sub: `de ${cola.length} trazas con intervención humana en la fuente actual` }),
+      kpi({ cls: expres <= EXPRES_MAX ? 'ok' : 'crit', icono: 'zap', etiqueta: 'Revisiones exprés', valor: `${expres.toFixed(1).replace('.', ',')} %`, sub: `aprobadas en menos de 30 s · máximo ${EXPRES_MAX} %`, medidor: (expres / (EXPRES_MAX * 2)) * 100 }),
+      ctl ? conGoto(kpi({ cls: ctl.estado === 'ok' ? 'ok' : 'warn', icono: 'scale', etiqueta: 'Supervisión humana efectiva', valor: ctl.estado === 'ok' ? 'Cubierto' : 'Parcial', sub: 'AI Act art. 14 · RGPD art. 22 · en el Termómetro' }), 'cumplimiento') : '',
+    ].join('');
+    titulo('h-hitl-mec', 'shield-check', 'Mecanismos de supervisión');
+    const mec = [
+      ['guardrails', 'shield-check', 'Escalado por guardrail o por confianza', `${grHumano.length} guardrails envían la decisión a una persona${grInact ? ` (${grInact} inactivo${grInact === 1 ? '' : 's'})` : ''}; también la confianza baja (G-01) y la discrepancia entre agentes.`, 'Guardrails'],
+      ['autonomia', 'sliders-horizontal', 'Override y nivel de autonomía', 'Si el override de un agente supera el 3 % semanal, baja de nivel (Reglas pasó de L3 a L2 por esta regla).', 'Autonomía'],
+      ['resumen', 'power', 'Interruptor de pausa (kill switch)', `${activos} de ${ags.length} agentes activos. Al pausar uno, sus mensajes se encolan para una persona y no se pierde ninguno.`, 'Resumen'],
+      ['cumplimiento', 'scale', 'Control normativo', ctl ? `${ctl.exige}: ${ctl.medida}.` : 'Supervisión humana efectiva (AI Act art. 14, RGPD art. 22).', 'Termómetro'],
+    ];
+    $('hitl-mec').innerHTML = mec.map(([v, i, t, txt, dest]) => `<article class="box alert-link" data-goto="${v}" role="button" tabindex="0" title="Ir a ${esc(dest)}"><b>${ic(i)} ${esc(t)}</b><span class="small">${esc(txt)}</span><span class="muted small">${esc(dest)} ${ic('arrow-right')}</span></article>`).join('');
+    titulo('h-hitl-cola', 'inbox', `Cola de revisión (${cola.length})`);
+    $('btn-hitl-trazas').innerHTML = `${ic('route')} Ver en trazabilidad`;
+    $('hitl-cola').innerHTML = cola.map(({ t, agente, estado, revisor, min }) => { const [cls, i, l] = EST_HITL[estado]; return `<tr class="clickable" data-id="${esc(t.id)}" tabindex="0"><td class="mono">${esc(t.id)}</td><td class="tnum">${fechaHora(t.inicio)}</td><td>${esc(t.mensaje)}<br><small class="muted">${esc(t.asunto || '')}</small></td><td>${esc(t.ramo)}</td><td>${agTag(agente)}</td><td class="wrap small">${conGuardrails(esc(t.guardrail || 'Confianza baja'))}</td><td><span class="pill ${cls}">${ic(i)} ${l}</span></td><td>${revisor ? esc(revisor) : '<span class="muted">—</span>'}</td><td class="tnum">${min != null ? `${min} min` : '<span class="muted">en cola</span>'}</td></tr>`; }).join('') || '<tr><td colspan="9" class="muted" style="text-align:center">Ninguna traza de la fuente actual pasó por una persona.</td></tr>';
+    $('hitl-escalados').innerHTML = hitlEscalados();
+    $('hitl-overrides').innerHTML = hitlOverrides();
+    $('hitl-calidad').innerHTML = hitlCalidad();
+    titulo('h-hitl-agentes', 'bot', 'Intervención humana por agente');
+    $('hitl-agentes').innerHTML = ags.map((a) => `<tr><td>${agTag(a.id)}</td><td>${lvlBadge(a.nivel)}</td><td class="small">${conGuardrails(esc(a.umbral || '—'))}</td><td class="tnum">${esc(a.escalado_14d || '—')}</td><td class="tnum">${esc(a.override_14d || '—')}</td><td><button class="btn btn-sm" type="button" data-ver-agente="${esc(a.id)}">Ver agente</button></td></tr>`).join('');
+    titulo('h-hitl-med', 'wrench', 'Medidas que salen de la supervisión humana');
+    $('hitl-med').innerHTML = HITL_MEDIDAS.map((id) => medidas().find((m) => m.id === id)).filter(Boolean).map((m) => { const est = estadoMedida(m); return `<div class="alert ${m.sev} alert-link" data-medida="${esc(m.id)}" role="button" tabindex="0" title="Abrir ${esc(m.id)}"><span class="ico">${ic(SEV_ICON[m.sev] || 'lightbulb')}</span><div><b>${esc(m.id)} · ${esc(m.titulo)}</b><small>${esc(m.detalle)}</small></div><span class="alert-meta"><span class="pill ${MED_EST[est][0]}">${esc(MED_EST[est][1])}</span></span></div>`; }).join('');
+  }
 
   KPI_FIN['res-coste'] = {
     icono: 'euro', titulo: 'Coste del periodo',
@@ -2058,24 +2127,25 @@
       replay: ['¿Por qué decidió eso y qué pasaría si cambio el modelo?', [`${repl.length} replays registrados`, `${cambios} ${cambios === 1 ? 'cambio' : 'cambios'} de decisión`], cambios ? 'warn' : 'ok', ['rgpd-15', 'ai-15']],
       autonomia: ['¿Cuánta libertad tiene cada agente y quién la cambió?', [niveles || '—', `override ${G.kpis.resumen[2].valor} (objetivo ≤ 3 %)`], 'ok', ['ai-14', 'rgpd-22']],
       guardrails: ['¿Qué límites frenan a los agentes?', [`${activos} de ${pol.length} activos`, `${num(pol.reduce((a, p) => a + (p.disparos || 0), 0))} disparos en 14 días`], activos < pol.length ? 'warn' : 'ok', ['ai-9', 'ai-14']],
+      hitl: (() => { const d = datosResumen(); const pend = colaHitl().filter((c) => c.estado === 'pendiente').length; return ['¿Qué hacen las personas con lo que escalan los agentes?', [`${Math.round(d.pEsc)} % escalado · override ${d.pOvr.toFixed(1).replace('.', ',')} %`, `${pend} ${pend === 1 ? 'traza pendiente' : 'trazas pendientes'} de revisión`], d.pOvr > 3 ? 'crit' : pend ? 'warn' : 'ok', ['ai-14', 'rgpd-22']]; })(),
       knowledge: ['¿Con qué conocimiento deciden y sigue siendo bueno?', [`${kbOk} de ${E.length} sanas`, kbCrit.length ? `${kbCrit.map(({ k }) => k.id).join(', ')} crítica` : 'ninguna crítica'], kbCrit.length ? 'crit' : kbOk < E.length ? 'warn' : 'ok', ['ai-10', 'rgpd-17']],
       cumplimiento: ['¿Podemos demostrar que cumplimos?', [`${T.global} % de cobertura de controles`, `${T.marcos.reduce((a, m) => a + m.cuenta.ambar + m.cuenta.rojo, 0)} controles parciales`], T.global >= 90 ? 'ok' : 'warn', ['ai-12', 'rgpd-5']],
       finops: ['¿Cuánto cuesta y estamos dentro del presupuesto?', [`${eur(coste, 0)} en el periodo`, `${capsSup} caps superados`], capsSup ? 'crit' : 'ok', ['sii-41']],
       medidas: (() => { const ab = medidas().filter(abiertaMed); const crit = ab.filter((m) => m.sev === 'crit').length; const AH = ahorroMedidas(); return ['¿Qué hay que hacer para que el sistema esté sano?', [`${ab.length} medidas abiertas`, `${AH.conseguido ? `${num(AH.conseguido)} de ${num(AH.total)} €/mes ahorrados` : `${num(AH.posible)} €/mes de ahorro posible`} · ${crit} ${crit === 1 ? 'crítica' : 'críticas'}`], crit ? 'crit' : ab.length ? 'warn' : 'ok', ['ai-9', 'rgpd-5']]; })(),
       historico: ['¿Qué ha cambiado, cuándo y quién lo aprobó?', [`${num(ev.length)} eventos`, ev.length ? `último: ${fechaHora(ev.reduce((a, e) => (e.fecha > a ? e.fecha : a), ev[0].fecha))}` : '—'], 'ok', ['ai-12', 'rgpd-5']],
     };
-    // Resumen y Trazabilidad son vistas de consulta: sin etiqueta de estado (sus alertas ya están en las demás fichas)
+    // Resumen, Trazabilidad y Razonamiento son vistas de consulta: sin etiqueta de estado (sus alertas ya están en las demás fichas)
     const SIN_ESTADO = ['resumen', 'trazas', 'replay'];
-    const GRUPOS = [['Ver', ['resumen', 'agentes']], ['Entender', ['trazas', 'replay']], ['Limitar', ['autonomia', 'guardrails']], ['Conocer', ['knowledge']], ['Cumplimiento', ['cumplimiento']], ['Costes', ['finops']], ['Corregir', ['medidas']], ['Auditar', ['historico']]];
+    const GRUPOS = MENU;
     const SEM = { ok: ['var(--ok)', 'Sin incidencias', 'pill-ok', 'circle-check', 'Al día'], warn: ['var(--warn)', 'Hay algo que mirar', 'pill-warn', 'circle-alert', 'Revisar'], crit: ['var(--crit)', 'Requiere atención', 'pill-crit', 'triangle-alert', 'Atención'] };
     const tab = Object.fromEntries(TABS.map(([v, i, l]) => [v, [i, l]]));
     $('inicio-hero').innerHTML = `<div><h2>${ic('house')} Gobierno de los agentes del triaje FNOL</h2>
-        <p>Qué pasa, por qué, con qué límites, con qué conocimiento, si cumple y cuánto cuesta: un panel por cada pregunta.</p>
+        <p>Qué está pasando, cuánto decide la máquina y cuánto una persona, si deciden bien, si cumplimos y cuánto cuesta, y qué hay que corregir.</p>
         <div class="row" style="margin-top:.6rem">${crit ? `<span class="pill pill-crit">${ic('triangle-alert')} ${crit} ${crit === 1 ? 'alerta crítica' : 'alertas críticas'}</span>` : ''}<span class="pill pill-warn">${ic('circle-alert')} ${avisos} avisos</span><span class="pill" style="background:color-mix(in srgb, ${colorPct(T.global)} 14%, transparent);color:${colorPct(T.global)}">${ic('thermometer')} cumplimiento ${T.global} %</span><span class="pill pill-muted">${ic('book-open')} ${kbOk} de ${E.length} KB sanas</span></div></div>
       <div class="inicio-acc"><button class="btn btn-primary" type="button" data-goto="resumen">${ic('layout-dashboard')} Ver el Resumen</button>
         <div class="inicio-pres"><label class="switch${Shell.Recorrido.presentador() ? '' : ' off'}" data-presentador role="switch" aria-checked="${Shell.Recorrido.presentador()}" tabindex="0" title="Activa el recorrido guiado de la demo en las dos páginas"><i></i>Modo presentador</label>
         ${Shell.Recorrido.presentador() ? `<button class="btn btn-sm" type="button" data-rec-empezar>${ic('route')} Recorrido de la demo</button>` : ''}</div></div>`;
-    $('inicio-grupos').innerHTML = GRUPOS.map(([g, vs]) => `<div class="inicio-grupo"><h3>${esc(g)}</h3><div class="inicio-fichas">${vs.map((v) => {
+    $('inicio-grupos').innerHTML = GRUPOS.map(([g, preg, vs]) => `<div class="inicio-grupo"><h3>${esc(g)}</h3><p class="inicio-grupo-preg">${esc(preg)}</p><div class="inicio-fichas">${vs.map((v) => {
       const [preg, cifras, sem, ns] = F[v]; const [color, semTxt, semCls, semIco, semLbl] = SEM[sem]; const [i, l] = tab[v] || ['info', v];
       // Icono y nombre de la sección con protagonismo; la pregunta debajo; cifras, normas y «Abrir» al pie, en pequeño.
       // Un solo color para todas las fichas: el estado solo lo da el semáforo
@@ -2278,6 +2348,7 @@
     renderReplays();
     renderAutonomia();
     renderGuardrails();
+    renderHitl();
     renderFinops();
     renderHistorico();
     renderKnowledge();
@@ -2288,12 +2359,21 @@
     ajustarAgentes();
   }
 
-  const TABS = [['inicio', 'house', 'Inicio'], ['resumen', 'layout-dashboard', 'Resumen'], ['agentes', 'bot', 'Agentes'], ['trazas', 'route', 'Trazabilidad'], ['replay', 'brain', 'Reasoning & Replay'], ['autonomia', 'sliders-horizontal', 'Autonomía'], ['guardrails', 'shield-check', 'Guardrails'], ['knowledge', 'book-open', 'Knowledge Bases'], ['cumplimiento', 'thermometer', 'Termómetro de cumplimiento'], ['finops', 'coins', 'FinOps'], ['medidas', 'wrench', 'Medidas correctivas'], ['historico', 'history', 'Histórico']];
+  const TABS = [['inicio', 'house', 'Inicio'], ['resumen', 'layout-dashboard', 'Resumen'], ['agentes', 'bot', 'Agentes'], ['trazas', 'route', 'Trazabilidad'], ['replay', 'brain', 'Razonamiento y replay'], ['autonomia', 'sliders-horizontal', 'Autonomía'], ['guardrails', 'shield-check', 'Guardrails'], ['hitl', 'user-check', 'Intervención humana'], ['knowledge', 'book-open', 'Knowledge Bases'], ['cumplimiento', 'thermometer', 'Cumplimiento'], ['finops', 'coins', 'FinOps'], ['medidas', 'wrench', 'Medidas correctivas'], ['historico', 'history', 'Histórico']];
+  // Menú lateral e Inicio comparten los mismos grupos: [nombre, pregunta a la que responde, secciones]
+  const MENU = [
+    ['Operación', '¿Qué está pasando?', ['resumen', 'agentes', 'trazas']],
+    ['Control', '¿Cuánto decide la máquina y cuánto una persona?', ['autonomia', 'guardrails', 'hitl']],
+    ['Calidad', '¿Deciden bien y con buen conocimiento?', ['replay', 'knowledge']],
+    ['Cumplimiento y coste', '¿Cumplimos y cuánto cuesta?', ['cumplimiento', 'finops']],
+    ['Mejora y auditoría', '¿Qué hay que corregir y qué ha cambiado?', ['medidas', 'historico']],
+  ];
   function goto(v, opts = {}) {
     document.querySelectorAll('.tab').forEach((b) => { b.classList.toggle('is-active', b.dataset.view === v); b.setAttribute('aria-selected', String(b.dataset.view === v)); });
     document.querySelectorAll('.view').forEach((s) => s.classList.toggle('is-active', s.dataset.view === v));
     if (opts.replay) { const card = $('card-replay'); card.scrollIntoView({ block: 'start', behavior: 'smooth' }); card.style.outline = '2px solid var(--primary)'; setTimeout(() => { card.style.outline = ''; }, 1600); }
     else window.scrollTo({ top: 0 });
+    if (v === 'hitl') animar(document.querySelector('.view[data-view="hitl"]'));
     ajustarAgentes();
   }
 
@@ -2391,7 +2471,9 @@
     document.addEventListener('change', (e) => { if (e.target.id === 'ag-ejemplo') { agEjemplo = Number(e.target.value); renderAgentes(); } });
     document.addEventListener('input', (e) => { if (e.target.classList && e.target.classList.contains('rc-peso')) sumaRub(); });
     document.addEventListener('keydown', (e) => { if (e.key === 'Enter' && e.target.matches && e.target.matches('[data-kb], tr[data-rub], tr[data-traza]')) e.target.click(); });
-    $('tabs').innerHTML = TABS.map(([v, i, l]) => `<button class="tab nav-item${v === 'inicio' ? ' is-active' : ''}" type="button" role="tab" data-view="${v}" aria-selected="${v === 'inicio'}" aria-label="${l}" title="${l}">${ic(i)}<span class="lbl">${l}</span>${v === 'finops' ? '<span class="n"></span>' : ''}</button>`).join('');
+    const tabMenu = Object.fromEntries(TABS.map(([v, i, l]) => [v, [i, l]]));
+    const botonMenu = (v) => { const [i, l] = tabMenu[v]; return `<button class="tab nav-item${v === 'inicio' ? ' is-active' : ''}" type="button" role="tab" data-view="${v}" aria-selected="${v === 'inicio'}" aria-label="${l}" title="${l}">${ic(i)}<span class="lbl">${l}</span>${v === 'finops' ? '<span class="n"></span>' : ''}</button>`; };
+    $('tabs').innerHTML = botonMenu('inicio') + MENU.map(([g, , vs]) => `<div class="nav-grupo" role="presentation">${esc(g)}</div>${vs.map(botonMenu).join('')}`).join('');
     // Menú lateral común con el triaje (shell.js); al plegar o desplegar se reajustan las tarjetas de agentes
     Shell.initShell({ onChange: () => ajustarAgentes() });
     // Recorrido de la demo (modo presentador): acciones de los pasos que ocurren en el panel
@@ -2449,7 +2531,7 @@
       const gf = e.target.closest('#policies tr[data-gr]'); if (gf) { abrirModalGr(gf.dataset.gr); return; }
       const ag = e.target.closest('.agent[data-agente]'); if (ag) { verAgente(ag.dataset.agente); return; }
       const kf = e.target.closest('[data-kpi-fin]'); if (kf) { abrirModalKpiFin(kf.dataset.kpiFin); return; }
-      const ult = e.target.closest('#ultimas tr[data-id]'); if (ult) { abrirModalTraza(ult.dataset.id); return; }
+      const ult = e.target.closest('#ultimas tr[data-id], #hitl-cola tr[data-id]'); if (ult) { abrirModalTraza(ult.dataset.id); return; }
       const row = e.target.closest('#t-trazas tr[data-id], #r-trazas tr[data-id]'); if (row) { selectTraza(row.dataset.id); return; }
       const chip = e.target.closest('#hist-chips .chip'); if (chip) { filtroTipo = chip.dataset.t; renderHistorico(); }
     });
@@ -2496,6 +2578,7 @@
     $('btn-new-policy').innerHTML = `${ic('plus')} Nuevo guardrail`;
     $('btn-coste-cap').innerHTML = `${ic('chart-column')} Ampliar`;
     $('btn-new-cap').innerHTML = `${ic('plus')} Nuevo cap`;
+    $('btn-hitl-trazas').addEventListener('click', () => { $('t-res').value = 'persona'; listaTrazas('t'); goto('trazas'); });
     ['t', 'r'].forEach((pre) => ['agente', 'canal', 'dec', 'res'].forEach((k) => $(`${pre}-${k}`).addEventListener('change', () => listaTrazas(pre))));
     // Tooltip de gráficos, waterfall y referencias a guardrails
     const tip = $('tip');

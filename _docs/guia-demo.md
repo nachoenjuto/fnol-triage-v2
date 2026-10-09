@@ -149,7 +149,7 @@ Al pasar el ratón por una norma aparece qué exige. «Copiar JSON» copia lo qu
 
 ## 3. Gobierno de Agentes (`gobierno.html`)
 
-Panel de control de los cuatro agentes. Ofrece ocho capacidades (en once secciones más una portada, **Inicio**): **ver** (observabilidad), **entender** (razonamiento y replay), **limitar** (autonomía y guardrails), **conocer** (Knowledge Bases), **cumplimiento** (termómetro), **costes** (FinOps), **corregir** (medidas correctivas) y **auditar** (histórico). Las secciones están en el mismo **menú lateral** que el triaje: plegado muestra solo los iconos (el nombre sale al pasar el ratón) y los nombres largos se recortan con «…». Las tarjetas de los agentes están en el Resumen y su ficha completa, en la sección **Agentes**.
+Panel de control de los cuatro agentes. Sus doce secciones, más una portada (**Inicio**), se agrupan en cinco bloques: **Operación** (qué está pasando), **Control** (cuánto decide la máquina y cuánto una persona), **Calidad** (si deciden bien y con buen conocimiento), **Cumplimiento y coste** y **Mejora y auditoría**. Las secciones están en el mismo **menú lateral** que el triaje, con el nombre de cada bloque como encabezado: plegado muestra solo los iconos, con una línea entre bloques (el nombre sale al pasar el ratón) y los nombres largos se recortan con «…». Las tarjetas de los agentes están en el **Resumen** y su ficha completa, en la sección **Agentes**.
 
 ### 3.1 Cabecera: fuente y periodo
 
@@ -166,22 +166,25 @@ Panel de control de los cuatro agentes. Ofrece ocho capacidades (en once seccion
 
 ### 3.2 Inicio (portada)
 
-**Es lo primero que se ve al abrir el panel.** Arriba, una franja con el estado actual: alertas críticas y avisos (de todas las fuentes), cobertura de cumplimiento y knowledge bases sanas, y el botón **Ver el Resumen**. Debajo, una ficha por cada sección del menú, agrupadas por la pregunta a la que responden:
+**Es lo primero que se ve al abrir el panel.** Arriba, una franja con el estado actual: alertas críticas y avisos (de todas las fuentes), cobertura de cumplimiento y knowledge bases sanas, y el botón **Ver el Resumen**. Debajo, una ficha por cada sección del menú, con los mismos bloques que el menú lateral y la pregunta a la que responde cada uno:
 
 | Grupo | Secciones |
 |---|---|
-| **Ver** | Resumen · Agentes |
-| **Entender** | Trazabilidad · Reasoning & Replay |
-| **Limitar** | Autonomía · Guardrails |
-| **Conocer** | Knowledge Bases |
-| **Cumplimiento** | Termómetro de cumplimiento |
-| **Costes** | FinOps |
-| **Corregir** | Medidas correctivas |
-| **Auditar** | Histórico |
+| **Operación** · ¿Qué está pasando? | Resumen · Agentes · Trazabilidad |
+| **Control** · ¿Cuánto decide la máquina y cuánto una persona? | Autonomía · Guardrails · Intervención humana |
+| **Calidad** · ¿Deciden bien y con buen conocimiento? | Razonamiento y replay · Knowledge Bases |
+| **Cumplimiento y coste** · ¿Cumplimos y cuánto cuesta? | Cumplimiento (termómetro) · FinOps |
+| **Mejora y auditoría** · ¿Qué hay que corregir y qué ha cambiado? | Medidas correctivas · Histórico |
 
 Cada ficha lleva la pregunta que responde, dos cifras en vivo calculadas con los mismos datos que su sección (cambian con la fuente Demo, Sesión o Archivo), una etiqueta de estado (**Al día**, **Revisar** o **Atención**, en verde, ámbar o rojo; no la llevan Resumen, Trazabilidad ni Reasoning & Replay), sus etiquetas de norma y «Abrir →». Toda la ficha se puede pulsar.
 
-**Modo presentador.** Debajo de «Ver el Resumen» hay un interruptor. Apagado (por defecto), no se ve nada más. Encendido, aparece el botón **Recorrido de la demo**, que abre un panel flotante (también en el triaje) con los 10 pasos del guion del apartado 4: minuto, qué enseñar y frase clave. «Ir» lleva a la pantalla exacta aunque esté en la otra página (por ejemplo, abre la ficha de MSG-A-08 o la KB-02 en la pestaña Comparativa); «Anterior» y «Siguiente» recorren los pasos, los vistos quedan marcados y, si falta algo (como procesar el Paquete A), el panel lo avisa. El interruptor se recuerda en el navegador; el progreso, en la pestaña.
+**Modo presentador.** Debajo de «Ver el Resumen» hay un interruptor. Apagado (por defecto), no se ve nada más. Al encenderlo pide una **contraseña** (la de la demo es `password`); se pide de nuevo en cada sesión del navegador. Es solo una barrera para que no cualquiera lance la demo: en una página estática, quien abra las herramientas del navegador puede saltársela. Encendido, aparece el botón **Recorrido de la demo**, que abre un panel flotante (también en el triaje) con los 10 pasos del guion del apartado 4: minuto, qué enseñar y frase clave. «Ir» lleva a la pantalla exacta aunque esté en la otra página (por ejemplo, abre la ficha de MSG-A-08 o la KB-02 en la pestaña Comparativa); «Anterior» y «Siguiente» recorren los pasos, los vistos quedan marcados y, si falta algo (como procesar el Paquete A), el panel lo avisa. El progreso se recuerda en la pestaña.
+
+- **Mover y minimizar.** El panel se arrastra por su cabecera (doble clic la devuelve a la esquina) y recuerda la posición en las dos páginas. «—» lo minimiza en una barra al pie, a la derecha, con el paso, la cuenta atrás, «anterior» y «siguiente» y, en la demo automática, ⏸ / ▶; un clic en el título de la barra lo despliega.
+- **Línea de progreso con tirador.** Desplegado o minimizado, la línea muestra cuánto lleva el paso. Arrastrar el tirador (o pulsar en la línea) va hacia atrás o hacia delante dentro del paso y el subtítulo se ajusta; con el foco en la línea, las flechas saltan 5 s e Inicio vuelve al principio. Si la demo automática estaba en marcha, sigue.
+- **Configuración (engranaje).** *Demo automática*: añade ▶ / ⏸ a la cabecera y pasa sola de pantalla, también de una página a la otra. *Tiempo por pantalla*: uno para todas (45 s por defecto, de 10 a 600 s); «Procesar el Paquete A» empieza a contar cuando termina el lote. *Al terminar*: parar o volver a empezar. *Pausar si toco la pantalla* (activado): cualquier clic o tecla del presentador fuera del recorrido pausa la demo. *Subtítulos*: mostrar u ocultar, al pie o arriba de la pantalla, tamaño normal o grande.
+- **Subtítulos.** Cada paso tiene dos o tres subtítulos que se reparten en su tiempo. Cada uno tiene dos líneas: qué hace la función (técnico-funcional) y cómo ayuda al negocio a cumplir, con la norma (RIA, RGPD, DORA, Solvencia II). Con una ventana modal abierta, el panel y los subtítulos se meten dentro de ella para seguir visibles y usables.
+- **Editar los textos.** En la configuración se elige el paso y se cambia su frase clave y sus subtítulos (añadir, quitar, editar). Los cambios **solo los ve quien los hace**: se guardan en su navegador. «Restaurar este paso» y «Restaurar todos» vuelven al guion de `data/recorrido.js`; «Exportar / Importar JSON» lleva la configuración y los textos a otro equipo.
 
 ### 3.3 Resumen
 
@@ -189,7 +192,7 @@ Cada ficha lleva la pregunta que responde, dos cifras en vivo calculadas con los
 
 | Bloque | Qué muestra | Para qué sirve |
 |---|---|---|
-| **KPIs (8)** | Mensajes procesados · Autonomía efectiva (81 %) · Escalados a humano (19 %, con su causa principal) · Overrides humanos (2,1 %, objetivo ≤ 3 %) · Coste del periodo vs cap mensual · Alertas activas · **Cumplimiento** (cobertura de controles) · **Knowledge bases** (KB sanas). Los dos últimos llevan a su sección | Saber en 10 segundos si el sistema va bien |
+| **KPIs (8)** | Mensajes procesados · Autonomía efectiva (81 %) · Escalados a humano (19 %, con su causa principal) · Overrides humanos (2,1 %, objetivo ≤ 3 %) · Coste del periodo vs cap mensual · Alertas activas · **Cumplimiento** (cobertura de controles) · **Knowledge bases** (KB sanas). Escalados y overrides llevan a **Intervención humana** (3.9); los dos últimos, a su sección | Saber en 10 segundos si el sistema va bien |
 | **Tarjetas de agente** | Icono y nombre en grande; descripción, estado (Activo / Degradado / Pausado) y nivel de autonomía; al pie, en pequeño, modelo, versión de prompt, latencia y coste del día frente a su cap (barra verde, ámbar o roja). Todas en el mismo color: el color por agente solo se usa en los gráficos, para distinguir las series. Incluye el **kill switch** | Ver el estado de cada agente y **pararlo** al instante |
 | **Coste diario** | Gráfico €/día con línea discontinua del cap diario; días ≥ 80 % en ámbar | Detectar picos de gasto |
 | **Alertas activas** | Todas las fuentes en una lista: caps de coste superados, knowledge bases críticas o degradadas, controles de cumplimiento pendientes (EIPD, aviso de IA en WhatsApp) y la cadena de integridad si se rompe. Cada alerta indica su origen y lleva a él | Priorizar qué atender |
@@ -227,7 +230,7 @@ Capacidades: clic en una **traza** abre su ficha explicada (qué llegó, qué hi
 
 Para qué sirve: responder a auditoría o a un reclamante «¿qué pasó con este mensaje, quién lo decidió y cuánto costó?». Desde cada traza, **Ver razonamiento** y **Replay** saltan a la sección siguiente con esa traza cargada.
 
-### 3.6 Reasoning & Replay
+### 3.6 Razonamiento y replay
 
 **Es el «porqué» y el «¿y si…?».** Pantalla dividida con un separador que se puede arrastrar.
 
@@ -275,7 +278,7 @@ Para qué sirve: la autonomía se **gana con datos y se pierde con datos**. En l
 | G-09 | Confianza de transcripción telefónica < 0,7 | Escalar para escuchar el audio (inactivo en la demo) |
 
 Qué muestra y qué permite:
-- **KPIs**: guardrails activos, disparos en 14 días, % de escalados que vienen de un guardrail y el más disparado.
+- **KPIs**: guardrails activos, disparos en 14 días, cuántos escalan a una persona (lleva a **Intervención humana**, 3.9) y el más disparado.
 - **Tabla**: agente, condición, acción, severidad (humano / degradar / marcar), minigráfico de disparos por día y **interruptor activo/inactivo** (queda registrado en el Histórico).
 - **Ficha** (clic en la fila) con descripción y últimos disparos; **Nuevo guardrail** crea uno.
 - **Últimos disparos**, enlazados a la traza que los provocó.
@@ -283,7 +286,24 @@ Qué muestra y qué permite:
 
 Para qué sirve: es el **mecanismo de control** que permite dar autonomía sin perder el control. Los guardrails de importe y lesionados explican la mayoría de los escalados.
 
-### 3.9 Knowledge Bases
+### 3.9 Intervención humana (HITL)
+
+**¿Qué hacen las personas con lo que escalan los agentes?** Reúne todo lo que tiene que ver con la supervisión humana (*human in the loop*), que antes estaba repartido entre el Resumen, Guardrails y Autonomía.
+
+| Bloque | Qué muestra | Para qué sirve |
+|---|---|---|
+| **KPIs** | Escalados a una persona · Tasa de override (objetivo ≤ 3 %) · Pendientes de revisión en la fuente actual · Revisiones exprés (< 30 s, máximo 5 %) · Supervisión humana efectiva (control AI Act art. 14 / RGPD art. 22 del Termómetro) | Saber si la supervisión funciona |
+| **Mecanismos de supervisión** | Escalado por guardrail o confianza, override y bajada de nivel, kill switch y control normativo; cada uno lleva a la sección donde se configura | Explicar cómo interviene una persona |
+| **Cola de revisión** | Trazas de la fuente que pasaron por una persona: por qué se escalaron, estado (pendiente, revisada, cambiada), revisor y tiempo. Clic en una fila abre la ficha de la traza; **Ver en trazabilidad** abre la lista filtrada por «Con intervención humana» | Seguir los casos uno a uno |
+| **Escalados** | Causas (anillo), ranking de guardrails y escalados por día y causa | Ver qué genera trabajo humano |
+| **Overrides** | Tasa por día con el umbral del 3 %, override por agente, motivos y overrides recientes | La mejor señal de calidad real |
+| **Calidad de la revisión** | Tiempo de revisión por tramos, revisiones exprés, % que confirma la decisión del agente y tabla por tramitador con su formación en IA | Demostrar que la revisión es real y no se firma sin mirar (TJUE, SCHUFA C-634/21) |
+| **Por agente** | Nivel, umbral de confianza, escalado y override de 14 días, con enlace a su ficha | Comparar agentes |
+| **Medidas** | M-14, M-15, M-11 y M-10, con su estado; clic abre la medida | Cerrar el ciclo: de override a medida correctiva |
+
+Los datos de tiempos de revisión y tramitadores son de demostración; la cola se calcula con las trazas de la fuente activa.
+
+### 3.10 Knowledge Bases
 
 **Panel de control del conocimiento que usan los agentes**: índices RAG alimentados desde SharePoint o Google Drive, documentos Markdown, runbooks deterministas, tablas de referencia y plantillas.
 
@@ -298,7 +318,7 @@ Historias que cuenta la demo: **Condicionados Auto** pierde 6 puntos de recall p
 
 Enlace con el resto: cada traza registra las KB y versiones que usó (`_gobernanza.trazabilidad.conocimiento`), y el Termómetro mide con este catálogo el **AI Act art. 10** (9 de 9 versionadas, 7 de 9 con rúbrica) y el **RGPD art. 17** (supresión también en los índices vectoriales).
 
-### 3.10 Termómetro de cumplimiento
+### 3.11 Cumplimiento (termómetro)
 
 **Cómo se guardan las trazas, las evidencias y los datos personales que exigen las normas**, con una cifra por marco:
 
@@ -316,7 +336,7 @@ Los controles en ámbar son reales: la **minimización** (en el histórico de la
 
 > Aviso que aparece en pantalla: es un indicador técnico de cobertura de controles, no un certificado; no sustituye la evaluación del DPO ni de Cumplimiento.
 
-### 3.11 FinOps
+### 3.12 FinOps
 
 **Controla cuánto cuesta cada decisión y actúa antes de pasarse del presupuesto.**
 
@@ -332,7 +352,7 @@ Los controles en ámbar son reales: la **minimización** (en el histórico de la
 
 Mensaje clave: en la demo, el agente de Reglas (`gpt-5`) concentra el ~79 % del coste. Es el candidato obvio a optimizar, y los replays permiten hacerlo sin riesgo.
 
-### 3.12 Medidas correctivas
+### 3.13 Medidas correctivas
 
 **¿Qué hay que hacer para que el sistema esté sano?** Una sola lista de trabajo con los problemas que detecta el resto del panel, cada uno con sus alternativas. No inventa nada: cada problema sale de otra sección, así que coincide siempre con Inicio, Resumen, FinOps, Knowledge Bases y el Termómetro.
 
@@ -354,7 +374,7 @@ Acciones (simuladas, con evento en el Histórico):
 
 > Mensaje clave: el gobierno se cierra cuando cada problema detectado tiene **dueño, alternativa y verificación**.
 
-### 3.13 Histórico
+### 3.14 Histórico
 
 **Línea de tiempo única de todo lo que ha ocurrido.** Filtrable por chips de tipo:
 
@@ -374,7 +394,7 @@ Para qué sirve: es el **libro de registro para auditoría**: qué cambió, cuá
 
 ## 4. Guion sugerido de demo (12 minutos)
 
-El mismo guion está en el **Recorrido de la demo** (modo presentador de Inicio), con un botón «Ir» por paso.
+El mismo guion está en el **Recorrido de la demo** (modo presentador de Inicio), con un botón «Ir» por paso, demo automática y subtítulos (apartado 3.2).
 
 | Min | Dónde | Qué mostrar | Mensaje |
 |---|---|---|---|

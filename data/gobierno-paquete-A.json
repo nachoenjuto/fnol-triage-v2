@@ -5953,8 +5953,8 @@
       "agente": "extraccion",
       "impacto": 2,
       "origen": [
-        "trazas",
-        "Trazabilidad · override de MSG-A-04"
+        "hitl",
+        "Intervención humana · override de MSG-A-04"
       ],
       "titulo": "Overrides por datos que el modelo no puede ver",
       "detalle": "MSG-A-04: el conductor sí estaba declarado, pero el agente no tiene acceso a los conductores de la póliza.",

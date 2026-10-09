@@ -353,10 +353,11 @@ tr.is-new td { animation: nuevo-fila 2.6s ease-out; }
 .pulse { position: relative; }
 .pulse::after { content: ''; position: absolute; inset: 0; border-radius: 7px; border: 2px solid var(--crit); animation: latido 1.8s ease-out infinite; }
 .anim .span .bar i { transform-origin: left; animation: crece-h .8s cubic-bezier(.2, .8, .2, 1) both; animation-delay: calc(var(--i, 0) * 90ms); }
-.anim .spark polyline { stroke-dasharray: 1; animation: dibuja 1.2s ease-out both; }
+.anim .spark { animation: revela 1.2s ease-out both; }
 @keyframes crece-v { from { transform: scaleY(0); } }
 @keyframes crece-h { from { transform: scaleX(0); } }
 @keyframes dibuja { from { stroke-dashoffset: 1; } to { stroke-dashoffset: 0; } }
+@keyframes revela { from { clip-path: inset(0 100% 0 0); } to { clip-path: inset(0 0 0 0); } }
 @keyframes aparece { from { opacity: 0; } }
 @keyframes pop { from { transform: scale(0); opacity: 0; } }
 @keyframes anillo { from { stroke-dasharray: 0 999; } }
@@ -495,7 +496,8 @@ tbody tr.is-sel td { background: var(--bg); }
 .inicio-hero p { color: var(--muted); }
 .inicio-hero > div:first-child { flex: 1 1 auto; min-width: 0; }
 .inicio-grupos { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1.25rem 1rem; }
-.inicio-grupo h3 { margin-bottom: .5rem; }
+.inicio-grupo h3 { margin-bottom: .1rem; }
+.inicio-grupo-preg { color: var(--muted); font-size: .82rem; margin-bottom: .55rem; }
 .inicio-fichas { display: grid; gap: .8rem; }
 .inicio-ficha { --c: var(--ok); display: grid; gap: .45rem; align-content: start; cursor: pointer; border-left: 4px solid var(--c); transition: box-shadow .12s, border-color .12s, transform .12s; }
 .inicio-ficha:hover { box-shadow: 0 6px 18px rgba(10, 20, 50, .12); transform: translateY(-1px); }
@@ -630,3 +632,11 @@ tbody tr.is-sel td { background: var(--bg); }
 .cap-chip { font: inherit; font-size: .72rem; font-weight: 600; border: 0; cursor: pointer; }
 .cap-chip:hover { filter: brightness(.95); text-decoration: underline; }
 .alerta-coste.is-new { animation: nuevo-fila 2.6s ease-out; }
+
+/* ─── Intervención humana (HITL) ─── */
+.anim-vista { display: grid; gap: 1rem; }
+.anim-vista > .card-head { margin-bottom: 0; }
+.anim-vista h3 { margin-bottom: .4rem; }
+.hitl-mec { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: .8rem; }
+.hitl-mec .box { display: grid; gap: .35rem; align-content: start; }
+.hitl-mec .box b { display: flex; align-items: center; gap: .4rem; font-size: .88rem; }
