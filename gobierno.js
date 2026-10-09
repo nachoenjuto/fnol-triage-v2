@@ -2134,8 +2134,9 @@
       medidas: (() => { const ab = medidas().filter(abiertaMed); const crit = ab.filter((m) => m.sev === 'crit').length; const AH = ahorroMedidas(); return ['¿Qué hay que hacer para que el sistema esté sano?', [`${ab.length} medidas abiertas`, `${AH.conseguido ? `${num(AH.conseguido)} de ${num(AH.total)} €/mes ahorrados` : `${num(AH.posible)} €/mes de ahorro posible`} · ${crit} ${crit === 1 ? 'crítica' : 'críticas'}`], crit ? 'crit' : ab.length ? 'warn' : 'ok', ['ai-9', 'rgpd-5']]; })(),
       historico: ['¿Qué ha cambiado, cuándo y quién lo aprobó?', [`${num(ev.length)} eventos`, ev.length ? `último: ${fechaHora(ev.reduce((a, e) => (e.fecha > a ? e.fecha : a), ev[0].fecha))}` : '—'], 'ok', ['ai-12', 'rgpd-5']],
     };
-    // Resumen, Trazabilidad y Razonamiento son vistas de consulta: sin etiqueta de estado (sus alertas ya están en las demás fichas)
-    const SIN_ESTADO = ['resumen', 'trazas', 'replay'];
+    // Resumen, Trazabilidad y Razonamiento son vistas de consulta, y Guardrails solo enumera límites (un guardrail
+    // inactivo no es una incidencia): sin etiqueta de estado
+    const SIN_ESTADO = ['resumen', 'trazas', 'replay', 'guardrails'];
     const GRUPOS = MENU;
     const SEM = { ok: ['var(--ok)', 'Sin incidencias', 'pill-ok', 'circle-check', 'Al día'], warn: ['var(--warn)', 'Hay algo que mirar', 'pill-warn', 'circle-alert', 'Revisar'], crit: ['var(--crit)', 'Requiere atención', 'pill-crit', 'triangle-alert', 'Atención'] };
     const tab = Object.fromEntries(TABS.map(([v, i, l]) => [v, [i, l]]));
