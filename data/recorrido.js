@@ -44,7 +44,7 @@ const RECORRIDO_DEMO = {
       ],
     },
     {
-      min: '6–7', pagina: 'gobierno', titulo: 'Trazabilidad y Reasoning & Replay', accion: 'goto:replay',
+      min: '6–7', pagina: 'gobierno', titulo: 'Trazabilidad, razonamiento y replay', accion: 'goto:replay',
       que: 'Waterfall de una traza y replay What-if con gpt-5-mini',
       frase: 'Auditamos y probamos antes de cambiar',
       subtitulos: [
