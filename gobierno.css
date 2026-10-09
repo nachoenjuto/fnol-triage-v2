@@ -260,6 +260,12 @@ label.f { display: grid; gap: .2rem; font-size: .72rem; font-weight: 700; text-t
 .agn.short .pre::before { content: 'Ag. de '; }
 .sub-head { margin-top: 1.1rem; padding-top: 1rem; border-top: 1px solid var(--border); }
 .modal.wide { width: min(1120px, 94vw); }
+/* Todas las ventanas modales con las mismas dimensiones (también las de index.html): cabecera fija y cuerpo con scroll.
+   Navegar a otro elemento o cambiar de pestaña no mueve ni redimensiona la ventana. */
+.modal, .modal.wide { width: min(1120px, 94vw); height: min(780px, 88vh); max-height: 88vh; }
+.modal[open] { display: flex; flex-direction: column; }
+.modal > .modal-head { flex: none; }
+.modal > .modal-body { flex: 1 1 auto; min-height: 0; max-height: none; align-content: start; }
 .modal select, .modal input[type="text"], .modal input[type="number"] { width: 100%; }
 input[type="number"] { font: inherit; padding: .4rem .55rem; border: 1px solid var(--border); border-radius: 5px; background: var(--bg); color: var(--text); }
 input:focus-visible, select:focus-visible { outline: 2px solid var(--primary); outline-offset: 1px; }
@@ -346,6 +352,8 @@ tr.is-new td { animation: nuevo-fila 2.6s ease-out; }
 .anim .meter > i { animation: crece-h 1s cubic-bezier(.2, .8, .2, 1) both; transform-origin: left; }
 .pulse { position: relative; }
 .pulse::after { content: ''; position: absolute; inset: 0; border-radius: 7px; border: 2px solid var(--crit); animation: latido 1.8s ease-out infinite; }
+.anim .span .bar i { transform-origin: left; animation: crece-h .8s cubic-bezier(.2, .8, .2, 1) both; animation-delay: calc(var(--i, 0) * 90ms); }
+.anim .spark polyline { stroke-dasharray: 1; animation: dibuja 1.2s ease-out both; }
 @keyframes crece-v { from { transform: scaleY(0); } }
 @keyframes crece-h { from { transform: scaleX(0); } }
 @keyframes dibuja { from { stroke-dashoffset: 1; } to { stroke-dashoffset: 0; } }
@@ -615,3 +623,10 @@ tbody tr.is-sel td { background: var(--bg); }
 .ag-q-tabla td { white-space: normal; }
 .ag-q-tabla td.wrap { min-width: 0; }
 .ag-q-tabla td:first-child { min-width: 9rem; }
+
+/* FinOps · Alertas de coste: la alerta (qué pasó) enlaza con sus caps (la regla) y con la acción sugerida (qué hacer) */
+.alerta-coste-det { display: flex; flex-wrap: wrap; gap: .3rem .9rem; align-items: center; margin-top: .4rem; }
+.alerta-coste-det b.inl { display: inline; font-size: inherit; }
+.cap-chip { font: inherit; font-size: .72rem; font-weight: 600; border: 0; cursor: pointer; }
+.cap-chip:hover { filter: brightness(.95); text-decoration: underline; }
+.alerta-coste.is-new { animation: nuevo-fila 2.6s ease-out; }

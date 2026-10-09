@@ -207,7 +207,7 @@ tbody tr:focus { outline: 2px solid var(--primary); outline-offset: -2px; }
 .mark.ko { color: var(--review); }
 
 /* Modal */
-.modal { border: 1px solid var(--border); border-radius: 10px; overflow: hidden; padding: 0; width: min(1100px, 94vw); max-height: 90vh; background: var(--surface); color: var(--text); box-shadow: var(--shadow); }
+.modal { border: 1px solid var(--border); border-radius: 10px; overflow: hidden; padding: 0; width: min(1120px, 94vw); height: min(780px, 88vh); max-height: 88vh; background: var(--surface); color: var(--text); box-shadow: var(--shadow); }
 .modal::backdrop { background: rgba(10, 15, 30, .55); }
 .modal-head { display: flex; justify-content: space-between; align-items: flex-start; gap: 1rem; padding: 1rem 1.25rem; border-bottom: 1px solid var(--border); position: sticky; top: 0; background: var(--header); color: #fff; }
 .modal-head h2 { margin: 0 0 .25rem; color: #fff; }
@@ -233,7 +233,8 @@ tbody tr:focus { outline: 2px solid var(--primary); outline-offset: -2px; }
 .ramo-criterios { margin: .25rem 0 0; padding-left: 1.2rem; font-size: .85rem; display: grid; gap: .2rem; }
 
 /* ─── Ficha del mensaje (modal): indicadores, pestañas, mensaje con evidencias, siguiente paso y cronología ─── */
-.modal.ficha { width: min(1180px, 96vw); height: min(740px, 92vh); max-height: none; display: none; flex-direction: column; }
+/* Mismas dimensiones que el resto de ventanas modales (también las de gobierno.html) */
+.modal.ficha { display: none; flex-direction: column; }
 .modal.ficha[open] { display: flex; }
 .modal.ficha .modal-head { align-items: center; }
 .mh-title { display: flex; align-items: center; gap: .7rem; min-width: 0; }
@@ -249,7 +250,10 @@ tbody tr:focus { outline: 2px solid var(--primary); outline-offset: -2px; }
 .kpi-tile .v { font-size: 1.1rem; font-weight: 700; color: var(--tc, var(--text)); }
 .kpi-tile .s { font-size: .72rem; color: var(--muted); }
 .kpi-tile.conf { grid-template-columns: 1fr auto; align-items: center; column-gap: .6rem; }
-.kpi-tile.conf .txt { display: grid; gap: .1rem; }
+.kpi-tile .txt { display: grid; gap: .1rem; min-width: 0; }
+.kpi-tile.ico { grid-template-columns: auto 1fr; align-items: center; column-gap: .65rem; }
+.kpi-tile.ico.conf { grid-template-columns: auto 1fr auto; }
+.kpi-ico { width: 2.2rem; height: 2.2rem; border-radius: 5px; display: grid; place-items: center; font-size: 1.2rem; color: var(--tc); background: color-mix(in srgb, var(--tc) 13%, transparent); }
 .ring { width: 3.4rem; height: 3.4rem; flex: none; }
 .ring text { font-family: inherit; font-size: 17px; font-weight: 700; fill: var(--text); }
 .ring .pista { fill: none; stroke: var(--time-bg); stroke-width: 7; }
@@ -344,7 +348,10 @@ mark.ev, .ev-item[data-n] { cursor: pointer; }
 .raw-nota { margin: .45rem 0 0; }
 
 /* Editor ancho de un bloque de prompt */
-.modal-prompt { width: min(1000px, 94vw); }
+.modal-prompt[open] { display: flex; flex-direction: column; }
+.modal-prompt .modal-head { flex: none; }
+.modal-prompt-body { flex: 1 1 auto; min-height: 0; grid-template-rows: 1fr auto; }
+.modal-prompt-body textarea { height: 100%; min-height: 0; resize: none; }
 .modal-prompt-body { padding: 1rem 1.25rem 1.25rem; display: grid; gap: .6rem; }
-#prompt-grande { min-height: min(60vh, 560px); font-size: .82rem; }
+#prompt-grande { min-height: 0; font-size: .82rem; }
 .prompt-base .row.between, .section-body .row.between { flex-wrap: wrap; gap: .3rem; }

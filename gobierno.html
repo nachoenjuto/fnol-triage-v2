@@ -5,9 +5,9 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Gobierno, Observabilidad y FinOps de Agentes IA para FNOL</title>
   <meta name="description" content="Panel de control agéntico del triaje de seguros: trazabilidad y observabilidad de los agentes, Reasoning & Replay, Autonomy engine y FinOps con caps de consumo.">
-  <link rel="stylesheet" href="gobierno.css?v=27">
-  <link rel="stylesheet" href="header.css?v=27">
-  <link rel="stylesheet" href="cumplimiento.css?v=27">
+  <link rel="stylesheet" href="gobierno.css?v=29">
+  <link rel="stylesheet" href="header.css?v=29">
+  <link rel="stylesheet" href="cumplimiento.css?v=29">
 </head>
 <body>
 <header class="topbar">
@@ -187,12 +187,12 @@
 <section class="view" data-view="finops">
   <div class="kpis" id="kpis-fin"></div>
   <div class="card" id="card-correctivas" hidden>
-    <div class="card-head"><h2 id="h-correctivas"></h2><button class="btn btn-sm" type="button" data-goto="medidas">Ver todas las medidas correctivas</button><span class="muted small">Una acción por cap superado · «Aplicar» la registra en el histórico (simulado en esta demo)</span></div>
+    <div class="card-head"><h2 id="h-correctivas"></h2><button class="btn btn-sm" type="button" data-goto="medidas">Ver todas las medidas correctivas</button><span class="muted small">Qué ha pasado y cuándo · qué cap la disparó y qué hizo solo · qué acción sugerimos («Aplicar» y «Deshacer» son simulados y quedan en el Histórico)</span></div>
     <div class="alerts" id="correctivas"></div>
   </div>
   <div class="card">
-    <div class="card-head"><h2 id="h-caps"></h2><span class="muted small">Clic en un cap para ver su detalle, los agentes implicados y su histórico</span><button class="btn btn-sm" type="button" id="btn-new-cap"></button></div>
-    <div class="tw"><table><thead><tr><th>Cap</th><th>Ámbito</th><th>Tipo</th><th>Límite</th><th>Consumo</th><th style="min-width:180px">Uso</th><th>Acción al superar</th><th>Estado</th></tr></thead><tbody id="caps"></tbody></table></div>
+    <div class="card-head"><h2 id="h-caps"></h2><span class="muted small">Las reglas de consumo · clic en un cap para ver su detalle, los agentes implicados y su histórico · la columna «Alertas» lleva a las alertas que ha generado</span><button class="btn btn-sm" type="button" id="btn-new-cap"></button></div>
+    <div class="tw"><table><thead><tr><th>Cap</th><th>Ámbito</th><th>Tipo</th><th>Límite</th><th>Consumo</th><th style="min-width:180px">Uso</th><th>Acción al superar</th><th>Alertas</th><th>Estado</th></tr></thead><tbody id="caps"></tbody></table></div>
   </div>
   <div class="two">
     <div class="card">
@@ -368,14 +368,14 @@
   <div class="modal-body" id="modal-gr-nuevo-body"></div>
 </dialog>
 
-  <script src="icons.js?v=27"></script>
-  <script src="shell.js?v=27"></script>
-  <script src="data/mensajes.js?v=27"></script>
-  <script src="data/resultados.js?v=27"></script>
-  <script src="prompts.js?v=27"></script>
-  <script src="evidencias.js?v=27"></script>
-  <script src="cumplimiento.js?v=27"></script>
-  <script src="data/gobierno.js?v=27"></script>
-  <script src="gobierno.js?v=27"></script>
+  <script src="icons.js?v=29"></script>
+  <script src="shell.js?v=29"></script>
+  <script src="data/mensajes.js?v=29"></script>
+  <script src="data/resultados.js?v=29"></script>
+  <script src="prompts.js?v=29"></script>
+  <script src="evidencias.js?v=29"></script>
+  <script src="cumplimiento.js?v=29"></script>
+  <script src="data/gobierno.js?v=29"></script>
+  <script src="gobierno.js?v=29"></script>
 </body>
 </html>

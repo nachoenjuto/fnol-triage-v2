@@ -655,7 +655,7 @@
   // FinOps: KPI, caps, modelos, recomendaciones
   // ---------------------------------------------------------------------------
   const CAP_ESTADO = { ok: ['pill-ok', 'check', 'Dentro'], aviso: ['pill-warn', 'circle-alert', 'Aviso ≥ 80 %'], superado: ['pill-crit', 'triangle-alert', 'Superado'] };
-  const capRow = (c) => { const u = c.consumo / c.limite; const [pc, pi, pl] = CAP_ESTADO[c.estado] || CAP_ESTADO.ok; const f = (v) => (c.unidad === '€' ? eur(v, v < 1 ? 3 : 2) : `${num(v)} ${esc(c.unidad)}`); return `<tr class="clickable" data-cap="${esc(c.id)}" tabindex="0" title="Ver el detalle de ${esc(c.id)}"><td class="mono"><b>${esc(c.id)}</b>${c.nuevo ? ' <span class="pill pill-time">nuevo</span>' : ''}</td><td>${ambitoHtml(c)}</td><td>${esc(c.tipo)}</td><td class="tnum">${f(c.limite)}</td><td class="tnum">${f(c.consumo)}</td><td><div class="meter" style="--c:${u >= 1 ? 'var(--crit)' : u >= .8 ? 'var(--warn)' : 'var(--ok)'};margin:0"><i style="width:${Math.min(100, u * 100)}%"></i></div><span class="small muted tnum">${Math.round(u * 100)} %</span></td><td class="wrap">${conGuardrails(esc(c.accion))}</td><td><span class="pill ${pc}">${ic(pi)} ${pl}</span></td></tr>`; };
+  const capRow = (c) => { const u = c.consumo / c.limite; const [pc, pi, pl] = CAP_ESTADO[c.estado] || CAP_ESTADO.ok; const f = (v) => (c.unidad === '€' ? eur(v, v < 1 ? 3 : 2) : `${num(v)} ${esc(c.unidad)}`); return `<tr class="clickable" data-cap="${esc(c.id)}" tabindex="0" title="Ver el detalle de ${esc(c.id)}"><td class="mono"><b>${esc(c.id)}</b>${c.nuevo ? ' <span class="pill pill-time">nuevo</span>' : ''}</td><td>${ambitoHtml(c)}</td><td>${esc(c.tipo)}</td><td class="tnum">${f(c.limite)}</td><td class="tnum">${f(c.consumo)}</td><td><div class="meter" style="--c:${u >= 1 ? 'var(--crit)' : u >= .8 ? 'var(--warn)' : 'var(--ok)'};margin:0"><i style="width:${Math.min(100, u * 100)}%"></i></div><span class="small muted tnum">${Math.round(u * 100)} %</span></td><td class="wrap">${conGuardrails(esc(c.accion))}</td><td>${((n) => (n ? `<button class="pill pill-warn cap-chip" type="button" data-ir-alerta="${esc(c.id)}" title="Ver la alerta de ${esc(c.id)}">${ic('bell')} ${n}</button>` : '<span class="muted">—</span>'))(alertasDeCap(c.id).length)}</td><td><span class="pill ${pc}">${ic(pi)} ${pl}</span></td></tr>`; };
   function renderFinops() {
     const dias = diarioVisible(), hoy = G.diario[G.diario.length - 1], cap = capDiario();
     const totalMsgs = dias.reduce((a, d) => a + d[1], 0), coste = dias.reduce((a, d) => a + costeDia(d), 0);
@@ -842,6 +842,8 @@
       svg.querySelectorAll('polygon, path[opacity]').forEach((a) => a.classList.add('area-a'));
       svg.querySelectorAll('circle[data-tip]').forEach((c, k) => { c.classList.add('dot-a'); c.style.setProperty('--i', k); });
     });
+    root.querySelectorAll('svg.spark polyline').forEach((p) => { p.setAttribute('pathLength', '1'); p.classList.add('line-a'); });
+    root.querySelectorAll('.span .bar i').forEach((b, k) => b.style.setProperty('--i', k));
     root.classList.remove('anim'); void root.offsetWidth;
     if (reducir) return;
     root.classList.add('anim');
@@ -1036,7 +1038,6 @@
     $('modal-kpi-fin-title').innerHTML = `${ic(info.icono)} ${esc(info.titulo)}`;
     $('modal-kpi-fin-body').innerHTML = info.render();
     abrir('modal-kpi-fin');
-    animar($('modal-kpi-fin-body'));
   }
 
   // ---------------------------------------------------------------------------
@@ -1177,7 +1178,9 @@
     const est = corrEstado(c, k, x);
     const replay = x.replay ? `<button class="btn btn-sm" type="button" data-goto="replay" data-replay="1">${ic('play')} Simular con replay</button>` : '';
     const traza = x.traza && G.trazas.some((t) => t.id === x.traza) ? `<button class="btn btn-sm" type="button" data-traza="${esc(x.traza)}">${ic('route')} Ver traza</button>` : '';
-    const accion = est === 'aplicada' ? `<span class="pill pill-ok">${ic('circle-check')} ${x.auto ? 'Aplicada automáticamente' : 'Aplicada'}</span>` : est === 'pendiente' ? `<span class="pill pill-time">${ic('hourglass')} Pendiente de aprobación</span>` : `<button class="btn btn-sm btn-primary" type="button" data-corr="${esc(c.id)}:${k}">${x.aprobacion ? `${ic('user-check')} Solicitar aprobación` : `${ic('check')} Aplicar`}</button>`;
+    // Solo se puede deshacer lo hecho en esta sesión (no lo que el dataset trae ya aplicado)
+    const deshacer = correctivasEstado[`${c.id}:${k}`] && x.estado !== 'aplicada' ? `<button class="btn btn-sm" type="button" data-corr-undo="${esc(c.id)}:${k}" title="Quita la acción simulada: los KPI vuelven a su valor anterior">${ic('undo-2')} Deshacer</button>` : '';
+    const accion = est === 'aplicada' ? `<span class="pill pill-ok">${ic('circle-check')} ${x.auto ? 'Aplicada automáticamente' : 'Aplicada'}</span>${deshacer}` : est === 'pendiente' ? `<span class="pill pill-time">${ic('hourglass')} Pendiente de aprobación</span>${deshacer}` : `<button class="btn btn-sm btn-primary" type="button" data-corr="${esc(c.id)}:${k}">${x.aprobacion ? `${ic('user-check')} Solicitar aprobación` : `${ic('check')} Aplicar`}</button>`;
     return `${replay}${traza}${accion}`;
   }
   function correctivaItem(c, k, x) {
@@ -1194,17 +1197,51 @@
     renderAll();
     if ($('modal-cap').open) abrirModalCap(capId);
   }
+  function deshacerCorrectiva(capId, k) {
+    const c = G.caps.find((x) => x.id === capId); const x = c && capCorrectivas(c)[k]; if (!x) return;
+    const antes = correctivasEstado[`${capId}:${k}`]; if (!antes) return;
+    delete correctivasEstado[`${capId}:${k}`]; ssSet('gobierno.correctivas', correctivasEstado);
+    G.eventos.unshift({ fecha: new Date().toISOString(), tipo: 'politica', sev: 'info', agente: (capAgentes(c)[0] || [])[0] || null, titulo: `${antes === 'aplicada' ? 'Acción correctiva deshecha' : 'Solicitud de aprobación retirada'} sobre ${c.id}`, detalle: `${x.titulo}. Vuelve a quedar como sugerida.`, usuario: 'Operador (esta sesión)' });
+    renderAll();
+    if ($('modal-cap').open) abrirModalCap(capId);
+    if ($('modal-med').open) { const m = medidas().find((y) => y.alternativas.some((a) => a.corr === `${capId}:${k}`)); if (m) abrirModalMed(m.id); }
+  }
 
-  // Tarjeta de FinOps con una acción sugerida por cada cap superado o en aviso
+  // Alertas de coste de FinOps: qué ha pasado y cuándo (la alerta), qué regla la disparó y qué hizo sola (el cap)
+  // y qué tiene que hacer una persona (la acción correctiva sugerida, con Aplicar / Deshacer).
+  // Las alertas del dataset nombran sus caps; un cap superado o en aviso sin alerta (p. ej. uno creado en la sesión) genera la suya.
+  const capsDeTexto = (txt) => [...new Set(String(txt).match(/CAP-\d+/g) || [])].map((id) => G.caps.find((c) => c.id === id)).filter(Boolean);
+  function alertasCoste() {
+    // Los caps de la alerta son los que nombra su título (el detalle puede citar otros solo como contexto)
+    const out = (G.alertas || []).map((a) => ({ ...a, caps: capsDeTexto(a.titulo).length ? capsDeTexto(a.titulo) : capsDeTexto(a.detalle) }));
+    const cubiertos = new Set(out.flatMap((a) => a.caps.map((c) => c.id)));
+    G.caps.filter((c) => (c.estado === 'superado' || c.estado === 'aviso') && !cubiertos.has(c.id)).forEach((c) => out.push({
+      sev: c.estado === 'superado' ? 'crit' : 'warn', titulo: `${c.id} ${c.estado === 'superado' ? 'superado' : 'en aviso'} · ${c.tipo}: ${capFmt(c, c.consumo)} / ${capFmt(c, c.limite)}`,
+      detalle: `Acción configurada: ${c.accion}.`, cuando: c.nuevo ? 'cap creado en esta sesión' : 'periodo actual', caps: [c],
+    }));
+    const orden = { crit: 0, warn: 1, info: 2 };
+    return out.sort((a, b) => (orden[a.sev] ?? 9) - (orden[b.sev] ?? 9));
+  }
+  const alertasDeCap = (id) => alertasCoste().filter((a) => a.caps.some((c) => c.id === id));
   function renderCorrectivas() {
-    const afectados = G.caps.filter((c) => c.estado === 'superado' || c.estado === 'aviso').sort((a, b) => (b.estado === 'superado') - (a.estado === 'superado'));
-    $('card-correctivas').hidden = !afectados.length;
-    $('correctivas').innerHTML = afectados.map((c) => {
-      const lista = capCorrectivas(c); const k = lista.findIndex((x, i) => !corrEstado(c, i, x)); const sup = c.estado === 'superado';
-      const x = k >= 0 ? lista[k] : null; const u = Math.round(capUso(c) * 100);
-      return `<div class="alert ${sup ? 'crit' : 'warn'}"><span class="ico">${ic(sup ? 'triangle-alert' : 'circle-alert')}</span>
-        <div><b>${esc(c.id)} · ${esc(c.tipo)} ${sup ? 'superado' : 'en aviso'}: ${capFmt(c, c.consumo)} de ${capFmt(c, c.limite)} (${u} %)</b><small>${ambitoHtml(c)} · ${x ? `<strong>Acción sugerida:</strong> ${esc(x.titulo)} <span class="pill pill-ok">${esc(x.impacto)}</span>` : 'Todas las acciones sugeridas ya están aplicadas o pendientes de aprobación.'}</small></div>
-        <div class="row" style="justify-content:flex-end"><button class="btn btn-sm" type="button" data-cap="${esc(c.id)}">${ic('info')} Ver detalle</button>${x ? `<button class="btn btn-sm btn-primary" type="button" data-corr="${esc(c.id)}:${k}">${x.aprobacion ? ic('user-check') : ic('check')} ${x.aprobacion ? 'Solicitar aprobación' : 'Aplicar'}</button>` : ''}</div></div>`;
+    const al = alertasCoste();
+    $('card-correctivas').hidden = !al.length;
+    $('correctivas').innerHTML = al.map((a, n) => {
+      // Acción sugerida: la primera pendiente del cap más grave de la alerta
+      const c = a.caps.slice().sort((x, y) => (y.estado === 'superado') - (x.estado === 'superado'))[0];
+      const lista = c ? capCorrectivas(c) : []; const k = c ? lista.findIndex((x, i) => !corrEstado(c, i, x)) : -1; const x = k >= 0 ? lista[k] : null;
+      // Última acción aplicada (o solicitada) en esta sesión para ese cap: se puede deshacer desde la propia alerta
+      const hecha = c ? lista.map((y, i) => [y, i]).filter(([, i]) => correctivasEstado[`${c.id}:${i}`]).pop() : null;
+      const chips = a.caps.map((cp) => { const [pc, pi] = CAP_ESTADO[cp.estado] || CAP_ESTADO.ok; return `<button class="pill ${pc} cap-chip" type="button" data-cap="${esc(cp.id)}" title="Ver la ficha de ${esc(cp.id)}">${ic(pi)} ${esc(cp.id)} · ${Math.round(capUso(cp) * 100)} %</button>`; }).join(' ');
+      return `<div class="alert ${a.sev} alerta-coste" id="alerta-coste-${n}" data-alerta-caps="${esc(a.caps.map((cp) => cp.id).join(' '))}"><span class="ico">${ic(SEV_ICON[a.sev] || 'info')}</span>
+        <div><b>${conGuardrails(esc(a.titulo))}</b><small>${conGuardrails(esc(a.detalle))}</small>
+          <div class="alerta-coste-det small">
+            <span class="muted">${ic('history')} ${esc(a.cuando || '—')}</span>
+            ${chips ? `<span>${chips}</span>` : ''}
+            ${c ? `<span class="muted">${ic('zap')} <b class="inl">Hizo el cap:</b> ${conGuardrails(esc(c.accion))}</span>` : ''}
+            ${x ? `<span>${ic('lightbulb')} <b class="inl">Sugerida:</b> ${esc(x.titulo)} <span class="pill pill-ok">${esc(x.impacto)}</span></span>` : c ? `<span class="muted">${ic('circle-check')} Acciones sugeridas aplicadas o pendientes de aprobación.</span>` : ''}
+          </div></div>
+        <div class="row" style="justify-content:flex-end">${x ? `<button class="btn btn-sm btn-primary" type="button" data-corr="${esc(c.id)}:${k}">${x.aprobacion ? ic('user-check') : ic('check')} ${x.aprobacion ? 'Solicitar aprobación' : 'Aplicar'}</button>` : ''}${hecha ? `<button class="btn btn-sm" type="button" data-corr-undo="${esc(c.id)}:${hecha[1]}" title="Deshacer: ${esc(hecha[0].titulo)}">${ic('undo-2')} Deshacer</button>` : ''}</div></div>`;
     }).join('');
   }
 
@@ -1252,7 +1289,6 @@
       <div><h3>${c.estado === 'ok' ? 'Recomendaciones preventivas' : 'Acción correctiva sugerida'}</h3><ul class="corr-list">${lista.map((x, k) => correctivaItem(c, k, x)).join('')}</ul></div>
       ${evs.length ? `<div><h3>Actividad relacionada en el histórico</h3><ul class="mini-tl">${evs.map((e) => `<li><span class="t">${fechaHora(e.fecha)}</span><span class="ico" style="--c:${(TIPOS[e.tipo] || [])[2] || 'var(--muted)'}">${ic((TIPOS[e.tipo] || ['info'])[0])}</span><div><b>${conGuardrails(esc(e.titulo))}</b><small>${conGuardrails(esc(e.detalle))} · ${esc(e.usuario)}</small></div></li>`).join('')}</ul></div>` : ''}`;
     abrir('modal-cap');
-    animar($('modal-cap-body'));
   }
 
   // ---- Nuevo cap -----------------------------------------------------------
@@ -1411,7 +1447,6 @@
       </div>
       <div><h3>Últimos disparos</h3>${ult.length ? `<div class="tw"><table><thead><tr><th>Fecha</th><th>Traza</th><th>Resultado</th></tr></thead><tbody>${ult.map(([f, traza, res]) => { const tid = (traza.match(/TRZ-[0-9A-Z]+/) || [])[0]; const existe = tid && G.trazas.some((t) => t.id === tid); return `<tr><td class="tnum">${fechaHora(f)}</td><td class="mono">${existe ? `<button class="btn btn-sm" type="button" data-traza="${esc(tid)}">${ic('route')} ${esc(traza)}</button>` : esc(traza)}</td><td>${esc(res)}</td></tr>`; }).join('')}</tbody></table></div>` : '<p class="muted small">Sin disparos registrados.</p>'}</div>`;
     abrir('modal-gr');
-    animar($('modal-gr-body'));
   }
 
   // ---- Nuevo guardrail -----------------------------------------------------
@@ -1871,6 +1906,14 @@
     const a = m.alternativas[k];
     const evento = (titulo, detalle, sev = 'info') => G.eventos.unshift({ fecha: new Date().toISOString(), tipo: 'politica', sev, agente: m.agente, titulo: `${m.id} · ${titulo}`, detalle, usuario: 'Operador (esta sesión)' });
     if (tipo === 'simular') { e.sim = k; evento(`Simulación de «${a.titulo}»`, `Impacto estimado: ${a.impacto}. Validación: ${a.valida}.`); }
+    if (tipo === 'quitar-sim') { delete e.sim; evento(`Simulación retirada: «${a.titulo}»`, 'La alternativa vuelve a su estado sin simular.'); }
+    if (tipo === 'deshacer') {
+      const c = corrDe(a);
+      delete e.alt; if (e.estado !== 'verificada') delete e.estado;
+      if (c) { delete correctivasEstado[a.corr]; ssSet('gobierno.correctivas', correctivasEstado); }
+      evento(`Medida deshecha: «${a.titulo}»`, 'Vuelve a quedar abierta; los indicadores recuperan su valor anterior.');
+    }
+    if (tipo === 'desverificar') { if (corrDe(a)) delete e.estado; else e.estado = 'aplicada'; evento('Verificación retirada', 'La medida vuelve a «Aplicada · por verificar».'); }
     if (tipo === 'aplicar') {
       const c = corrDe(a); e.alt = k;
       if (c) { ssSet('gobierno.medidas', medidasEstado); aplicarCorrectiva(c.cap, c.k); return; }
@@ -1887,9 +1930,19 @@
   function altHtml(m, a, k, compacto) {
     const est = estadoMedida(m); const e = medidasEstado[m.id] || {}; const c = corrDe(a);
     const elegida = (c && c.estado) || (e.alt === k && est !== 'abierta');
-    const botones = est === 'verificada' ? '' : elegida
-      ? `<button class="btn btn-sm btn-primary" type="button" data-med-acc="verificar:${m.id}:${k}">${ic('circle-check')} Marcar como verificada</button>`
-      : `${a.valida && /replay|Rúbrica|rúbrica|Vista previa|Simulación/i.test(a.valida) ? `<button class="btn btn-sm" type="button" data-med-acc="simular:${m.id}:${k}">${ic('play')} Simular</button>` : ''}<button class="btn btn-sm" type="button" data-med-acc="aplicar:${m.id}:${k}">${necesitaAprobacion(a) ? `${ic('user-check')} Solicitar aprobación` : `${ic('check')} Aplicar`}</button>`;
+    // Todo lo que se aplica en la demo se puede quitar, para ver subir y bajar los KPI y el Termómetro.
+    // Lo que el dataset trae ya aplicado, o lo verificado por las propias trazas, no se deshace.
+    const deshacible = elegida && (c ? !!correctivasEstado[a.corr] : e.alt === k);
+    const deshacer = deshacible ? `<button class="btn btn-sm" type="button" data-med-acc="deshacer:${m.id}:${k}" title="Quita la medida aplicada: los KPI vuelven a su valor anterior">${ic('undo-2')} Deshacer</button>` : '';
+    const simulable = a.valida && /replay|Rúbrica|rúbrica|Vista previa|Simulación/i.test(a.valida);
+    const simular = !simulable ? '' : e.sim === k
+      ? `<button class="btn btn-sm" type="button" data-med-acc="quitar-sim:${m.id}:${k}">${ic('x')} Quitar simulación</button>`
+      : `<button class="btn btn-sm" type="button" data-med-acc="simular:${m.id}:${k}">${ic('play')} Simular</button>`;
+    const botones = est === 'verificada'
+      ? (e.estado === 'verificada' && elegida ? `<button class="btn btn-sm" type="button" data-med-acc="desverificar:${m.id}:${k}">${ic('undo-2')} Quitar verificación</button>` : '')
+      : elegida
+      ? `<button class="btn btn-sm btn-primary" type="button" data-med-acc="verificar:${m.id}:${k}">${ic('circle-check')} Marcar como verificada</button>${deshacer}`
+      : `${simular}<button class="btn btn-sm" type="button" data-med-acc="aplicar:${m.id}:${k}">${necesitaAprobacion(a) ? `${ic('user-check')} Solicitar aprobación` : `${ic('check')} Aplicar`}</button>`;
     return `<div class="med-alt${a.rec ? ' rec' : ''}${elegida ? ' elegida' : ''}">
       ${a.rec ? '<span class="pill pill-time">Recomendada</span>' : ''}<b>${esc(a.titulo)}</b>
       <span class="med-imp">${esc(a.impacto)}</span>
@@ -2033,6 +2086,23 @@
           <div class="inicio-pie">${normas(...ns)}<span class="inicio-abrir">Abrir ${ic('arrow-right')}</span></div></div>
       </article>`;
     }).join('')}</div></div>`).join('');
+    igualarFichasInicio();
+  }
+
+  // Todas las fichas de Inicio con el mismo alto (el de la más alta), sea cual sea el número de columnas.
+  // Se recalcula al cambiar el ancho de la rejilla (cambio de columnas, panel lateral, vista que pasa a visible).
+  let anchoInicio = 0;
+  function igualarFichasInicio() {
+    const fichas = [...document.querySelectorAll('#inicio-grupos .inicio-ficha')];
+    fichas.forEach((f) => { f.style.height = ''; });
+    const alto = Math.max(0, ...fichas.map((f) => f.offsetHeight));
+    if (alto) fichas.forEach((f) => { f.style.height = `${alto}px`; });
+  }
+  if (window.ResizeObserver) {
+    new ResizeObserver(([e]) => {
+      const w = Math.round(e.contentRect.width);
+      if (w && w !== anchoInicio) { anchoInicio = w; igualarFichasInicio(); }
+    }).observe($('inicio-grupos'));
   }
 
   // ---------------------------------------------------------------------------
@@ -2257,7 +2327,7 @@
   // Navegación entre los elementos de una lista desde su ventana emergente (‹ 3 de 13 ›), para todas las ventanas
   // que se abren desde una lista: recuerda la lista de origen y «pulsa» el elemento anterior o siguiente.
   // ---------------------------------------------------------------------------
-  const NAV_ATTR = ['data-id', 'data-gr', 'data-cap', 'data-cambio', 'data-kb', 'data-rub', 'data-cmp-item', 'data-kpi-fin', 'data-medida'];
+  const NAV_ATTR = ['data-id', 'data-gr', 'data-cap', 'data-cambio', 'data-kb', 'data-rub', 'data-cmp-item', 'data-cmp-ficha', 'data-kpi-fin', 'data-medida'];
   let nav = null; // { dlg, attr, cont, valor }
   const itemsNav = () => (nav ? [...nav.cont.querySelectorAll(`:scope > [${nav.attr}]`)] : []);
   function pintarNav() {
@@ -2274,6 +2344,15 @@
     const items = itemsNav(); const i = items.findIndex((x) => x.getAttribute(nav.attr) === nav.valor);
     const sig = items[i + d]; if (sig) sig.click();
   }
+  // Gráficos animados al abrir una ventana, al navegar a otro elemento y al cambiar de pestaña dentro de ella:
+  // cada vez que se repinta el cuerpo de una ventana (o una de sus secciones), sus gráficos se vuelven a animar.
+  function initAnimModales() {
+    const obs = new MutationObserver((muts) => {
+      const raices = new Set(muts.map((m) => m.target.closest('.modal-body')).filter(Boolean));
+      raices.forEach((r) => { if (r.closest('dialog').open) animar(r); });
+    });
+    document.querySelectorAll('dialog .modal-body').forEach((b) => obs.observe(b, { childList: true }));
+  }
   function initNavModales() {
     document.addEventListener('click', (e) => {
       if (e.target.closest('dialog')) return;
@@ -2281,7 +2360,15 @@
       while (el && el.nodeType === 1 && !(attr = NAV_ATTR.find((x) => el.hasAttribute(x)))) el = el.parentElement;
       if (!attr) return;
       const antes = new Set(document.querySelectorAll('dialog[open]'));
-      const cont = el.parentElement; const valor = el.getAttribute(attr);
+      let cont = el.parentElement; let valor = el.getAttribute(attr);
+      // La ficha de cumplimiento abierta desde Trazabilidad navega por la lista del Termómetro
+      if (attr === 'data-cmp-ficha') { const k = cmpItems.findIndex((x) => x.gob.trazabilidad.traza_id === valor); const li = document.querySelector(`[data-cmp-item="${k}"]`); if (!li) return; attr = 'data-cmp-item'; valor = String(k); cont = li.parentElement; }
+      // Abierta desde un elemento sin hermanos (chip de una alerta, enlace en un texto): usa la lista más larga que lo contenga
+      const hermanos = (c) => c.querySelectorAll(`:scope > [${attr}]`).length;
+      if (hermanos(cont) < 2) {
+        const mejor = [...document.querySelectorAll(`[${attr}="${CSS.escape(valor)}"]`)].map((x) => x.parentElement).filter((p) => !p.closest('dialog')).sort((a, b) => hermanos(b) - hermanos(a))[0];
+        if (mejor && hermanos(mejor) > hermanos(cont)) cont = mejor;
+      }
       setTimeout(() => {
         const abiertos = [...document.querySelectorAll('dialog[open]')];
         const dlg = abiertos.find((d) => !antes.has(d)) || (nav && nav.cont === cont && abiertos.includes(nav.dlg) ? nav.dlg : null);
@@ -2299,6 +2386,7 @@
 
   function bind() {
     initNavModales();
+    initAnimModales();
     document.addEventListener('submit', (e) => { if (e.target.id === 'form-rub') guardarRub(e); });
     document.addEventListener('change', (e) => { if (e.target.id === 'ag-ejemplo') { agEjemplo = Number(e.target.value); renderAgentes(); } });
     document.addEventListener('input', (e) => { if (e.target.classList && e.target.classList.contains('rc-peso')) sumaRub(); });
@@ -2328,6 +2416,8 @@
       const gr = e.target.closest('[data-guardrail]'); if (gr) { e.preventDefault(); toggleGuardrail(gr.dataset.guardrail); if (gr.dataset.reabrir) abrirModalGr(gr.dataset.reabrir); return; }
       const cb = e.target.closest('[data-cambio]'); if (cb) { abrirModalCambio(Number(cb.dataset.cambio)); return; }
       const va = e.target.closest('[data-ver-agente]'); if (va) { verAgente(va.dataset.verAgente); return; }
+      const ia = e.target.closest('[data-ir-alerta]'); if (ia) { e.stopPropagation(); const al = [...document.querySelectorAll('#correctivas [data-alerta-caps]')].find((x) => x.dataset.alertaCaps.split(' ').includes(ia.dataset.irAlerta)); if (al) { al.scrollIntoView({ behavior: 'smooth', block: 'center' }); al.classList.remove('is-new'); void al.offsetWidth; al.classList.add('is-new'); } return; }
+      const cu = e.target.closest('[data-corr-undo]'); if (cu) { e.stopPropagation(); const [cid, k] = cu.dataset.corrUndo.split(':'); deshacerCorrectiva(cid, Number(k)); return; }
       const co = e.target.closest('[data-corr]'); if (co) { const [cid, k] = co.dataset.corr.split(':'); aplicarCorrectiva(cid, Number(k)); return; }
       const cp = e.target.closest('[data-cap]'); if (cp) { abrirModalCap(cp.dataset.cap); return; }
       const lg = e.target.closest('[data-legend]'); if (lg) { const set = lg.dataset.legend === 'agente' ? ocultos : tokOcultos; set.has(lg.dataset.key) ? set.delete(lg.dataset.key) : set.add(lg.dataset.key); renderCharts(); return; }
@@ -2391,7 +2481,7 @@
     $('file-json').addEventListener('change', () => { const f = $('file-json').files[0]; if (f) cargarArchivo(f); $('file-json').value = ''; });
     $('fuente').addEventListener('change', () => setFuente($('fuente').value));
     $('periodo').addEventListener('change', () => { periodoDias = Number($('periodo').value); renderResumen(); renderFinops(); });
-    const H = { 'h-agentes': ['cpu', 'Agentes'], 'h-coste': ['euro', 'Coste diario frente al cap'], 'h-alertas': ['bell', 'Alertas activas'], 'h-reasoning': ['brain', 'Razonamiento registrado'], 'h-replay': ['repeat', 'Replay'], 'h-replays': ['history', 'Replays anteriores'], 'h-niveles': ['sliders-horizontal', 'Niveles de autonomía'], 'h-correctivas': ['lightbulb', 'Caps superados: acciones correctivas sugeridas'], 'h-guardrails': ['shield-check', 'Guardrails'], 'h-cambios': ['history', 'Cambios de nivel (auditoría)'], 'h-caps': ['scale', 'Caps configurados'], 'h-coste-ag': ['euro', 'Coste diario por agente'], 'h-tokens': ['cpu', 'Tokens por agente'], 'h-modelos': ['database', 'Modelos'], 'h-reco': ['lightbulb', 'Recomendaciones de ahorro'], 'h-hist': ['history', 'Histórico de gobierno'], 'h-med': ['wrench', 'Medidas correctivas'] };
+    const H = { 'h-agentes': ['cpu', 'Agentes'], 'h-coste': ['euro', 'Coste diario frente al cap'], 'h-alertas': ['bell', 'Alertas activas'], 'h-reasoning': ['brain', 'Razonamiento registrado'], 'h-replay': ['repeat', 'Replay'], 'h-replays': ['history', 'Replays anteriores'], 'h-niveles': ['sliders-horizontal', 'Niveles de autonomía'], 'h-correctivas': ['bell', 'Alertas de coste'], 'h-guardrails': ['shield-check', 'Guardrails'], 'h-cambios': ['history', 'Cambios de nivel (auditoría)'], 'h-caps': ['scale', 'Caps configurados'], 'h-coste-ag': ['euro', 'Coste diario por agente'], 'h-tokens': ['cpu', 'Tokens por agente'], 'h-modelos': ['database', 'Modelos'], 'h-reco': ['lightbulb', 'Recomendaciones de ahorro'], 'h-hist': ['history', 'Histórico de gobierno'], 'h-med': ['wrench', 'Medidas correctivas'] };
     Object.entries(H).forEach(([id, [i, t]]) => titulo(id, i, t));
     document.querySelectorAll('[data-close]').forEach((b) => { b.innerHTML = ic('x'); });
     $('btn-export-trazas').innerHTML = `${ic('download')} Exportar trazas`;
