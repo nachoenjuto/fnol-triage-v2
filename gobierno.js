@@ -2120,19 +2120,21 @@
     const kbCrit = E.filter(({ s }) => s.estado === 'rojo'); const kbOk = E.filter(({ s }) => s.estado === 'ok').length;
     const repl = G.replays || []; const cambios = repl.filter((r) => String(r.decision).startsWith('DISTINTA')).length;
     const ev = G.eventos || [];
+    // Por sección: [pregunta, cifra grande, texto bajo la cifra, estado, normas]
+    const nCritAl = `${crit} ${crit === 1 ? 'crítica' : 'críticas'}`;
     const F = {
-      resumen: ['¿Va bien el sistema ahora mismo?', [`${G.kpis.resumen[0].valor} de autonomía efectiva`, `${alertas.length} alertas · ${crit} críticas`], crit ? 'crit' : avisos ? 'warn' : 'ok', ['ai-14', 'eiopa']],
-      agentes: ['¿Quién es, qué hace y cómo rinde cada agente?', [`${ags.length} agentes en cadena`, noActivos.length ? `${noActivos.map((a) => a.nombre).join(', ')}: ${noActivos.map((a) => (ESTADO[estadoAgente(a)] || ESTADO.activo)[2].replace(/ \(.*\)/, '').toLowerCase()).join(', ')}` : 'todos activos'], noActivos.length ? 'warn' : 'ok', ['dora-9', 'ai-14']],
-      trazas: ['¿Qué pasó con este mensaje, quién decidió y cuánto costó?', [`${G.trazas.length} trazas en el periodo`, `${G.trazas.filter((t) => (t.incidencias || []).length).length} con incidencia · ${G.trazas.filter((t) => t.resultado !== 'auto').length} con intervención humana`], G.trazas.some((t) => (t.incidencias || []).length) ? 'warn' : 'ok', ['ai-12', 'rgpd-5']],
-      replay: ['¿Por qué decidió eso y qué pasaría si cambio el modelo?', [`${repl.length} replays registrados`, `${cambios} ${cambios === 1 ? 'cambio' : 'cambios'} de decisión`], cambios ? 'warn' : 'ok', ['rgpd-15', 'ai-15']],
-      autonomia: ['¿Cuánta libertad tiene cada agente y quién la cambió?', [niveles || '—', `override ${G.kpis.resumen[2].valor} (objetivo ≤ 3 %)`], 'ok', ['ai-14', 'rgpd-22']],
-      guardrails: ['¿Qué límites frenan a los agentes?', [`${activos} de ${pol.length} activos`, `${num(pol.reduce((a, p) => a + (p.disparos || 0), 0))} disparos en 14 días`], activos < pol.length ? 'warn' : 'ok', ['ai-9', 'ai-14']],
-      hitl: (() => { const d = datosResumen(); const pend = colaHitl().filter((c) => c.estado === 'pendiente').length; return ['¿Qué hacen las personas con lo que escalan los agentes?', [`${Math.round(d.pEsc)} % escalado · override ${d.pOvr.toFixed(1).replace('.', ',')} %`, `${pend} ${pend === 1 ? 'traza pendiente' : 'trazas pendientes'} de revisión`], d.pOvr > 3 ? 'crit' : pend ? 'warn' : 'ok', ['ai-14', 'rgpd-22']]; })(),
-      knowledge: ['¿Con qué conocimiento deciden y sigue siendo bueno?', [`${kbOk} de ${E.length} sanas`, kbCrit.length ? `${kbCrit.map(({ k }) => k.id).join(', ')} crítica` : 'ninguna crítica'], kbCrit.length ? 'crit' : kbOk < E.length ? 'warn' : 'ok', ['ai-10', 'rgpd-17']],
-      cumplimiento: ['¿Podemos demostrar que cumplimos?', [`${T.global} % de cobertura de controles`, `${T.marcos.reduce((a, m) => a + m.cuenta.ambar + m.cuenta.rojo, 0)} controles parciales`], T.global >= 90 ? 'ok' : 'warn', ['ai-12', 'rgpd-5']],
-      finops: ['¿Cuánto cuesta y estamos dentro del presupuesto?', [`${eur(coste, 0)} en el periodo`, `${capsSup} caps superados`], capsSup ? 'crit' : 'ok', ['sii-41']],
-      medidas: (() => { const ab = medidas().filter(abiertaMed); const crit = ab.filter((m) => m.sev === 'crit').length; const AH = ahorroMedidas(); return ['¿Qué hay que hacer para que el sistema esté sano?', [`${ab.length} medidas abiertas`, `${AH.conseguido ? `${num(AH.conseguido)} de ${num(AH.total)} €/mes ahorrados` : `${num(AH.posible)} €/mes de ahorro posible`} · ${crit} ${crit === 1 ? 'crítica' : 'críticas'}`], crit ? 'crit' : ab.length ? 'warn' : 'ok', ['ai-9', 'rgpd-5']]; })(),
-      historico: ['¿Qué ha cambiado, cuándo y quién lo aprobó?', [`${num(ev.length)} eventos`, ev.length ? `último: ${fechaHora(ev.reduce((a, e) => (e.fecha > a ? e.fecha : a), ev[0].fecha))}` : '—'], 'ok', ['ai-12', 'rgpd-5']],
+      resumen: ['¿Va bien el sistema ahora mismo?', String(alertas.length), `alertas activas · ${nCritAl}`, crit ? 'crit' : avisos ? 'warn' : 'ok', ['ai-14', 'eiopa']],
+      agentes: ['¿Quién es, qué hace y cómo rinde cada agente?', `${ags.length - noActivos.length} de ${ags.length}`, `agentes activos${noActivos.length ? ` · ${noActivos.map((a) => `${a.nombre}: ${(ESTADO[estadoAgente(a)] || ESTADO.activo)[2].replace(/ \(.*\)/, '').toLowerCase()}`).join(', ')}` : ''}`, noActivos.length ? 'warn' : 'ok', ['dora-9', 'ai-14']],
+      trazas: ['¿Qué pasó con este mensaje, quién decidió y cuánto costó?', num(G.trazas.length), `trazas · ${G.trazas.filter((t) => (t.incidencias || []).length).length} con incidencia, ${G.trazas.filter((t) => t.resultado !== 'auto').length} con intervención humana`, G.trazas.some((t) => (t.incidencias || []).length) ? 'warn' : 'ok', ['ai-12', 'rgpd-5']],
+      replay: ['¿Por qué decidió eso y qué pasaría si cambio el modelo?', String(repl.length), `replays · ${cambios} ${cambios === 1 ? 'cambio' : 'cambios'} de decisión`, cambios ? 'warn' : 'ok', ['rgpd-15', 'ai-15']],
+      autonomia: ['¿Cuánta libertad tiene cada agente y quién la cambió?', G.kpis.resumen[0].valor, `autonomía efectiva · ${niveles || '—'}`, 'ok', ['ai-14', 'rgpd-22']],
+      guardrails: ['¿Qué límites frenan a los agentes?', `${activos} de ${pol.length}`, `activos · ${num(pol.reduce((a, p) => a + (p.disparos || 0), 0))} disparos en 14 días`, activos < pol.length ? 'warn' : 'ok', ['ai-9', 'ai-14']],
+      hitl: (() => { const d = datosResumen(); const pend = colaHitl().filter((c) => c.estado === 'pendiente').length; return ['¿Qué hacen las personas con lo que escalan los agentes?', String(pend), `${pend === 1 ? 'pendiente' : 'pendientes'} de revisión · override ${d.pOvr.toFixed(1).replace('.', ',')} %`, d.pOvr > 3 ? 'crit' : pend ? 'warn' : 'ok', ['ai-14', 'rgpd-22']]; })(),
+      knowledge: ['¿Con qué conocimiento deciden y sigue siendo bueno?', `${kbOk} de ${E.length}`, `sanas · ${kbCrit.length ? `${kbCrit.map(({ k }) => k.id).join(', ')} ${kbCrit.length === 1 ? 'crítica' : 'críticas'}` : 'ninguna crítica'}`, kbCrit.length ? 'crit' : kbOk < E.length ? 'warn' : 'ok', ['ai-10', 'rgpd-17']],
+      cumplimiento: ['¿Podemos demostrar que cumplimos?', `${T.global} %`, `cobertura de controles · ${T.marcos.reduce((a, m) => a + m.cuenta.ambar + m.cuenta.rojo, 0)} parciales`, T.global >= 90 ? 'ok' : 'warn', ['ai-12', 'rgpd-5']],
+      finops: ['¿Cuánto cuesta y estamos dentro del presupuesto?', eur(coste, 0), `en el periodo · ${capsSup} ${capsSup === 1 ? 'cap superado' : 'caps superados'}`, capsSup ? 'crit' : 'ok', ['sii-41']],
+      medidas: (() => { const ab = medidas().filter(abiertaMed); const cr = ab.filter((m) => m.sev === 'crit').length; const AH = ahorroMedidas(); return ['¿Qué hay que hacer para que el sistema esté sano?', String(ab.length), `${ab.length === 1 ? 'medida abierta' : 'medidas abiertas'} · ${cr} ${cr === 1 ? 'crítica' : 'críticas'} · ${AH.conseguido ? `${num(AH.conseguido)} de ${num(AH.total)} €/mes ahorrados` : `${num(AH.posible)} €/mes de ahorro posible`}`, cr ? 'crit' : ab.length ? 'warn' : 'ok', ['ai-9', 'rgpd-5']]; })(),
+      historico: ['¿Qué ha cambiado, cuándo y quién lo aprobó?', num(ev.length), `eventos${ev.length ? ` · último: ${fechaHora(ev.reduce((a, e) => (e.fecha > a ? e.fecha : a), ev[0].fecha))}` : ''}`, 'ok', ['ai-12', 'rgpd-5']],
     };
     // Resumen, Trazabilidad y Razonamiento son vistas de consulta, y Guardrails solo enumera límites (un guardrail
     // inactivo no es una incidencia): sin etiqueta de estado
@@ -2146,15 +2148,15 @@
       <div class="inicio-acc"><button class="btn btn-primary" type="button" data-goto="resumen">${ic('layout-dashboard')} Ver el Resumen</button>
         <div class="inicio-pres"><label class="switch${Shell.Recorrido.presentador() ? '' : ' off'}" data-presentador role="switch" aria-checked="${Shell.Recorrido.presentador()}" tabindex="0" title="Activa el recorrido guiado de la demo en las dos páginas"><i></i>Modo presentador</label>
         ${Shell.Recorrido.presentador() ? `<button class="btn btn-sm" type="button" data-rec-empezar>${ic('route')} Recorrido de la demo</button>` : ''}</div></div>`;
-    $('inicio-grupos').innerHTML = GRUPOS.map(([g, preg, vs]) => `<div class="inicio-grupo"><h3>${esc(g)}</h3><p class="inicio-grupo-preg">${esc(preg)}</p><div class="inicio-fichas">${vs.map((v) => {
-      const [preg, cifras, sem, ns] = F[v]; const [color, semTxt, semCls, semIco, semLbl] = SEM[sem]; const [i, l] = tab[v] || ['info', v];
-      // Icono y nombre de la sección con protagonismo; la pregunta debajo; cifras, normas y «Abrir» al pie, en pequeño.
-      // Un solo color para todas las fichas: el estado solo lo da el semáforo
-      return `<article class="card inicio-ficha" data-goto="${v}" role="button" tabindex="0" title="Abrir ${esc(l)}">
-        <div class="inicio-top"><span class="ag-ico ag-ico-lg">${ic(i)}</span><div class="ag-titulo"><strong class="ag-nombre">${esc(l)}</strong></div>${SIN_ESTADO.includes(v) ? '' : `<span class="pill ${semCls} inicio-estado" title="${semTxt}">${ic(semIco)} ${semLbl}</span>`}</div>
-        <p class="inicio-preg">${esc(preg)}</p>
-        <div class="inicio-det"><ul class="inicio-cifras">${cifras.map((c) => `<li>${esc(c)}</li>`).join('')}</ul>
-          <div class="inicio-pie">${normas(...ns)}<span class="inicio-abrir">Abrir ${ic('arrow-right')}</span></div></div>
+    // Fichas agrupadas por bloque, con su nombre y su pregunta. En cada ficha manda la cifra; el estado solo se marca
+    // cuando hay algo que mirar (al día = un punto verde; revisar y atención = etiqueta)
+    $('inicio-grupos').innerHTML = GRUPOS.map(([g, pregG, vs]) => `<div class="inicio-grupo"><div class="inicio-grupo-cab"><h3>${esc(g)}</h3><p class="inicio-grupo-preg">${esc(pregG)}</p></div><div class="inicio-fichas">${vs.map((v) => {
+      const [preg, cifra, texto, sem, ns] = F[v]; const [, semTxt, semCls, semIco, semLbl] = SEM[sem]; const [i, l] = tab[v] || ['info', v];
+      const estado = SIN_ESTADO.includes(v) ? '' : sem === 'ok' ? `<span class="inicio-ok" title="${semLbl}: ${semTxt.toLowerCase()}" aria-label="${semLbl}"></span>` : `<span class="pill ${semCls} inicio-estado" title="${semTxt}">${ic(semIco)} ${semLbl}</span>`;
+      return `<article class="card inicio-ficha" data-goto="${v}" role="button" tabindex="0" title="${esc(preg)} · Abrir ${esc(l)}">
+        <div class="inicio-top"><span class="ag-ico">${ic(i)}</span><strong class="ag-nombre">${esc(l)}</strong>${estado}</div>
+        <div class="inicio-cifra"><b>${esc(cifra)}</b><span>${esc(texto)}</span></div>
+        <div class="inicio-pie">${normas(...ns)}<span class="inicio-abrir">Abrir ${ic('arrow-right')}</span></div>
       </article>`;
     }).join('')}</div></div>`).join('');
     igualarFichasInicio();

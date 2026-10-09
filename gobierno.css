@@ -496,7 +496,7 @@ tbody tr.is-sel td { background: var(--bg); }
 .inicio-hero p { color: var(--muted); }
 .inicio-hero > div:first-child { flex: 1 1 auto; min-width: 0; }
 .inicio-grupos { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1.25rem 1rem; }
-.inicio-grupo h3 { margin-bottom: .1rem; }
+.inicio-grupo h3 { font-size: .9rem; color: var(--text); margin-bottom: .15rem; }
 .inicio-grupo-preg { color: var(--muted); font-size: .82rem; margin-bottom: .55rem; }
 .inicio-fichas { display: grid; gap: .8rem; }
 .inicio-ficha { --c: var(--ok); display: grid; gap: .45rem; align-content: start; cursor: pointer; border-left: 4px solid var(--c); transition: box-shadow .12s, border-color .12s, transform .12s; }
@@ -582,9 +582,17 @@ tbody tr.is-sel td { background: var(--bg); }
 .mh-nav .btn { padding: .3rem .45rem; }
 .mh-nav .btn:disabled { opacity: .45; cursor: default; }
 
-/* Inicio: más aire entre la parte de arriba (icono, nombre y pregunta) y la línea de puntos de los detalles */
-.inicio-preg { margin-bottom: 2rem; }
-.inicio-det { padding-top: .75rem; }
+/* Inicio: una cifra grande por ficha; sin la franja lateral (el estado lo da el punto o la etiqueta) */
+.inicio-ficha { gap: .5rem; border-left: 1px solid var(--border); }
+.inicio-top .ag-ico { width: 2.1rem; height: 2.1rem; border-radius: 6px; }
+.inicio-top .ag-ico svg { width: 1.15rem; height: 1.15rem; }
+.inicio-top .ag-nombre { font-size: 1rem; line-height: 1.2; white-space: normal; }
+.inicio-ok { width: .6rem; height: .6rem; border-radius: 50%; background: var(--ok); box-shadow: 0 0 0 3px color-mix(in srgb, var(--ok) 20%, transparent); justify-self: end; }
+.inicio-cifra { display: grid; gap: .1rem; }
+.inicio-cifra b { font-size: 1.75rem; font-weight: 800; line-height: 1.1; color: var(--text); font-variant-numeric: tabular-nums; }
+.inicio-cifra span { font-size: .8rem; color: var(--muted); line-height: 1.35; }
+.inicio-ficha .inicio-pie { margin-top: auto; padding-top: .5rem; }
+.inicio-ficha .norma { font-size: .62rem; }
 
 /* ───────────── Medidas correctivas ───────────── */
 .med-hero { display: flex; justify-content: space-between; align-items: center; gap: 1.2rem; }
