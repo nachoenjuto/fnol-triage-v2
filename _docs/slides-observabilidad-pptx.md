@@ -280,19 +280,19 @@ Cada capacidad responde a una de las cuatro preguntas del principio.
 | Ver | Entender | Limitar | Conocer | Pagar | Corregir | Auditar |
 |---|---|---|---|---|---|---|
 | ¿Qué está pasando? | ¿Por qué decidió eso? | ¿Quién lo controla? | ¿Con qué conocimiento decide? | ¿Cuánto cuesta? | ¿Qué hay que arreglar? | ¿Podemos demostrarlo? |
-| Portada · Vista de dirección · Trazabilidad | Explicabilidad · Evidencias · Reasoning Replay · Causa raíz | Identidad, permisos y calidad · Autonomía · Trust Score · Guardrails · Kill switch | Knowledge Bases · Rúbricas | Caps · Acciones correctivas · Modelos · Simulación | Medidas correctivas · Ahorro conseguido | Libro de registro · Cumplimiento · Prueba en cada decisión · Seudonimización · Termómetro |
+| Portada · Vista de dirección · Trazabilidad | Explicabilidad · Evidencias · Razonamiento y replay · Causa raíz | Identidad, permisos y calidad · Autonomía · Trust Score · Intervención humana · Guardrails · Kill switch | Knowledge Bases · Rúbricas | Caps · Alertas de coste · Modelos · Simulación | Medidas correctivas · Ahorro conseguido | Libro de registro · Cumplimiento · Prueba en cada decisión · Seudonimización · Termómetro |
 
 ## Ver: la portada del panel
-<!-- notes: Antes de entrar en detalle, esta es la portada del panel. Cada ficha corresponde a una sección y responde a una pregunta: qué pasa, por qué, con qué límites, con qué conocimiento, si cumple y cuánto cuesta.
+<!-- notes: Antes de entrar en detalle, esta es la portada del panel. Cada ficha corresponde a una sección, y las secciones se agrupan en cinco bloques: qué está pasando, cuánto decide la máquina y cuánto una persona, si deciden bien, si cumplimos y cuánto cuesta, y qué hay que corregir.
 
-Cada ficha lleva dos cifras en vivo y un semáforo. Si algo va mal, se ve aquí antes de abrir nada.
+Cada ficha lleva una cifra en vivo. Las que están al día solo llevan un punto verde; las que no, una etiqueta «Revisar» o «Atención». Si algo va mal, se ve aquí antes de abrir nada.
 
 A remarcar: la portada no es decoración; es la forma de que cualquiera sepa en qué sección tiene que entrar. -->
 
-Una ficha por pregunta, con su estado en vivo.
+Una ficha por sección, con su estado en vivo.
 
-- **Una puerta de entrada**: once fichas agrupadas en ver, entender, limitar, conocer, cumplimiento, costes, corregir y auditar.
-- **Dos cifras en vivo por ficha**: calculadas con los mismos datos que su sección, y un semáforo si hay algo que mirar.
+- **Una puerta de entrada**: doce fichas en los cinco bloques del menú: operación, control, calidad, cumplimiento y coste, y mejora y auditoría.
+- **Una cifra en vivo por ficha**: calculada con los mismos datos que su sección. El estado solo se marca si hay algo que mirar: «Revisar» o «Atención».
 - **La norma de cada bloque**: las etiquetas de cada ficha dicen a qué artículo responde.
 
 ![la portada del panel](img/observabilidad/00-inicio.png)
@@ -373,10 +373,10 @@ Cada dato y cada regla, con la frase literal del cliente que lo prueba.
 
 ![evidencias verificadas](img/observabilidad/41-evidencias.png)
 
-## Entender: Reasoning Replay y What-if
+## Entender: razonamiento y replay what-if
 <!-- notes: Aquí tenemos dos capacidades.
 
-La primera es el razonamiento registrado. Para cada agente vemos qué recibió, qué pasos siguió y qué devolvió. Ojo: no es el pensamiento interno del modelo. Es un registro estructurado que cada agente devuelve junto con su respuesta.
+La primera es el razonamiento registrado. Arriba está el mensaje del cliente con las frases que cada agente usó como evidencia. Debajo, cada agente con lo que recibió, lo que devolvió y un gráfico: con qué confianza eligió el ramo, de dónde sale cada dato extraído y qué regla falló para mandar el caso a revisión. Ojo: no es el pensamiento interno del modelo. Es un registro estructurado que cada agente devuelve junto con su respuesta.
 
 La segunda es el replay. Permite volver a ejecutar cualquier decisión pasada:
 
@@ -389,12 +389,12 @@ A remarcar: el replay convierte un cambio de modelo, que suele dar miedo, en una
 
 Cada cambio se prueba antes de desplegarlo, y la prueba queda registrada.
 
-- **Razonamiento registrado**: entrada, pasos y salida de cada agente.
+- **Razonamiento registrado**: las citas del mensaje que usó cada agente, sus pasos y un gráfico de su resultado.
 - **Replay idéntico**: reproduce una decisión pasada para verificar que el resultado es estable.
 - **What-if**: la reproduce con otro modelo o prompt y compara decisión, coste y latencia.
 - **Ejemplo**: con un modelo más pequeño en Reglas, misma decisión, −82 % de coste y −41 % de latencia.
 
-![Reasoning & Replay](img/observabilidad/c21-replay.png)
+![Razonamiento y replay](img/observabilidad/c21-replay.png)
 
 ## Entender: causa raíz del comportamiento
 <!-- notes: Cuando un agente se equivoca, la reacción habitual es decir «el modelo ha fallado». Casi nunca es así.
@@ -491,7 +491,7 @@ Esa puntuación se alimenta de tres tipos de validación:
 
 Con esa puntuación, la intervención humana se ajusta sola: obligatoria cuando la confianza es baja, selectiva cuando es media y solo de supervisión cuando es alta.
 
-En la captura se ve la materia prima de esa puntuación para el agente de Reglas: semana a semana, su precisión sube, y los escalados y las correcciones humanas bajan. Debajo, las variables que gobiernan su comportamiento, cada una con su efecto: la confianza mínima, el importe máximo, el objetivo de override o el límite de coste.
+En la captura se ve la materia prima de esa puntuación para el agente de Reglas: semana a semana, su precisión sube, y los escalados y las correcciones humanas bajan. Las dos últimas filas son los días en que pasó a un modelo más barato por superar su límite de coste: el coste por mensaje baja de 0,0110 € a 0,0020 € y la precisión cae del 98,8 % al 97,6 %.
 
 A remarcar: el Trust Score no mide la inteligencia del modelo; mide cuánto nos podemos fiar de él en este proceso concreto. -->
 
@@ -502,6 +502,23 @@ Cada incremento de autonomía es medible, reversible, gobernado, auditado y just
 3. **Supervisión adaptativa**: confianza baja → intervención obligatoria; media → revisión selectiva; alta → ejecución autónoma con monitorización.
 
 ![Comportamiento del agente](img/observabilidad/14-agente-comportamiento.png)
+
+## Limitar: intervención humana que se puede demostrar
+<!-- notes: Los guardrails deciden cuándo escala un agente. Esta sección enseña qué hace después la persona que recibe el caso.
+
+En el periodo se escalaron 3.180 decisiones, el 19 % de los mensajes. Las personas cambiaron la decisión del agente en el 2,1 % de los casos y tardaron una mediana de 14 minutos en revisarlos.
+
+Lo más útil está abajo: el tiempo que tarda cada tramitador. El TJUE dejó claro en el caso SCHUFA que firmar sin revisar no cuenta como intervención humana a efectos del RGPD art. 22. Por eso medimos las aprobaciones de menos de 30 segundos: son el 3,3 % y el máximo es el 5 %. Pero tres tramitadores lo superan, y dos de ellos son los nuevos, que aún no tienen la formación en IA: el 9 % y el 14 % de sus aprobaciones son exprés.
+
+A remarcar: con estos datos, la supervisión humana se puede demostrar ante un auditor. -->
+
+Una aprobación de 10 segundos es una firma. La plataforma mide si la revisión es real.
+
+- **Cola de revisión**: cada traza escalada con su motivo, su estado (pendiente, revisada o cambiada), quién la revisó y cuánto tardó.
+- **Calidad de la revisión**: el 3,3 % de las aprobaciones se firma en menos de 30 segundos, con un máximo del 5 %. Tres tramitadores lo superan: uno con el 11 % y los dos sin formación en IA, con el 9 % y el 14 %.
+- **Formación en IA**: 9 de 11 tramitadores formados (AI Act art. 4). Los dos nuevos tienen abierta la medida M-10.
+
+![Arriba: KPIs, mecanismos y cola de revisión. Abajo: calidad de la revisión por tramitador](img/observabilidad/c40-hitl.png)
 
 ## Limitar: guardrails
 <!-- notes: Los guardrails son las condiciones que limitan lo que un agente puede hacer solo. Si se cumple la condición, el agente no decide: escala a una persona, cambia de modelo o marca el caso.
@@ -619,9 +636,9 @@ El coste se controla por decisión, no con la factura del proveedor a fin de mes
 ![Cap CAP-03 y coste mensual](img/observabilidad/c28-caps.png)
 
 ## Pagar: de la alerta a la acción
-<!-- notes: Una alerta sin acción solo genera ruido. Por eso aquí cada cap superado llega con propuestas concretas.
+<!-- notes: Una alerta sin acción solo genera ruido. Por eso aquí cada alerta de coste llega con propuestas concretas.
 
-Arriba vemos de un vistazo qué caps están por encima del 100 %, cuáles están en aviso y cuáles van bien.
+Arriba, las alertas de coste. Cada tarjeta dice qué pasó y cuándo, qué cap la disparó, qué hizo el cap por su cuenta y qué acción sugiere la plataforma, con su ahorro y un botón para aplicarla o deshacerla.
 
 Abajo, las acciones que propone la plataforma para el cap del agente de Reglas. Hay tres tipos:
 
@@ -639,7 +656,7 @@ Cada alerta llega con su acción, su ahorro estimado y quién tiene que aprobarl
 - **Simular y aplicar**: se prueba con replay antes de activarla. Ejemplo: modelo pequeño en los casos sencillos (−7,9 €/día).
 - **Solicitar aprobación**: los cambios de presupuesto pasan por el comité. Ejemplo: subir el límite de 12 € a 14 €.
 
-![Caps superados y acciones correctivas](img/observabilidad/c29-acciones.png)
+![Alertas de coste y acciones correctivas](img/observabilidad/c29-acciones.png)
 
 ## Pagar: el modelo adecuado para cada agente
 <!-- notes: Esta tabla responde a una pregunta muy concreta: ¿qué modelo uso para cada agente?
@@ -693,7 +710,7 @@ De lo detectado a lo resuelto: una lista de trabajo priorizada, con alternativas
 - **Un solo sitio**: coste, conocimiento, cumplimiento, calidad y resiliencia, con el origen de cada problema.
 - **Alternativas comparadas**: impacto, efecto secundario, esfuerzo, quién aprueba y cómo se valida antes.
 - **Prioridad**: severidad × impacto ÷ esfuerzo, con las victorias rápidas marcadas.
-- **Ahorro conseguido y termómetro**: aplicar una medida de coste sube el ahorro; verificar una de cumplimiento mejora el termómetro.
+- **Ahorro conseguido y termómetro**: aplicar una medida de coste sube el ahorro; verificar una de cumplimiento mejora el termómetro; «Deshacer» vuelve al paso anterior.
 
 ![Medidas correctivas](img/observabilidad/37-medidas.png)
 

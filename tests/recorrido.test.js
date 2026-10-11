@@ -15,8 +15,8 @@ const test = async (nombre, fn) => { try { await fn(); n++; console.log(`  ok   
 
 (async () => {
   console.log('guion');
-  await test('10 pasos, cada uno con página, acción y al menos un subtítulo de dos líneas', () => {
-    assert.strictEqual(N, 10);
+  await test('11 pasos, cada uno con página, acción y al menos un subtítulo de dos líneas', () => {
+    assert.strictEqual(N, 11);
     R.PASOS.forEach((p, i) => {
       assert.ok(['triaje', 'gobierno'].includes(p.pagina), `paso ${i + 1}: página`);
       assert.ok(p.accion && p.titulo && p.frase, `paso ${i + 1}: acción, título y frase`);
@@ -54,6 +54,15 @@ const test = async (nombre, fn) => { try { await fn(); n++; console.log(`  ok   
     assert.strictEqual(c.textos[0].subtitulos.length, 8);
     assert.strictEqual(c.textos[0].subtitulos[0].tecnico.length, 300);
     assert.strictEqual(c.textos[0].subtitulos[0].negocio, '1');
+  });
+  await test('textos guardados con el guion de 10 pasos: a partir del paso 7 se corren una posición', () => {
+    const c = R._normalizarConfig({ textos: { 5: { frase: 'seis' }, 6: { frase: 'siete' }, 9: { frase: 'diez' } } });
+    assert.deepStrictEqual(Object.keys(c.textos), ['5', '7', '10']);
+    assert.strictEqual(c.textos[7].frase, 'siete'); assert.strictEqual(c.textos[10].frase, 'diez');
+    assert.strictEqual(c.guion, 2);
+    const g = R._normalizarConfig({ guion: 2, textos: { 6: { frase: 'intervención' } } });
+    assert.deepStrictEqual(Object.keys(g.textos), ['6']);
+    assert.deepStrictEqual(R._normalizarConfig(c).textos, c.textos);
   });
   await test('los textos editados se superponen a los del guion sin tocar el resto del paso', () => {
     const c = R._normalizarConfig({ textos: { 3: { frase: 'Otra frase' } } });

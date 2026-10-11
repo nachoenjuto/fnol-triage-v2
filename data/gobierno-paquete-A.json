@@ -1557,15 +1557,22 @@
         "reglas"
       ],
       "coste_por_agente": {
-        "reglas": 161.9
+        "reglas": 169.35
       },
-      "llamadas": 16720,
+      "llamadas": 15268,
       "tokens": {
         "in": 23100000,
-        "out": 10000000,
-        "reasoning": 3300000
+        "out": 10600000,
+        "reasoning": 3447500
       },
-      "coste": 161.9,
+      "tokens_por_agente": {
+        "reglas": {
+          "in": 23100000,
+          "out": 10600000,
+          "reasoning": 3447500
+        }
+      },
+      "coste": 169.35,
       "p95_ms": 5210,
       "exito": {
         "json_valido": "99,6 %",
@@ -1582,16 +1589,28 @@
         "reglas"
       ],
       "coste_por_agente": {
-        "extraccion": 30.2,
+        "extraccion": 33.47,
         "reglas": 3.3
       },
-      "llamadas": 17032,
+      "llamadas": 18172,
       "tokens": {
-        "in": 15600000,
-        "out": 4400000,
-        "reasoning": 380000
+        "in": 27084000,
+        "out": 14400000,
+        "reasoning": 599500
       },
-      "coste": 33.5,
+      "tokens_por_agente": {
+        "extraccion": {
+          "in": 25080000,
+          "out": 13300000,
+          "reasoning": 300000
+        },
+        "reglas": {
+          "in": 2004000,
+          "out": 1100000,
+          "reasoning": 299500
+        }
+      },
+      "coste": 36.77,
       "p95_ms": 2380,
       "exito": {
         "json_valido": "99,3 %",
@@ -1608,16 +1627,28 @@
         "clasificacion"
       ],
       "coste_por_agente": {
-        "multicanal": 1.2,
-        "clasificacion": 4.4
+        "multicanal": 1.4,
+        "clasificacion": 5.16
       },
       "llamadas": 33440,
       "tokens": {
-        "in": 10500000,
-        "out": 1500000,
-        "reasoning": 0
+        "in": 23420000,
+        "out": 4000100,
+        "reasoning": 9472500
       },
-      "coste": 5.6,
+      "tokens_por_agente": {
+        "multicanal": {
+          "in": 6700000,
+          "out": 2662500,
+          "reasoning": 0
+        },
+        "clasificacion": {
+          "in": 16720000,
+          "out": 1337600,
+          "reasoning": 9472500
+        }
+      },
+      "coste": 6.56,
       "p95_ms": 1120,
       "exito": {
         "json_valido": "99,8 %",
@@ -2891,7 +2922,12 @@
           "Sin indicios de Hogar ni Salud",
           "Confianza de ramo 0,99"
         ],
-        "salida": "Ramo = Auto"
+        "salida": "Ramo = Auto",
+        "confianzas": {
+          "Auto": 0.99,
+          "Hogar": 0.01,
+          "Salud": 0
+        }
       },
       {
         "agente": "extraccion",
@@ -2934,7 +2970,12 @@
           "Sin indicios de Auto ni Salud",
           "Confianza de ramo 0,98"
         ],
-        "salida": "Ramo = Hogar"
+        "salida": "Ramo = Hogar",
+        "confianzas": {
+          "Hogar": 0.98,
+          "Auto": 0.01,
+          "Salud": 0.01
+        }
       },
       {
         "agente": "extraccion",
@@ -2977,7 +3018,12 @@
           "Sin indicios de Auto ni Hogar",
           "Confianza de ramo 0,97"
         ],
-        "salida": "Ramo = Salud"
+        "salida": "Ramo = Salud",
+        "confianzas": {
+          "Salud": 0.97,
+          "Auto": 0.02,
+          "Hogar": 0.01
+        }
       },
       {
         "agente": "extraccion",
@@ -3019,7 +3065,12 @@
           "Sin indicios de Hogar ni Salud",
           "Confianza de ramo 0,98"
         ],
-        "salida": "Ramo = Auto"
+        "salida": "Ramo = Auto",
+        "confianzas": {
+          "Auto": 0.98,
+          "Hogar": 0.01,
+          "Salud": 0.01
+        }
       },
       {
         "agente": "extraccion",
@@ -3061,7 +3112,12 @@
           "Sin indicios de Auto ni Salud",
           "Confianza de ramo 0,98"
         ],
-        "salida": "Ramo = Hogar"
+        "salida": "Ramo = Hogar",
+        "confianzas": {
+          "Hogar": 0.98,
+          "Auto": 0.01,
+          "Salud": 0.01
+        }
       },
       {
         "agente": "extraccion",
@@ -3103,7 +3159,12 @@
           "\"Me caí en casa\" no es un siniestro de Hogar: es el origen de la lesión de la persona (no hay daño en la vivienda)",
           "Confianza de ramo 0,96"
         ],
-        "salida": "Ramo = Salud"
+        "salida": "Ramo = Salud",
+        "confianzas": {
+          "Salud": 0.96,
+          "Hogar": 0.03,
+          "Auto": 0.01
+        }
       },
       {
         "agente": "extraccion",
@@ -3145,7 +3206,12 @@
           "Sin indicios de Hogar ni Salud",
           "Confianza de ramo 0,99"
         ],
-        "salida": "Ramo = Auto"
+        "salida": "Ramo = Auto",
+        "confianzas": {
+          "Auto": 0.99,
+          "Hogar": 0.01,
+          "Salud": 0
+        }
       },
       {
         "agente": "extraccion",
@@ -3183,9 +3249,15 @@
         "pasos": [
           "Indicios Auto: \"moto Honda CB500\", \"AU-662371\", \"accidente\"",
           "Indicios Salud: \"ingreso hospitalario\", \"SA-662371\"",
-          "El hecho causante es el accidente de tráfico → ramo principal Auto; se anota la póliza de salud"
+          "El hecho causante es el accidente de tráfico → ramo principal Auto; se anota la póliza de salud",
+          "Confianza de ramo 0,86 (por encima de 0,85: no salta G-01)"
         ],
-        "salida": "Ramo = Auto (ambiguo con Salud)"
+        "salida": "Ramo = Auto (ambiguo con Salud)",
+        "confianzas": {
+          "Auto": 0.86,
+          "Salud": 0.13,
+          "Hogar": 0.01
+        }
       },
       {
         "agente": "extraccion",
@@ -3226,7 +3298,12 @@
           "Sin indicios de Auto ni Salud",
           "Confianza de ramo 0,98"
         ],
-        "salida": "Ramo = Hogar"
+        "salida": "Ramo = Hogar",
+        "confianzas": {
+          "Hogar": 0.98,
+          "Auto": 0.01,
+          "Salud": 0.01
+        }
       },
       {
         "agente": "extraccion",
@@ -3269,7 +3346,12 @@
           "Sin indicios de Auto ni Hogar",
           "Confianza de ramo 0,98"
         ],
-        "salida": "Ramo = Salud"
+        "salida": "Ramo = Salud",
+        "confianzas": {
+          "Salud": 0.98,
+          "Auto": 0.01,
+          "Hogar": 0.01
+        }
       },
       {
         "agente": "extraccion",
@@ -3310,7 +3392,12 @@
           "Sin indicios de Hogar ni Salud",
           "Confianza de ramo 0,98"
         ],
-        "salida": "Ramo = Auto"
+        "salida": "Ramo = Auto",
+        "confianzas": {
+          "Auto": 0.98,
+          "Hogar": 0.01,
+          "Salud": 0.01
+        }
       },
       {
         "agente": "extraccion",
@@ -3353,7 +3440,12 @@
           "\"Patinete\" no activa Auto: no es un vehículo asegurado ni hay tercero",
           "Confianza de ramo 0,97"
         ],
-        "salida": "Ramo = Salud"
+        "salida": "Ramo = Salud",
+        "confianzas": {
+          "Salud": 0.97,
+          "Hogar": 0.02,
+          "Auto": 0.01
+        }
       },
       {
         "agente": "extraccion",
@@ -3394,7 +3486,12 @@
           "Sin indicios de Auto ni Salud · indicios escasos pero inequívocos",
           "Confianza de ramo 0,91"
         ],
-        "salida": "Ramo = Hogar"
+        "salida": "Ramo = Hogar",
+        "confianzas": {
+          "Hogar": 0.91,
+          "Auto": 0.05,
+          "Salud": 0.04
+        }
       },
       {
         "agente": "extraccion",

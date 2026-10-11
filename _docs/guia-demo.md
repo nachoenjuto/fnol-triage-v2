@@ -96,7 +96,7 @@ Capacidades: **ordenar** por cualquier columna con cabecera, **filtrar** por ram
 
 ### 2.5 Ficha del mensaje (ventana modal)
 
-Es la pantalla de **explicabilidad** de una decisión. Cinco pestañas:
+Es la pantalla de **explicabilidad** de una decisión. Arriba, tres cifras con icono: **Decisión** (pulgar si es Aprobado, ojo si es A revisar), **Ramo** (coche, casa o corazón) y **Confianza**. Debajo, cinco pestañas:
 
 | Pestaña | Qué muestra |
 |---|---|
@@ -164,6 +164,8 @@ Panel de control de los cuatro agentes. Sus doce secciones, más una portada (**
 
 **Etiquetas de marco normativo.** Junto al título de los bloques principales aparecen etiquetas (⚖ AI Act art. 12, RGPD art. 22, DORA art. 28, EIOPA, Solvencia II art. 41…). Al pasar el ratón muestran qué exige el artículo y si está en vigor o es exigible solo a sistemas de alto riesgo desde el 02/12/2027 (el triaje no lo es; ahí se aplica como buena práctica).
 
+**Ventanas emergentes.** Todas tienen el mismo tamaño en las dos páginas. Las que se abren desde una lista (trazas, guardrails, caps, knowledge bases, rúbricas, medidas, controles…) llevan arriba «‹ 3 de 13 ›» para pasar al elemento anterior o siguiente sin cerrarlas; también con las flechas ← →. Sus gráficos se animan al abrir, al navegar y al cambiar de pestaña (barras que crecen, líneas que se dibujan, cifras que cuentan), salvo con «reducir movimiento» activado en el sistema.
+
 ### 3.2 Inicio (portada)
 
 **Es lo primero que se ve al abrir el panel.** Arriba, una franja con el estado actual: alertas críticas y avisos (de todas las fuentes), cobertura de cumplimiento y knowledge bases sanas, y el botón **Ver el Resumen**. Debajo, una ficha por cada sección del menú, con los mismos bloques que el menú lateral y la pregunta a la que responde cada uno:
@@ -178,7 +180,7 @@ Panel de control de los cuatro agentes. Sus doce secciones, más una portada (**
 
 Cada bloque muestra su nombre y su pregunta encima de sus fichas. Cada ficha lleva una **cifra grande** con una línea de detalle debajo, calculadas con los mismos datos que su sección (cambian con la fuente Demo, Sesión o Archivo), sus etiquetas de norma y «Abrir →»; la pregunta de la sección sale al pasar el ratón. El estado solo se marca cuando hay algo que mirar: **al día** es un punto verde, **Revisar** una etiqueta ámbar y **Atención** una etiqueta roja. Resumen, Trazabilidad, Razonamiento y replay y Guardrails no llevan estado. Toda la ficha se puede pulsar.
 
-**Modo presentador.** Debajo de «Ver el Resumen» hay un interruptor. Apagado (por defecto), no se ve nada más. Al encenderlo pide una **contraseña** (la de la demo es `password`); se pide de nuevo en cada sesión del navegador. Es solo una barrera para que no cualquiera lance la demo: en una página estática, quien abra las herramientas del navegador puede saltársela. Encendido, aparece el botón **Recorrido de la demo**, que abre un panel flotante (también en el triaje) con los 10 pasos del guion del apartado 4: minuto, qué enseñar y frase clave. «Ir» lleva a la pantalla exacta aunque esté en la otra página (por ejemplo, abre la ficha de MSG-A-08 o la KB-02 en la pestaña Comparativa); «Anterior» y «Siguiente» recorren los pasos, los vistos quedan marcados y, si falta algo (como procesar el Paquete A), el panel lo avisa. El progreso se recuerda en la pestaña.
+**Modo presentador.** Debajo de «Ver el Resumen» hay un interruptor. Apagado (por defecto), no se ve nada más. Al encenderlo pide una **contraseña** (la de la demo es `password`); se pide de nuevo en cada sesión del navegador. Es solo una barrera para que no cualquiera lance la demo: en una página estática, quien abra las herramientas del navegador puede saltársela. Encendido, aparece el botón **Recorrido de la demo**, que abre un panel flotante (también en el triaje) con los 11 pasos del guion del apartado 4: minuto, qué enseñar y frase clave. «Ir» lleva a la pantalla exacta aunque esté en la otra página (por ejemplo, abre la ficha de MSG-A-08 o la KB-02 en la pestaña Comparativa); «Anterior» y «Siguiente» recorren los pasos, los vistos quedan marcados y, si falta algo (como procesar el Paquete A), el panel lo avisa. El progreso se recuerda en la pestaña.
 
 - **Mover y minimizar.** El panel se arrastra por su cabecera (doble clic la devuelve a la esquina) y recuerda la posición en las dos páginas. «—» lo minimiza en una barra al pie, a la derecha, con el paso, la cuenta atrás, «anterior» y «siguiente» y, en la demo automática, ⏸ / ▶; un clic en el título de la barra lo despliega.
 - **Línea de progreso con tirador.** Desplegado o minimizado, la línea muestra cuánto lleva el paso. Arrastrar el tirador (o pulsar en la línea) va hacia atrás o hacia delante dentro del paso y el subtítulo se ajusta; con el foco en la línea, las flechas saltan 5 s e Inicio vuelve al principio. Si la demo automática estaba en marcha, sigue.
@@ -192,7 +194,7 @@ Cada bloque muestra su nombre y su pregunta encima de sus fichas. Cada ficha lle
 
 | Bloque | Qué muestra | Para qué sirve |
 |---|---|---|
-| **KPIs (8)** | Mensajes procesados · Autonomía efectiva (81 %) · Escalados a humano (19 %, con su causa principal) · Overrides humanos (2,1 %, objetivo ≤ 3 %) · Coste del periodo vs cap mensual · Alertas activas · **Cumplimiento** (cobertura de controles) · **Knowledge bases** (KB sanas). Escalados y overrides llevan a **Intervención humana** (3.9); los dos últimos, a su sección | Saber en 10 segundos si el sistema va bien |
+| **KPIs (8)** | Mensajes procesados · Autonomía efectiva (81 %) · Escalados a humano (19 %, con su causa principal) · Overrides humanos (2,1 %, objetivo ≤ 3 %) · Coste del periodo vs cap mensual · Alertas activas · **Cumplimiento** (cobertura de controles) · **Knowledge bases** (KB sanas). Escalados y overrides llevan a **Intervención humana** (3.8); los dos últimos, a su sección | Saber en 10 segundos si el sistema va bien |
 | **Tarjetas de agente** | Icono y nombre en grande; descripción, estado (Activo / Degradado / Pausado) y nivel de autonomía; al pie, en pequeño, modelo, versión de prompt, latencia y coste del día frente a su cap (barra verde, ámbar o roja). Todas en el mismo color: el color por agente solo se usa en los gráficos, para distinguir las series. Incluye el **kill switch** | Ver el estado de cada agente y **pararlo** al instante |
 | **Coste diario** | Gráfico €/día con línea discontinua del cap diario; días ≥ 80 % en ámbar | Detectar picos de gasto |
 | **Alertas activas** | Todas las fuentes en una lista: caps de coste superados, knowledge bases críticas o degradadas, controles de cumplimiento pendientes (EIPD, aviso de IA en WhatsApp) y la cadena de integridad si se rompe. Cada alerta indica su origen y lleva a él | Priorizar qué atender |
@@ -225,25 +227,12 @@ Capacidades: clic en una **traza** abre su ficha explicada (qué llegó, qué hi
 
 - **Panel de detalle fijo** arriba de la sección, que no se oculta al recorrer la lista. Muestra el **waterfall de spans**: cuánto tardó cada agente, con qué modelo y cuántos tokens consumió. Incluye el guardrail disparado y el override humano si los hubo.
 - **Lista de trazas** con columnas: traza, hora, mensaje, canal, ramo, decisión, autonomía, confianza, ciclo, tokens, coste e incidencias.
-- **Filtros**: agente, canal, decisión y resultado (Autónomo / Escalado a humano / Con override / Con incidencia).
+- **Filtros**: agente, canal, decisión y resultado (Autónomo / Con intervención humana / Escalado a humano / Con override / Con incidencia). «Con intervención humana» junta escaladas y cambiadas; es el filtro que aplica el botón «Ver en trazabilidad» de Intervención humana.
 - **Exportar trazas** descarga el dataset.
 
-Para qué sirve: responder a auditoría o a un reclamante «¿qué pasó con este mensaje, quién lo decidió y cuánto costó?». Desde cada traza, **Ver razonamiento** y **Replay** saltan a la sección siguiente con esa traza cargada.
+Para qué sirve: responder a auditoría o a un reclamante «¿qué pasó con este mensaje, quién lo decidió y cuánto costó?». Desde cada traza, **Ver razonamiento** y **Replay** saltan a **Razonamiento y replay** (3.9) con esa traza cargada.
 
-### 3.6 Razonamiento y replay
-
-**Es el «porqué» y el «¿y si…?».** Pantalla dividida con un separador que se puede arrastrar.
-
-| Zona | Contenido | Para qué sirve |
-|---|---|---|
-| **Lista de trazas** (izquierda) | Misma lista con filtros, con scroll propio | Elegir la traza a analizar |
-| **Razonamiento** (derecha) | Por agente: entrada → pasos → salida. Es el registro estructurado, **no** la cadena de pensamiento cruda del modelo | Entender cómo llegó cada agente a su resultado |
-| **Replay** | Reejecuta la traza en modo **Idéntico** (mismos prompts y modelos, verificación determinista) o **What-if** (otro modelo o versión de prompt para el agente de Reglas). Devuelve un **diff** de ramo, decisión, coste y latencia | Validar un cambio **antes** de desplegarlo: ¿cambia la decisión? ¿cuánto ahorro? |
-| **Histórico de replays** | Cada replay con fecha, traza, cambio probado, diferencias y usuario | Evidencia de que cada cambio de modelo o prompt se probó |
-
-Ejemplo de uso: probar `gpt-5-mini` en lugar de `gpt-5` en Reglas; si la decisión se mantiene y el coste baja un 80 %, hay base para aprobar el cambio.
-
-### 3.7 Autonomía
+### 3.6 Autonomía
 
 **Define cuánta libertad tiene cada agente y deja constancia de cada cambio.**
 
@@ -261,7 +250,7 @@ Bloques de la sección:
 
 Para qué sirve: la autonomía se **gana con datos y se pierde con datos**. En la demo, Reglas bajó de L3 a L2 cuando el override superó el 3 %.
 
-### 3.8 Guardrails
+### 3.7 Guardrails
 
 **Son las condiciones que limitan lo que un agente puede hacer solo.** Nueve en la demo (G-01 a G-09).
 
@@ -278,7 +267,7 @@ Para qué sirve: la autonomía se **gana con datos y se pierde con datos**. En l
 | G-09 | Confianza de transcripción telefónica < 0,7 | Escalar para escuchar el audio (inactivo en la demo) |
 
 Qué muestra y qué permite:
-- **KPIs**: guardrails activos, disparos en 14 días, cuántos escalan a una persona (lleva a **Intervención humana**, 3.9) y el más disparado.
+- **KPIs**: guardrails activos, disparos en 14 días, cuántos escalan a una persona (lleva a **Intervención humana**, 3.8) y el más disparado.
 - **Tabla**: agente, condición, acción, severidad (humano / degradar / marcar), minigráfico de disparos por día y **interruptor activo/inactivo** (queda registrado en el Histórico).
 - **Ficha** (clic en la fila) con descripción y últimos disparos; **Nuevo guardrail** crea uno.
 - **Últimos disparos**, enlazados a la traza que los provocó.
@@ -286,7 +275,7 @@ Qué muestra y qué permite:
 
 Para qué sirve: es el **mecanismo de control** que permite dar autonomía sin perder el control. Los guardrails de importe y lesionados explican la mayoría de los escalados.
 
-### 3.9 Intervención humana (HITL)
+### 3.8 Intervención humana (HITL)
 
 **¿Qué hacen las personas con lo que escalan los agentes?** Reúne todo lo que tiene que ver con la supervisión humana (*human in the loop*), que antes estaba repartido entre el Resumen, Guardrails y Autonomía.
 
@@ -302,6 +291,19 @@ Para qué sirve: es el **mecanismo de control** que permite dar autonomía sin p
 | **Medidas** | M-14, M-15, M-11 y M-10, con su estado; clic abre la medida | Cerrar el ciclo: de override a medida correctiva |
 
 Los datos de tiempos de revisión y tramitadores son de demostración; la cola se calcula con las trazas de la fuente activa.
+
+### 3.9 Razonamiento y replay
+
+**Es el «porqué» y el «¿y si…?».** Pantalla dividida con un separador que se puede arrastrar.
+
+| Zona | Contenido | Para qué sirve |
+|---|---|---|
+| **Lista de trazas** (izquierda) | Misma lista con filtros, con scroll propio | Elegir la traza a analizar |
+| **Razonamiento** (derecha) | Arriba, la cadena de agentes con lo que pasa de uno a otro y el mensaje original con las citas que cada agente usó como evidencia (color por agente). Debajo, por agente: entrada y salida, un gráfico (confianza por ramo; origen de cada campo extraído: literal, normalizado, deducido o nulo; matriz de reglas con el camino a la decisión y tokens frente al CAP-05) y los pasos con icono por tipo. Es el registro estructurado, **no** la cadena de pensamiento cruda del modelo | Entender cómo llegó cada agente a su resultado y con qué frase del cliente lo justifica |
+| **Replay** | Reejecuta la traza en modo **Idéntico** (mismos prompts y modelos, verificación determinista) o **What-if** (otro modelo o versión de prompt para el agente de Reglas). Devuelve un **diff** de ramo, decisión, coste y latencia | Validar un cambio **antes** de desplegarlo: ¿cambia la decisión? ¿cuánto ahorro? |
+| **Histórico de replays** | Cada replay con fecha, traza, cambio probado, diferencias y usuario | Evidencia de que cada cambio de modelo o prompt se probó |
+
+Ejemplo de uso: probar `gpt-5-mini` en lugar de `gpt-5` en Reglas; si la decisión se mantiene y el coste baja un 80 %, hay base para aprobar el cambio.
 
 ### 3.10 Knowledge Bases
 
@@ -343,8 +345,10 @@ Los controles en ámbar son reales: la **minimización** (en el histórico de la
 | Bloque | Qué muestra | Para qué sirve |
 |---|---|---|
 | **KPIs** | Coste de hoy, coste mensual vs cap (con proyección de cierre), caps superados, coste medio | Visión rápida; cada KPI abre un detalle |
-| **Acciones correctivas** | Una propuesta por cada cap superado. **Aplicar** la registra; si requiere aprobación, queda «Pendiente del Comité IA» | Pasar de la alerta a la acción |
-| **Caps** | Tabla de límites: global, por agente, por traza, tokens de razonamiento y llamadas/minuto. Con consumo, barra de uso, acción al superar y estado (ok / aviso / superado) | Fijar y vigilar presupuestos. Clic en un cap abre su detalle, agentes implicados e histórico; **Nuevo cap** crea otro |
+| **Cómo va el gasto de cada agente** | Una fila por agente: minilínea de €/día con su cap diario en discontinua, gasto de hoy frente al cap, total del periodo y % del total. La fila del agente que va por encima de su cap sale en rojo | Ver quién gasta y si se está pasando. Clic en la fila abre la ficha del agente |
+| **Dónde se va el dinero y por qué** | Coste de 14 días de cada agente partido por tipo de token (entrada, salida, razonamiento) y la transcripción de voz, que se paga por minuto. Botón **€ / % de cada agente**. Debajo de cada barra, el tramo que más pesa y las recomendaciones que le afectan | Explicar el gasto: en Reglas, la salida de `gpt-5` es el 63 % de su coste. Clic en una recomendación baja a su tarjeta |
+| **Alertas de coste** | Una tarjeta por alerta: qué pasó y cuándo, qué cap la disparó y qué hizo solo (por ejemplo, degradar el modelo), y la **acción sugerida**. **Aplicar** la registra; si requiere aprobación, queda «Pendiente del Comité IA»; **Deshacer** la quita y los KPI vuelven atrás. «Ver todas las medidas correctivas» lleva a su sección | Pasar de la alerta a la acción |
+| **Caps** | Tabla de límites: global, por agente, por traza, tokens de razonamiento y llamadas/minuto. Con consumo, barra de uso, acción al superar, **alertas** que ha disparado (clic para ir a la tarjeta) y estado (ok / aviso / superado) | Fijar y vigilar presupuestos. Clic en un cap abre su detalle, agentes implicados e histórico; **Nuevo cap** crea otro |
 | **Coste por agente** | Gráfico apilado €/día | Ver quién gasta. Las leyendas ocultan o muestran series |
 | **Tokens por agente** | Miles de tokens del lote actual | Detectar agentes que consumen de más |
 | **Modelos** | Por modelo: proveedor, precio, agentes que lo usan, llamadas, tokens (entrada, salida, razonamiento), coste, p95 y calidad (JSON válido, sin reintento, estable en replay, precisión) + gráficos coste por modelo × agente y tokens por modelo | Decidir **qué modelo para qué agente**: no solo el más barato, sino el más barato que mantiene la calidad |
@@ -369,6 +373,7 @@ Acciones (simuladas, con evento en el Histórico):
 - **Simular**: valida la alternativa con su replay, rúbrica o vista previa.
 - **Aplicar** o **Solicitar aprobación** (si la aprueba el Comité IA, el DPO u otro responsable): la medida pasa a «Aplicada · por verificar» o «Pendiente de aprobación».
 - **Marcar como verificada**: cierra la medida y pone en verde sus controles del Termómetro (también en Inicio y en el Resumen). Si las trazas ya demuestran el control (por ejemplo, la minimización con la seudonimización activa en «Sesión actual»), la medida sale verificada sola.
+- **Deshacer**, **Quitar simulación** y **Quitar verificación** devuelven la medida al paso anterior, para enseñar en la demo cómo suben y bajan los KPI y el Termómetro. «Reabrir» la deja como nueva.
 
 **El ahorro sube al aplicar las medidas de Coste.** Por ejemplo, «Aplicar» la recomendada de M-01 (gpt-5-mini en despeje directo) suma 237 €/mes; «Solicitar aprobación» en M-02 deja 41 € pendientes, que cuentan al verificarla (278 de 278 €/mes). Las medidas de coste comparten estado con las acciones correctivas de FinOps: aplicarlas en un sitio las marca en el otro.
 
@@ -402,8 +407,9 @@ El mismo guion está en el **Recorrido de la demo** (modo presentador de Inicio)
 | 2–4 | Triaje · Procesar Paquete A | Contadores y registro en vivo | «Aprobados y a revisar en segundos» |
 | 4–5 | Triaje · ficha de un «A revisar» | Criterio que incumple + evidencias resaltadas (el título cambia al tipo de evidencia) | «Cada decisión es explicable» |
 | 5–6 | Gobierno · Inicio → Resumen → Agentes (fuente Sesión actual) | KPIs y tarjetas; clic en Reglas: su ficha completa y el kill switch | «Control total y parada inmediata» |
-| 6–7 | Trazabilidad → Reasoning & Replay | Waterfall y replay What-if | «Auditamos y probamos antes de cambiar» |
-| 7–8 | Autonomía y Guardrails | Niveles, G-02 y G-04 | «Autonomía graduada con límites claros» |
+| 6–7 | Trazabilidad → Razonamiento y replay | Waterfall y replay What-if | «Auditamos y probamos antes de cambiar» |
+| 7–7:30 | Autonomía y Guardrails | Niveles, G-02 y G-04 | «Autonomía graduada con límites claros» |
+| 7:30–8 | Intervención humana | Cola de revisión, el 3,3 % de aprobaciones de menos de 30 s y los tramitadores sin formación en IA | «Una aprobación de 10 segundos es una firma: medimos si la revisión es real» |
 | 8–9 | Triaje · Respuesta cruda de MSG-A-12 → Gobierno · Termómetro | Bloque `_gobernanza`: datos de un menor y de salud, por qué Salud y no Auto ni Hogar; después el termómetro, el inventario y «Simular una alteración» | «La solución deja a la aseguradora en condiciones de demostrar que cumple» |
 | 9–10 | Gobierno · Knowledge Bases | Condicionados Auto degradada por 340 documentos de 2024: comparativa de configuraciones y «Aplicar»; editar una rúbrica | «El conocimiento también se degrada, y se vigila igual que los agentes» |
 | 10–12 | FinOps → Medidas correctivas → Histórico | Cap superado y recomendaciones; en Medidas, «Aplicar» M-01 y ver subir el ahorro conseguido; línea de tiempo con todo lo tocado en la demo | «Coste bajo control, problemas con dueño y todo auditado» |

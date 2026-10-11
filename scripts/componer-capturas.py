@@ -9,7 +9,8 @@ PARES = {
     'c21-replay.png': ('05-reasoning-replay.png', '05b-replay-diff.png'),
     'c24-autonomia.png': ('13-autonomia-auditoria.png', '13b-autonomia-evolucion.png'),
     'c28-caps.png': ('17-cap03-consumo.png', '20-coste-mensual.png'),
-    'c29-acciones.png': ('19-caps-superados.png', '17b-cap03-acciones.png'),
+    'c29-acciones.png': ('46-alertas-coste.png', '17b-cap03-acciones.png'),
+    'c40-hitl.png': ('44-intervencion-humana.png', '45-hitl-calidad.png'),
     'c31-simular.png': ('18-nuevo-cap.png', '16-nuevo-guardrail.png'),
 }
 HUECO = 36  # px a 2×

@@ -22,13 +22,13 @@ C4Container
   Person(usuario, "Usuario de la demo")
   Container_Boundary(pages, "GitHub Pages (rama main)") {
     Container(triage, "Triage · index.html + app.js", "HTML/JS", "Paquetes, prompts editables, motor local o IA, registro de decisiones y ficha")
-    Container(gobierno, "Gobierno de Agentes · gobierno.html + gobierno.js", "HTML/JS", "Inicio, resumen, agentes, trazabilidad, razonamiento y replay, autonomía, guardrails, intervención humana, Knowledge Bases, termómetro de cumplimiento, FinOps, medidas correctivas, histórico")
+    Container(gobierno, "Gobierno de Agentes · gobierno.html + gobierno.js", "HTML/JS", "Inicio y doce secciones en cinco bloques: operación (resumen, agentes, trazabilidad), control (autonomía, guardrails, intervención humana), calidad (razonamiento y replay, Knowledge Bases), cumplimiento y coste (termómetro, FinOps), mejora y auditoría (medidas correctivas, histórico)")
     Container(icons, "icons.js", "JS", "Iconos Lucide compartidos")
-    Container(shell, "shell.js + header.css", "JS/CSS", "Marco común: cabecera, menú lateral plegable con usuario al pie y pie fino")
+    Container(shell, "shell.js + header.css", "JS/CSS", "Marco común: cabecera, menú lateral plegable (con encabezados de bloque en el panel) con usuario al pie, pie fino y Recorrido de la demo (modo presentador)")
     Container(evid, "evidencias.js", "JS puro", "Ancla en el texto las citas del modelo y reconstruye evidencias sin IA")
     Container(cumpl, "cumplimiento.js + cumplimiento.css", "JS puro", "Detección de datos personales, seudonimización antes del modelo, explicabilidad, sellado SHA-256, retención y termómetro: bloque _gobernanza")
-    ContainerDb(datos, "data/", "JS + JSON estáticos", "mensajes.js, resultados.js (y TRAZA_DEMO), gobierno.js (trazas, knowledge, rúbricas, controles declarados, medidas), JSON regenerados con make datos")
-    ContainerDb(session, "sessionStorage / localStorage", "navegador", "sesión: configuración IA, prompts editados, registro del triaje con su _gobernanza (triage.log), cambios simulados del panel · navegador: menú plegado (shell.nav)")
+    ContainerDb(datos, "data/", "JS + JSON estáticos", "mensajes.js, resultados.js (y TRAZA_DEMO), recorrido.js (guion de 11 pasos), gobierno.js (trazas, knowledge, rúbricas, controles declarados, medidas), JSON regenerados con make datos")
+    ContainerDb(session, "sessionStorage / localStorage", "navegador", "sesión: configuración IA, prompts editados, registro del triaje con su _gobernanza (triage.log), cambios simulados del panel, modo presentador y avance del recorrido · navegador: menú plegado (shell.nav), configuración, textos y posición del recorrido")
   }
   System_Ext(foundry, "Azure AI Foundry")
   Rel(usuario, triage, "usa")
@@ -63,14 +63,14 @@ flowchart LR
   demo --> G[(dataset activo G)]
   json --> G
   sesion -->|trazasDesdeSesion| G
-  G --> inicio[Inicio · portada con una ficha por sección]
+  G --> inicio[Inicio · una ficha por sección con su cifra y su estado, en los cinco bloques del menú]
   inicio -. clic en ficha .-> resumen
   G --> resumen[Resumen · 8 KPI, agentes, coste vs cap, alertas de todas las fuentes, cumplimiento, conocimiento]
   kb -. alertas .-> resumen
   cumpl -. alertas y resumen .-> resumen
   G --> agentes[Agentes · una pestaña por agente con su ficha completa, índice de calidad y contrato]
   G --> trazas[Trazabilidad · panel fijo + lista filtrable]
-  G --> replay[Reasoning & Replay · lista + pasos por agente + diff]
+  G --> replay[Razonamiento y replay · lista + pasos por agente + diff]
   G --> autonomia[Autonomía · KPI, niveles L0–L3 con sus agentes, auditoría]
   G --> guardrails[Guardrails · condiciones, disparos, toggles]
   G --> hitl[Intervención humana · escalados, overrides, cola de revisión, calidad de la revisión]
@@ -85,13 +85,13 @@ flowchart LR
   mRub -. guardar .-> estado4[(sessionStorage gobierno.rubricas y kb_acciones)]
   kb -. AI Act art. 10 y RGPD art. 17 .-> cumpl
   G --> cumpl[Termómetro de cumplimiento · marcos, matriz norma→control, ciclo de vida, inventario, cadena]
-  G --> finops[FinOps · caps, coste por agente, modelos, recomendaciones]
+  G --> finops[FinOps · alertas de coste, caps, coste por agente, modelos, recomendaciones]
   G --> medidas[Medidas correctivas · problemas de todas las secciones con alternativas, prioridad y ahorro conseguido]
   finops -. caps superados .-> medidas
   kb -. KB degradadas y rúbricas .-> medidas
   cumpl -. controles parciales .-> medidas
   medidas -. clic en medida .-> mMed([Modal · ficha de la medida])
-  medidas -. aplicar / verificar .-> estado5[(sessionStorage gobierno.medidas)]
+  medidas -. aplicar / verificar / deshacer .-> estado5[(sessionStorage gobierno.medidas)]
   medidas -. aplicar medida de coste .-> estado3
   estado5 -. controles verificados .-> cumpl
   G --> historico[Histórico · línea de tiempo por tipo de evento]
@@ -105,7 +105,7 @@ flowchart LR
   finops -. clic en KPI .-> mKpi([Modal · detalle del KPI])
   finops -. clic en cap .-> mCap([Modal · ficha del cap])
   finops -. nuevo .-> mCapN([Modal · nuevo cap])
-  finops -. aplicar acción correctiva .-> estado3[(sessionStorage gobierno.correctivas y caps_nuevos)]
+  finops -. aplicar o deshacer acción correctiva .-> estado3[(sessionStorage gobierno.correctivas y caps_nuevos)]
   autonomia -. clic en cambio .-> mCambio([Modal · registro del cambio de nivel])
   cumpl -. clic en fila del inventario .-> mCmp([Modal · ficha de cumplimiento de la traza])
   mTraza -. botón Cumplimiento .-> mCmp
@@ -144,6 +144,6 @@ flowchart LR
   cadena --> panel
 ```
 
-Las acciones del operador en el panel (kill switch, guardrails, caps nuevos, acciones correctivas, medidas aplicadas o verificadas, acciones sobre las Knowledge Bases y rúbricas editadas) se guardan en `sessionStorage` y dejan un evento en el histórico. El estado plegado del menú lateral es una preferencia del navegador (`localStorage`, clave `shell.nav`) y se comparte entre las dos páginas. Ver [guia-demo.md](guia-demo.md) para la guía funcional de cada pantalla.
+Las acciones del operador en el panel (kill switch, guardrails, caps nuevos, acciones correctivas, medidas aplicadas o verificadas, acciones sobre las Knowledge Bases y rúbricas editadas) se guardan en `sessionStorage` y dejan un evento en el histórico. El estado plegado del menú lateral es una preferencia del navegador (`localStorage`, clave `shell.nav`) y se comparte entre las dos páginas. El Recorrido de la demo guarda el desbloqueo del modo presentador y el paso actual en `sessionStorage` (`demo.presentador`, `demo.recorrido`) y su configuración, textos editados y posición en `localStorage` (`demo.recorrido.config`, `demo.recorrido.pos`). Todas las ventanas emergentes que se abren desde una lista comparten la navegación «‹ 3 de 13 ›» y la animación de sus gráficos. Ver [guia-demo.md](guia-demo.md) para la guía funcional de cada pantalla.
 
-Esquema del dataset (`data/gobierno-paquete-A.json`): `version`, `periodo`, `precios{modelo:{in,out}}`, `agentes[]` (con `historial[]`, `modelos[]`, `variables[]`), `niveles[]`, `politicas[]` (con `descripcion`, `severidad`, `disparos_dia[]`, `ultimos[]`), `cambios_autonomia[]`, `caps[]`, `kpis`, `alertas[]`, `modelos[]` (consumo, `coste_por_agente`, `exito`), `trazas[]` (cada una con `motivo` y `spans: [[agente, inicio_ms, duracion_ms, modelo, tok_in, tok_out, tok_reasoning]]`), `razonamiento{trazaId: pasos[]}`, `replays[]`, `diario[[fecha, mensajes, [€ por agente]]]`, `eventos[]`, `recomendaciones[]`, `cumplimiento_declarado{ria, rgpd, dora, eiopa}` (controles documentales del Termómetro de cumplimiento), `knowledge[]` (KB con `fuente`, `config`, `metricas`, `serie`, `comparativa`, `uso`, `versiones`, `evaluacion`; mismos ids y versiones que `Cumplimiento.CONOCIMIENTO`) y `rubricas[]` (`criterios[[nombre, peso, descripción]]`, `preguntas[[pregunta, tipo, esperado, fuentes]]`, `acuerdo`, `historial`) y `medidas[]` (`dim`, `sev`, `agente`, `impacto`, `origen`, `controles`, `kb` y `alternativas[]` con `titulo`, `impacto`, `efecto`, `esfuerzo`, `aprueba`, `valida`, `rec`, `corr` —enlace a la acción correctiva de un cap, `CAP-03:1`— y `ahorro_mes`). Los dos JSON de `data/` se regeneran con `make datos`.
+Esquema del dataset (`data/gobierno-paquete-A.json`): `version`, `periodo`, `precios{modelo:{in,out}}`, `agentes[]` (con `historial[]`, `modelos[]`, `variables[]`), `niveles[]`, `politicas[]` (con `descripcion`, `severidad`, `disparos_dia[]`, `ultimos[]`), `cambios_autonomia[]`, `caps[]`, `kpis`, `alertas[]`, `modelos[]` (consumo, `coste_por_agente`, `tokens_por_agente{agente:{in,out,reasoning}}` —tokens × `precios` da `coste_por_agente`, y su suma por agente cuadra con `diario`—, `exito`), `trazas[]` (cada una con `motivo` y `spans: [[agente, inicio_ms, duracion_ms, modelo, tok_in, tok_out, tok_reasoning]]`), `razonamiento{trazaId: pasos[]}`, `replays[]`, `diario[[fecha, mensajes, [€ por agente]]]`, `eventos[]`, `recomendaciones[]`, `cumplimiento_declarado{ria, rgpd, dora, eiopa}` (controles documentales del Termómetro de cumplimiento), `knowledge[]` (KB con `fuente`, `config`, `metricas`, `serie`, `comparativa`, `uso`, `versiones`, `evaluacion`; mismos ids y versiones que `Cumplimiento.CONOCIMIENTO`) y `rubricas[]` (`criterios[[nombre, peso, descripción]]`, `preguntas[[pregunta, tipo, esperado, fuentes]]`, `acuerdo`, `historial`) y `medidas[]` (`dim`, `sev`, `agente`, `impacto`, `origen`, `controles`, `kb` y `alternativas[]` con `titulo`, `impacto`, `efecto`, `esfuerzo`, `aprueba`, `valida`, `rec`, `corr` —enlace a la acción correctiva de un cap, `CAP-03:1`— y `ahorro_mes`). Los dos JSON de `data/` se regeneran con `make datos`.

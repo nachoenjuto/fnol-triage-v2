@@ -11,8 +11,9 @@
   // ---------------------------------------------------------------------------
   const $ = (id) => document.getElementById(id);
   const esc = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
-  const eur = (n, d = 2) => Number(n || 0).toLocaleString('es-ES', { style: 'currency', currency: 'EUR', minimumFractionDigits: d, maximumFractionDigits: d });
-  const num = (n) => Number(n || 0).toLocaleString('es-ES');
+  // useGrouping 'always': en es-ES los números de cuatro cifras no llevan punto de miles por defecto (3180 en vez de 3.180)
+  const eur = (n, d = 2) => Number(n || 0).toLocaleString('es-ES', { style: 'currency', currency: 'EUR', minimumFractionDigits: d, maximumFractionDigits: d, useGrouping: 'always' });
+  const num = (n) => Number(n || 0).toLocaleString('es-ES', { useGrouping: 'always' });
   const pct = (n) => `${Math.round(n * 100)} %`;
   const ms = (v) => (v >= 1000 ? `${(v / 1000).toFixed(1).replace('.', ',')} s` : `${Math.round(v)} ms`);
   const hora = (iso) => new Date(iso).toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
@@ -301,12 +302,148 @@
       $('steps').innerHTML = `<div class="box"><b>${ic('info')} ${esc(t.id)} · ${esc(t.mensaje)}</b><br><span class="small">Esta traza no tiene razonamiento registrado por agente (solo lo llevan las fichas de demostración). En producción cada agente devolvería su registro estructurado: entrada, pasos y salida.</span>${t.guardrail ? `<br><span class="policy fail" style="margin-top:.4rem">${ic('shield-check')} ${conGuardrails(esc(t.guardrail))}</span>` : ''}</div>`;
       renderDiff(false); return;
     }
-    $('steps').innerHTML = steps.map((s, i) => { const sp = t.spans[i] || ['', 0, 0, '—', 0, 0, 0]; return `<div class="step" style="--c:${agColor(s.agente)}">
+    // Resultado guardado del mensaje (citas, campos y criterios): alimenta los gráficos de cada agente si existe
+    const guardado = typeof RESULTADOS_GUARDADOS !== 'undefined' && RESULTADOS_GUARDADOS[t.mensaje];
+    const r = guardado ? expandirResultadoGuardado(guardado) : null;
+    const msg = typeof PAQUETES !== 'undefined' ? PAQUETES.flatMap((p) => p.mensajes).find((m) => m.id === t.mensaje) : null;
+    const spanDe = (ag) => t.spans.find((x) => x[0] === ag) || ['', 0, 0, '—', 0, 0, 0];
+    $('steps').innerHTML = rzCadena(t, steps, r) + rzLeyenda() + (msg && r ? rzMensaje(msg, r) : '') + steps.map((s) => { const sp = spanDe(s.agente); return `<div class="step" style="--c:${agColor(s.agente)}">
       <div class="h"><span class="ag-ico" style="--c:${agColor(s.agente)}">${ic((AG[s.agente] || {}).icono || 'cpu')}</span><strong>${agLbl(s.agente)}</strong><span class="muted small mono">${esc(sp[3])} · ${ms(sp[2])} · ${num(sp[4] + sp[5] + sp[6])} tok</span></div>
       <div class="io"><div class="box"><span class="muted small">Entrada</span><br>${esc(s.entrada)}</div><div class="box"><span class="muted small">Salida</span><br>${esc(s.salida)}</div></div>
-      <ul>${s.pasos.map((p) => `<li>${conGuardrails(esc(p))}</li>`).join('')}</ul>
+      ${rzVisual(s, t, r, sp)}
+      <ol class="rz-pasos">${s.pasos.map(rzPaso).join('')}</ol>
     </div>`; }).join('');
     renderDiff(false);
+  }
+
+  // --- Piezas gráficas del razonamiento registrado -------------------------------------------
+  // Tipo de cada paso: explícito ({ tipo, texto }) o deducido del texto registrado
+  const RZ_TIPO = {
+    cita: ['scan-text', 'Cita del mensaje'], inferencia: ['lightbulb', 'Inferencia'], regla: ['list-checks', 'Regla evaluada'],
+    alerta: ['triangle-alert', 'Regla incumplida'], descarte: ['eye-off', 'Descartado'], privacidad: ['lock', 'Dato protegido'],
+    incidencia: ['refresh-cw', 'Incidencia técnica'], decision: ['git-branch', 'Decisión'], dato: ['info', 'Dato'],
+  };
+  const rzTipo = (txt) => {
+    if (/INCUMPLE/.test(txt)) return 'alerta';
+    if (/^Decisión/.test(txt)) return 'decision';
+    if (/\b429\b|reintento|backoff/i.test(txt)) return 'incidencia';
+    if (/categoría especial|restring|datos? personales|dato de un menor|interesado distinto|IBAN/i.test(txt)) return 'privacidad';
+    if (/^(Descartado|Sin indicios)|no activa|no es un siniestro/i.test(txt)) return 'descarte';
+    if (/\b[AHS]\d\b.*\b(cumple|no aplica|no evaluable)/.test(txt)) return 'regla';
+    if (/^Indicios/.test(txt)) return 'cita';
+    if (/→/.test(txt)) return 'inferencia';
+    if (/"[^"]+"/.test(txt)) return 'cita';
+    return 'dato';
+  };
+  // Texto ya escapado: resalta las citas literales y los códigos de regla
+  const rzMarcar = (html) => conGuardrails(String(html)
+    .replace(/&quot;(.+?)&quot;/g, '<q class="rz-q">$1</q>')
+    .replace(/\b([AHS]\d)\b(\s+INCUMPLE)?/g, (m, c, inc) => `<span class="rz-cod${inc ? ' ko' : ''}">${c}${inc ? ' incumple' : ''}</span>`)
+    .replace(/ → /g, ' <span class="rz-fl">→</span> '));
+  function rzPaso(p) {
+    const texto = typeof p === 'string' ? p : p.texto;
+    const tipo = (typeof p === 'object' && RZ_TIPO[p.tipo]) ? p.tipo : rzTipo(texto);
+    return `<li class="rz-p rz-${tipo}"><span class="rz-i" data-tip="${esc(RZ_TIPO[tipo][1])}">${ic(RZ_TIPO[tipo][0])}</span><span>${rzMarcar(esc(texto))}</span></li>`;
+  }
+  const rzLeyenda = () => `<p class="rz-ley small muted">${['cita', 'inferencia', 'regla', 'alerta', 'descarte', 'privacidad', 'decision'].map((k) => `<span class="rz-${k}"><span class="rz-i">${ic(RZ_TIPO[k][0])}</span>${RZ_TIPO[k][1]}</span>`).join('')}</p>`;
+
+  // Cadena de agentes con lo que pasa de uno a otro; el último nodo lleva el color de la decisión
+  function rzCadena(t, steps, r) {
+    const conf = (s) => { const c = rzConfianzas(s); const top = Object.entries(c).sort((a, b) => b[1] - a[1])[0]; return top ? `${top[0]} · ${String(top[1].toFixed(2)).replace('.', ',')}` : s.salida; };
+    const pasa = (s) => {
+      if (s.agente === 'multicanal') { const m = String(s.entrada).match(/([\d.]+) caracteres/); return m ? `texto · ${m[1]} car.` : 'texto normalizado'; }
+      if (s.agente === 'clasificacion') return conf(s);
+      if (s.agente === 'extraccion' && r) { const v = Object.values(r.datos_extraidos || {}); return `${v.length} campos · ${v.filter(rzNulo).length} nulos`; }
+      return PASA[s.agente] || '';
+    };
+    const nodos = steps.map((s, i) => {
+      const sp = t.spans.find((x) => x[0] === s.agente) || ['', 0, 0, '—'];
+      const fin = i === steps.length - 1;
+      const cls = fin ? (t.decision === 'REVISION' ? ' rv' : ' ok') : '';
+      const nodo = `<div class="rz-nodo${cls}" style="--c:${agColor(s.agente)}"><b>${ic((AG[s.agente] || {}).icono || 'cpu')} ${esc(agNombre(s.agente))}</b><span class="mono">${esc(sp[3])} · ${ms(sp[2])}</span>${fin ? `<span class="rz-dec">${t.decision === 'REVISION' ? 'A revisar' : 'Aprobado'} · ${pct(t.confianza)}</span>` : `<span class="rz-sal">${esc(pasa(s))}</span>`}</div>`;
+      return nodo;
+    });
+    return `<div class="rz-cadena">${nodos.join('')}</div>`;
+  }
+
+  // Mensaje original con las citas que los agentes usaron como evidencia, coloreadas por agente
+  function rzMensaje(msg, r) {
+    const texto = msg.texto; const bajo = texto.toLowerCase(); const marcas = [];
+    (r.evidencias || []).forEach((e) => {
+      const i = bajo.indexOf(String(e.cita || '').toLowerCase());
+      if (i < 0 || !e.cita || marcas.some((m) => i < m.fin && i + e.cita.length > m.ini)) return;
+      const ag = e.ref === 'ramo' ? 'clasificacion' : String(e.ref).startsWith('regla:') ? 'reglas' : 'extraccion';
+      marcas.push({ ini: i, fin: i + e.cita.length, ag, tip: `${String(e.ref).replace('regla:', 'Regla ')} · ${e.nota}` });
+    });
+    marcas.sort((a, b) => a.ini - b.ini);
+    let html = ''; let pos = 0;
+    marcas.forEach((m) => { html += esc(texto.slice(pos, m.ini)) + `<mark class="rz-m" style="--c:${agColor(m.ag)}" data-tip="${esc(m.tip)}">${esc(texto.slice(m.ini, m.fin))}</mark>`; pos = m.fin; });
+    html += esc(texto.slice(pos));
+    const n = (ag) => marcas.filter((m) => m.ag === ag).length;
+    return `<details class="rz-msg" open><summary>${ic('scan-text')} Mensaje original · ${marcas.length} citas usadas como evidencia <span class="rz-ley-ag">${['clasificacion', 'extraccion', 'reglas'].map((a) => `<span style="--c:${agColor(a)}"><i></i>${esc(agNombre(a))} ${n(a)}</span>`).join('')}</span></summary><p>${html}</p></details>`;
+  }
+
+  // Gráfico propio de cada agente
+  const rzNulo = (v) => v == null || v === '' || (Array.isArray(v) && !v.length);
+  function rzConfianzas(s) {
+    if (s.confianzas) return s.confianzas;
+    const p = (s.pasos || []).map((x) => (typeof x === 'string' ? x : x.texto)).find((x) => /Confianza de ramo/.test(x));
+    const m = p && p.match(/(\d),(\d+)/); const ramo = (String(s.salida).match(/Ramo = (\w+)/) || [])[1];
+    return m && ramo ? { [ramo]: parseFloat(`${m[1]}.${m[2]}`) } : {};
+  }
+  function rzVisual(s, t, r, sp) {
+    if (s.agente === 'multicanal') {
+      const stt = (s.pasos || []).join(' ').match(/STT (\d),(\d+)/);
+      return stt ? `<div class="rz-vis"><span class="rz-tit">Transcripción de voz</span>${rzBarra('Confianza STT', parseFloat(`${stt[1]}.${stt[2]}`), 0.7, 'mínimo 0,7', 'var(--ag-multicanal)')}</div>` : '';
+    }
+    if (s.agente === 'clasificacion') {
+      const c = Object.entries(rzConfianzas(s)).sort((a, b) => b[1] - a[1]);
+      if (!c.length) return '';
+      return `<div class="rz-vis"><span class="rz-tit">Confianza por ramo</span>${c.map(([ramo, v]) => rzBarra(ramo, v, 0.85, 'G-01 · 0,85', `var(--${ramo.toLowerCase()}, var(--muted))`)).join('')}${r && r.criterios_ramo ? `<ul class="rz-cr small">${r.criterios_ramo.map((x) => `<li>${rzMarcar(esc(x))}</li>`).join('')}</ul>` : ''}</div>`;
+    }
+    if (s.agente === 'extraccion' && r && r.datos_extraidos) return rzCampos(r, t);
+    if (s.agente === 'reglas' && r && r.criterios) return rzReglas(r, t, sp);
+    return '';
+  }
+  const rzNum = (v) => String(Math.round(v * 100) / 100).replace('.', ',');
+  const rzBarra = (lbl, v, umbral, umbralLbl, color) => `<div class="rz-barra"><span>${esc(lbl)}</span><div class="rz-track"><i style="width:${Math.max(0.5, v * 100)}%;background:${color}"></i>${umbral != null ? `<b style="left:${umbral * 100}%" data-tip="${esc(umbralLbl)}"></b>` : ''}</div><span class="mono">${rzNum(v)}</span></div>`;
+
+  const CAMPO_LBL = { nombre_cliente: 'Cliente', numero_poliza: 'Póliza', tipo_siniestro: 'Tipo', fecha_hecho: 'Fecha', importe_estimado_eur: 'Importe', lugar: 'Lugar', terceros_implicados: 'Terceros', lesionados: 'Lesionados', documentacion_mencionada: 'Documentación', observaciones: 'Observaciones' };
+  const ORIGEN = { literal: ['ok', 'Literal'], normalizado: ['time', 'Normalizado'], deducido: ['warn', 'Deducido'], nota: ['review', 'Nota del agente'], nulo: ['muted', 'Nulo'] };
+  function rzCampos(r, t) {
+    const texto = String(((typeof PAQUETES !== 'undefined' && PAQUETES.flatMap((p) => p.mensajes).find((m) => m.id === t.mensaje)) || {}).texto || '').toLowerCase();
+    const val = (k, v) => (rzNulo(v) ? '—' : typeof v === 'boolean' ? (v ? 'sí' : 'no') : k === 'importe_estimado_eur' ? eur(v, 0) : Array.isArray(v) ? v.join(', ') : String(v));
+    const filas = Object.entries(r.datos_extraidos).map(([k, v]) => {
+      const ev = (r.evidencias || []).find((e) => e.ref === k);
+      const sv = String(Array.isArray(v) ? v.join(', ') : v).toLowerCase();
+      const o = rzNulo(v) ? 'nulo' : k === 'observaciones' ? 'nota' : ev ? (String(ev.cita).toLowerCase().includes(sv) ? 'literal' : 'normalizado') : (typeof v !== 'boolean' && texto.includes(sv) ? 'literal' : 'deducido');
+      const tip = ev ? `Cita: «${ev.cita}»` : o === 'nulo' ? 'El mensaje no lo menciona: no se inventa' : o === 'deducido' ? 'Sin cita literal: deducido del relato' : '';
+      return { k, o, html: `<div class="rz-campo o-${o}"${tip ? ` data-tip="${esc(tip)}"` : ''}><span class="k">${esc(CAMPO_LBL[k] || k)}</span><span class="v">${esc(val(k, v))}</span><span class="pill pill-${ORIGEN[o][0]}">${ORIGEN[o][1]}</span></div>` };
+    });
+    const cuenta = Object.keys(ORIGEN).map((o) => [o, filas.filter((f) => f.o === o).length]).filter(([, n]) => n);
+    return `<div class="rz-vis"><span class="rz-tit">Campos extraídos y de dónde sale cada uno</span>
+      <div class="rz-stack">${cuenta.map(([o, n]) => `<i class="pill-${ORIGEN[o][0]}" style="flex:${n}" data-tip="${ORIGEN[o][1]}: ${n}">${n}</i>`).join('')}</div>
+      <p class="small muted rz-stack-ley">${cuenta.map(([o, n]) => `<span><i class="pill-${ORIGEN[o][0]}"></i>${ORIGEN[o][1]} ${n}</span>`).join('')}</p>
+      <div class="rz-campos">${filas.map((f) => f.html).join('')}</div></div>`;
+  }
+
+  const pl = (n, uno, varios) => `${n} ${n === 1 ? uno : varios}`;
+  const RES = { cumple: ['ok', 'check', 'cumple'], incumple: ['crit', 'x', 'incumple'], no_aplica: ['muted', 'minus', 'no aplica'] };
+  function rzReglas(r, t, sp) {
+    const C = r.criterios; const por = (k) => C.filter((c) => c.resultado === k);
+    const inc = por('incumple');
+    const matriz = C.map((c) => { const [cls, i] = RES[c.resultado] || RES.no_aplica; return `<span class="rz-regla pill pill-${cls}" data-tip="${esc(`${c.regla} · ${c.descripcion} — ${c.evidencia}`)}">${ic(i)} ${esc(c.regla)}</span>`; }).join('');
+    const detalle = inc.map((c) => `<div class="rz-inc">${ic('triangle-alert')}<div><b>${esc(c.regla)} incumple</b> · ${esc(c.descripcion)}<br><span class="small">${rzMarcar(esc(c.evidencia))}</span></div></div>`).join('');
+    const arbol = `<div class="rz-arbol">
+      <span class="pill pill-ok">${pl(por('cumple').length, 'cumple', 'cumplen')}</span><span class="pill pill-crit">${pl(inc.length, 'incumple', 'incumplen')}</span><span class="pill pill-muted">${pl(por('no_aplica').length, 'no aplica', 'no aplican')}</span>
+      <span class="rz-fl">→</span><span class="small">¿Alguna incumple? <b>${inc.length ? `Sí (${inc.map((c) => esc(c.regla)).join(', ')})` : 'No'}</b></span>
+      <span class="rz-fl">→</span>${decPill(r.decision)}<span class="small">confianza ${pct(r.confianza)}</span></div>`;
+    // Tokens de la llamada: entrada, salida y razonamiento frente al cap de razonamiento (CAP-05)
+    const cap = ((G.caps || []).find((c) => c.id === 'CAP-05') || {}).limite;
+    const tot = Math.max(1, sp[4] + sp[5] + sp[6]);
+    const tok = sp[4] ? `<span class="rz-tit" style="margin-top:.6rem">Tokens de la llamada</span><div class="rz-stack rz-tok">${[['in', sp[4], 'Entrada'], ['out', sp[5], 'Salida'], ['raz', sp[6], 'Razonamiento']].filter(([, n]) => n).map(([k, n, l]) => `<i class="t-${k}" style="flex:${n / tot}" data-tip="${l}: ${num(n)}"></i>`).join('')}</div>
+      <p class="small muted rz-stack-ley"><span><i class="t-in"></i>Entrada ${num(sp[4])}</span><span><i class="t-out"></i>Salida ${num(sp[5])}</span>${sp[6] ? `<span${cap && sp[6] > cap ? ' class="rz-sobre"' : ''}><i class="t-raz"></i>Razonamiento ${num(sp[6])}${cap ? ` / ${conGuardrails('CAP-05')} ${num(cap)}` : ''}</span>` : ''}</p>` : '';
+    return `<div class="rz-vis"><span class="rz-tit">Reglas evaluadas</span><div class="rz-chips">${matriz}</div>${detalle}${arbol}${r.motivo ? `<p class="small" style="margin:.4rem 0 0"><b>Motivo:</b> ${esc(r.motivo)}</p>` : ''}${tok}</div>`;
   }
 
   // Replay simulado: «idéntico» reproduce la decisión; «what-if» estima coste/latencia con otro modelo o prompt de Reglas
@@ -651,6 +788,77 @@
     $('legend-modelos-tok').innerHTML = TOK.map(([k, l, c]) => legendBtn(k, 'token', c, l)).join('');
   }
 
+  // FinOps · bajo los KPI: cómo va el gasto de cada agente (A) y dónde se va el dinero y por qué (B)
+  function chartFinAgentes() {
+    const D = diarioVisible(), n = D.length, total = D.reduce((s, d) => s + costeDia(d), 0) || 1;
+    const filas = G.agentes.slice(0, 4).map((a, k) => { const v = D.map((d) => d[2][k] || 0); return { a, v, suma: v.reduce((s, x) => s + x, 0) }; }).sort((x, y) => y.suma - x.suma);
+    const W = 220, H = 60, pt = 6, pb = 4;
+    return filas.map(({ a, v, suma }) => {
+      const cap = a.cap_hoy, hoy = v[n - 1], sobre = cap != null && hoy > cap, color = agColor(a.id);
+      const ymax = Math.max(cap || 0, ...v) * 1.12 || 1;
+      const xs = (i) => (n > 1 ? 4 + (i / (n - 1)) * (W - 8) : W / 2), ys = (x) => pt + (1 - x / ymax) * (H - pt - pb);
+      const pts = v.map((x, i) => `${xs(i).toFixed(1)},${ys(x).toFixed(1)}`).join(' ');
+      return `<div class="fa-fila${sobre ? ' sobre' : ''}" data-ver-agente="${esc(a.id)}" role="button" tabindex="0" title="Abrir la ficha de ${esc(svgAg(a.id))}">
+        <div class="fa-ag">${agLbl(a.id)}<span class="small tnum ${sobre ? 'fa-crit' : 'muted'}">hoy ${eur(hoy)}${cap != null ? ` / ${eur(cap, 0)}` : ''}</span></div>
+        <svg class="chart" viewBox="0 0 ${W} ${H}" role="img" aria-label="Coste diario de ${esc(svgAg(a.id))} frente a su cap">
+          <polygon points="${xs(0)},${ys(0)} ${pts} ${xs(n - 1)},${ys(0)}" fill="${color}" opacity=".12"/>
+          ${cap != null ? `<line x1="0" x2="${W}" y1="${ys(cap)}" y2="${ys(cap)}" stroke="var(--crit)" stroke-width="1" stroke-dasharray="4 3"/>` : ''}
+          <polyline points="${pts}" fill="none" stroke="${color}" stroke-width="2" stroke-linejoin="round"/>
+          ${v.map((x, i) => `<circle cx="${xs(i)}" cy="${ys(x)}" r="${i === n - 1 ? 4 : 2.2}" fill="${cap != null && x > cap ? 'var(--crit)' : color}" data-tip="${fecha(D[i][0])} · ${esc(svgAg(a.id))}: ${eur(x)}${cap != null ? ` · ${Math.round((x / cap) * 100)} % de su cap` : ''}"/>`).join('')}
+        </svg>
+        <div class="fa-tot"><b class="tnum">${eur(suma)}</b><span class="small muted tnum">${Math.round((suma / total) * 100)} % del total</span></div>
+      </div>`;
+    }).join('');
+  }
+
+  // Coste de cada agente por tipo de token: tokens_por_agente × precios (razonamiento a precio de salida).
+  // Lo que el modelo no cobra por tokens (la voz, por minuto) o lo que no trae desglose va en su propio tramo.
+  const COSTE_TIPO = [...TOK, ['voz', 'Transcripción de voz', 'var(--muted)'], ['otro', 'Sin desglose por tokens', 'var(--grid)']];
+  let finModo = 'eur';
+  function costePorTipo() {
+    const out = {};
+    (G.modelos || []).forEach((mo) => {
+      const p = G.precios[mo.id] || { in: 0, out: 0 };
+      Object.entries(mo.coste_por_agente || {}).forEach(([id, c]) => {
+        const o = out[id] = out[id] || { tipos: {}, tokens: {}, modelos: [] };
+        o.modelos.push(mo.id);
+        const t = (mo.tokens_por_agente || {})[id];
+        let resto = c;
+        if (t) [['in', p.in], ['out', p.out], ['reasoning', p.out]].forEach(([k, pr]) => { const v = ((t[k] || 0) / 1e6) * pr; o.tipos[k] = (o.tipos[k] || 0) + v; o.tokens[k] = (o.tokens[k] || 0) + (t[k] || 0); resto -= v; });
+        if (resto > 0.005) { const k = /^stt/.test(mo.id) ? 'voz' : 'otro'; o.tipos[k] = (o.tipos[k] || 0) + resto; }
+      });
+    });
+    return out;
+  }
+  function chartFinPorque() {
+    const C = costePorTipo();
+    const filas = G.agentes.filter((a) => C[a.id]).map((a) => ({ a, c: C[a.id], suma: Object.values(C[a.id].tipos).reduce((s, v) => s + v, 0) })).sort((x, y) => y.suma - x.suma);
+    if (!filas.length) return '<p class="muted small">El dataset no trae el coste por modelo y agente.</p>';
+    const max = Math.max(...filas.map((f) => f.suma));
+    const recos = G.recomendaciones || [];
+    return filas.map(({ a, c, suma }, i) => {
+      const tipos = COSTE_TIPO.filter(([k]) => c.tipos[k] > 0);
+      const segs = tipos.map(([k, l, color]) => { const v = c.tipos[k], share = v / suma, w = finModo === 'pct' ? share * 100 : (v / max) * 100; const lbl = w >= 11 ? (finModo === 'pct' ? `${Math.round(share * 100)} %` : eur(v, v < 10 ? 2 : 0)) : ''; return `<i class="bar-h" style="--i:${i};width:${w}%;background:${color}${k === 'otro' ? ';color:var(--muted)' : ''}" data-tip="${esc(svgAg(a.id))} · ${l}: ${eur(v)} · ${Math.round(share * 100)} % de su coste${c.tokens[k] ? ` · ${num(c.tokens[k])} tokens` : ''}">${lbl}</i>`; }).join('');
+      const [k0, l0] = tipos.reduce((m, t) => (c.tipos[t[0]] > c.tipos[m[0]] ? t : m), tipos[0]);
+      const porque = `${l0}: ${Math.round((c.tipos[k0] / suma) * 100)} % de su coste${c.tokens[k0] ? ` · ${(c.tokens[k0] / 1e6).toFixed(1).replace('.', ',')} M tokens` : k0 === 'voz' ? ' · se paga por minuto de audio' : ''}`;
+      const palabra = a.nombre.split(' ')[0];
+      const chips = recos.filter((r) => `${r.titulo} ${r.detalle}`.includes(palabra)).map((r) => `<button class="pill pill-time fp-reco" type="button" data-ir-reco="${esc(r.id)}" title="${esc(r.titulo)}">${ic('lightbulb')} ${esc(r.id)}</button>`).join('');
+      return `<div class="fp-fila">
+        <div class="fa-ag">${agLbl(a.id)}<span class="small muted mono">${c.modelos.map(esc).join(' + ')}</span></div>
+        <div class="fp-bar">${segs}</div>
+        <b class="tnum fp-tot">${eur(suma)}</b>
+        <div class="fp-por small muted">${porque}${chips}</div>
+      </div>`;
+    }).join('');
+  }
+  function renderFinGraf() {
+    $('fin-agentes').innerHTML = chartFinAgentes();
+    $('fin-modo').innerHTML = [['eur', '€'], ['pct', '% de cada agente']].map(([k, l]) => `<button type="button" class="seg-btn" data-fin-modo="${k}" aria-pressed="${finModo === k}">${l}</button>`).join('');
+    $('fin-porque').innerHTML = chartFinPorque();
+    const C = costePorTipo();
+    $('legend-porque').innerHTML = COSTE_TIPO.filter(([k]) => Object.values(C).some((c) => c.tipos[k] > 0)).map(([, l, color]) => `<span><i style="background:${color}"></i>${l}</span>`).join('');
+  }
+
   // ---------------------------------------------------------------------------
   // FinOps: KPI, caps, modelos, recomendaciones
   // ---------------------------------------------------------------------------
@@ -670,10 +878,11 @@
     ].join('');
     $('caps').innerHTML = G.caps.map(capRow).join('');
     renderCorrectivas();
+    renderFinGraf();
     const totalModelos = (G.modelos || []).reduce((a, mo) => a + (mo.coste || 0), 0);
     $('modelos').innerHTML = (G.modelos || []).map((mo) => { const p = G.precios[mo.id]; const share = totalModelos ? mo.coste / totalModelos : 0; return `<tr><td class="mono"><b>${esc(mo.id)}</b></td><td>${esc(mo.proveedor)}</td><td class="tnum">${p ? `${eur(p.in)} / ${eur(p.out)} por M` : '—'}</td><td>${(mo.agentes || []).map(agTag).join('<br>')}</td><td class="tnum">${num(mo.llamadas)}</td><td class="tnum">${(mo.tokens.in / 1e6).toFixed(1).replace('.', ',')} M · ${(mo.tokens.out / 1e6).toFixed(1).replace('.', ',')} M · ${(mo.tokens.reasoning / 1e6).toFixed(1).replace('.', ',')} M</td><td class="tnum"><b>${eur(mo.coste)}</b></td><td><div class="meter" style="--c:var(--primary);margin:0"><i style="width:${share * 100}%"></i></div><span class="small muted tnum">${Math.round(share * 100)} %</span></td><td class="tnum">${ms(mo.p95_ms)}</td><td class="tnum">${esc(mo.exito.json_valido)}</td><td class="tnum">${esc(mo.exito.sin_reintento)}</td><td class="tnum">${esc(mo.exito.estable_replay)}</td><td>${esc(mo.exito.precision)}</td></tr>`; }).join('') || '<tr><td colspan="13" class="muted">Sin modelos en el dataset.</td></tr>';
     renderCharts();
-    $('recos').innerHTML = (G.recomendaciones || []).map((r) => `<div class="alert ${r.sev}"><span class="ico">${ic(r.sev === 'info' ? 'lightbulb' : SEV_ICON[r.sev])}</span><div><b>${esc(r.id)} · ${conGuardrails(esc(r.titulo))}</b><small>${conGuardrails(esc(r.detalle))}</small></div><button class="btn btn-sm" type="button" data-goto="replay" data-replay="1">${ic('play')} Simular con replay</button></div>`).join('');
+    $('recos').innerHTML = (G.recomendaciones || []).map((r) => `<div class="alert ${r.sev}" data-reco="${esc(r.id)}"><span class="ico">${ic(r.sev === 'info' ? 'lightbulb' : SEV_ICON[r.sev])}</span><div><b>${esc(r.id)} · ${conGuardrails(esc(r.titulo))}</b><small>${conGuardrails(esc(r.detalle))}</small></div><button class="btn btn-sm" type="button" data-goto="replay" data-replay="1">${ic('play')} Simular con replay</button></div>`).join('');
   }
 
   // ---------------------------------------------------------------------------
@@ -1017,7 +1226,7 @@
       <p class="small muted">Que una persona «vea» la decisión no basta: si la aprueba sin revisarla, no cuenta como intervención humana (TJUE, SCHUFA C-634/21). Aquí se vigila que la revisión sea real: cuánto tarda cada tramitador, cuántas aprobaciones son exprés (menos de 30 s) y si tiene la formación en IA que exige el AI Act.</p>
       <div class="kpi-mini">${kmini('timer', 'Revisión mediana', `${cnt(14)} min`, 'desde que llega a la cola · p95 52 min')}${kmini('zap', 'Revisiones exprés (< 30 s)', cnt(expres, 'pct1'), `<span style="color:var(--${expres <= EXPRES_MAX ? 'ok' : 'crit'})">${expres <= EXPRES_MAX ? 'dentro' : 'por encima'} del máximo ${EXPRES_MAX} %</span>`)}${kmini('circle-check', 'Confirman la decisión del agente', cnt(confirman, 'pct1'), 'el resto la cambian (override)')}${kmini('graduation-cap', 'Tramitadores formados en IA', `${formados} de ${TRAMITADORES.length}`, 'AI Act art. 4 · ver M-10')}</div>
       <div class="two"><div><h3>Tiempo que tarda una persona en revisar un escalado</h3>${hbars(TRAMOS_REV.map(([l], i) => [l, porTramo[i], i === 0 ? 'var(--crit)' : i === 1 ? 'var(--warn)' : 'var(--ok)']), { pl: 110, aria: 'Revisiones por tiempo de revisión' })}<p class="muted small">En rojo, las aprobaciones de menos de 30 s: con ese tiempo no da para leer el mensaje ni las evidencias.</p></div>
-      <div><h3>Por tramitador (14 días)</h3><div class="tw tabla-compacta"><table><thead><tr><th>Tramitador</th><th>Revisiones</th><th>Mediana</th><th>Exprés</th><th>Override</th><th>Formación IA</th></tr></thead><tbody>${TRAMITADORES.map(([n, , ex, med, nuevo], i) => `<tr><td>${esc(n)}</td><td class="tnum">${num(porTram[i])}</td><td class="tnum">${med} min</td><td class="tnum"><span style="color:var(--${ex > EXPRES_MAX ? 'crit' : 'text'})">${ex} %</span></td><td class="tnum">${(1.2 + rng(`ovr-${n}`)() * 2.6).toFixed(1).replace('.', ',')} %</td><td>${nuevo ? `<span class="pill pill-warn" data-medida="M-10" role="button" tabindex="0" title="Abrir la medida M-10">${ic('circle-alert')} Pendiente</span>` : `<span class="pill pill-ok">${ic('circle-check')} Sí</span>`}</td></tr>`).join('')}</tbody></table></div></div></div>`;
+      <div><h3>Por tramitador (14 días)</h3><div class="tw"><table><thead><tr><th>Tramitador</th><th>Revisiones</th><th>Mediana</th><th>Exprés</th><th>Override</th><th>Formación IA</th></tr></thead><tbody>${TRAMITADORES.map(([n, , ex, med, nuevo], i) => `<tr><td>${esc(n)}</td><td class="tnum">${num(porTram[i])}</td><td class="tnum">${med} min</td><td class="tnum"><span style="color:var(--${ex > EXPRES_MAX ? 'crit' : 'text'})">${ex} %</span></td><td class="tnum">${(1.2 + rng(`ovr-${n}`)() * 2.6).toFixed(1).replace('.', ',')} %</td><td>${nuevo ? `<span class="pill pill-warn" data-medida="M-10" role="button" tabindex="0" title="Abrir la medida M-10">${ic('circle-alert')} Pendiente</span>` : `<span class="pill pill-ok">${ic('circle-check')} Sí</span>`}</td></tr>`).join('')}</tbody></table></div></div></div>`;
   }
 
   function renderHitl() {
@@ -1213,7 +1422,7 @@
     const ymax = Math.max(c.limite * 1.15, ...serie) * 1.05;
     const xs = (i) => pl + ((i + 0.5) / n) * (W - pl - pr), ys = (v) => pt + (1 - v / ymax) * (H - pt - pb);
     const dec = ymax >= 30 ? 0 : ymax >= 1 ? 1 : 3;
-    const tick = (v) => (c.unidad === '€' ? `${v.toLocaleString('es-ES', { minimumFractionDigits: dec, maximumFractionDigits: dec })} €` : num(Math.round(v)));
+    const tick = (v) => (c.unidad === '€' ? `${v.toLocaleString('es-ES', { minimumFractionDigits: dec, maximumFractionDigits: dec, useGrouping: 'always' })} €` : num(Math.round(v)));
     const acum = /mensual/i.test(c.tipo);
     const bw = Math.min(26, ((W - pl - pr) / n) * 0.62);
     const col = (v) => (v >= c.limite ? 'var(--crit)' : v >= aviso ? 'var(--warn)' : 'var(--primary)');
@@ -2377,6 +2586,7 @@
     if (opts.replay) { const card = $('card-replay'); card.scrollIntoView({ block: 'start', behavior: 'smooth' }); card.style.outline = '2px solid var(--primary)'; setTimeout(() => { card.style.outline = ''; }, 1600); }
     else window.scrollTo({ top: 0 });
     if (v === 'hitl') animar(document.querySelector('.view[data-view="hitl"]'));
+    if (v === 'finops') animar($('fin-graf'));
     ajustarAgentes();
   }
 
@@ -2500,6 +2710,8 @@
       const sw = e.target.closest('[data-switch]'); if (sw) { e.preventDefault(); e.stopPropagation(); toggleAgente(sw.dataset.switch); return; }
       const gr = e.target.closest('[data-guardrail]'); if (gr) { e.preventDefault(); toggleGuardrail(gr.dataset.guardrail); if (gr.dataset.reabrir) abrirModalGr(gr.dataset.reabrir); return; }
       const cb = e.target.closest('[data-cambio]'); if (cb) { abrirModalCambio(Number(cb.dataset.cambio)); return; }
+      const fm = e.target.closest('[data-fin-modo]'); if (fm) { finModo = fm.dataset.finModo; renderFinGraf(); animar($('fin-porque').closest('.card')); return; }
+      const irc = e.target.closest('[data-ir-reco]'); if (irc) { const al = document.querySelector(`#recos [data-reco="${irc.dataset.irReco}"]`); if (al) { al.scrollIntoView({ block: 'center', behavior: 'smooth' }); al.style.outline = '2px solid var(--primary)'; setTimeout(() => { al.style.outline = ''; }, 1600); } return; }
       const va = e.target.closest('[data-ver-agente]'); if (va) { verAgente(va.dataset.verAgente); return; }
       const ia = e.target.closest('[data-ir-alerta]'); if (ia) { e.stopPropagation(); const al = [...document.querySelectorAll('#correctivas [data-alerta-caps]')].find((x) => x.dataset.alertaCaps.split(' ').includes(ia.dataset.irAlerta)); if (al) { al.scrollIntoView({ behavior: 'smooth', block: 'center' }); al.classList.remove('is-new'); void al.offsetWidth; al.classList.add('is-new'); } return; }
       const cu = e.target.closest('[data-corr-undo]'); if (cu) { e.stopPropagation(); const [cid, k] = cu.dataset.corrUndo.split(':'); deshacerCorrectiva(cid, Number(k)); return; }
@@ -2541,6 +2753,7 @@
     document.addEventListener('keydown', (e) => {
       if (e.key !== 'Enter' || !e.target.matches) return;
       if (e.target.matches('.agent[data-agente]')) verAgente(e.target.dataset.agente);
+      else if (e.target.matches('.fa-fila[data-ver-agente]')) verAgente(e.target.dataset.verAgente);
       else if (e.target.matches('[data-kpi-fin]')) abrirModalKpiFin(e.target.dataset.kpiFin);
       else if (e.target.matches('#caps tr[data-cap]')) abrirModalCap(e.target.dataset.cap);
       else if (e.target.matches('#policies tr[data-gr]')) abrirModalGr(e.target.dataset.gr);
@@ -2566,7 +2779,7 @@
     $('file-json').addEventListener('change', () => { const f = $('file-json').files[0]; if (f) cargarArchivo(f); $('file-json').value = ''; });
     $('fuente').addEventListener('change', () => setFuente($('fuente').value));
     $('periodo').addEventListener('change', () => { periodoDias = Number($('periodo').value); renderResumen(); renderFinops(); });
-    const H = { 'h-agentes': ['cpu', 'Agentes'], 'h-coste': ['euro', 'Coste diario frente al cap'], 'h-alertas': ['bell', 'Alertas activas'], 'h-reasoning': ['brain', 'Razonamiento registrado'], 'h-replay': ['repeat', 'Replay'], 'h-replays': ['history', 'Replays anteriores'], 'h-niveles': ['sliders-horizontal', 'Niveles de autonomía'], 'h-correctivas': ['bell', 'Alertas de coste'], 'h-guardrails': ['shield-check', 'Guardrails'], 'h-cambios': ['history', 'Cambios de nivel (auditoría)'], 'h-caps': ['scale', 'Caps configurados'], 'h-coste-ag': ['euro', 'Coste diario por agente'], 'h-tokens': ['cpu', 'Tokens por agente'], 'h-modelos': ['database', 'Modelos'], 'h-reco': ['lightbulb', 'Recomendaciones de ahorro'], 'h-hist': ['history', 'Histórico de gobierno'], 'h-med': ['wrench', 'Medidas correctivas'] };
+    const H = { 'h-fin-agentes': ['activity', 'Cómo va el gasto de cada agente'], 'h-fin-porque': ['coins', 'Dónde se va el dinero y por qué'], 'h-agentes': ['cpu', 'Agentes'], 'h-coste': ['euro', 'Coste diario frente al cap'], 'h-alertas': ['bell', 'Alertas activas'], 'h-reasoning': ['brain', 'Razonamiento registrado'], 'h-replay': ['repeat', 'Replay'], 'h-replays': ['history', 'Replays anteriores'], 'h-niveles': ['sliders-horizontal', 'Niveles de autonomía'], 'h-correctivas': ['bell', 'Alertas de coste'], 'h-guardrails': ['shield-check', 'Guardrails'], 'h-cambios': ['history', 'Cambios de nivel (auditoría)'], 'h-caps': ['scale', 'Caps configurados'], 'h-coste-ag': ['euro', 'Coste diario por agente'], 'h-tokens': ['cpu', 'Tokens por agente'], 'h-modelos': ['database', 'Modelos'], 'h-reco': ['lightbulb', 'Recomendaciones de ahorro'], 'h-hist': ['history', 'Histórico de gobierno'], 'h-med': ['wrench', 'Medidas correctivas'] };
     Object.entries(H).forEach(([id, [i, t]]) => titulo(id, i, t));
     document.querySelectorAll('[data-close]').forEach((b) => { b.innerHTML = ic('x'); });
     $('btn-export-trazas').innerHTML = `${ic('download')} Exportar trazas`;

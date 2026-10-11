@@ -1,6 +1,7 @@
 # Plan: sección «Agentes» en observabilidad
 
 > Estado (08/10/2026): **implementado** con las decisiones confirmadas: ficha en el propio panel con una pestaña por agente, modal del agente retirada (todo lleva a la sección), contrato de entrada y salida como bloque plegado «para perfiles técnicos» y posición después de Resumen.
+> Cambio posterior (09/10/2026): el escalado y el override de cada agente se comparan también en la sección Intervención humana, que enlaza a esta ficha.
 
 ## 1. Por qué
 

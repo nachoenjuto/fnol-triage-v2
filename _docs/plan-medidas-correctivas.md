@@ -1,6 +1,7 @@
 # Plan: sección «Medidas correctivas» en observabilidad
 
 > Estado (08/10/2026): **implementado** con las decisiones confirmadas: al final del menú, antes de Histórico; orden por prioridad o por severidad (a elegir); paso «Marcar como verificada», que actualiza el Termómetro (círculo arriba a la derecha de la sección); las acciones correctivas siguen también en FinOps, con el estado compartido.
+> Cambios posteriores (09/10/2026): «Deshacer», «Quitar simulación» y «Quitar verificación» devuelven una medida al paso anterior; FinOps muestra las mismas acciones de coste en su tarjeta «Alertas de coste». La medida M-14 (overrides por datos que el modelo no ve) apunta ahora a la sección Intervención humana.
 
 ## 1. Qué es
 

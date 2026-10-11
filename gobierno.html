@@ -5,9 +5,9 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Gobierno, Observabilidad y FinOps de Agentes IA para FNOL</title>
   <meta name="description" content="Panel de control agéntico del triaje de seguros: trazabilidad y observabilidad de los agentes, Reasoning & Replay, Autonomy engine y FinOps con caps de consumo.">
-  <link rel="stylesheet" href="gobierno.css?v=31">
-  <link rel="stylesheet" href="header.css?v=31">
-  <link rel="stylesheet" href="cumplimiento.css?v=31">
+  <link rel="stylesheet" href="gobierno.css?v=33">
+  <link rel="stylesheet" href="header.css?v=33">
+  <link rel="stylesheet" href="cumplimiento.css?v=33">
 </head>
 <body>
 <header class="topbar">
@@ -134,7 +134,7 @@
     <div class="resizable-pane">
       <div class="card">
         <div class="card-head"><h2 id="h-reasoning"></h2><span class="muted small" id="r-traza-sel"></span></div>
-        <p class="muted small" style="margin-bottom:.8rem">Razonamiento resumido por agente tal y como quedó registrado (entrada → pasos → salida). No es la cadena de pensamiento cruda del modelo: es el registro estructurado que devuelve cada agente.</p>
+        <p class="muted small" style="margin-bottom:.8rem">Lo que registró cada agente: la cadena de principio a fin, las frases del mensaje que usó como evidencia, sus pasos por tipo (cita, inferencia, regla, dato protegido, decisión) y un gráfico de su resultado. No es la cadena de pensamiento cruda del modelo: es el registro estructurado que devuelve cada agente.</p>
         <div class="steps pane-scroll" id="steps"></div>
       </div>
     </div>
@@ -210,6 +210,17 @@
 <!-- ───────────── FINOPS ───────────── -->
 <section class="view" data-view="finops">
   <div class="kpis" id="kpis-fin"></div>
+  <div class="two" id="fin-graf">
+    <div class="card">
+      <div class="card-head"><h2 id="h-fin-agentes"></h2><span class="muted small">€/día de cada agente · línea discontinua = su cap diario · clic en una fila para abrir el agente</span></div>
+      <div id="fin-agentes"></div>
+    </div>
+    <div class="card">
+      <div class="card-head"><h2 id="h-fin-porque"></h2><div class="seg" id="fin-modo"></div><span class="muted small">Coste de 14 días por tipo de token · la salida y el razonamiento se pagan a precio de salida</span></div>
+      <div id="fin-porque"></div>
+      <div class="legend" id="legend-porque"></div>
+    </div>
+  </div>
   <div class="card" id="card-correctivas" hidden>
     <div class="card-head"><h2 id="h-correctivas"></h2><button class="btn btn-sm" type="button" data-goto="medidas">Ver todas las medidas correctivas</button><span class="muted small">Qué ha pasado y cuándo · qué cap la disparó y qué hizo solo · qué acción sugerimos («Aplicar» y «Deshacer» son simulados y quedan en el Histórico)</span></div>
     <div class="alerts" id="correctivas"></div>
@@ -392,15 +403,15 @@
   <div class="modal-body" id="modal-gr-nuevo-body"></div>
 </dialog>
 
-  <script src="icons.js?v=31"></script>
-  <script src="data/recorrido.js?v=31"></script>
-  <script src="shell.js?v=31"></script>
-  <script src="data/mensajes.js?v=31"></script>
-  <script src="data/resultados.js?v=31"></script>
-  <script src="prompts.js?v=31"></script>
-  <script src="evidencias.js?v=31"></script>
-  <script src="cumplimiento.js?v=31"></script>
-  <script src="data/gobierno.js?v=31"></script>
-  <script src="gobierno.js?v=31"></script>
+  <script src="icons.js?v=33"></script>
+  <script src="data/recorrido.js?v=33"></script>
+  <script src="shell.js?v=33"></script>
+  <script src="data/mensajes.js?v=33"></script>
+  <script src="data/resultados.js?v=33"></script>
+  <script src="prompts.js?v=33"></script>
+  <script src="evidencias.js?v=33"></script>
+  <script src="cumplimiento.js?v=33"></script>
+  <script src="data/gobierno.js?v=33"></script>
+  <script src="gobierno.js?v=33"></script>
 </body>
 </html>

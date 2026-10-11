@@ -1,4 +1,4 @@
-// Guion del Recorrido de la demo (modo presentador, shell.js): 10 pasos repartidos entre el triaje y el gobierno.
+// Guion del Recorrido de la demo (modo presentador, shell.js): 11 pasos repartidos entre el triaje y el gobierno.
 // Cada paso: minuto del guion, página, título, qué enseñar, frase clave, acción que lleva a la pantalla exacta
 // y subtítulos de dos líneas: qué hace la función (técnico-funcional) y cómo ayuda al negocio a cumplir.
 // Son los textos por defecto: cada presentador puede editarlos en el engranaje del recorrido (se guardan solo
@@ -53,12 +53,21 @@ const RECORRIDO_DEMO = {
       ],
     },
     {
-      min: '7–8', pagina: 'gobierno', titulo: 'Autonomía y guardrails', accion: 'goto:guardrails',
+      min: '7–7:30', pagina: 'gobierno', titulo: 'Autonomía y guardrails', accion: 'goto:guardrails',
       que: 'Niveles L0-L3 y los guardrails G-02 (importe) y G-04 (lesionados)',
       frase: 'Autonomía graduada con límites claros',
       subtitulos: [
         { tecnico: 'Cada agente tiene un nivel de autonomía, de L0 (solo sugiere) a L3 (decide y ejecuta). Clasificación trabaja en L3; Reglas, en L2, decide solo dentro de los guardrails.', negocio: 'La libertad del agente va en proporción al riesgo de la decisión. Cada cambio de nivel queda registrado con quién lo aprobó.' },
         { tecnico: 'Nueve guardrails frenan a los agentes. G-02 impide aprobar un importe por encima del límite del ramo, aunque el resto de reglas se cumpla.', negocio: 'Las reglas de la aseguradora mandan sobre el modelo. G-02 saltó 118 veces en 14 días y explica el 62 % de los escalados.' },
+      ],
+    },
+    {
+      min: '7:30–8', pagina: 'gobierno', titulo: 'Intervención humana', accion: 'goto:hitl',
+      que: 'Cola de revisión, aprobaciones de menos de 30 s y tramitadores sin formación en IA',
+      frase: 'Una aprobación de 10 segundos es una firma: medimos si la revisión es real',
+      subtitulos: [
+        { tecnico: 'Cada traza escalada entra en una cola con su motivo, su estado y quién la revisa. En 14 días se escalaron 3.180 decisiones y la revisión tardó una mediana de 14 minutos.', negocio: 'El RGPD art. 22 no permite que una decisión desfavorable sea solo automática. La cola demuestra que la tomó una persona, con nombre y hora.' },
+        { tecnico: 'El panel mide cuánto tarda cada tramitador. El 3,3 % de las aprobaciones se firma en menos de 30 segundos y tres tramitadores pasan del máximo del 5 %.', negocio: 'Según el TJUE (caso SCHUFA), firmar sin revisar no cuenta como intervención humana. Dos de esos tres tramitadores aún no tienen la formación en IA (M-10).' },
       ],
     },
     {

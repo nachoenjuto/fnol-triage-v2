@@ -1,6 +1,7 @@
 # Plan: pestaña «Knowledge bases» en observabilidad
 
 > Estado (08/10/2026): **implementado** con las decisiones confirmadas: lista de KB del apartado 9, posición entre Guardrails y el Termómetro, comparativa de configuraciones incluida y rúbricas editables (simulado, en la sesión).
+> Cambio posterior (09/10/2026): con el menú agrupado en cinco bloques, Knowledge Bases está en el bloque Calidad, detrás de Razonamiento y replay.
 
 ## 1. Qué problema resuelve
 

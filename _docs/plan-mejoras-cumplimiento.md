@@ -1,9 +1,10 @@
 # Plan: mejoras de la ficha, observabilidad y capa de cumplimiento normativo
 
-> Estado (08/10/2026): **ejecutado**, salvo la 4.4 (seudonimizar antes del modelo: pendiente). La fase 5 (Knowledge bases) se replanteó en [plan-knowledge-bases.md](plan-knowledge-bases.md) y está implementada.
+> Estado (08/10/2026): **ejecutado**, incluida la 4.4 (seudonimizar antes del modelo), que se implementó el mismo día; ver el apartado 2.7 de [guia-demo.md](guia-demo.md). La fase 5 (Knowledge bases) se replanteó en [plan-knowledge-bases.md](plan-knowledge-bases.md) y está implementada.
 > Decisiones confirmadas: «grupo 13» = Paquete A · menú lateral con fondo claro · «Termómetro de cumplimiento» en español · controles en ámbar a la vista.
 > Cambio sobre la propuesta: al pasar el ratón o hacer clic en una evidencia solo cambia el título; la leyenda se abre únicamente desde su botón.
 > Cambio posterior a la fase 2: el menú lateral se unificó en las dos páginas (`shell.js` + `header.css`), con el usuario y el botón de plegar al pie, y Autonomía dejó de mostrar las tarjetas de los agentes.
+> Cambio posterior (09/10/2026): en el menú del panel la sección se llama «Cumplimiento» (bloque Cumplimiento y coste); dentro de la página sigue titulándose Termómetro de cumplimiento.
 
 ## Orden de trabajo
 

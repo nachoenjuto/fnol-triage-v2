@@ -91,10 +91,13 @@ const CAPTURAS = [
   ['03-trazabilidad.png', 'gobierno.html', seccion('trazas') + clic('#t-trazas tr[data-id="TRZ-4F2D"]'), null],
   ['04-traza-explicada.png', 'gobierno.html', seccion('resumen') + clic('#ultimas tr[data-id="TRZ-4F36"]', 600), "document.getElementById('modal-traza')"],
   ['05-reasoning-replay.png', 'gobierno.html', seccion('replay') + clic('#r-trazas tr[data-id="TRZ-4F2D"]'), null],
+  // Panel de razonamiento completo (sin su scroll interno): cadena, mensaje con citas y gráfico por agente
+  ['05c-razonamiento.png', 'gobierno.html', seccion('replay') + clic('#r-trazas tr[data-id="TRZ-4F2D"]') + "{ const s = document.getElementById('steps'); s.style.maxHeight = 'none'; s.style.overflow = 'visible'; s.style.height = 'auto'; for (let e = s.parentElement; e && e.id !== 'reasoning-row'; e = e.parentElement) { e.style.height = 'auto'; e.style.maxHeight = 'none'; e.style.overflow = 'visible'; } document.getElementById('reasoning-row').style.height = 'auto'; }", "document.getElementById('steps').closest('.card')"],
   ['05b-replay-diff.png', 'gobierno.html', `${seccion('replay')} const m = document.getElementById('rp-modo'); m.value = 'whatif'; m.dispatchEvent(new Event('change'));
     const mo = document.getElementById('rp-modelo'); mo.selectedIndex = [...mo.options].findIndex((o) => o.text.startsWith('gpt-5-mini')); mo.dispatchEvent(new Event('change'));
     document.getElementById('btn-replay').click(); await new Promise((r) => setTimeout(r, 3500));`, "document.getElementById('card-replay')"],
-  ['06-ficha-agente.png', 'gobierno.html', seccion('agentes') + clic('[data-ag-tab="reglas"]'), null],
+  // Solo la tarjeta de identidad y permisos, con su alto natural (en la rejilla se estira hasta el de la tarjeta vecina)
+  ['06-ficha-agente.png', 'gobierno.html', `${seccion('agentes')} ${clic('[data-ag-tab="reglas"]')} const k = ${porTitulo('#ag-ficha', 'Identidad y permisos')}; k.style.alignSelf = 'start';`, porTitulo('#ag-ficha', 'Identidad y permisos')],
   ['10-finops-modelos.png', 'gobierno.html', seccion('finops'), "document.getElementById('h-modelos').closest('.card')"],
   ['11-historico.png', 'gobierno.html', seccion('historico'), null],
   ['12-etiqueta-normativa.png', 'gobierno.html', `${seccion('trazas')} const n = document.querySelector('#h-trazas .norma'); const t = document.getElementById('tip');
@@ -105,7 +108,8 @@ const CAPTURAS = [
   ['13-autonomia-auditoria.png', 'gobierno.html', `${seccion('autonomia')} const f = [...document.querySelectorAll('#cambios tr[data-cambio]')].find((tr) => /Reglas/.test(tr.textContent) && /L3[\\s\\S]*L2/.test(tr.textContent)); f.click(); await new Promise((r) => setTimeout(r, 500));`, "document.getElementById('modal-cambio')"],
   ['13b-autonomia-evolucion.png', 'gobierno.html', `${seccion('autonomia')} const f = [...document.querySelectorAll('#cambios tr[data-cambio]')].find((tr) => /Reglas/.test(tr.textContent) && /L3[\\s\\S]*L2/.test(tr.textContent)); f.click(); await new Promise((r) => setTimeout(r, 500));`, porTitulo('#modal-cambio', 'Evolución del nivel', 'div')],
   ['06b-agente-calidad.png', 'gobierno.html', seccion('agentes') + clic('[data-ag-tab="reglas"]'), porTitulo('#ag-ficha', 'Calidad (Paquete A)')],
-  ['14-agente-comportamiento.png', 'gobierno.html', seccion('agentes') + clic('[data-ag-tab="reglas"]'), porTitulo('#ag-ficha', 'Rendimiento y coste')],
+  // La tabla de comportamiento por modelo tiene siete columnas: para la captura, la tarjeta ocupa todo el ancho y la tabla se ve entera
+  ['14-agente-comportamiento.png', 'gobierno.html', `${seccion('agentes')} ${clic('[data-ag-tab="reglas"]')} const k = ${porTitulo('#ag-ficha', 'Rendimiento y coste')}; k.style.gridColumn = '1 / -1'; k.querySelectorAll('.tabla-compacta').forEach((t) => { t.style.maxHeight = 'none'; });`, porTitulo('#ag-ficha', 'Rendimiento y coste')],
   ['15-guardrail-g02.png', 'gobierno.html', seccion('guardrails') + clic('tr[data-gr="G-02"]', 600), "document.getElementById('modal-gr')"],
   ['16-nuevo-guardrail.png', 'gobierno.html', seccion('guardrails') + clic('#btn-new-policy', 600), "document.getElementById('modal-gr-nuevo')"],
   ['17-cap03-consumo.png', 'gobierno.html', seccion('finops') + clic('tr[data-cap="CAP-03"], [data-cap="CAP-03"]', 600), "document.getElementById('modal-cap')"],
@@ -124,6 +128,10 @@ const CAPTURAS = [
   ['37-medidas.png', 'gobierno.html', seccion('medidas'), null, { limpiar: true }],
   ['38-medida-m01.png', 'gobierno.html', `${seccion('medidas')} ${clic('[data-medida="M-01"] h3, [data-medida="M-01"]', 600)}`, "document.getElementById('modal-med')", { limpiar: true }],
   ['39-ahorro-conseguido.png', 'gobierno.html', `${seccion('medidas')} ${clic('[data-med-acc="aplicar:M-01:0"]', 500)} ${clic('[data-med-acc="aplicar:M-02:0"]', 500)}`, "document.getElementById('kpis-med')", { limpiar: true }],
+  // Intervención humana (HITL) y alertas de coste de FinOps
+  ['44-intervencion-humana.png', 'gobierno.html', seccion('hitl'), null],
+  ['45-hitl-calidad.png', 'gobierno.html', seccion('hitl'), "document.getElementById('hitl-calidad')"],
+  ['46-alertas-coste.png', 'gobierno.html', seccion('finops'), "document.getElementById('card-correctivas')", { limpiar: true }],
   ['sesion-gobierno.png', 'gobierno.html', seccion('resumen'), null, { alto: 626, limpiar: true }],
   // Triaje (con el Paquete A ya procesado)
   ['40-triaje.png', 'index.html', '', null],

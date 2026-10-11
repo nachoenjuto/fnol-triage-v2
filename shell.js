@@ -66,7 +66,10 @@
   const SEG = { min: 10, max: 600, def: 45 };
   const MAX_SUBS = 8; const MAX_TXT = 300;
   const ESPERA_MAX = 180000;   // un paso que espera (el lote) empieza a contar como mucho a los 3 minutos
-  const CONF_DEF = { auto: false, segundos: SEG.def, alTerminar: 'parar', pausarAlTocar: true, subtitulos: true, subPos: 'pie', subTam: 'normal', textos: {} };
+  // Versión del guion: los textos editados se guardan por número de paso. La 2 inserta «Intervención humana» como
+  // séptimo paso (índice 6), así que los textos guardados con la 1 a partir de ese paso se corren una posición.
+  const GUION = 2; const PASOS_INSERTADOS = { 2: [6] };
+  const CONF_DEF = { guion: GUION, auto: false, segundos: SEG.def, alTerminar: 'parar', pausarAlTocar: true, subtitulos: true, subPos: 'pie', subTam: 'normal', textos: {} };
   const alm = (s) => ({
     get: (k, d) => { try { const v = s().getItem(k); return v == null ? d : JSON.parse(v); } catch { return d; } },
     set: (k, v) => { try { s().setItem(k, JSON.stringify(v)); } catch { /* sin almacenamiento */ } },
@@ -96,8 +99,10 @@
     if (['pie', 'arriba'].includes(o.subPos)) c.subPos = o.subPos;
     if (['normal', 'grande'].includes(o.subTam)) c.subTam = o.subTam;
     if (o.textos && typeof o.textos === 'object') {
+      const desde = Number.isInteger(o.guion) && o.guion > 0 ? o.guion : 1;
+      const migrar = (n) => { for (let v = desde + 1; v <= GUION; v++) (PASOS_INSERTADOS[v] || []).forEach((i) => { if (n >= i) n += 1; }); return n; };
       Object.entries(o.textos).forEach(([k, t]) => {
-        const n = Number(k); if (!Number.isInteger(n) || n < 0 || n >= PASOS.length || !t || typeof t !== 'object') return;
+        const n = migrar(Number(k)); if (!Number.isInteger(n) || n < 0 || n >= PASOS.length || !t || typeof t !== 'object') return;
         const x = {};
         if (typeof t.frase === 'string') x.frase = t.frase.slice(0, MAX_TXT);
         if (Array.isArray(t.subtitulos)) x.subtitulos = t.subtitulos.filter((u) => u && typeof u === 'object').slice(0, MAX_SUBS).map((u) => ({ tecnico: String(u.tecnico ?? '').slice(0, MAX_TXT), negocio: String(u.negocio ?? '').slice(0, MAX_TXT) }));

@@ -38,15 +38,15 @@ AMPLIADAS = {
         ("04-traza-explicada.png", "Ficha explicada: qué llegó, qué hizo cada agente y por qué se escaló",
          "Leer de arriba abajo: qué llegó, qué hizo cada agente, la decisión con su motivo y el guardrail G-05 que la provocó."),
     ],
-    "Entender: Reasoning Replay y What-if": [
+    "Entender: razonamiento y replay what-if": [
         ("05-reasoning-replay.png", "Razonamiento registrado por agente: entrada, pasos y salida",
          "Señalar que no es el pensamiento interno del modelo, sino el registro estructurado que devuelve cada agente."),
         ("05b-replay-diff.png", "Replay What-if: misma decisión con un modelo más pequeño",
          "Señalar el resultado: misma decisión y mismo ramo, −82 % de coste y −41 % de latencia."),
     ],
     "Limitar: identidad y permisos por agente": [
-        ("06-ficha-agente.png", "Ficha del agente de Reglas: identidad, permisos e histórico de cambios",
-         "Señalar las columnas «Puede» y «No puede», y debajo el histórico de autonomía con su motivo y aprobador."),
+        ("06-ficha-agente.png", "Identidad y permisos del agente de Reglas: qué puede y qué no puede hacer",
+         "Señalar las columnas «Puede» y «No puede»: propone y consulta la póliza, pero no ordena pagos ni rechaza un siniestro."),
         ("06b-agente-calidad.png", "Calidad del agente de Reglas: índice de calidad y barra por indicador",
          "Señalar el círculo del 98 %: media de acierto, confianza y evidencias. El sobrecoste de Reglas no es de calidad; se corrige en Medidas correctivas."),
     ],
@@ -57,8 +57,14 @@ AMPLIADAS = {
          "Recorrer el gráfico: subidas en verde y bajadas en rojo. La autonomía se gana y se pierde con datos."),
     ],
     "Limitar: Trust Score y supervisión adaptativa": [
-        ("14-agente-comportamiento.png", "Comportamiento por periodo y variables que gobiernan al agente",
-         "Señalar cómo sube la precisión y bajan escalados y overrides semana a semana; debajo, cada variable con su efecto."),
+        ("14-agente-comportamiento.png", "Comportamiento del agente de Reglas por periodo: precisión, escalado, override, coste y latencia",
+         "Señalar cómo sube la precisión y bajan los escalados semana a semana, el pico de override del 4,1 % el 15/09 y las filas de gpt-5-mini (degradado por coste)."),
+    ],
+    "Limitar: intervención humana que se puede demostrar": [
+        ("44-intervencion-humana.png", "Intervención humana: KPIs, mecanismos de supervisión y cola de revisión",
+         "Señalar los cinco KPIs (3.180 escalados, 2,1 % de override, 2 pendientes, 3,3 % de revisiones exprés y el control del AI Act art. 14 cubierto) y la cola con su estado y su motivo."),
+        ("45-hitl-calidad.png", "Calidad de la revisión: tiempo por tramos y tabla por tramitador con su formación en IA",
+         "Señalar la barra roja de menos de 30 s (105 revisiones) y los tres tramitadores en rojo: A. Ruiz con el 11 % y los dos sin formación, I. Soler y D. Rey, con el 9 % y el 14 %."),
     ],
     "Limitar: guardrails": [
         ("15-guardrail-g02.png", "Ficha del guardrail de importe (G-02): disparos por día, canal y ramo",
@@ -75,8 +81,8 @@ AMPLIADAS = {
          "Señalar que llevamos el 59 % del cap mensual y la proyección de cierre (428 € frente a 500 €)."),
     ],
     "Pagar: de la alerta a la acción": [
-        ("19-caps-superados.png", "Consumo de cada cap frente al 100 %: superados, en aviso y dentro",
-         "Señalar los tres caps en rojo por encima de la línea del 100 % y el que está en aviso."),
+        ("46-alertas-coste.png", "Alertas de coste: CAP-03 superado, CAP-04 y CAP-05 en una traza, CAP-01 al 87 %",
+         "Recorrer la primera tarjeta: CAP-03 superado (13,7 € / 12 €), el cap ya degradó el modelo y la sugerida ahorra 7,9 € al día."),
         ("17b-cap03-acciones.png", "Acciones correctivas de CAP-03: automática, simular, aplicar o pedir aprobación",
          "Recorrer los tres tipos de acción y su ahorro estimado; el cambio de presupuesto requiere aprobación del comité."),
     ],
@@ -108,11 +114,11 @@ AMPLIADAS = {
     ],
     "Cumplimiento por diseño": [
         ("12-etiqueta-normativa.png", "Etiqueta normativa: qué exige el artículo y si ya está en vigor",
-         "Leer el texto de la etiqueta: AI Act art. 14, exigible a alto riesgo desde 2027; aquí se aplica como buena práctica."),
+         "Leer el texto de la etiqueta: AI Act art. 12, registro automático de eventos, exigible a alto riesgo desde el 02/12/2027; aquí se aplica como buena práctica."),
     ],
     "Ver: la portada del panel": [
-        ("00-inicio.png", "Inicio: una ficha por pregunta, con dos cifras en vivo, su semáforo y su norma",
-         "Recorrer los grupos de izquierda a derecha y señalar el semáforo rojo de Knowledge bases y FinOps: el panel dice dónde mirar primero."),
+        ("00-inicio.png", "Inicio: una ficha por sección en los cinco bloques del menú, con su cifra en vivo, su estado y su norma",
+         "Recorrer los bloques de izquierda a derecha y señalar las etiquetas «Atención» de Knowledge Bases, FinOps y Medidas correctivas: el panel dice dónde mirar primero."),
     ],
     "Entender: evidencias verificadas": [
         ("41-evidencias.png", "Ficha del mensaje: diez evidencias resaltadas y la regla A5 que lo manda a revisión",
@@ -143,8 +149,9 @@ AMPLIADAS = {
 
 # Capturas compuestas (dos capturas apiladas) de las slides de contenido con pareja
 COMPUESTAS = {
-    "Entender: Reasoning Replay y What-if": "c21-replay.png",
+    "Entender: razonamiento y replay what-if": "c21-replay.png",
     "Limitar: autonomía progresiva": "c24-autonomia.png",
+    "Limitar: intervención humana que se puede demostrar": "c40-hitl.png",
     "Pagar: caps y presupuesto": "c28-caps.png",
     "Pagar: de la alerta a la acción": "c29-acciones.png",
     "Antes de cambiar, simular": "c31-simular.png",

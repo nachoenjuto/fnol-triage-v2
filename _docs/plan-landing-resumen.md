@@ -1,6 +1,7 @@
 # Plan: landing del panel, Resumen actualizado, menús iguales y modal de KB estable
 
 > Estado (08/10/2026): **implementado** con las decisiones confirmadas: menú del triaje a 248 px con «Editar en grande», la landing se abre por defecto, las alertas reúnen todas las fuentes y sin botón de recorrido de la demo.
+> Cambios posteriores (09/10/2026): los grupos de la landing pasaron a ser los cinco bloques del menú lateral (Operación, Control, Calidad, Cumplimiento y coste, Mejora y auditoría), definidos en un solo sitio (`MENU` en `gobierno.js`); cada ficha muestra una cifra grande con su detalle y el estado solo se marca cuando hay algo que mirar. Sí hay recorrido de la demo: se activa con el interruptor «Modo presentador» de la landing. Ver el apartado 3.2 de [guia-demo.md](guia-demo.md).
 
 ## 1. Menús del mismo ancho
 
