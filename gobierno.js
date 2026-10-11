@@ -1977,7 +1977,6 @@
         <div class="kb-det">
         <div class="kb-meta small"><span>${ic(KB_FUENTE_ICO[k.fuente.sistema] || 'plug-zap')} ${esc(k.fuente.sistema)}</span><span>${ic('file-text')} ${num(k.documentos)} ${k.tipo === 'tabla' ? 'registros' : 'doc.'}${k.chunks ? ` · ${num(k.chunks)} chunks` : ''}</span><span>${ic('timer')} ${esc(k.fuente.sync)}</span></div>
         <div class="kb-spark"><span class="muted small">${esc(k.serie.nombre)} · 14 d</span>${sparkSvg(k.serie.valores, color)}</div>
-        ${s.motivos.length ? `<ul class="kb-motivos">${s.motivos.slice(0, 2).map((m) => `<li>${ic('circle-alert')} ${esc(m)}</li>`).join('')}${s.motivos.length > 2 ? `<li class="muted">+${s.motivos.length - 2} más</li>` : ''}</ul>` : ''}
         <div class="kb-pie small"><span>${(k.agentes || []).map(agTag).join(' ')}</span><span>${k.rubrica ? `<span class="pill pill-muted">${ic('flask-conical')} ${esc(k.rubrica)}</span>` : '<span class="pill pill-warn">sin rúbrica</span>'}${k.simulada ? ' <span class="pill pill-muted">simulada</span>' : ' <span class="pill pill-time">real</span>'}</span></div>
         </div>
       </article>`;

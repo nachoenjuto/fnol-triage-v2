@@ -723,3 +723,21 @@ tbody tr.is-sel td { background: var(--bg); }
 .hitl-mec { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: .8rem; }
 .hitl-mec .box { display: grid; gap: .35rem; align-content: start; }
 .hitl-mec .box b { display: flex; align-items: center; gap: .4rem; font-size: .88rem; }
+
+/* Knowledge bases: sin la franja lateral y más compactas (como las fichas de Inicio) */
+.kb { border-left: 1px solid var(--border); gap: .45rem; padding: .9rem 1rem; }
+.kb-top { gap: .6rem; align-items: center; }
+.kb-top .ag-ico { width: 2.1rem; height: 2.1rem; border-radius: 6px; }
+.kb-top .ag-ico svg { width: 1.15rem; height: 1.15rem; }
+.kb-tit .ag-nombre { font-size: 1rem; }
+.kb-desc { font-size: .8rem; -webkit-line-clamp: 2; }
+.kb-det { padding-top: .5rem; gap: .35rem; }
+
+/* Knowledge bases: icono arriba a la izquierda y estado arriba a la derecha; el bloque de detalles alineado entre tarjetas de la misma fila */
+.kb-top { align-items: start; }
+.kb-top > .pill { justify-self: end; }
+.kb-grid { grid-auto-rows: auto; }
+.kb { display: grid; grid-row: span 5; grid-template-rows: subgrid; row-gap: .45rem; }
+.kb-det { display: contents; }
+.kb-det .kb-meta { margin-top: .6rem; padding-top: .6rem; border-top: 1px dashed var(--border); align-self: start; }
+.kb-det .kb-pie { align-self: end; }
