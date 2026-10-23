@@ -66,7 +66,7 @@
   const normas = (...ids) => `<span class="normas">${ids.map((k) => `<span class="norma" data-tip="${esc(NORMA[k][1])}">${ic('scale')} ${esc(NORMA[k][0])}</span>`).join('')}</span>`;
   const NORMAS_BLOQUE = {
     'h-agentes': ['ai-14'], 'h-alertas': ['eiopa'], 'h-trazas': ['ai-12', 'rgpd-5', 'dora-28'], 'h-reasoning': ['rgpd-15', 'ai-13'], 'h-replay': ['ai-15', 'eiopa'],
-    'h-niveles': ['ai-14', 'rgpd-22'], 'h-cambios': ['rgpd-5', 'eiopa'], 'h-guardrails': ['ai-9', 'ai-14'], 'h-hitl-mec': ['ai-14', 'rgpd-22'], 'h-hitl-cola': ['ai-14', 'rgpd-22'], 'h-hitl-agentes': ['ai-14'], 'h-caps': ['sii-41'], 'h-modelos': ['dora-28'], 'h-hist': ['ai-12', 'rgpd-5'],
+    'h-niveles': ['ai-14', 'rgpd-22'], 'h-cambios': ['rgpd-5', 'eiopa'], 'h-guardrails': ['ai-9', 'ai-14'], 'h-hitl-mec': ['ai-14', 'rgpd-22'], 'h-hitl-cola': ['ai-14', 'rgpd-22'], 'h-hitl-agentes': ['ai-14'], 'h-caps': ['sii-41'], 'h-fr-escenarios': ['rgpd-22', 'rgpd-c47'], 'h-fr-siu': ['ai-14', 'rgpd-22'], 'h-fr-gob': ['rgpd-22', 'lossear-99-7', 'eiopa'], 'h-fr-limites': ['ai-9'], 'h-modelos': ['dora-28'], 'h-hist': ['ai-12', 'rgpd-5'],
   };
   const titulo = (id, icono, texto) => { $(id).innerHTML = `${ic(icono)} ${texto}${NORMAS_BLOQUE[id] ? normas(...NORMAS_BLOQUE[id]) : ''}`; };
 
@@ -137,7 +137,7 @@
 
   async function cargarArchivo(file) {
     try {
-      const datos = JSON.parse(await file.text());
+      const datos = Fechas.alDia(JSON.parse(await file.text()));
       if (!datos || typeof datos !== 'object' || !Array.isArray(datos.agentes) || !Array.isArray(datos.trazas) || !datos.trazas.every((t) => t && t.id && Array.isArray(t.spans))) throw new Error('no tiene el esquema del panel (agentes[], trazas[] con spans)');
       archivo = { nombre: file.name, datos };
       const op = $('fuente').querySelector('[value="archivo"]');
@@ -253,7 +253,7 @@
     const conCmp = cmpItems.some((x) => x.gob.trazabilidad.traza_id === t.id);
     const botones = `<button class="btn btn-sm" type="button" data-goto="replay">${ic('brain')} Ver razonamiento</button><button class="btn btn-sm" type="button" data-goto="replay" data-replay="1">${ic('repeat')} Replay</button>${conCmp ? `<button class="btn btn-sm" type="button" data-cmp-ficha="${esc(t.id)}">${ic('fingerprint')} Cumplimiento</button>` : ''}`;
     const pills = `${ramoPill(t.ramo)} ${decPill(t.decision)} ${resPill(t)}`;
-    const datos = `<dl class="kv"><dt>Inicio</dt><dd>${new Date(t.inicio).toLocaleString('es-ES')}</dd><dt>Canal</dt><dd>${canal(t.canal)}</dd><dt>Confianza</dt><dd>${pct(t.confianza)}</dd><dt>Guardrail</dt><dd>${t.guardrail ? `<span class="policy fail">${ic('shield-check')} ${conGuardrails(esc(t.guardrail))}</span>` : `<span class="policy pass">${ic('check')} Ninguno disparado</span>`}</dd><dt>Versiones</dt><dd class="mono">${esc(versiones)}</dd>${t.origen ? `<dt>Origen</dt><dd>${esc(t.origen)}</dd>` : ''}<dt>Ciclo · tokens · coste</dt><dd>${ms(m.dur)} · ${num(m.tokens)} · ${eur(m.coste, 4)}</dd><dt>Incidencias</dt><dd>${(t.incidencias || []).map((i) => `<span class="pill pill-warn">${ic('circle-alert')} ${conGuardrails(esc(i))}</span>`).join(' ') || '<span class="muted">—</span>'}</dd></dl>`;
+    const datos = `<dl class="kv"><dt>Inicio</dt><dd>${new Date(t.inicio).toLocaleString('es-ES')}</dd><dt>Canal</dt><dd>${canal(t.canal)}</dd><dt>Confianza</dt><dd>${pct(t.confianza)}</dd><dt>Guardrail</dt><dd>${t.guardrail ? `<span class="policy fail">${ic('shield-check')} ${conGuardrails(esc(t.guardrail))}</span>` : `<span class="policy pass">${ic('check')} Ninguno disparado</span>`}</dd>${frTraza(t)}<dt>Versiones</dt><dd class="mono">${esc(versiones)}</dd>${t.origen ? `<dt>Origen</dt><dd>${esc(t.origen)}</dd>` : ''}<dt>Ciclo · tokens · coste</dt><dd>${ms(m.dur)} · ${num(m.tokens)} · ${eur(m.coste, 4)}</dd><dt>Incidencias</dt><dd>${(t.incidencias || []).map((i) => `<span class="pill pill-warn">${ic('circle-alert')} ${conGuardrails(esc(i))}</span>`).join(' ') || '<span class="muted">—</span>'}</dd></dl>`;
     const override = t.override ? `<div class="box" style="border-color:var(--time)"><b>${ic('repeat')} Override humano · ${esc(t.override.usuario)} · ${hora(t.override.fecha)}</b><br><span class="pill pill-review">A revisar</span> → <span class="pill pill-ok">Aprobado</span><br><span class="small">${esc(t.override.motivo)}</span><br><span class="muted small">Se registra como «dato no accesible al modelo»: candidato a integrar la consulta de conductores declarados como herramienta del agente de Extracción.</span></div>` : '';
     if (modo === 'panel') {
       return `<div class="card-head"><h2>${ic('route')} ${esc(t.id)} · ${esc(t.mensaje)} <span class="muted" style="font-weight:400">· ${esc(t.asunto)}</span></h2><div class="row">${pills} ${botones}</div></div>
@@ -2316,6 +2316,289 @@
       <ul class="res-lista">${mal.map(({ k, s }) => `<li data-kb="${esc(k.id)}" role="button" tabindex="0" class="res-kb">${saludPill(s.estado)} <b>${esc(k.nombre)}</b> <span class="muted small">· ${esc(s.motivos[0] || '')}</span></li>`).join('') || '<li class="muted">Todas las knowledge bases están sanas.</li>'}</ul>`;
   }
 
+  // ---------------------------------------------------------------------------
+  // Indicadores de fraude: score antifraude del lote (fraude.js), escenarios, catálogo, relaciones y cola de la SIU.
+  // El motor no usa IA: cruza el texto de cada mensaje con el resto del lote y con el histórico de data/fraude.js.
+  // ---------------------------------------------------------------------------
+  const frCfg = ssGet('gobierno.fraude_cfg', {}); // cambios de la sesión en el catálogo: { 'IF-09': { activo, peso } }
+  let FR = {}; let FRL = [];                         // evaluación por mensaje y entradas del lote
+  const FD = () => G.fraude || FRAUDE_DEMO;
+  const frNuevos = ssGet('gobierno.fraude_nuevos', []); // indicadores creados en esta sesión
+  const frCatalogo = () => [...FD().indicadores, ...frNuevos.filter((n) => !FD().indicadores.some((i) => i.id === n.id))].map((i) => ({ ...i, ...(frCfg[i.id] || {}) }));
+  const NIVEL_FR = { siu: ['pill-crit', 'search-check', 'SIU', 'var(--crit)'], vigilancia: ['pill-warn', 'eye', 'Vigilancia', 'var(--warn)'], sin: ['pill-ok', 'circle-check', 'Sin indicios', 'var(--ok)'] };
+  const PAGO_FR = { retenido: ['pill-warn', 'banknote', 'Retenido'], libre: ['pill-ok', 'banknote', 'Libre'], no_aplica: ['pill-time', 'user-check', 'En revisión'] };
+  const EST_SIU = { pendiente: ['pill-crit', 'inbox', 'Pendiente'], en_investigacion: ['pill-review', 'search-check', 'En investigación'], en_verificacion: ['pill-warn', 'hourglass', 'En verificación'], confirmado: ['pill-crit', 'triangle-alert', 'Confirmado'], descartado: ['pill-ok', 'circle-check', 'Descartado'], registrado: ['pill-time', 'minus', 'Solo registro'] };
+  const nivelFrPill = (n) => { const [c, i, l] = NIVEL_FR[n] || NIVEL_FR.sin; return `<span class="pill ${c}">${ic(i)} ${l}</span>`; };
+  const pagoPill = (p) => { const [c, i, l] = PAGO_FR[p] || PAGO_FR.no_aplica; return `<span class="pill ${c}">${ic(i)} ${l}</span>`; };
+  const estSiuPill = (s) => { const [c, i, l] = EST_SIU[s] || EST_SIU.registrado; return `<span class="pill ${c}">${ic(i)} ${l}</span>`; };
+  const scoreBar = (s, n) => `<span class="fr-score" title="Score ${s} · vigilancia desde 40 · SIU desde 70"><i style="width:${s}%;background:${(NIVEL_FR[n] || NIVEL_FR.sin)[3]}"></i><u style="left:40%"></u><u style="left:70%"></u></span><b class="tnum">${s}</b>`;
+
+  // Lote que evalúa el motor: la sesión del triaje (con su texto) o los mensajes de la demo que tienen traza
+  function loteFraude() {
+    if ($('fuente').value === 'sesion') {
+      const log = ssGet('triage.log', []);
+      if (Array.isArray(log) && log.length) return [...log].reverse().map((e) => ({ ...e, decision_triaje: e.decision, traza: e.gobernanza && e.gobernanza.trazabilidad && e.gobernanza.trazabilidad.traza_id }));
+    }
+    const ids = new Set(G.trazas.map((t) => t.mensaje));
+    return PAQUETES.flatMap((p) => p.mensajes).filter((m) => ids.has(m.id)).map((m) => {
+      const r = RESULTADOS_GUARDADOS[m.id] ? expandirResultadoGuardado(RESULTADOS_GUARDADOS[m.id]) : {};
+      const t = G.trazas.find((x) => x.mensaje === m.id) || {};
+      // Tras un override, la decisión vigente es la del tramitador (MSG-A-04 pasa a aprobado)
+      return { id: m.id, asunto: m.asunto, ramo: t.ramo || r.ramo, mensaje: m, decision: t.override ? t.override.a : (t.decision || r.decision), decision_triaje: t.decision || r.decision, override: t.override, datos_extraidos: r.datos_extraidos || {}, traza: t.id };
+    });
+  }
+  function evaluarFraude() { FRL = loteFraude(); FR = Fraude.evaluar(FRL, { ...FD(), indicadores: frCatalogo() }); }
+  const seguimiento = (id) => {
+    const s = (FD().seguimiento || {})[id]; const ev = FR[id];
+    if (s) return s;
+    if (!ev) return null;
+    return { estado: ev.nivel === 'siu' ? 'pendiente' : ev.nivel === 'vigilancia' || ev.pago === 'retenido' ? 'en_verificacion' : 'registrado', responsable: ev.nivel === 'siu' ? 'SIU' : ev.pago === 'retenido' ? 'Tesorería' : '—', nota: ev.accion };
+  };
+  const casosFr = () => FRL.filter((e) => FR[e.id] && (FR[e.id].score > 0 || FR[e.id].pago === 'retenido'));
+
+  function renderFraude() {
+    const D = FD(); const R = Fraude.resumen(FR); const dias = D.diario || [];
+    const siu14 = dias.reduce((s, d) => s + d[3], 0); const hoy = dias[dias.length - 1] || [];
+    const casos = D.escenarios.reduce((s, x) => s + (x.casos_14d || 0), 0); const conf = D.escenarios.reduce((s, x) => s + (x.confirmados_14d || 0), 0);
+    const cat = frCatalogo(); const disp = cat.reduce((s, i) => s + i.disparos_14d, 0); const fp = cat.reduce((s, i) => s + i.disparos_14d * i.fp, 0) / (disp || 1);
+    const cap = (id) => (G.caps || []).find((c) => c.id === id);
+    titulo('h-fraude', 'shield-alert', 'Indicadores de fraude');
+    $('fr-niveles').innerHTML = (D.niveles || []).map(([min, k, l, txt]) => `<div class="fr-nivel" style="--c:${NIVEL_FR[k][3]}"><b>${ic(NIVEL_FR[k][1])} ${esc(l)}</b><span class="mono small">${k === 'sin' ? '0–39' : k === 'vigilancia' ? '40–69' : `≥ ${min}`}</span><span class="small muted">${esc(txt)}</span></div>`).join('');
+    $('kpis-fr').innerHTML = [
+      kpi({ cls: 'primary', icono: 'scan-eye', etiqueta: 'Mensajes analizados', valor: num(R.analizados), sub: 'del lote · motor sin IA, sin coste de modelo' }),
+      kpi({ cls: R.siu ? 'crit' : R.con_indicios ? 'warn' : 'ok', icono: 'shield-alert', etiqueta: 'Con indicios', valor: String(R.con_indicios), sub: `${R.vigilancia} en vigilancia · ${R.siu} en la SIU · la decisión del triaje no cambia` }),
+      kpi({ cls: R.retenidos ? 'warn' : 'ok', icono: 'banknote', etiqueta: 'Pagos retenidos', valor: eur(R.importe_retenido, 0), sub: `${R.retenidos} ${R.retenidos === 1 ? 'pago' : 'pagos'} a la espera de verificar${cap('CAP-11') ? ` · CAP-11 al ${Math.round(capUso(cap('CAP-11')) * 100)} %` : ''}` }),
+      kpi({ cls: 'review', icono: 'search-check', etiqueta: 'Escalados a la SIU', valor: num(siu14), sub: `en 14 días · hoy ${hoy[3] ?? 0} de ${cap('CAP-10') ? cap('CAP-10').limite : 15} (CAP-10)` }),
+      kpi({ cls: 'time', icono: 'badge-check', etiqueta: 'Confirmados por la SIU', valor: `${Math.round((conf / (casos || 1)) * 100)} %`, sub: `${conf} de ${casos} casos de los escenarios en 14 días` }),
+      kpi({ cls: fp > 0.7 ? 'warn' : 'ok', icono: 'circle-x', etiqueta: 'Falsos positivos', valor: `${Math.round(fp * 100)} %`, sub: 'de los disparos de indicadores, ponderado · por eso un indicador solo no decide' }),
+    ].join('');
+
+    // Casos del lote
+    titulo('h-fr-lote', 'list-checks', `Casos del lote (${FRL.length})`);
+    const orden = { siu: 0, vigilancia: 1, sin: 2 };
+    const filas = [...FRL].sort((a, b) => (orden[FR[a.id].nivel] - orden[FR[b.id].nivel]) || FR[b.id].score - FR[a.id].score || a.id.localeCompare(b.id));
+    $('fr-lote').innerHTML = filas.map((e) => {
+      const v = FR[e.id]; const esc0 = v.escenario && D.escenarios.find((s) => s.id === v.escenario);
+      const contra = v.contraindicios ? ` <span class="pill pill-time" title="El histórico anula un indicador">${ic('undo-2')} contraindicio</span>` : '';
+      return `<tr class="clickable${v.score ? '' : ' muted'}" data-fr-caso="${esc(e.id)}" tabindex="0"><td><b class="mono">${esc(e.id)}</b><br><span class="small muted">${esc(e.asunto || '')}</span></td><td>${canal((e.mensaje || {}).canal)}</td><td>${decPill(e.decision_triaje)}${e.override ? ` <span class="pill pill-time" title="${esc(e.override.motivo)}">${ic('repeat')} override</span>` : ''}</td><td class="fr-score-td">${scoreBar(v.score, v.nivel)}</td><td>${nivelFrPill(v.nivel)}${contra}</td><td class="small">${esc0 ? `<span class="mono">${esc(esc0.id)}</span> ${esc(esc0.nombre)}` : '<span class="muted">—</span>'}</td><td>${pagoPill(v.pago)}</td><td class="small wrap">${conGuardrails(esc(v.accion))}</td></tr>`;
+    }).join('');
+
+    // Escenarios
+    titulo('h-fr-escenarios', 'route', `Escenarios de fraude (${D.escenarios.length})`);
+    $('fr-escenarios').innerHTML = D.escenarios.map((s) => {
+      const enLote = FRL.filter((e) => FR[e.id].escenario === s.id);
+      const disparados = (id) => enLote.some((e) => FR[e.id].indicadores.some((x) => x.id === id));
+      return `<article class="fr-esc${enLote.length ? ' en-lote' : ''}">
+        <div class="fr-esc-top"><span class="fr-esc-ico">${ic(s.icono)}</span><span class="mono small">${esc(s.id)}</span>${ramoPill(s.ramo)}${enLote.length ? `<span class="pill pill-warn">${ic('scan-eye')} en el lote</span>` : '<span class="pill pill-time">histórico</span>'}</div>
+        <h4>${esc(s.nombre)}</h4>
+        <p class="small">${esc(s.narrativa)}</p>
+        <div class="chips">${s.indicadores.map((i) => { const x = cat.find((c) => c.id === i) || { nombre: i }; return `<span class="fr-chip${disparados(i) ? ' on' : ''}" title="${esc(x.nombre)}">${esc(i)}</span>`; }).join('')}</div>
+        <dl class="fr-kv small"><dt>Umbral</dt><dd>score ≥ ${s.umbral} · ${s.umbral >= 70 ? 'SIU' : 'vigilancia'}</dd><dt>Acción</dt><dd>${conGuardrails(esc(s.accion))}</dd><dt>Falsos positivos</dt><dd>${esc(s.falsos_positivos)}</dd></dl>
+        <div class="fr-esc-pie">${normas(...s.normas)}<span class="muted small">${s.casos_14d} casos en 14 días · ${s.confirmados_14d} confirmados</span></div>
+        ${enLote.length ? `<div class="row">${enLote.map((e) => `<button class="btn btn-sm" type="button" data-fr-caso="${esc(e.id)}">${ic('scan-eye')} Ver ${esc(e.id)} · ${FR[e.id].score}</button>`).join('')}</div>` : ''}
+      </article>`;
+    }).join('');
+
+    // Mapa de relaciones y cola de la SIU
+    titulo('h-fr-mapa', 'network', 'Mapa de relaciones');
+    $('fr-mapa').innerHTML = mapaFraude();
+    const cola = [
+      ...casosFr().map((e) => { const v = FR[e.id]; const s = seguimiento(e.id) || {}; return { lote: true, id: e.id, sub: e.asunto, escenario: v.escenario, score: v.score, nivel: v.nivel, estado: s.estado, responsable: s.responsable, nota: s.nota, fecha: s.fecha }; }),
+      ...(D.cola || []).map((c) => ({ ...c, id: c.caso, sub: `${c.ramo} · ${(D.escenarios.find((s) => s.id === c.escenario) || {}).nombre || ''}` })),
+    ];
+    titulo('h-fr-siu', 'search-check', `Cola de la SIU (${cola.length})`);
+    $('fr-siu').innerHTML = cola.map((c) => `<tr${c.lote ? ` class="clickable" data-fr-caso="${esc(c.id)}" tabindex="0"` : ''}><td><b class="mono">${esc(c.id)}</b>${c.lote ? ' <span class="pill pill-time">lote</span>' : ''}<br><span class="small muted">${esc(c.sub || '')}</span></td><td class="mono small">${esc(c.escenario || '—')}</td><td class="tnum"><b>${c.score}</b></td><td>${estSiuPill(c.estado)}</td><td class="small">${esc(c.responsable || '—')}${c.abierto || c.fecha ? `<br><span class="muted">${fechaHora(c.abierto || c.fecha)}</span>` : ''}</td><td class="small wrap">${esc(c.lote ? c.nota || '' : c.nota || '')}${c.importe ? ` <span class="muted">· ${eur(c.importe, 0)}</span>` : ''}</td></tr>`).join('');
+
+    // Catálogo
+    titulo('h-fr-cat', 'list-ordered', `Catálogo de indicadores (${cat.length})`);
+    $('btn-fr-reset').innerHTML = `${ic('rotate-ccw')} Restaurar`;
+    $('btn-fr-nuevo').innerHTML = `${ic('plus')} Nuevo indicador`;
+    $('btn-fr-reset').style.display = Object.keys(frCfg).length ? '' : 'none';
+    $('fr-cat').innerHTML = cat.map((i) => {
+      const enLote = Object.values(FR).filter((v) => v.indicadores.some((x) => x.id === i.id && x.aplicado)).length;
+      const cambiado = (i.nuevo ? ' <span class="pill pill-time">nuevo</span>' : '') + (frCfg[i.id] ? ' <span class="pill pill-time">cambiado</span>' : '');
+      return `<tr data-fr-fila="${esc(i.id)}" class="${i.activo ? '' : 'muted'}"><td><label class="switch${i.activo ? '' : ' off'}" data-fr-ind="${esc(i.id)}" role="switch" aria-checked="${i.activo}" tabindex="0" title="${i.activo ? 'Desactivar' : 'Activar'} ${esc(i.id)}"><i></i></label></td><td><b class="mono">${esc(i.id)}</b> ${ic(i.icono)} ${esc(i.nombre)}${cambiado}<br><small class="muted">${esc(i.no_es)}</small></td><td class="small">${esc(i.grupo)}</td><td class="small wrap">${esc(i.senal)}</td><td class="small">${esc(i.fuente)}</td><td><input class="fr-peso" type="number" min="0" max="60" step="5" value="${i.peso}" data-fr-peso="${esc(i.id)}" aria-label="Peso de ${esc(i.id)}"></td><td class="tnum">${num(i.disparos_14d)}</td><td><span class="meter" style="--c:${i.fp > 0.75 ? 'var(--warn)' : 'var(--primary)'}"><i style="width:${Math.round(i.fp * 100)}%"></i></span> <span class="tnum small">${Math.round(i.fp * 100)} %</span></td><td class="tnum">${enLote ? `<b>${enLote}</b>` : '<span class="muted">0</span>'}</td></tr>`;
+    }).join('');
+
+    // Guardrails y caps antifraude
+    titulo('h-fr-limites', 'shield-check', 'Guardrails y caps antifraude');
+    const grs = (G.politicas || []).filter((p) => ['G-10', 'G-11', 'G-12'].includes(p.id));
+    const caps = (G.caps || []).filter((c) => c.ambito === 'Antifraude');
+    $('fr-limites').innerHTML = grs.map((p) => `<tr class="clickable" data-fr-gr="${esc(p.id)}" tabindex="0"><td>${grRef(p.id)}</td><td class="small wrap">${esc(p.condicion)}</td><td class="small muted">guardrail · ${politicaActiva(p) ? 'activo' : 'inactivo'}</td><td class="tnum">${(p.disparos_dia || [])[13] ?? 0} hoy · ${num(p.disparos)} en 14 d</td><td class="small wrap">${esc(p.accion)}</td></tr>`).join('')
+      + caps.map((c) => { const [pc, pi, pl] = CAP_ESTADO[capEstadoDe(c)] || CAP_ESTADO.ok; return `<tr class="clickable" data-cap="${esc(c.id)}" tabindex="0"><td>${grRef(c.id)}</td><td class="small wrap">${esc(c.tipo)}</td><td class="tnum small">límite ${capFmt(c, c.limite)}</td><td><span class="tnum">${capFmt(c, c.consumo)}</span> <span class="pill ${pc}">${ic(pi)} ${pl}</span></td><td class="small wrap">${esc(c.accion)}</td></tr>`; }).join('');
+
+    titulo('h-fr-evol', 'chart-column', 'Evolución en 14 días');
+    $('fr-evol').innerHTML = chartFraude(dias);
+
+    // Gobierno del modelo y equidad por canal
+    titulo('h-fr-gob', 'scale', 'Gobierno del modelo antifraude');
+    const g12 = grs.find((p) => p.id === 'G-12');
+    const pr = [
+      ['user-check', 'Decide una persona', 'Un score alto no rechaza: G-10 lleva el caso a la SIU. 0 rechazos automáticos en 14 días.', ['rgpd-22', 'ai-14']],
+      ['eye-off', 'El cliente no ve el indicio', `G-12 bloquea cualquier respuesta que hable de fraude o sospecha${g12 ? ` (${g12.disparos} veces en 14 días)` : ''}. La petición de documentación es la de siempre.`, ['rgpd-13']],
+      ['file-search', 'Cada punto tiene su prueba', 'Los indicadores de relato llevan su cita literal del mensaje y los relacionales, el dato cruzado. El desglose está en la ficha de cada caso.', ['rgpd-15', 'ai-13']],
+      ['undo-2', 'Los contraindicios restan', 'El histórico puede anular un indicador: en MSG-A-04 el conductor joven está declarado y IF-11 no suma.', ['eiopa']],
+      ['coins', 'Uso proporcionado del fichero sectorial', 'CAP-09 limita las consultas diarias al fichero común del sector y solo se consulta con indicios.', ['lossear-99-7']],
+      ['scale', 'Base jurídica', 'Interés legítimo en prevenir el fraude. La ponderación está redactada y falta la firma del DPO (M-19). [VALIDAR con Cumplimiento]', ['rgpd-c47']],
+    ];
+    $('fr-gob').innerHTML = `<ul class="fr-princ">${pr.map(([i, t, txt, ns]) => `<li><b>${ic(i)} ${esc(t)}</b><span class="small">${conGuardrails(esc(txt))}</span>${normas(...ns)}</li>`).join('')}</ul>`;
+    const C = D.canales || []; const peor = [...C].sort((a, b) => b.alertas - a.alertas)[0];
+    const resto = C.filter((c) => c !== peor); const media = resto.reduce((s, c) => s + c.alertas, 0) / (resto.length || 1);
+    titulo('h-fr-canales', 'users', 'Equidad por canal');
+    const maxA = Math.max(...C.map((c) => c.alertas), 1);
+    $('fr-canales').innerHTML = `<div class="fr-canales">${C.map((c) => { const [ci, cl] = canalInfo(c.canal); const alta = c.alertas > media * 1.4; return `<div class="fr-canal"><span>${ic(ci)} ${esc(cl)}</span><span class="meter" style="--c:${alta ? 'var(--warn)' : 'var(--primary)'}"><i style="width:${(c.alertas / maxA) * 100}%"></i></span><b class="tnum" style="${alta ? 'color:var(--warn)' : ''}">${c.alertas.toFixed(1).replace('.', ',')}</b><span class="small muted tnum">confirma ${Math.round(c.confirmadas * 100)} %</span></div>`; }).join('')}</div>
+      ${peor && peor.nota ? `<div class="alert warn" style="margin-top:.8rem"><span class="ico">${ic('circle-alert')}</span><div><b>${esc(canalInfo(peor.canal)[1])}: ${String(peor.alertas).replace('.', ',')} alertas por cada 100 mensajes frente a ${media.toFixed(1).replace('.', ',')} en el resto de canales</b><small>${esc(peor.nota)}</small></div><button class="btn btn-sm" type="button" data-medida="M-18">${ic('wrench')} Ver M-18</button></div>` : ''}`;
+  }
+
+  // Grafo en tres columnas: casos del lote → lo que los une (cuenta, proveedor, póliza) → expedientes del histórico
+  function mapaFraude() {
+    const H = FD().historico || {}; const sin = H.siniestros || []; const pol = H.polizas || {};
+    const nodos = { caso: [], ent: [], hist: [] }; const idx = {}; const aristas = [];
+    const nodo = (col, key, label, sub, color) => { if (!idx[key]) { idx[key] = { col, key, label, sub, color }; nodos[col].push(idx[key]); } return key; };
+    const arista = (a, b, tipo) => { if (!aristas.some((x) => x[0] === a && x[1] === b)) aristas.push([a, b, tipo]); };
+    const norm = (s) => String(s || '').replace(/\s+/g, '');
+    FRL.forEach((e) => {
+      const v = FR[e.id]; if (!v) return;
+      const poliza = Fraude.entradaDe(e).poliza;
+      v.indicadores.forEach((x) => {
+        let ent = null;
+        if (x.id === 'IF-03' && x.citas[0]) {
+          const k = norm(x.citas[0].cita); ent = nodo('ent', `iban:${k}`, `Cuenta …${k.slice(-4)}`, 'IBAN compartido (IF-03)', 'var(--crit)');
+          sin.filter((s) => norm(s.iban) === k).forEach((s) => arista(ent, nodo('hist', s.id, s.id, `${s.titular || s.poliza} · ${fecha(s.fecha)}`, 'var(--muted)'), 'IF-03'));
+        } else if (x.id === 'IF-05' && x.citas[0]) {
+          const n = x.citas[0].cita; ent = nodo('ent', `prov:${n}`, n, 'Proveedor recurrente (IF-05)', 'var(--warn)');
+          sin.filter((s) => s.proveedor === n).forEach((s) => arista(ent, nodo('hist', s.id, s.id, `${s.titular || s.poliza} · ${fecha(s.fecha)}`, 'var(--muted)'), 'IF-05'));
+        } else if (['IF-01', 'IF-06', 'IF-11'].includes(x.id) && poliza) {
+          const p = pol[poliza] || {};
+          const sub = x.id === 'IF-01' && p.alta ? `Alta el ${fecha(p.alta)} (IF-01)` : x.id === 'IF-11' ? 'Conductor declarado (contraindicio)' : 'Siniestro previo (IF-06)';
+          ent = nodo('ent', `pol:${poliza}`, `Póliza ${poliza}`, sub, x.contraindicio ? 'var(--ok)' : 'var(--review)');
+          (x.enlaces || []).filter((id) => sin.some((s) => s.id === id)).forEach((id) => { const s = sin.find((y) => y.id === id); arista(ent, nodo('hist', s.id, s.id, `${s.tipo} · ${fecha(s.fecha)}`, 'var(--muted)'), 'IF-06'); });
+        }
+        if (ent) arista(nodo('caso', e.id, e.id, `score ${v.score} · ${NIVEL_FR[v.nivel][2]}`, NIVEL_FR[v.nivel][3]), ent, x.id);
+      });
+    });
+    if (!nodos.caso.length) return '<p class="muted small">Ningún caso del lote comparte datos con otros ni con el histórico.</p>';
+    const W = 980, fil = 52, nw = 220, nh = 40, X = { caso: 10, ent: 380, hist: 750 };
+    const n = Math.max(nodos.caso.length, nodos.ent.length, nodos.hist.length);
+    const Hh = 30 + n * fil;
+    ['caso', 'ent', 'hist'].forEach((c) => { const off = (n - nodos[c].length) * fil / 2; nodos[c].forEach((x, i) => { x.x = X[c]; x.y = 26 + off + i * fil; }); });
+    const cab = [['caso', 'Casos del lote'], ['ent', 'Lo que los une'], ['hist', 'Histórico']];
+    return `<svg class="chart fr-mapa" viewBox="0 0 ${W} ${Hh}" role="img" aria-label="Relaciones entre los casos del lote y el histórico">
+      ${cab.map(([c, t]) => `<text x="${X[c]}" y="14" class="fr-mapa-cab">${t}</text>`).join('')}
+      ${aristas.map(([a, b, t]) => { const p = idx[a], q = idx[b]; const x1 = p.x + nw, y1 = p.y + nh / 2, x2 = q.x, y2 = q.y + nh / 2, mx = (x1 + x2) / 2; return `<path d="M${x1},${y1} C${mx},${y1} ${mx},${y2} ${x2},${y2}" fill="none" stroke="${q.color === 'var(--muted)' ? p.color : q.color}" stroke-width="2" stroke-dasharray="${t === 'IF-11' ? '4 3' : ''}" opacity=".9"><title>${esc(t)}</title></path>`; }).join('')}
+      ${Object.values(idx).map((x) => `<g ${x.col === 'caso' ? `data-fr-caso="${esc(x.key)}" class="fr-nodo clickable"` : 'class="fr-nodo"'}><rect x="${x.x}" y="${x.y}" width="${nw}" height="${nh}" rx="5" fill="var(--surface)" stroke="${x.color}" stroke-width="${x.col === 'caso' ? 2 : 1.3}"/><text x="${x.x + 9}" y="${x.y + 16}" class="fr-mapa-t">${esc(x.label)}</text><text x="${x.x + 9}" y="${x.y + 31}" class="fr-mapa-s">${esc(x.sub.length > 38 ? `${x.sub.slice(0, 37)}…` : x.sub)}</text></g>`).join('')}
+    </svg>`;
+  }
+
+  // Barras por día: mensajes con indicios y, encima, escalados a la SIU
+  function chartFraude(dias) {
+    if (!dias.length) return '<p class="muted small">Sin histórico.</p>';
+    const W = 640, H = 220, pl = 36, pr = 10, pt = 14, pb = 28, n = dias.length;
+    const ymax = Math.max(...dias.map((d) => d[2])) * 1.15;
+    const xs = (i) => pl + ((i + 0.5) / n) * (W - pl - pr), ys = (v) => pt + (1 - v / ymax) * (H - pt - pb); const bw = Math.min(26, ((W - pl - pr) / n) * 0.62);
+    return `<svg class="chart" viewBox="0 0 ${W} ${H}" role="img" aria-label="Mensajes con indicios y escalados a la SIU por día">
+      <g class="grid">${[0, 0.5, 1].map((f) => `<line x1="${pl}" x2="${W - pr}" y1="${ys(ymax * f)}" y2="${ys(ymax * f)}"/><text x="${pl - 6}" y="${ys(ymax * f) + 4}" text-anchor="end">${Math.round(ymax * f)}</text>`).join('')}</g>
+      ${dias.map((d, i) => `<rect x="${xs(i) - bw / 2}" y="${ys(d[2])}" width="${bw}" height="${ys(0) - ys(d[2])}" rx="3" fill="var(--warn)" opacity="${i === n - 1 ? 0.9 : 0.5}" data-tip="${fecha(d[0])}${i === n - 1 ? ' · hoy (parcial)' : ''}: ${d[2]} con indicios de ${num(d[1])} mensajes · ${d[3]} a la SIU · ${num(d[4])} consultas al fichero"/><rect x="${xs(i) - bw / 2}" y="${ys(d[3])}" width="${bw}" height="${ys(0) - ys(d[3])}" rx="3" fill="var(--crit)" data-tip="${fecha(d[0])}: ${d[3]} escalados a la SIU"/>`).join('')}
+      ${dias.map((d, i) => (i % 2 ? '' : `<text x="${xs(i)}" y="${H - 8}" text-anchor="middle">${fecha(d[0])}</text>`)).join('')}
+    </svg><div class="legend"><span><i style="background:var(--warn)"></i> Con indicios (≥ 40)</span><span><i style="background:var(--crit)"></i> Escalados a la SIU (≥ 70)</span></div>`;
+  }
+
+  // Ficha de un caso: texto con las citas, desglose del score, triaje frente a antifraude y seguimiento
+  function abrirModalFraude(id) {
+    const e = FRL.find((x) => x.id === id); const v = FR[id]; if (!e || !v) return;
+    const D = FD(); const m = e.mensaje || {}; const texto = String(m.texto || '');
+    const s = seguimiento(id) || {}; const esc0 = v.escenario && D.escenarios.find((x) => x.id === v.escenario);
+    // Citas sin solapes, en orden, con el indicador que las activa
+    const cs = v.indicadores.flatMap((x) => x.citas.map((c) => ({ ...c, id: x.id, off: !x.aplicado }))).sort((a, b) => a.inicio - b.inicio).filter((c, i, arr) => !arr.slice(0, i).some((p) => c.inicio < p.fin));
+    let html = ''; let pos = 0;
+    cs.forEach((c) => { html += esc(texto.slice(pos, c.inicio)) + `<mark class="fr-cita${c.off ? ' off' : ''}" title="${esc(c.id)}">${esc(texto.slice(c.inicio, c.fin))}<sup>${esc(c.id)}</sup></mark>`; pos = c.fin; });
+    html += esc(texto.slice(pos));
+    const max = 100;
+    const filas = v.indicadores.map((x) => `<div class="fr-ind${x.aplicado ? '' : ' off'}"><span class="mono">${esc(x.id)}</span><span>${ic(x.icono || 'info')} ${esc(x.nombre)}${x.contraindicio ? ' <span class="pill pill-ok">contraindicio</span>' : !x.activo ? ' <span class="pill pill-time">inactivo</span>' : ''}<br><small class="muted">${esc(x.detalle || '')}${x.fuente ? ` · ${esc(x.fuente)}` : ''}</small></span><span class="fr-ind-bar"><i style="width:${(x.peso / max) * 100}%;${x.aplicado ? '' : 'opacity:.3'}"></i></span><b class="tnum">${x.aplicado ? `+${x.aplicado}` : `<s>+${x.peso}</s>`}</b></div>`).join('');
+    const traza = e.traza && G.trazas.some((t) => t.id === e.traza);
+    $('modal-fraude-title').innerHTML = `${ic('shield-alert')} <span class="mono">${esc(id)}</span> · ${esc(e.asunto || m.asunto || '')} ${nivelFrPill(v.nivel)}`;
+    $('modal-fraude-body').innerHTML = `
+      <div class="kpi-mini">
+        <div class="box"><span class="muted small">${ic('gauge')} Score antifraude</span><b style="color:${NIVEL_FR[v.nivel][3]}">${v.score}</b><span class="muted small">vigilancia ≥ 40 · SIU ≥ 70</span></div>
+        <div class="box"><span class="muted small">${ic('list-checks')} Triaje</span><b>${e.decision_triaje === 'REVISION' ? 'A revisar' : 'Aprobado'}</b><span class="muted small">${e.override ? `override: ${e.override.a === 'DESPEJADO' ? 'aprobado' : 'a revisar'}` : 'no cambia por el antifraude'}</span></div>
+        <div class="box"><span class="muted small">${ic('banknote')} Pago</span><b>${PAGO_FR[v.pago][2]}</b><span class="muted small">${v.importe != null ? eur(v.importe, 0) : 'sin importe'}</span></div>
+        <div class="box"><span class="muted small">${ic('route')} Escenario</span><b>${esc0 ? esc(esc0.id) : '—'}</b><span class="muted small">${esc0 ? esc(esc0.nombre) : 'no encaja en ninguno'}</span></div>
+        <div class="box"><span class="muted small">${ic('search-check')} Seguimiento</span><b>${(EST_SIU[s.estado] || EST_SIU.registrado)[2]}</b><span class="muted small">${esc(s.responsable || '—')}</span></div>
+      </div>
+      <div class="two">
+        <div><h3>Indicadores - Desglose del score</h3><div class="fr-umbral"><i style="width:${v.score}%;background:${NIVEL_FR[v.nivel][3]}"></i><u style="left:40%"><span>40</span></u><u style="left:70%"><span>70</span></u></div>
+          <div class="fr-inds">${filas || '<p class="muted small">Ningún indicador disparado.</p>'}</div></div>
+        <div><h3>Mensaje del cliente · citas que activan los indicadores</h3><div class="box fr-texto">${html}</div>
+          <p class="small muted" style="margin-top:.4rem">${ic('eye-off')} Ni el score ni los indicadores aparecen en la respuesta al cliente (${grRef('G-12')}).</p></div>
+      </div>
+      <div class="two">
+        <div><h3>Qué pasa ahora</h3><p class="small"><b>${conGuardrails(esc(v.accion))}.</b>${s.nota ? ` ${esc(s.nota)}` : ''}</p>${esc0 ? `<p class="small muted" style="margin-top:.3rem">Acción del escenario: ${conGuardrails(esc(esc0.accion))}</p>` : ''}</div>
+        <div><h3>Relacionado</h3><div class="row">${traza ? `<button class="btn btn-sm" type="button" data-traza="${esc(e.traza)}">${ic('route')} Traza ${esc(e.traza)}</button>` : ''}${v.enlaces.filter((x) => FR[x]).map((x) => `<button class="btn btn-sm" type="button" data-fr-caso="${esc(x)}">${ic('link')} ${esc(x)}</button>`).join('')}${v.enlaces.filter((x) => !FR[x]).map((x) => `<span class="pill pill-time">${ic('history')} ${esc(x)}</span>`).join('')}</div>
+          ${esc0 ? `<div style="margin-top:.5rem">${normas(...esc0.normas)}</div>` : ''}</div>
+      </div>`;
+    abrir('modal-fraude');
+  }
+  // ---- Nuevo indicador de fraude -------------------------------------------
+  const GRUPOS_FR = ['Relato', 'Económico', 'Temporal', 'Relacional', 'Historial', 'Conductor', 'Canal'];
+  function abrirModalFrNuevo() {
+    const id = siguienteId('IF', frCatalogo());
+    $('modal-fr-nuevo-title').innerHTML = `${ic('plus')} Nuevo indicador de fraude · <span class="mono">${esc(id)}</span>`;
+    $('modal-fr-nuevo-body').innerHTML = `
+      <p class="small muted">Un indicador suma puntos al score cuando el mensaje contiene alguna de sus frases. Solo prioriza: no cambia la decisión del triaje ni se comunica al cliente. Se guarda en esta sesión y se aplica al lote al momento.</p>
+      <div class="form-grid">
+        <form id="form-fr" class="form" autocomplete="off" novalidate>
+          <label class="f" style="grid-column:1/-1">Nombre<input id="nf-nombre" type="text" maxlength="70" placeholder="Ej. Pide el pago en efectivo o a un tercero"></label>
+          <label class="f">Grupo<select id="nf-grupo">${GRUPOS_FR.map((g) => `<option>${esc(g)}</option>`).join('')}</select></label>
+          <label class="f">Peso (puntos)<span class="input-unit"><input id="nf-peso" type="number" min="5" max="60" step="5" value="15"><b>de 100</b></span></label>
+          <label class="f" style="grid-column:1/-1">Frases que lo activan (una por línea; sin distinguir mayúsculas)<textarea id="nf-frases" rows="3" placeholder="en efectivo&#10;a nombre de mi cuñado"></textarea></label>
+          <label class="f" style="grid-column:1/-1">Señal (qué detecta)<input id="nf-senal" type="text" maxlength="140" placeholder="El cliente pide cobrar fuera de la cuenta de la póliza"></label>
+          <fieldset class="f" style="grid-column:1/-1;border:0;padding:0;margin:0"><legend>Ramos</legend><div class="row">${['Auto', 'Hogar', 'Salud'].map((r) => `<label class="inline-check"><input type="checkbox" class="nf-ramo" value="${r}" checked> ${r}</label>`).join('')}</div></fieldset>
+          <label class="f" style="grid-column:1/-1">Qué no debe leerse como indicio (opcional)<input id="nf-noes" type="text" maxlength="180" placeholder="Ej. Pequeñas franquicias que el cliente paga en el taller"></label>
+          <label class="inline-check"><input id="nf-activo" type="checkbox" checked> Activarlo al crearlo</label>
+          <p id="nf-err" class="form-err" role="alert" hidden></p>
+          <div class="row" style="grid-column:1/-1;justify-content:flex-end"><button class="btn" type="button" data-close="modal-fr-nuevo">Cancelar</button><button class="btn btn-primary" type="submit">${ic('check')} Crear indicador</button></div>
+        </form>
+        <div class="box preview" id="nf-preview" aria-live="polite"></div>
+      </div>`;
+    actualizarPreviewFr();
+    abrir('modal-fr-nuevo');
+    $('nf-nombre').focus();
+  }
+  function leerFrNuevo() {
+    return {
+      id: siguienteId('IF', frCatalogo()), grupo: $('nf-grupo').value, icono: 'tag', nombre: $('nf-nombre').value.trim(),
+      senal: $('nf-senal').value.trim(), frases: $('nf-frases').value.split('\n').map((x) => x.trim()).filter(Boolean),
+      fuente: 'Mensaje (cita literal)', peso: Math.max(5, Math.min(60, Math.round(Number($('nf-peso').value) || 15))),
+      ramos: [...document.querySelectorAll('.nf-ramo:checked')].map((x) => x.value), activo: $('nf-activo').checked,
+      no_es: $('nf-noes').value.trim() || 'Indicador creado en esta sesión: revisar sus falsos positivos antes de darle más peso.', disparos_14d: 0, fp: 0, nuevo: true,
+    };
+  }
+  // Vista previa: qué mensajes del lote lo activarían y cómo cambiaría su nivel
+  function actualizarPreviewFr() {
+    const n = leerFrNuevo(); const box = $('nf-preview'); if (!box) return;
+    if (!n.frases.length) { box.innerHTML = `<h3>Vista previa</h3><p class="small muted">Escribe al menos una frase para ver qué mensajes del lote (${FRL.length}) lo activarían.</p>`; return; }
+    const R2 = Fraude.evaluar(FRL, { ...FD(), indicadores: [...frCatalogo(), { ...n, activo: true }] });
+    const hits = FRL.filter((e) => R2[e.id].indicadores.some((x) => x.id === n.id));
+    box.innerHTML = `<h3>Vista previa · ${n.id}</h3><p class="small"><b>${hits.length}</b> de ${FRL.length} mensajes del lote lo activan${n.activo ? '' : ' (se crea inactivo: no sumará hasta activarlo)'}.</p>
+      ${hits.length ? `<ul class="fr-act">${hits.map((e) => { const a = FR[e.id]; const b = R2[e.id]; const x = b.indicadores.find((i) => i.id === n.id); return `<li><b class="mono">${esc(e.id)}</b> <span class="small muted">«${esc(x.citas[0].cita)}»</span><span class="small">${a.score} → <b>${b.score}</b>${a.nivel !== b.nivel ? ` · ${nivelFrPill(b.nivel)}` : ''}</span></li>`; }).join('')}</ul>` : '<p class="small muted">Ningún mensaje del lote contiene esas frases.</p>'}`;
+  }
+  function guardarFrNuevo() {
+    const n = leerFrNuevo(); const err = $('nf-err');
+    if (!n.nombre) { err.textContent = 'Ponle un nombre al indicador.'; err.hidden = false; $('nf-nombre').focus(); return; }
+    if (!n.frases.length) { err.textContent = 'Escribe al menos una frase que lo active.'; err.hidden = false; $('nf-frases').focus(); return; }
+    if (!n.ramos.length) { err.textContent = 'Elige al menos un ramo.'; err.hidden = false; return; }
+    err.hidden = true;
+    if (!n.senal) n.senal = `El mensaje contiene: ${n.frases.map((f) => `«${f}»`).join(', ')}`;
+    frNuevos.push(n); ssSet('gobierno.fraude_nuevos', frNuevos);
+    G.eventos.unshift({ fecha: new Date().toISOString(), tipo: 'politica', sev: 'info', agente: 'reglas', titulo: `Nuevo indicador de fraude ${n.id}: ${n.nombre}`, detalle: `Peso ${n.peso} · ${n.frases.length} ${n.frases.length === 1 ? 'frase' : 'frases'} · ${n.activo ? 'activo' : 'inactivo'}.`, usuario: 'Operador (esta sesión)' });
+    $('modal-fr-nuevo').close();
+    renderAll();
+    const fila = document.querySelector(`#fr-cat tr[data-fr-fila="${n.id}"]`);
+    if (fila) { fila.scrollIntoView({ block: 'center', behavior: 'smooth' }); fila.classList.add('is-new'); setTimeout(() => fila.classList.remove('is-new'), 2600); }
+  }
+  const frTraza = (t) => { const v = FR[t.mensaje]; return v && (v.score || v.pago === 'retenido') ? `<dt>Antifraude</dt><dd>${nivelFrPill(v.nivel)} score ${v.score}${v.pago === 'retenido' ? ` · ${pagoPill('retenido')}` : ''} <button class="btn btn-sm" type="button" data-fr-caso="${esc(t.mensaje)}">${ic('shield-alert')} Ver</button></dd>` : ''; };
+  function guardarFrCfg() { ssSet('gobierno.fraude_cfg', frCfg); evaluarFraude(); renderFraude(); renderInicio(); }
+
   // Landing: una ficha por cada sección del menú, agrupadas por la pregunta a la que responden
   function renderInicio() {
     const alertas = alertasTodas(); const crit = alertas.filter((a) => a.sev === 'crit').length; const avisos = alertas.length - crit;
@@ -2342,6 +2625,7 @@
       cumplimiento: ['¿Podemos demostrar que cumplimos?', `${T.global} %`, `cobertura de controles · ${T.marcos.reduce((a, m) => a + m.cuenta.ambar + m.cuenta.rojo, 0)} parciales`, T.global >= 90 ? 'ok' : 'warn', ['ai-12', 'rgpd-5']],
       finops: ['¿Cuánto cuesta y estamos dentro del presupuesto?', eur(coste, 0), `en el periodo · ${capsSup} ${capsSup === 1 ? 'cap superado' : 'caps superados'}`, capsSup ? 'crit' : 'ok', ['sii-41']],
       medidas: (() => { const ab = medidas().filter(abiertaMed); const cr = ab.filter((m) => m.sev === 'crit').length; const AH = ahorroMedidas(); return ['¿Qué hay que hacer para que el sistema esté sano?', String(ab.length), `${ab.length === 1 ? 'medida abierta' : 'medidas abiertas'} · ${cr} ${cr === 1 ? 'crítica' : 'críticas'} · ${AH.conseguido ? `${num(AH.conseguido)} de ${num(AH.total)} €/mes ahorrados` : `${num(AH.posible)} €/mes de ahorro posible`}`, cr ? 'crit' : ab.length ? 'warn' : 'ok', ['ai-9', 'rgpd-5']]; })(),
+      fraude: (() => { const r = Fraude.resumen(FR); return ['¿Hay indicios de fraude en lo que entra?', String(r.con_indicios), `${r.con_indicios === 1 ? 'caso' : 'casos'} con indicios · ${r.siu} en la SIU, ${r.retenidos} ${r.retenidos === 1 ? 'pago retenido' : 'pagos retenidos'}`, r.siu ? 'warn' : 'ok', ['rgpd-22', 'rgpd-c47']]; })(),
       historico: ['¿Qué ha cambiado, cuándo y quién lo aprobó?', num(ev.length), `eventos${ev.length ? ` · último: ${fechaHora(ev.reduce((a, e) => (e.fecha > a ? e.fecha : a), ev[0].fecha))}` : ''}`, 'ok', ['ai-12', 'rgpd-5']],
     };
     // Resumen, Trazabilidad y Razonamiento son vistas de consulta, y Guardrails solo enumera límites (un guardrail
@@ -2546,6 +2830,7 @@
     POL = Object.fromEntries([...(G.politicas || []), ...(G.caps || [])].map((p) => [p.id, p]));
     incluirNuevos();
     cmpItems = entradasCumplimiento();
+    evaluarFraude();
     if (!G.trazas.some((t) => t.id === selId)) selId = G.trazas.length ? G.trazas[G.trazas.length - 1].id : null;
     renderResumen();
     renderInicio();
@@ -2566,15 +2851,18 @@
     renderCumplimiento();
     renderAgentes();
     renderMedidas();
+    renderFraude();
+    { const nf = $('tabs').querySelector('[data-view="fraude"] .n'); if (nf) nf.textContent = Fraude.resumen(FR).con_indicios || ''; }
     $('tabs').querySelector('[data-view="finops"] .n').textContent = G.caps.filter((c) => c.estado === 'superado').length || '';
     ajustarAgentes();
   }
 
-  const TABS = [['inicio', 'house', 'Inicio'], ['resumen', 'layout-dashboard', 'Resumen'], ['agentes', 'bot', 'Agentes'], ['trazas', 'route', 'Trazabilidad'], ['replay', 'brain', 'Razonamiento y replay'], ['autonomia', 'sliders-horizontal', 'Autonomía'], ['guardrails', 'shield-check', 'Guardrails'], ['hitl', 'user-check', 'Intervención humana'], ['knowledge', 'book-open', 'Knowledge Bases'], ['cumplimiento', 'thermometer', 'Cumplimiento'], ['finops', 'coins', 'FinOps'], ['medidas', 'wrench', 'Medidas correctivas'], ['historico', 'history', 'Histórico']];
+  const TABS = [['inicio', 'house', 'Inicio'], ['resumen', 'layout-dashboard', 'Resumen'], ['agentes', 'bot', 'Agentes'], ['trazas', 'route', 'Trazabilidad'], ['replay', 'brain', 'Razonamiento y replay'], ['autonomia', 'sliders-horizontal', 'Autonomía'], ['guardrails', 'shield-check', 'Guardrails'], ['fraude', 'shield-alert', 'Fraude'], ['hitl', 'user-check', 'Intervención humana'], ['knowledge', 'book-open', 'Knowledge Bases'], ['cumplimiento', 'thermometer', 'Cumplimiento'], ['finops', 'coins', 'FinOps'], ['medidas', 'wrench', 'Medidas correctivas'], ['historico', 'history', 'Histórico']];
   // Menú lateral e Inicio comparten los mismos grupos: [nombre, pregunta a la que responde, secciones]
   const MENU = [
     ['Operación', '¿Qué está pasando?', ['resumen', 'agentes', 'trazas']],
     ['Control', '¿Cuánto decide la máquina y cuánto una persona?', ['autonomia', 'guardrails', 'hitl']],
+    ['Riesgo', '¿Hay indicios de fraude?', ['fraude']],
     ['Calidad', '¿Deciden bien y con buen conocimiento?', ['replay', 'knowledge']],
     ['Cumplimiento y coste', '¿Cumplimos y cuánto cuesta?', ['cumplimiento', 'finops']],
     ['Mejora y auditoría', '¿Qué hay que corregir y qué ha cambiado?', ['medidas', 'historico']],
@@ -2586,6 +2874,7 @@
     else window.scrollTo({ top: 0 });
     if (v === 'hitl') animar(document.querySelector('.view[data-view="hitl"]'));
     if (v === 'finops') animar($('fin-graf'));
+    if (v === 'fraude') animar(document.querySelector('.view[data-view="fraude"]'));
     ajustarAgentes();
   }
 
@@ -2619,7 +2908,7 @@
   // Navegación entre los elementos de una lista desde su ventana emergente (‹ 3 de 13 ›), para todas las ventanas
   // que se abren desde una lista: recuerda la lista de origen y «pulsa» el elemento anterior o siguiente.
   // ---------------------------------------------------------------------------
-  const NAV_ATTR = ['data-id', 'data-gr', 'data-cap', 'data-cambio', 'data-kb', 'data-rub', 'data-cmp-item', 'data-cmp-ficha', 'data-kpi-fin', 'data-medida'];
+  const NAV_ATTR = ['data-fr-caso', 'data-id', 'data-gr', 'data-cap', 'data-cambio', 'data-kb', 'data-rub', 'data-cmp-item', 'data-cmp-ficha', 'data-kpi-fin', 'data-medida'];
   let nav = null; // { dlg, attr, cont, valor }
   const itemsNav = () => (nav ? [...nav.cont.querySelectorAll(`:scope > [${nav.attr}]`)] : []);
   function pintarNav() {
@@ -2684,7 +2973,7 @@
     document.addEventListener('input', (e) => { if (e.target.classList && e.target.classList.contains('rc-peso')) sumaRub(); });
     document.addEventListener('keydown', (e) => { if (e.key === 'Enter' && e.target.matches && e.target.matches('[data-kb], tr[data-rub], tr[data-traza]')) e.target.click(); });
     const tabMenu = Object.fromEntries(TABS.map(([v, i, l]) => [v, [i, l]]));
-    const botonMenu = (v) => { const [i, l] = tabMenu[v]; return `<button class="tab nav-item${v === 'inicio' ? ' is-active' : ''}" type="button" role="tab" data-view="${v}" aria-selected="${v === 'inicio'}" aria-label="${l}" title="${l}">${ic(i)}<span class="lbl">${l}</span>${v === 'finops' ? '<span class="n"></span>' : ''}</button>`; };
+    const botonMenu = (v) => { const [i, l] = tabMenu[v]; return `<button class="tab nav-item${v === 'inicio' ? ' is-active' : ''}" type="button" role="tab" data-view="${v}" aria-selected="${v === 'inicio'}" aria-label="${l}" title="${l}">${ic(i)}<span class="lbl">${l}</span>${v === 'finops' || v === 'fraude' ? '<span class="n"></span>' : ''}</button>`; };
     $('tabs').innerHTML = botonMenu('inicio') + MENU.map(([g, , vs]) => `<div class="nav-grupo" role="presentation">${esc(g)}</div>${vs.map(botonMenu).join('')}`).join('');
     // Menú lateral común con el triaje (shell.js); al plegar o desplegar se reajustan las tarjetas de agentes
     Shell.initShell({ onChange: () => ajustarAgentes() });
@@ -2706,6 +2995,11 @@
       const go = e.target.closest('[data-goto]');
       if (go) { const dlg = go.closest('dialog'); if (dlg) dlg.close(); goto(go.dataset.goto, { replay: !!go.dataset.replay }); return; }
       const cl = e.target.closest('[data-close]'); if (cl) { $(cl.dataset.close).close(); return; }
+      const fsw = e.target.closest('[data-fr-ind]'); if (fsw) { e.preventDefault(); const i = frCatalogo().find((x) => x.id === fsw.dataset.frInd); frCfg[i.id] = { ...(frCfg[i.id] || {}), activo: !i.activo }; guardarFrCfg(); return; }
+      if (e.target.closest('#btn-fr-nuevo')) { abrirModalFrNuevo(); return; }
+      if (e.target.closest('#btn-fr-reset')) { Object.keys(frCfg).forEach((k) => delete frCfg[k]); guardarFrCfg(); return; }
+      const fgr = e.target.closest('[data-fr-gr]'); if (fgr) { abrirModalGr(fgr.dataset.frGr); return; }
+      const fca = e.target.closest('[data-fr-caso]'); if (fca && !e.target.closest('input')) { abrirModalFraude(fca.dataset.frCaso); return; }
       const sw = e.target.closest('[data-switch]'); if (sw) { e.preventDefault(); e.stopPropagation(); toggleAgente(sw.dataset.switch); return; }
       const gr = e.target.closest('[data-guardrail]'); if (gr) { e.preventDefault(); toggleGuardrail(gr.dataset.guardrail); if (gr.dataset.reabrir) abrirModalGr(gr.dataset.reabrir); return; }
       const cb = e.target.closest('[data-cambio]'); if (cb) { abrirModalCambio(Number(cb.dataset.cambio)); return; }
@@ -2757,17 +3051,23 @@
       else if (e.target.matches('#caps tr[data-cap]')) abrirModalCap(e.target.dataset.cap);
       else if (e.target.matches('#policies tr[data-gr]')) abrirModalGr(e.target.dataset.gr);
       else if (e.target.matches('#cambios tr[data-cambio]')) abrirModalCambio(Number(e.target.dataset.cambio));
+      else if (e.target.matches('tr[data-fr-caso]')) abrirModalFraude(e.target.dataset.frCaso);
+      else if (e.target.matches('[data-fr-ind]')) e.target.click();
+      else if (e.target.matches('tr[data-fr-gr]')) abrirModalGr(e.target.dataset.frGr);
     });
     // Formularios de «Nuevo cap» y «Nuevo guardrail»
-    document.addEventListener('submit', (e) => { e.preventDefault(); if (e.target.id === 'form-cap') guardarCapNuevo(); else if (e.target.id === 'form-gr') guardarGrNuevo(); });
+    document.addEventListener('submit', (e) => { e.preventDefault(); if (e.target.id === 'form-cap') guardarCapNuevo(); else if (e.target.id === 'form-gr') guardarGrNuevo(); else if (e.target.id === 'form-fr') guardarFrNuevo(); });
     document.addEventListener('input', (e) => {
       if (e.target.closest('#form-cap')) actualizarPreviewCap();
       else if (e.target.closest('#form-gr')) actualizarPreviewGr();
+      else if (e.target.closest('#form-fr')) actualizarPreviewFr();
     });
     document.addEventListener('change', (e) => {
+      if (e.target.matches('.fr-peso')) { const id = e.target.dataset.frPeso; const v = Math.max(0, Math.min(60, Math.round(Number(e.target.value) || 0))); frCfg[id] = { ...(frCfg[id] || {}), peso: v }; guardarFrCfg(); return; }
       if (e.target.matches('#nc-ambito, #nc-tipo')) { sugerirLimiteCap(); actualizarPreviewCap(); }
       else if (e.target.matches('#ng-plantilla')) ajustarPlantillaGr(true);
       else if (e.target.closest('#form-gr')) actualizarPreviewGr();
+      else if (e.target.closest('#form-fr')) actualizarPreviewFr();
     });
     $('btn-new-cap').addEventListener('click', abrirModalCapNuevo);
     $('btn-new-policy').addEventListener('click', abrirModalGrNuevo);

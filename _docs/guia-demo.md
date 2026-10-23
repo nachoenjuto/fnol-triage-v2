@@ -149,7 +149,7 @@ Al pasar el ratón por una norma aparece qué exige. «Copiar JSON» copia lo qu
 
 ## 3. Gobierno de Agentes (`gobierno.html`)
 
-Panel de control de los cuatro agentes. Sus doce secciones, más una portada (**Inicio**), se agrupan en cinco bloques: **Operación** (qué está pasando), **Control** (cuánto decide la máquina y cuánto una persona), **Calidad** (si deciden bien y con buen conocimiento), **Cumplimiento y coste** y **Mejora y auditoría**. Las secciones están en el mismo **menú lateral** que el triaje, con el nombre de cada bloque como encabezado: plegado muestra solo los iconos, con una línea entre bloques (el nombre sale al pasar el ratón) y los nombres largos se recortan con «…». Las tarjetas de los agentes están en el **Resumen** y su ficha completa, en la sección **Agentes**.
+Panel de control de los cuatro agentes. Sus trece secciones, más una portada (**Inicio**), se agrupan en seis bloques: **Operación** (qué está pasando), **Control** (cuánto decide la máquina y cuánto una persona), **Riesgo** (si hay indicios de fraude), **Calidad** (si deciden bien y con buen conocimiento), **Cumplimiento y coste** y **Mejora y auditoría**. Las secciones están en el mismo **menú lateral** que el triaje, con el nombre de cada bloque como encabezado: plegado muestra solo los iconos, con una línea entre bloques (el nombre sale al pasar el ratón) y los nombres largos se recortan con «…». Las tarjetas de los agentes están en el **Resumen** y su ficha completa, en la sección **Agentes**.
 
 ### 3.1 Cabecera: fuente y periodo
 
@@ -252,7 +252,7 @@ Para qué sirve: la autonomía se **gana con datos y se pierde con datos**. En l
 
 ### 3.7 Guardrails
 
-**Son las condiciones que limitan lo que un agente puede hacer solo.** Nueve en la demo (G-01 a G-09).
+**Son las condiciones que limitan lo que un agente puede hacer solo.** Doce en la demo (G-01 a G-12; las tres últimas son antifraude).
 
 | Guardrail | Condición | Acción |
 |---|---|---|
@@ -265,6 +265,9 @@ Para qué sirve: la autonomía se **gana con datos y se pierde con datos**. En l
 | G-07 | Cap diario de coste ≥ 100 % | Degradar a `gpt-5-mini` hasta las 00:00 |
 | G-08 | JSON inválido tras 2 reintentos | Fallback a motor local y marcar traza |
 | G-09 | Confianza de transcripción telefónica < 0,7 | Escalar para escuchar el audio (inactivo en la demo) |
+| G-10 | Score antifraude ≥ 70 | Sin despeje automático: escalar a la SIU |
+| G-11 | IBAN compartido entre asegurados distintos (IF-03) | Retener el pago hasta verificar la titularidad |
+| G-12 | El texto al cliente menciona un indicio o un término acusatorio | Bloquear la salida y regenerar con lenguaje neutro |
 
 Qué muestra y qué permite:
 - **KPIs**: guardrails activos, disparos en 14 días, cuántos escalan a una persona (lleva a **Intervención humana**, 3.8) y el más disparado.
@@ -291,6 +294,38 @@ Para qué sirve: es el **mecanismo de control** que permite dar autonomía sin p
 | **Medidas** | M-14, M-15, M-11 y M-10, con su estado; clic abre la medida | Cerrar el ciclo: de override a medida correctiva |
 
 Los datos de tiempos de revisión y tramitadores son de demostración; la cola se calcula con las trazas de la fuente activa.
+
+### 3.8 bis Indicadores de fraude (bloque Riesgo, «Fraude» en el menú)
+
+**¿Hay indicios de fraude en lo que entra?** Un motor sin IA ([`fraude.js`](../fraude.js)) calcula un score de 0 a 100 por mensaje con doce indicadores de comportamiento predefinidos. Los de relato llevan su cita literal del mensaje; los relacionales cruzan el lote y un histórico ficticio de pólizas, siniestros y proveedores (`data/fraude.js`). **El indicio no acusa, prioriza**: no cambia la decisión del triaje, no se comunica al cliente (G-12) y un score alto lleva el caso a una persona de la Unidad de Investigación de Siniestros (SIU).
+
+| Nivel | Score | Qué pasa |
+|---|---|---|
+| Sin indicios | 0–39 | Solo se registra (si la cuenta de cobro está compartida, G-11 retiene el pago igualmente) |
+| Vigilancia | 40–69 | Se tramita con el pago retenido hasta verificar el punto señalado |
+| SIU | ≥ 70 | Sin despeje automático (G-10): cola de la SIU con la ficha preparada |
+
+**Escenarios en el Paquete A:**
+
+| Mensaje | Escenario | Indicadores | Score | Resultado |
+|---|---|---|---|---|
+| MSG-A-13 | EF-01 Robo sin fuerza en una póliza recién contratada | IF-01 alta hace 21 días · IF-07 relato vago · IF-08 sin denuncia ni fuerza · IF-09 prisa · IF-10 joyas de 5.000 € sin factura | 90 | SIU (además H4 y H7 incumplen: a revisar) |
+| MSG-A-09 | EF-02 Cuenta de cobro compartida | IF-03 misma cuenta que MSG-A-02 y que un siniestro de agosto de otro titular · IF-05 Cristalería Vallecas | 50 | Vigilancia, pago de 400 € retenido |
+| MSG-A-02 | EF-02 (enlazado) | IF-03 | 35 | Sin indicios, pero G-11 retiene 1.080 € |
+| MSG-A-11 | EF-03 Vandalismo recurrente | IF-06 rayón previo hace unos meses en el mismo parking · IF-08 sin cámaras · IF-09 taller propio | 50 | Vigilancia, pago de 600 € retenido |
+| MSG-A-04 | EF-04 Conductor joven ocultado | IF-11 anulado (contraindicio: Pablo está declarado) · IF-06 · IF-09 | 30 | Sin indicios; descartado por L. Prieto |
+
+Qué muestra y qué permite:
+- **KPIs**: mensajes analizados, con indicios, pagos retenidos (CAP-11), escalados a la SIU en 14 días (CAP-10), confirmación de la SIU y falsos positivos.
+- **Casos del lote**: score con las marcas de 40 y 70, nivel, escenario, pago y qué pasa. El número del menú es el de casos con indicios. Clic abre la **ficha del caso**: desglose del score por indicador, mensaje con las citas resaltadas, contraindicios, seguimiento y enlace a la traza.
+- **Escenarios de fraude** EF-01…EF-08: narrativa, indicadores (encendidos los que disparan en el lote), umbral, acción, falsos positivos típicos y normas. Cuatro aparecen en el lote; el resto, solo en el histórico de 14 días.
+- **Mapa de relaciones**: casos del lote → lo que los une (cuenta, proveedor, póliza) → expedientes del histórico.
+- **Cola de la SIU**: casos del lote y expedientes anteriores con su estado (pendiente, en verificación, en investigación, confirmado, descartado).
+- **Catálogo de indicadores**: interruptor y peso editable (recalculan el lote en la sesión; «Restaurar» los devuelve), disparos y falsos positivos de 14 días, y qué no debe leerse como indicio. **Nuevo indicador** abre un formulario: nombre, grupo, peso, frases que lo activan (palabras completas), ramos y qué no es indicio, con vista previa de los mensajes del lote que lo activarían y cómo cambia su nivel. Se guarda en la sesión y queda en el Histórico.
+- **Guardrails y caps antifraude**: G-10 a G-12 y CAP-08 (mensajes por póliza en 24 h), CAP-09 (consultas al fichero sectorial, en aviso), CAP-10 (capacidad de la SIU) y CAP-11 (importe retenido). También aparecen en Guardrails y FinOps.
+- **Evolución**, **equidad por canal** (WhatsApp recibe 1,8 veces más alertas por el tono: medida M-18) y **gobierno del modelo** (decisión humana, sin aviso al cliente, explicabilidad, contraindicios, uso proporcionado del fichero sectorial y base jurídica pendiente del DPO: M-19). [VALIDAR con Cumplimiento]
+
+En el triaje, el registro marca con una etiqueta los casos en vigilancia, en la SIU o con el pago retenido, y la pestaña «Reglas de negocio» de la ficha añade el bloque «Indicadores de fraude». El bloque `_gobernanza.antifraude` guarda el score y los indicadores sin citas ni datos personales.
 
 ### 3.9 Razonamiento y replay
 
@@ -397,7 +432,7 @@ Para qué sirve: es el **libro de registro para auditoría**: qué cambió, cuá
 
 ---
 
-## 4. Guion sugerido de demo (12 minutos)
+## 4. Guion sugerido de demo (13 minutos)
 
 El mismo guion está en el **Recorrido de la demo** (modo presentador de Inicio), con un botón «Ir» por paso, demo automática y subtítulos (apartado 3.2).
 
@@ -412,7 +447,8 @@ El mismo guion está en el **Recorrido de la demo** (modo presentador de Inicio)
 | 7:30–8 | Intervención humana | Cola de revisión, el 3,3 % de aprobaciones de menos de 30 s y los tramitadores sin formación en IA | «Una aprobación de 10 segundos es una firma: medimos si la revisión es real» |
 | 8–9 | Triaje · Respuesta cruda de MSG-A-12 → Gobierno · Termómetro | Bloque `_gobernanza`: datos de un menor y de salud, por qué Salud y no Auto ni Hogar; después el termómetro, el inventario y «Simular una alteración» | «La solución deja a la aseguradora en condiciones de demostrar que cumple» |
 | 9–10 | Gobierno · Knowledge Bases | Condicionados Auto degradada por 340 documentos de 2024: comparativa de configuraciones y «Aplicar»; editar una rúbrica | «El conocimiento también se degrada, y se vigila igual que los agentes» |
-| 10–12 | FinOps → Medidas correctivas → Histórico | Cap superado y recomendaciones; en Medidas, «Aplicar» M-01 y ver subir el ahorro conseguido; línea de tiempo con todo lo tocado en la demo | «Coste bajo control, problemas con dueño y todo auditado» |
+| 10–11 | Gobierno · Fraude | Casos del lote, ficha de MSG-A-13 (EF-01, score 90) y la cuenta compartida de MSG-A-09 y MSG-A-02 en el mapa | «El indicio no acusa: prioriza y lo decide una persona» |
+| 11–13 | FinOps → Medidas correctivas → Histórico | Cap superado y recomendaciones; en Medidas, «Aplicar» M-01 y ver subir el ahorro conseguido; línea de tiempo con todo lo tocado en la demo | «Coste bajo control, problemas con dueño y todo auditado» |
 
 ---
 
@@ -423,4 +459,5 @@ El mismo guion está en el **Recorrido de la demo** (modo presentador de Inicio)
 - **Los datos personales de los mensajes son ficticios**: están para que se vea cómo se detectan, se seudonimizan y se protegen.
 - **Solo una knowledge base es real** («Reglas de negocio», los bloques de `prompts.js`); el resto aparece marcado como «simulada».
 - **Aplicación estática**: sin backend. La clave de IA solo se guarda en la sesión del navegador.
+- **Las fechas se mueven solas**: los datos se escribieron con «hoy» = 17/09/2026 y al abrir la página se desplazan al día de hoy (antes de las 09:45, a ayer). Para capturas estables, añadir `?fecha=2026-09-17` a la URL.
 - **Mensajes con resultado esperado**: el triaje compara cada resultado con un «esperado» interno que no se envía a la IA; de ahí los ✔/✖ de la columna Ramo.

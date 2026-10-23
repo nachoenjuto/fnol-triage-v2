@@ -164,6 +164,10 @@ const GOBIERNO_DEMO = {
     { id: 'G-07', agente: 'reglas', condicion: 'Cap diario de coste ≥ 100 %', accion: 'Degradar modelo a gpt-5-mini hasta las 00:00', severidad: 'degradar', disparos: 2, activa: true, descripcion: 'Guardrail FinOps: al agotar el cap diario del agente (CAP-03) se cambia a un modelo más barato en lugar de detener el lote; se registra cada mensaje procesado en modo degradado.', disparos_dia: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1], ultimos: [['2026-09-17T08:00:00', 'lote de la mañana', 'degradado desde el arranque'], ['2026-09-16T17:40:00', '312 mensajes', 'degradado hasta las 00:00']] },
     { id: 'G-08', agente: 'reglas', condicion: 'JSON inválido tras 2 reintentos', accion: 'Fallback a motor local + marcar traza', severidad: 'marcar', disparos: 5, activa: true, descripcion: 'Si el modelo no devuelve un JSON válido tras dos reintentos, decide el motor local de reglas y la traza queda marcada para revisión.', disparos_dia: [0, 1, 0, 0, 0, 1, 0, 0, 1, 0, 0, 1, 1, 0], ultimos: [['2026-09-15T10:14:00', 'TRZ-3A62 (MSG-B-11)', 'fallback + revisión']] },
     { id: 'G-09', agente: 'multicanal', condicion: 'Transcripción telefónica con confianza STT < 0,7', accion: 'Escalar a humano (escuchar audio)', severidad: 'humano', disparos: 14, activa: false, descripcion: 'Con una transcripción poco fiable, una persona escucha el audio antes de continuar. Desactivado el 12/09: la confianza media es 0,91 y solo generaba escalados innecesarios.', disparos_dia: [2, 1, 1, 1, 2, 2, 1, 2, 2, 0, 0, 0, 0, 0], ultimos: [['2026-09-11T16:40:00', 'TRZ-2E90 (MSG-B-08)', 'escalado']] },
+    // Antifraude (motor de indicadores, fraude.js): sin IA, se evalúa junto al paso de Reglas
+    { id: 'G-10', agente: 'reglas', condicion: 'Score antifraude ≥ 70', accion: 'Sin despeje automático: escalar a la SIU', severidad: 'humano', disparos: 80, activa: true, descripcion: 'Un score alto no rechaza nada: el caso pasa a la Unidad de Investigación de Siniestros (SIU) con el desglose de indicadores y sus citas. Decide una persona (RGPD art. 22).', disparos_dia: [5, 6, 2, 1, 7, 6, 7, 8, 7, 2, 3, 9, 11, 6], ultimos: [['2026-09-17T09:03:45', 'TRZ-4F36 (MSG-A-13)', 'escalado a la SIU'], ['2026-09-16T12:40:00', 'SIN-2026-09461', 'escalado a la SIU']] },
+    { id: 'G-11', agente: 'reglas', condicion: 'IBAN compartido entre asegurados distintos (IF-03)', accion: 'Retener el pago hasta verificar la titularidad', severidad: 'marcar', disparos: 9, activa: true, descripcion: 'Aunque el siniestro se despeje, el pago no sale hasta que Tesorería confirma con el banco que la cuenta es del asegurado. Cubre el escenario EF-02 y alimenta CAP-11.', disparos_dia: [1, 0, 0, 0, 1, 1, 0, 1, 1, 0, 0, 1, 1, 2], ultimos: [['2026-09-17T09:03:14', 'TRZ-4F32 (MSG-A-09)', 'pago retenido'], ['2026-09-17T09:02:18', 'TRZ-4F2B (MSG-A-02)', 'pago retenido']] },
+    { id: 'G-12', agente: 'reglas', condicion: 'El texto al cliente menciona un indicio o un término acusatorio', accion: 'Bloquear la salida y regenerar con lenguaje neutro', severidad: 'marcar', disparos: 4, activa: true, descripcion: 'La respuesta al cliente pide la documentación que falta sin hablar de fraude, sospechas ni investigación: el indicio es interno y no se comunica.', disparos_dia: [0, 1, 0, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0], ultimos: [['2026-09-15T13:22:00', 'TRZ-3D11 (MSG-B-19)', 'regenerado sin el término «sospechoso»']] },
   ],
   cambios_autonomia: [
     { fecha: '2026-09-16T17:40:00', agente: 'reglas', de: 2, a: 2, motivo: 'Sin cambio de nivel: modelo degradado a gpt-5-mini por CAP-03 (G-07)', usuario: 'Sistema' },
@@ -199,6 +203,10 @@ const GOBIERNO_DEMO = {
     { id: 'CAP-05', ambito: 'Reglas de negocio', tipo: 'Tokens de razonamiento por traza', limite: 2000, unidad: 'tok', consumo: 2610, accion: 'Alertar; 3 seguidas → bajar reasoning effort', estado: 'superado' },
     { id: 'CAP-06', ambito: 'Extracción de datos', tipo: 'Coste diario', limite: 5, unidad: '€', consumo: 2.9, accion: 'Alertar al 80 %', estado: 'ok' },
     { id: 'CAP-07', ambito: 'Global', tipo: 'Llamadas / minuto', limite: 120, unidad: 'req', consumo: 74, accion: 'Encolar (rate limit interno)', estado: 'ok' },
+    { id: 'CAP-08', ambito: 'Antifraude', tipo: 'Mensajes por póliza en 24 h', limite: 3, unidad: 'msg', consumo: 2, accion: 'Activar IF-12 y unir los mensajes antes de tramitar', estado: 'ok' },
+    { id: 'CAP-09', ambito: 'Antifraude', tipo: 'Consultas al fichero sectorial por día', limite: 200, unidad: 'consultas', consumo: 168, accion: 'Encolar al día siguiente por orden de score', estado: 'aviso' },
+    { id: 'CAP-10', ambito: 'Antifraude', tipo: 'Casos escalados a la SIU por día', limite: 15, unidad: 'casos', consumo: 6, accion: 'Ordenar por score; por debajo de 80 pasan a vigilancia', estado: 'ok' },
+    { id: 'CAP-11', ambito: 'Antifraude', tipo: 'Importe retenido pendiente de verificar', limite: 5000, unidad: '€', consumo: 2080, accion: 'Avisar a Tesorería y priorizar las verificaciones', estado: 'ok' },
   ],
   // Indicadores literales de la demo (mensajes y coste se calculan a partir de `diario`)
   kpis: {
@@ -239,7 +247,7 @@ const GOBIERNO_DEMO = {
     { id: 'TRZ-4F33', mensaje: 'MSG-A-10', asunto: 'Urgencias por crisis de asma', canal: 'email', inicio: '2026-09-17T09:03:21', ramo: 'Salud', decision: 'DESPEJADO', confianza: 0.94, motivo: 'Urgencias por crisis de asma en hospital del cuadro con informe adjunto: prestación directa sin carencia.', resultado: 'auto', incidencias: ['429 del proveedor de IA · reintento 1 (2 s)'], spans: [['multicanal', 0, 80, 'gpt-5-nano', 282, 35, 0], ['clasificacion', 80, 660, 'gpt-5-nano', 482, 52, 0], ['extraccion', 740, 3620, 'gpt-5-mini', 942, 233, 0], ['reglas', 4360, 3400, 'gpt-5', 1434, 562, 178]] },
     { id: 'TRZ-4F34', mensaje: 'MSG-A-11', asunto: 'Rayón en la puerta en un parking (WhatsApp)', canal: 'whatsapp', inicio: '2026-09-17T09:03:31', ramo: 'Auto', decision: 'DESPEJADO', confianza: 0.94, motivo: 'Rayón en puerta por tercero desconocido, con fotos y denuncia, 600 €: despeje directo.', resultado: 'auto', spans: [['multicanal', 0, 70, 'gpt-5-nano', 228, 30, 0], ['clasificacion', 70, 620, 'gpt-5-nano', 458, 51, 0], ['extraccion', 690, 1480, 'gpt-5-mini', 908, 226, 0], ['reglas', 2170, 3420, 'gpt-5', 1434, 590, 186]] },
     { id: 'TRZ-4F35', mensaje: 'MSG-A-12', asunto: 'Hijo en urgencias tras caída con patinete (WhatsApp)', canal: 'whatsapp', inicio: '2026-09-17T09:03:38', ramo: 'Salud', decision: 'DESPEJADO', confianza: 0.94, motivo: 'Urgencias pediátricas por caída con radiografía en hospital del cuadro, beneficiario incluido en póliza familiar: prestación directa.', resultado: 'auto', spans: [['multicanal', 0, 70, 'gpt-5-nano', 220, 29, 0], ['clasificacion', 70, 630, 'gpt-5-nano', 450, 50, 0], ['extraccion', 700, 1450, 'gpt-5-mini', 900, 224, 0], ['reglas', 2150, 3360, 'gpt-5', 1422, 566, 176]] },
-    { id: 'TRZ-4F36', mensaje: 'MSG-A-13', asunto: 'Nos han entrado en casa (WhatsApp)', canal: 'whatsapp', inicio: '2026-09-17T09:03:45', ramo: 'Hogar', decision: 'REVISION', confianza: 0.9, motivo: 'Robo en vivienda sin denuncia, sin relación de objetos ni importe y sin indicar signos de fuerza: falta información esencial; solicitar denuncia y lista valorada y enviar perito.', resultado: 'humano', guardrail: 'G-05 datos esenciales nulos · H4 incumple', spans: [['multicanal', 0, 70, 'gpt-5-nano', 224, 27, 0], ['clasificacion', 70, 700, 'gpt-5-nano', 444, 48, 0], ['extraccion', 770, 1520, 'gpt-5-mini', 864, 206, 0], ['reglas', 2290, 3980, 'gpt-5', 1414, 610, 232]] },
+    { id: 'TRZ-4F36', mensaje: 'MSG-A-13', asunto: 'Nos han entrado en casa (WhatsApp)', canal: 'whatsapp', inicio: '2026-09-17T09:03:45', ramo: 'Hogar', decision: 'REVISION', confianza: 0.9, motivo: 'Robo sin denuncia ni signos de fuerza, joyas de 5.000 € sin factura y póliza de tres semanas: pedir denuncia y lista valorada y enviar perito.', resultado: 'humano', guardrail: 'H4 y H7 incumplen → escalado · G-10 score antifraude 90 → SIU', spans: [['multicanal', 0, 70, 'gpt-5-nano', 224, 27, 0], ['clasificacion', 70, 700, 'gpt-5-nano', 444, 48, 0], ['extraccion', 770, 1520, 'gpt-5-mini', 864, 206, 0], ['reglas', 2290, 3980, 'gpt-5', 1414, 610, 232]] },
   ],
   // Razonamiento registrado por agente para las 13 trazas (entrada → pasos → salida)
   razonamiento: {
@@ -292,10 +300,10 @@ const GOBIERNO_DEMO = {
       { agente: 'reglas', entrada: 'Datos + reglas Auto v2.3 + atestado e informe médico adjuntos completos (≈ 21.000 tokens de entrada)', pasos: ['El modelo razona extensamente sobre la coordinación Auto / Salud y la responsabilidad del tercero (2.610 tokens de razonamiento — pico)', 'A5 INCUMPLE: lesionado ingresado y tercero implicado', 'Decisión REVISION 0,90: daños corporales → gestión especializada'], salida: 'REVISION · daños corporales' },
     ],
     'TRZ-4F32': [
-      { agente: 'multicanal', entrada: 'Formulario web · 619 caracteres · foto y presupuesto adjuntos', pasos: ['Canal web: campos estructurados + texto libre', 'Fecha de recepción 13/09 12:00'], salida: 'Mensaje normalizado MSG-A-09' },
+      { agente: 'multicanal', entrada: 'Formulario web · 677 caracteres · foto y presupuesto adjuntos', pasos: ['Canal web: campos estructurados + texto libre', 'Fecha de recepción 13/09 12:00'], salida: 'Mensaje normalizado MSG-A-09' },
       { agente: 'clasificacion', entrada: 'Texto normalizado', pasos: ['Indicios Hogar: "cristal de la ventana del salón", "póliza de hogar HO-118830", "vecino"', 'Sin indicios de Auto ni Salud', 'Confianza de ramo 0,98'], salida: 'Ramo = Hogar', confianzas: { Hogar: 0.98, Auto: 0.01, Salud: 0.01 } },
-      { agente: 'extraccion', entrada: 'Texto + ramo Hogar', pasos: ['Póliza HO-118830 · fecha 13/09 · importe 400 € (presupuesto del cristalero) · lugar C/ Martínez de la Riva 48, 1.º C', 'Causa: balón de los hijos del vecino del 2.º C (Andrés Pardo) → terceros = sí (posible recobro) · sin lesionados', 'Datos de un tercero no remitente (nombre y teléfono del vecino) → se marcan como interesado distinto del remitente', 'Documentación: foto y presupuesto'], salida: '10 campos · 0 inventados · 0 nulos' },
-      { agente: 'reglas', entrada: 'Datos extraídos + bloque de reglas Hogar v2.3', pasos: ['H1 cumple · H2 cumple (1 día)', 'H5 cumple: rotura de cristal < 1.500 € con foto y presupuesto → despeje directo', 'H9 cumple (400 € < 10.000 €) · se anota el posible recobro al vecino', 'Decisión DESPEJADO con confianza 0,93'], salida: 'DESPEJADO · cristal, despeje directo; anotar recobro' },
+      { agente: 'extraccion', entrada: 'Texto + ramo Hogar', pasos: ['Póliza HO-118830 · fecha 13/09 · importe 400 € (presupuesto del cristalero) · lugar C/ Martínez de la Riva 48, 1.º C', 'Causa: balón de los hijos del vecino del 2.º C (Andrés Pardo) → terceros = sí (posible recobro) · sin lesionados', 'Datos de un tercero no remitente (nombre y teléfono del vecino) → se marcan como interesado distinto del remitente', 'Documentación: foto y presupuesto · cuenta para el pago (IBAN, dato financiero: no se copia a los datos extraídos)'], salida: '10 campos · 0 inventados · 0 nulos' },
+      { agente: 'reglas', entrada: 'Datos extraídos + bloque de reglas Hogar v2.3', pasos: ['H1 cumple · H2 cumple (1 día)', 'H5 cumple: rotura de cristal < 1.500 € con foto y presupuesto → despeje directo', 'H9 cumple (400 € < 10.000 €) · se anota el posible recobro al vecino', 'Decisión DESPEJADO con confianza 0,93', 'Motor de indicadores (sin IA): IF-03 IBAN compartido con MSG-A-02 y con un siniestro de agosto · IF-05 proveedor recurrente → score 50, vigilancia; G-11 retiene el pago'], salida: 'DESPEJADO · cristal, despeje directo; anotar recobro · pago retenido (G-11)' },
     ],
     'TRZ-4F33': [
       { agente: 'multicanal', entrada: 'Email de la asegurada · 599 caracteres · informe de urgencias adjunto', pasos: ['Canal email: asunto conservado; el informe se registra como documentación', 'Fecha de recepción 11/09 09:05'], salida: 'Mensaje normalizado MSG-A-10' },
@@ -306,8 +314,8 @@ const GOBIERNO_DEMO = {
     'TRZ-4F34': [
       { agente: 'multicanal', entrada: 'WhatsApp · 4 mensajes cortos · 3 fotos · abreviaturas ("q", "xq") y emojis', pasos: ['Canal WhatsApp: se unen los mensajes, se expanden abreviaturas y se eliminan emojis', 'Fecha de recepción 14/09 18:42'], salida: 'Mensaje normalizado MSG-A-11' },
       { agente: 'clasificacion', entrada: 'Texto normalizado', pasos: ['Indicios Auto: "puerta del Peugeot 2008", "AU-742210", "parking del Carrefour", "rayón"', 'Sin indicios de Hogar ni Salud', 'Confianza de ramo 0,98'], salida: 'Ramo = Auto', confianzas: { Auto: 0.98, Hogar: 0.01, Salud: 0.01 } },
-      { agente: 'extraccion', entrada: 'Texto + ramo Auto', pasos: ['Póliza AU-742210 · fecha 13/09 · lugar parking del Carrefour de Alcobendas', 'Importe 600 € (presupuesto) · tercero desconocido (no identificado) · sin lesionados', 'Documentación: fotos y denuncia (diligencias 18734/26)'], salida: '10 campos · 0 inventados · 0 nulos' },
-      { agente: 'reglas', entrada: 'Datos extraídos + bloque de reglas Auto v2.3', pasos: ['A1 cumple · A2 cumple (mismo día) · A3 cumple · A4 cumple', 'A5 cumple: tercero desconocido con denuncia y fotos, sin heridos · A6 cumple (600 € < 6.000 €)', 'A7 cumple: daños propios documentados → despeje directo', 'Decisión DESPEJADO con confianza 0,94'], salida: 'DESPEJADO · rayón documentado con denuncia y fotos' },
+      { agente: 'extraccion', entrada: 'Texto + ramo Auto', pasos: ['Póliza AU-742210 · fecha 13/09 · lugar parking del Carrefour de Alcobendas', 'Importe 600 € (presupuesto) · tercero desconocido (no identificado) · sin lesionados', 'Documentación: fotos y denuncia (diligencias 18734/26)', 'Observaciones: menciona un daño parecido "hace unos meses en este mismo parking"'], salida: '10 campos · 0 inventados · 0 nulos' },
+      { agente: 'reglas', entrada: 'Datos extraídos + bloque de reglas Auto v2.3', pasos: ['A1 cumple · A2 cumple (mismo día) · A3 cumple · A4 cumple', 'A5 cumple: tercero desconocido con denuncia y fotos, sin heridos · A6 cumple (600 € < 6.000 €)', 'A7 cumple: daños propios documentados → despeje directo · A8 cumple: un siniestro previo similar, por debajo de 3 en 12 meses', 'Decisión DESPEJADO con confianza 0,94', 'Motor de indicadores (sin IA): IF-06 siniestro similar el 21/03 sobre el mismo coche y en el mismo parking · IF-08 sin cámaras · IF-09 taller propio → score 50, vigilancia'], salida: 'DESPEJADO · rayón documentado con denuncia y fotos · vigilancia antifraude' },
     ],
     'TRZ-4F35': [
       { agente: 'multicanal', entrada: 'WhatsApp · 4 mensajes · 551 caracteres · emojis', pasos: ['Canal WhatsApp: mensajes unidos; se eliminan los emojis', 'Fecha de recepción 13/09 19:55'], salida: 'Mensaje normalizado MSG-A-12' },
@@ -316,10 +324,10 @@ const GOBIERNO_DEMO = {
       { agente: 'reglas', entrada: 'Datos extraídos + bloque de reglas Salud v2.3', pasos: ['S1 cumple: el hijo consta como asegurado en la póliza familiar · S2 cumple (urgencia)', 'S4 cumple (urgencias y radiografía sin autorización) · S5 cumple (centro del cuadro) · S6 cumple → despeje directo', 'S8 cumple: caída con patinete, no es accidente de tráfico', 'Decisión DESPEJADO con confianza 0,94'], salida: 'DESPEJADO · urgencias pediátricas, beneficiario incluido' },
     ],
     'TRZ-4F36': [
-      { agente: 'multicanal', entrada: 'WhatsApp · 5 mensajes cortos · 522 caracteres · sin adjuntos · tono de urgencia', pasos: ['Canal WhatsApp: mensajes unidos; sin abreviaturas que expandir', 'Fecha de recepción 14/09 08:05'], salida: 'Mensaje normalizado MSG-A-13' },
+      { agente: 'multicanal', entrada: 'WhatsApp · 6 mensajes cortos · 669 caracteres · sin adjuntos · tono de urgencia', pasos: ['Canal WhatsApp: mensajes unidos; sin abreviaturas que expandir', 'Fecha de recepción 14/09 08:05'], salida: 'Mensaje normalizado MSG-A-13' },
       { agente: 'clasificacion', entrada: 'Texto normalizado', pasos: ['Indicios Hogar: "nos han entrado en casa", "los cajones por el suelo", "HO-604118"', 'Sin indicios de Auto ni Salud · indicios escasos pero inequívocos', 'Confianza de ramo 0,91'], salida: 'Ramo = Hogar', confianzas: { Hogar: 0.91, Auto: 0.05, Salud: 0.04 } },
-      { agente: 'extraccion', entrada: 'Texto + ramo Hogar', pasos: ['Póliza HO-604118 · fecha "este finde" → sin día concreto (nulo) · tipo: robo en vivienda', 'Sin relación de objetos ni importe ("todavía no sé cuánto") → nulos · "Todavía no hemos ido a la policía" · "la puerta parece bien"', 'Sin terceros identificados · sin lesionados'], salida: '10 campos · 0 inventados · 4 nulos (importe, lugar, documentación, signos de fuerza)' },
-      { agente: 'reglas', entrada: 'Datos extraídos + bloque de reglas Hogar v2.3', pasos: ['H1 cumple · H2 cumple (mismo día)', 'H4 INCUMPLE: robo sin denuncia, sin lista valorada y sin signos de fuerza acreditados ("la puerta parece bien")', 'H9 no evaluable: importe nulo · falta información esencial', 'Decisión REVISION con confianza 0,90: pedir denuncia y lista valorada, enviar perito'], salida: 'REVISION · falta información esencial (H4)' },
+      { agente: 'extraccion', entrada: 'Texto + ramo Hogar', pasos: ['Póliza HO-604118 · fecha "estos días que hemos estado fuera" → sin día concreto (nulo) · tipo: robo en vivienda', 'Importe 5.000 € (solo las joyas, "no tenemos facturas"); total "todavía no sé cuánto" · "Todavía no hemos ido a la policía" · "no está forzada"', 'Antigüedad de la póliza: "hace solo tres semanas" · sin terceros identificados · sin lesionados'], salida: '10 campos · 0 inventados · 3 nulos (fecha, lugar, documentación)' },
+      { agente: 'reglas', entrada: 'Datos extraídos + bloque de reglas Hogar v2.3', pasos: ['H1 cumple · H2 cumple (mismo día)', 'H4 INCUMPLE: sin denuncia, sin signos de fuerza ("no está forzada") y joyas de 5.000 € sin facturas', 'H7 INCUMPLE: póliza de tres semanas con un siniestro de al menos 5.000 €', 'Decisión REVISION con confianza 0,90: pedir denuncia y lista valorada, enviar perito', 'Motor de indicadores (sin IA): IF-01, IF-07, IF-08, IF-09 e IF-10 → score 90; G-10 lo escala a la SIU. La respuesta al cliente no menciona el indicio (G-12)'], salida: 'REVISION · H4 y H7 · escalado a la SIU' },
     ],
   },
   replays: [
@@ -337,15 +345,19 @@ const GOBIERNO_DEMO = {
   ],
   eventos: [
     { fecha: '2026-09-17T09:41:00', tipo: 'override', sev: 'info', agente: 'reglas', titulo: 'Override humano en TRZ-4F2D (MSG-A-04): A revisar → Aprobado', detalle: 'L. Prieto verificó que el conductor consta declarado desde 03/2026. Se registra como dato no accesible al modelo.', usuario: 'L. Prieto' },
+    { fecha: '2026-09-17T09:03:45', tipo: 'alerta', sev: 'warn', agente: 'reglas', titulo: 'G-10: MSG-A-13 escalado a la SIU (score antifraude 90)', detalle: 'Robo sin fuerza en una póliza de tres semanas, joyas sin factura (EF-01). La respuesta al cliente pide denuncia y lista valorada sin mencionar el indicio (G-12).', usuario: 'Sistema' },
+    { fecha: '2026-09-17T09:03:14', tipo: 'alerta', sev: 'warn', agente: 'reglas', titulo: 'G-11: pago retenido en MSG-A-09 y MSG-A-02 por cuenta compartida', detalle: 'La misma cuenta aparece en dos asegurados sin relación y en un siniestro de agosto (EF-02). Tesorería verifica la titularidad: 1.480 € retenidos.', usuario: 'Sistema' },
     { fecha: '2026-09-17T09:03:09', tipo: 'alerta', sev: 'warn', agente: 'reglas', titulo: 'CAP-04 y CAP-05 superados en TRZ-4F31 (MSG-A-08)', detalle: 'Coste 0,062 € (> 0,05 €) y 2.610 tokens de razonamiento (> 2.000). La traza queda marcada.', usuario: 'Sistema' },
     { fecha: '2026-09-17T09:03:23', tipo: 'incidente', sev: 'info', agente: 'extraccion', titulo: '429 en Proveedor de IA · reintento con backoff (2 s)', detalle: 'TRZ-4F33: la llamada de extracción se reintentó una vez y completó correctamente.', usuario: 'Sistema' },
     { fecha: '2026-09-16T17:40:00', tipo: 'alerta', sev: 'crit', agente: 'reglas', titulo: 'CAP-03 superado: Reglas de negocio 12,4 € / 12 € diarios', detalle: 'Guardrail G-07 aplicado: modelo degradado a gpt-5-mini hasta las 00:00. 312 mensajes procesados en modo degradado.', usuario: 'Sistema' },
     { fecha: '2026-09-16T18:20:00', tipo: 'replay', sev: 'info', agente: 'reglas', titulo: 'Replay RP-0008 · what-if prompt v2.4 sobre MSG-A-13', detalle: 'Misma decisión; motivo más específico; −18 % de tokens de razonamiento.', usuario: 'M. Ortega' },
     { fecha: '2026-09-16T18:05:00', tipo: 'replay', sev: 'info', agente: 'reglas', titulo: 'Replay RP-0007 · verificación determinista de MSG-A-08', detalle: 'Reproducción idéntica: misma decisión y motivo; desviación de coste +0,4 %.', usuario: 'M. Ortega' },
+    { fecha: '2026-09-16T17:05:00', tipo: 'alerta', sev: 'warn', agente: 'reglas', titulo: 'CAP-09 superado: 206 consultas al fichero sectorial / 200', detalle: 'Las 6 consultas restantes se encolaron a primera hora del día siguiente, por orden de score.', usuario: 'Sistema' },
     { fecha: '2026-09-16T16:02:00', tipo: 'alerta', sev: 'warn', agente: null, titulo: 'CAP-01 al 82 %: coste diario global 16,4 € / 20 €', detalle: 'Aviso al 80 %. Sin acción automática.', usuario: 'Sistema' },
     { fecha: '2026-09-15T16:40:00', tipo: 'politica', sev: 'info', agente: 'reglas', titulo: 'Nivel de autonomía de Reglas: L3 → L2 (Supervisado)', detalle: 'Tasa de override humano 4,1 % en la semana, por encima del objetivo del 3 %.', usuario: 'M. Ortega' },
     { fecha: '2026-09-15T12:45:00', tipo: 'replay', sev: 'info', agente: 'reglas', titulo: 'Replay RP-0006 · Reglas con gpt-5-mini sobre MSG-A-04', detalle: 'Misma decisión con −82 % de coste y −41 % de latencia. Origen de la recomendación FinOps R-02.', usuario: 'J. Rey' },
     { fecha: '2026-09-15T10:12:00', tipo: 'incidente', sev: 'warn', agente: null, titulo: 'Ráfaga de 429 en el proveedor de IA (10:12–10:19)', detalle: '38 llamadas reintentadas con backoff; 1 mensaje cayó al motor local (G-08) y se marcó para revisión.', usuario: 'Sistema' },
+    { fecha: '2026-09-15T13:00:00', tipo: 'politica', sev: 'info', agente: 'reglas', titulo: 'SIU-0426 confirmado: la cuenta …1332 no es del asegurado', detalle: 'Pago anulado y comunicado al fichero sectorial. La cuenta queda en la lista que cruza IF-03.', usuario: 'SIU · R. Calvo' },
     { fecha: '2026-09-12T10:10:00', tipo: 'replay', sev: 'warn', agente: 'reglas', titulo: 'Replay RP-0005 · Reglas con gpt-5-nano cambia la decisión', detalle: 'MSG-B-06 pasó de Aprobado a A revisar: gpt-5-nano descartado para Reglas.', usuario: 'J. Rey' },
     { fecha: '2026-09-11T09:00:00', tipo: 'despliegue', sev: 'info', agente: 'reglas', titulo: 'Prompt de Reglas v2.3 desplegado', detalle: 'Añade H7 (póliza reciente con siniestro > 3.000 €) y aclara S8 (mutua laboral). Evaluación previa: 200 mensajes, 0 regresiones.', usuario: 'Comité IA' },
     { fecha: '2026-09-10T11:05:00', tipo: 'politica', sev: 'info', agente: 'clasificacion', titulo: 'Nivel de autonomía de Clasificación: L2 → L3 (Autónomo)', detalle: 'Precisión 99,2 % sobre 4.800 mensajes en 7 días.', usuario: 'M. Ortega' },
@@ -457,6 +469,47 @@ const CAPS_DETALLE = {
       { titulo: 'Escalonar el arranque de lotes para evitar ráfagas', detalle: 'La ráfaga del 15/09 coincidió con el arranque simultáneo de los lotes de Hogar y Auto.', impacto: 'Evita 429', tipo: 'proceso' },
     ],
   },
+  // Antifraude (data/fraude.js): las series coinciden con FRAUDE_DEMO.diario
+  'CAP-08': {
+    desde: '2026-08-25', propietario: 'SIU', agentes: { reglas: 1 },
+    descripcion: 'Frecuencia anómala: más de 3 mensajes de la misma póliza en 24 horas suele ser un duplicado multicanal (EF-07) o una reclamación inflada.',
+    serie: [2, 2, 1, 1, 2, 2, 2, 4, 2, 1, 1, 2, 3, 2],
+    superaciones: [
+      { fecha: '2026-09-16T19:12:00', nivel: 'superado', agente: 'reglas', valor: 3, accion: 'IF-12 activado · mensajes unidos en un expediente', duracion: 'puntual', estado: 'resuelto' },
+      { fecha: '2026-09-11T11:30:00', nivel: 'superado', agente: 'reglas', valor: 4, accion: 'IF-12 activado · duplicado web + WhatsApp con importe distinto', duracion: 'puntual', estado: 'resuelto' },
+    ],
+    correctivas: [{ titulo: 'Sin acción necesaria: los dos casos se resolvieron uniendo los mensajes', detalle: 'Revisar cada semana si los duplicados vienen de clientes sin respuesta (no es fraude) o cambian los datos.', impacto: 'Preventiva', tipo: 'proceso' }],
+  },
+  'CAP-09': {
+    desde: '2026-08-25', propietario: 'SIU', agentes: { reglas: 1 },
+    descripcion: 'Consultas diarias al fichero común del sector (LOSSEAR art. 99.7). Cada consulta se paga y solo se justifica con indicios: el cap obliga a un uso proporcionado.',
+    serie: [142, 151, 73, 65, 167, 174, 170, 181, 178, 83, 86, 193, 206, 168],
+    superaciones: [
+      { fecha: '2026-09-17T09:30:00', nivel: 'aviso', agente: 'reglas', valor: 168, accion: 'Aviso al 80 % a la SIU', duracion: 'en curso', estado: 'activo' },
+      { fecha: '2026-09-16T17:05:00', nivel: 'superado', agente: 'reglas', valor: 206, accion: 'Encoladas 6 consultas a primera hora de hoy, por orden de score', duracion: 'hasta las 00:00', estado: 'resuelto' },
+    ],
+    correctivas: [
+      { titulo: 'Consultar el fichero solo con score ≥ 20', detalle: 'Hoy se consulta con cualquier indicador activo. Con un mínimo de 20 se evita el 30 % de las consultas sin perder casos confirmados en los últimos 14 días.', impacto: '−30 % consultas', tipo: 'config' },
+      { titulo: 'Reevaluar el límite de CAP-09', detalle: 'Si el volumen de los lunes es estructural, subir a 220 con aprobación de la SIU y de FinOps.', impacto: 'Requiere aprobación', tipo: 'config', aprobacion: true },
+    ],
+  },
+  'CAP-10': {
+    desde: '2026-08-25', propietario: 'SIU', agentes: { reglas: 1 },
+    descripcion: 'Capacidad diaria de la SIU (tres investigadores). Si se supera, los casos se ordenan por score y los de menos de 80 pasan a vigilancia para no saturar la unidad.',
+    serie: [5, 6, 2, 1, 7, 6, 7, 8, 7, 2, 3, 9, 11, 6],
+    superaciones: [{ fecha: '2026-09-16T18:30:00', nivel: 'aviso', agente: 'reglas', valor: 11, accion: 'Aviso a la SIU: 73 % de la capacidad', duracion: 'hasta las 00:00', estado: 'resuelto' }],
+  },
+  'CAP-11': {
+    desde: '2026-08-25', propietario: 'Tesorería', agentes: { reglas: 1 },
+    descripcion: 'Dinero de asegurados retenido a la espera de verificar un indicio. Retener demasiado perjudica a clientes legítimos (trato justo, EIOPA): al 80 % se prioriza verificar.',
+    serie: [3100, 2860, 950, 610, 3420, 3050, 2980, 4120, 3610, 1180, 1240, 4380, 4910, 2080],
+    superaciones: [
+      { fecha: '2026-09-16T16:50:00', nivel: 'aviso', agente: 'reglas', valor: 4910, accion: 'Aviso a Tesorería: verificaciones priorizadas', duracion: 'hasta las 00:00', estado: 'resuelto' },
+      { fecha: '2026-09-15T17:20:00', nivel: 'aviso', agente: 'reglas', valor: 4380, accion: 'Aviso a Tesorería', duracion: 'hasta las 00:00', estado: 'resuelto' },
+      { fecha: '2026-09-11T16:10:00', nivel: 'aviso', agente: 'reglas', valor: 4120, accion: 'Aviso a Tesorería', duracion: 'hasta las 00:00', estado: 'resuelto' },
+    ],
+    correctivas: [{ titulo: 'Verificar la titularidad en el mismo día', detalle: 'La retención media es de 1,6 días. Con la consulta automática al banco (servicio de verificación de cuentas) baja a horas.', impacto: '−70 % tiempo retenido', tipo: 'proceso' }],
+  },
 };
 GOBIERNO_DEMO.caps.forEach((c) => Object.assign(c, CAPS_DETALLE[c.id] || {}));
 
@@ -478,6 +531,8 @@ GOBIERNO_DEMO.cumplimiento_declarado = (() => {
     D('rgpd-35', ['RGPD art. 35'], 'Evaluación de impacto (datos de salud a gran escala)', 'EIPD del triaje realizada en 03/2026', 'Revisión pendiente: el cambio de modelo de Multicanalidad del 25/08/2026 obliga a revisarla', 'ambar'),
     D('rgpd-28', ['RGPD art. 28'], 'Contrato de encargo con el proveedor de IA', 'DPA firmado; procesamiento y almacenamiento en región UE; los datos no se usan para entrenar', 'Vigente hasta 12/2027', 'ok'),
     D('rgpd-32', ['RGPD art. 32'], 'Seguridad del tratamiento', 'Cifrado en tránsito y en reposo; identidad administrada por agente, sin secretos en código', 'Revisión de accesos trimestral · última 09/2026', 'ok'),
+    D('rgpd-22-af', ['RGPD art. 22'], 'Intervención humana en las alertas de fraude', 'Un score alto nunca rechaza: G-10 escala a la SIU y decide una persona; el indicio no se comunica al cliente (G-12)', '1 escalado hoy · 0 rechazos automáticos en 14 días', 'ok'),
+    D('rgpd-c47-af', ['RGPD cons. 47', 'LOSSEAR art. 99.7'], 'Base jurídica del tratamiento antifraude', 'Interés legítimo en prevenir el fraude y consulta del fichero sectorial', 'Ponderación de intereses pendiente de firma del DPO', 'ambar'),
     D('rgpd-15', ['RGPD art. 15'], 'Atender el derecho de acceso y de explicación', 'Exportación por interesado del bloque _gobernanza y del razonamiento de su decisión', 'Plazo de respuesta de 1 mes · 0 solicitudes abiertas', 'ok'),
   ],
   dora: [
@@ -489,6 +544,7 @@ GOBIERNO_DEMO.cumplimiento_declarado = (() => {
   eiopa: [
     D('eiopa-gob', ['EIOPA'], 'Gobierno proporcional y rendición de cuentas', 'Comité IA; responsable nominal por agente; cambios de autonomía auditados', '4 de 4 agentes con responsable · 100 % de los cambios con motivo', 'ok'),
     D('eiopa-trato', ['EIOPA'], 'Trato justo a los asegurados', 'Pruebas de sesgo por canal y por ramo (tasa de revisión y de override)', 'Última prueba 07/2026 · WhatsApp con +6 pp de revisiones: en análisis', 'ambar'),
+    D('eiopa-af', ['EIOPA'], 'Trato justo en la detección de fraude', 'Falsos positivos y alertas por canal medidos cada semana', 'WhatsApp: 4,1 alertas por cada 100 mensajes frente a 2,3 en el resto de canales', 'ambar'),
     D('sii-41', ['Solvencia II art. 41'], 'Gestión sana y prudente, incluido el gasto en IA', 'Caps de consumo por agente y por traza, con alertas', 'CAP-04 y CAP-05 superados una vez en el periodo (TRZ-4F31): alertados', 'ok'),
     D('eiopa-doc', ['EIOPA'], 'Documentación del sistema', 'Guía de referencia, arquitectura C4 y fichas de agente versionadas', 'Actualizada 10/2026', 'ok'),
   ],
@@ -646,7 +702,7 @@ GOBIERNO_DEMO.knowledge = [
 GOBIERNO_DEMO.rubricas = [
   { id: 'R-01', nombre: 'Casos de triaje de los tres paquetes', kb: ['KB-01'], version: 'v1.6', responsable: 'Dirección de Siniestros · J. Rey', actualizada: '2026-09-05', acuerdo: 0.96,
     criterios: [['Decisión correcta', 40, 'DESPEJADO / REVISION igual que el esperado'], ['Regla determinante correcta', 30, 'La regla que frena es la que corresponde'], ['Evidencias verificadas', 20, 'Al menos 5 citas literales localizadas en el texto'], ['Sin datos inventados', 10, 'Los campos ausentes quedan en nulo']],
-    preguntas: [['MSG-A-13 · robo sin denuncia', 'exclusion', 'REVISION por H4', 'prompts.js · H4'], ['MSG-A-08 · moto con lesionado', 'clausula', 'REVISION por A5 (daños corporales)', 'prompts.js · A5'], ['MSG-C-15 · cirugía refractiva', 'exclusion', 'REVISION por S5 y S7', 'prompts.js · S5, S7'], ['MSG-B-23 · comunicado 3 semanas después', 'plazo', 'REVISION por A2', 'prompts.js · A2']],
+    preguntas: [['MSG-A-13 · robo sin denuncia en póliza reciente', 'exclusion', 'REVISION por H4 y H7', 'prompts.js · H4, H7'], ['MSG-A-08 · moto con lesionado', 'clausula', 'REVISION por A5 (daños corporales)', 'prompts.js · A5'], ['MSG-C-15 · cirugía refractiva', 'exclusion', 'REVISION por S5 y S7', 'prompts.js · S5, S7'], ['MSG-B-23 · comunicado 3 semanas después', 'plazo', 'REVISION por A2', 'prompts.js · A2']],
     historial: [['v1.6', '2026-09-05', 'Criterio de evidencias verificadas', 'J. Rey'], ['v1.5', '2026-08-20', 'Casos del Paquete C', 'J. Rey']] },
   { id: 'R-02', nombre: 'Coberturas y exclusiones de Auto', kb: ['KB-02'], version: 'v2.1', responsable: 'Producto Auto · L. Prieto', actualizada: '2026-09-01', acuerdo: 0.91,
     criterios: [['Fidelidad', 35, 'Solo afirma lo que dicen los fragmentos recuperados'], ['Cláusula correcta', 30, 'Cita el artículo vigente correcto'], ['Completitud', 20, 'Incluye franquicias y condiciones'], ['Rechazo correcto', 15, 'Dice «no consta» cuando no hay respuesta']],
@@ -727,5 +783,10 @@ GOBIERNO_DEMO.medidas = (() => {
     { id: 'M-17', dim: 'resiliencia', sev: 'warn', agente: 'extraccion', impacto: 2, origen: ['historico', 'Histórico · ráfagas de 429'], titulo: 'Ráfagas de errores 429 del proveedor de IA', detalle: 'El 15/09: 38 reintentos y 1 fallback al motor local en 7 minutos.',
       alternativas: [A('Contratar cuota reservada con el proveedor', 'Sin 429 en horas punta', 'Coste fijo mensual', 'medio', 'Comité IA', 'Prueba de carga', { rec: true }),
         A('Enviar el exceso al segundo proveedor (ya validado para DORA)', 'Sin fallbacks al motor local', 'Dos proveedores que mantener', 'medio', 'Comité IA', 'Replay en el segundo proveedor')] },
+    { id: 'M-18', dim: 'cumplimiento', sev: 'warn', agente: 'reglas', impacto: 2, origen: ['fraude', 'Indicadores de fraude · equidad por canal'], controles: ['eiopa-af'], titulo: 'WhatsApp recibe 1,8 veces más alertas de fraude que el resto de canales', detalle: 'IF-09 (urgencia) dispara por el tono del canal: 4,1 alertas por cada 100 mensajes frente a 2,3 en el resto, y la SIU confirma la mitad.',
+      alternativas: [A('Bajar el peso de IF-09 en WhatsApp de 10 a 5', 'Alertas en WhatsApp 4,1 → 2,9', 'Algo menos de sensibilidad en el canal', 'bajo', 'Comité IA', 'Replay del motor sobre 14 días', { rec: true }),
+        A('Buscar la urgencia después de normalizar el tono', 'Iguala los canales', 'Cambio en Multicanalidad', 'medio', 'Equipo Canales', 'Replay + rúbrica R-01')] },
+    { id: 'M-19', dim: 'cumplimiento', sev: 'info', agente: null, impacto: 1, origen: ['fraude', 'Indicadores de fraude · gobierno del modelo'], controles: ['rgpd-c47-af'], titulo: 'Base jurídica del antifraude sin la firma del DPO', detalle: 'La ponderación del interés legítimo (RGPD cons. 47) y el uso del fichero sectorial (LOSSEAR art. 99.7) están redactados, pero falta la validación del DPO.',
+      alternativas: [A('Revisar la ponderación con el DPO', 'Control a verde', 'Ninguno', 'bajo', 'DPO', 'Informe firmado', { rec: true })] },
   ];
 })();

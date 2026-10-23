@@ -5,9 +5,9 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Gobierno, Observabilidad y FinOps de Agentes IA para FNOL</title>
   <meta name="description" content="Panel de control agéntico del triaje de seguros: trazabilidad y observabilidad de los agentes, Reasoning & Replay, Autonomy engine y FinOps con caps de consumo.">
-  <link rel="stylesheet" href="gobierno.css?v=33">
-  <link rel="stylesheet" href="header.css?v=33">
-  <link rel="stylesheet" href="cumplimiento.css?v=33">
+  <link rel="stylesheet" href="gobierno.css?v=36">
+  <link rel="stylesheet" href="header.css?v=36">
+  <link rel="stylesheet" href="cumplimiento.css?v=36">
 </head>
 <body>
 <header class="topbar">
@@ -207,6 +207,53 @@
   </div>
 </section>
 
+<!-- ───────────── INDICADORES DE FRAUDE ───────────── -->
+<section class="view" data-view="fraude">
+  <div class="card fr-hero">
+    <div><h2 id="h-fraude"></h2><p class="small muted">Indicadores de comportamiento predefinidos que el motor calcula sin IA cruzando cada mensaje con el resto del lote y con el histórico de pólizas y siniestros. El indicio no acusa, prioriza: un score alto lleva el caso a la Unidad de Investigación de Siniestros (SIU), nunca rechaza un siniestro y no se comunica al cliente.</p></div>
+    <div class="fr-niveles" id="fr-niveles"></div>
+  </div>
+  <div class="kpis" id="kpis-fr"></div>
+  <div class="card">
+    <div class="card-head"><h2 id="h-fr-lote"></h2><span class="muted small">Score antifraude de cada mensaje frente a la decisión del triaje · clic en una fila para ver el desglose, las citas y el seguimiento</span></div>
+    <div class="tw"><table><thead><tr><th>Mensaje</th><th>Canal</th><th>Triaje</th><th style="min-width:170px">Score</th><th>Nivel</th><th>Escenario</th><th>Pago</th><th>Qué pasa</th></tr></thead><tbody id="fr-lote"></tbody></table></div>
+  </div>
+  <div class="card">
+    <div class="card-head"><h2 id="h-fr-escenarios"></h2><span class="muted small">Combinaciones de indicadores con su narrativa, su umbral, la acción y los falsos positivos típicos · las que aparecen en el lote llevan «Ver en el lote»</span></div>
+    <div class="fr-esc-grid" id="fr-escenarios"></div>
+  </div>
+  <div class="card">
+    <div class="card-head"><h2 id="h-fr-mapa"></h2><span class="muted small">Qué une a los casos del lote entre sí y con el histórico · clic en un caso para ver su ficha</span></div>
+    <div id="fr-mapa"></div>
+  </div>
+  <div class="card">
+    <div class="card-head"><h2 id="h-fr-siu"></h2><span class="muted small">Casos del lote con indicios o pago retenido y expedientes anteriores · decide siempre una persona</span></div>
+    <div class="tw"><table><thead><tr><th>Caso</th><th>Escenario</th><th>Score</th><th>Estado</th><th>Responsable</th><th>Nota</th></tr></thead><tbody id="fr-siu"></tbody></table></div>
+  </div>
+  <div class="card">
+    <div class="card-head"><h2 id="h-fr-cat"></h2><span class="muted small">Interruptor y peso de cada indicador · los cambios recalculan el score del lote en esta sesión · falsos positivos = casos que la SIU cerró como no fraude</span><div class="row"><button class="btn btn-sm" type="button" id="btn-fr-reset"></button><button class="btn btn-sm" type="button" id="btn-fr-nuevo"></button></div></div>
+    <div class="tw"><table><thead><tr><th>Activo</th><th>Indicador</th><th>Grupo</th><th>Señal</th><th>Fuente</th><th>Peso</th><th>Disparos 14 d</th><th style="min-width:130px">Falsos positivos</th><th>En el lote</th></tr></thead><tbody id="fr-cat"></tbody></table></div>
+  </div>
+  <div class="card">
+    <div class="card-head"><h2 id="h-fr-limites"></h2><span class="muted small">Los mismos que en Guardrails y FinOps · clic para ver la ficha</span></div>
+    <div class="tw"><table><thead><tr><th>Id</th><th>Qué limita</th><th>Límite o condición</th><th>Hoy</th><th>Acción</th></tr></thead><tbody id="fr-limites"></tbody></table></div>
+  </div>
+  <div class="two">
+    <div class="card">
+      <div class="card-head"><h2 id="h-fr-evol"></h2><span class="muted small">Mensajes con indicios y escalados a la SIU por día</span></div>
+      <div id="fr-evol"></div>
+    </div>
+    <div class="card">
+      <div class="card-head"><h2 id="h-fr-canales"></h2><span class="muted small">Alertas por cada 100 mensajes y confirmación de la SIU, por canal</span></div>
+      <div id="fr-canales"></div>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-head"><h2 id="h-fr-gob"></h2><span class="muted small">Cómo se gobierna el propio motor: supervisión humana, transparencia, proporcionalidad y base jurídica</span></div>
+    <div id="fr-gob"></div>
+  </div>
+</section>
+
 <!-- ───────────── FINOPS ───────────── -->
 <section class="view" data-view="finops">
   <div class="kpis" id="kpis-fin"></div>
@@ -336,6 +383,18 @@
 </div>
 
 <!-- Ficha de una medida correctiva -->
+<!-- Nuevo indicador de fraude -->
+<dialog id="modal-fr-nuevo" class="modal wide" aria-labelledby="modal-fr-nuevo-title">
+  <div class="modal-head"><h2 id="modal-fr-nuevo-title"></h2><button class="btn btn-sm" type="button" data-close="modal-fr-nuevo" aria-label="Cerrar"></button></div>
+  <div class="modal-body" id="modal-fr-nuevo-body"></div>
+</dialog>
+
+<!-- Ficha de un caso antifraude -->
+<dialog id="modal-fraude" class="modal wide" aria-labelledby="modal-fraude-title">
+  <div class="modal-head"><h2 id="modal-fraude-title"></h2><button class="btn btn-sm" type="button" data-close="modal-fraude" aria-label="Cerrar"></button></div>
+  <div class="modal-body" id="modal-fraude-body"></div>
+</dialog>
+
 <dialog id="modal-med" class="modal wide" aria-labelledby="modal-med-title">
   <div class="modal-head"><h2 id="modal-med-title"></h2><button class="btn btn-sm" type="button" data-close="modal-med" aria-label="Cerrar"></button></div>
   <div class="modal-body" id="modal-med-body"></div>
@@ -403,15 +462,18 @@
   <div class="modal-body" id="modal-gr-nuevo-body"></div>
 </dialog>
 
-  <script src="icons.js?v=33"></script>
-  <script src="data/recorrido.js?v=33"></script>
-  <script src="shell.js?v=33"></script>
-  <script src="data/mensajes.js?v=33"></script>
-  <script src="data/resultados.js?v=33"></script>
-  <script src="prompts.js?v=33"></script>
-  <script src="evidencias.js?v=33"></script>
-  <script src="cumplimiento.js?v=33"></script>
-  <script src="data/gobierno.js?v=33"></script>
-  <script src="gobierno.js?v=33"></script>
+  <script src="icons.js?v=36"></script>
+  <script src="data/recorrido.js?v=36"></script>
+  <script src="shell.js?v=36"></script>
+  <script src="data/mensajes.js?v=36"></script>
+  <script src="data/resultados.js?v=36"></script>
+  <script src="prompts.js?v=36"></script>
+  <script src="evidencias.js?v=36"></script>
+  <script src="cumplimiento.js?v=36"></script>
+  <script src="data/gobierno.js?v=36"></script>
+  <script src="data/fraude.js?v=36"></script>
+  <script src="fechas.js?v=36"></script>
+  <script src="fraude.js?v=36"></script>
+  <script src="gobierno.js?v=36"></script>
 </body>
 </html>

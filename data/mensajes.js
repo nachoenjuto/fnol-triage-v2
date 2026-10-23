@@ -68,7 +68,7 @@ const PAQUETES = [
         id: 'MSG-A-09', canal: 'web', fecha_recepcion: '2026-09-13T12:00:00',
         remitente: { nombre: 'Iván Castro Luque', contacto: 'ivancastro@mail.com' },
         asunto: 'Cristal de ventana roto',
-        texto: 'Los niños del vecino del 2.º C han roto con un balón el cristal de la ventana del salón esta mañana (13/09), sobre las 11:00, mientras jugaban en el patio comunitario. El vecino, Andrés Pardo, ha venido a disculparse y me ha dado su teléfono por si hace falta (600 712 455). Es un doble acristalamiento de 120x140 y ha quedado un agujero con el cristal astillado; lo he tapado con cartón. El cristalero, Cristalería Vallecas, me pasa 400 € con la instalación y puede venir el martes. Nadie se ha hecho daño. Póliza de hogar HO-118830, vivienda en C/ Martínez de la Riva 48, 1.º C, Madrid. Adjunto foto y el presupuesto.',
+        texto: 'Los niños del vecino del 2.º C han roto con un balón el cristal de la ventana del salón esta mañana (13/09), sobre las 11:00, mientras jugaban en el patio comunitario. El vecino, Andrés Pardo, ha venido a disculparse y me ha dado su teléfono por si hace falta (600 712 455). Es un doble acristalamiento de 120x140 y ha quedado un agujero con el cristal astillado; lo he tapado con cartón. El cristalero, Cristalería Vallecas, me pasa 400 € con la instalación y puede venir el martes. Nadie se ha hecho daño. Póliza de hogar HO-118830, vivienda en C/ Martínez de la Riva 48, 1.º C, Madrid. Adjunto foto y el presupuesto. Para el pago, la cuenta es ES91 2100 0418 4502 0005 1332.',
         esperado: { ramo: 'Hogar', revision: false },
       },
       {
@@ -82,7 +82,7 @@ const PAQUETES = [
         id: 'MSG-A-11', canal: 'whatsapp', fecha_recepcion: '2026-09-14T18:42:00',
         remitente: { nombre: 'Rocío Pascual Mena', contacto: '+34 611 204 377' },
         asunto: 'Rayón en la puerta en un parking (WhatsApp)',
-        texto: 'Hola!! os escribo por aquí porque no me aclaro con la app 😅 Ayer 13/09 por la tarde, en el parking del Carrefour de Alcobendas, alguien me rayó toda la puerta del conductor con una llave o algo así y se fue sin dejar nota 😩 El vigilante dice que las cámaras no enfocan esa zona. Tengo fotos y esta mañana he puesto denuncia en la comisaría de Alcobendas, me han dado el número de diligencias 18734/26. Es el Peugeot 2008 blanco 2290 LKV, póliza AU-742210. El taller de al lado de casa me dice que unos 600 € pintar la puerta entera. Qué hago?? Os mando las fotos por aquí si queréis 📸 Mi DNI es 53442872-A 🙏',
+        texto: 'Hola!! os escribo por aquí porque no me aclaro con la app 😅 Ayer 13/09 por la tarde, en el parking del Carrefour de Alcobendas, alguien me rayó toda la puerta del conductor con una llave o algo así y se fue sin dejar nota 😩 El vigilante dice que las cámaras no enfocan esa zona. Tengo fotos y esta mañana he puesto denuncia en la comisaría de Alcobendas, me han dado el número de diligencias 18734/26. Es el Peugeot 2008 blanco 2290 LKV, póliza AU-742210. El taller de al lado de casa me dice que unos 600 € pintar la puerta entera. Ya me pasó algo parecido hace unos meses en este mismo parking 🙄 Qué hago?? Os mando las fotos por aquí si queréis 📸 Mi DNI es 53442872-A 🙏',
         esperado: { ramo: 'Auto', revision: false },
       },
       {
@@ -96,8 +96,8 @@ const PAQUETES = [
         id: 'MSG-A-13', canal: 'whatsapp', fecha_recepcion: '2026-09-14T08:05:00',
         remitente: { nombre: 'Luis Miguel Arranz', contacto: '+34 655 330 219' },
         asunto: 'Nos han entrado en casa (WhatsApp)',
-        texto: 'Hola, nos han entrado en casa este finde mientras estábamos fuera 😡 Hemos llegado esta mañana y está todo revuelto, los cajones por el suelo. Se han llevado cosas, todavía no sé cuánto, estamos mirando; creo que faltan joyas de mi mujer y un portátil, pero no estoy seguro. No sé por dónde han entrado, la puerta parece bien. Todavía no hemos ido a la policía, no sé si hace falta. Luego os mando una lista. Póliza HO-604118. Necesito que venga alguien hoy, por favor, mi mujer está muy nerviosa. Llamadme al 655 330 219.',
-        esperado: { ramo: 'Hogar', revision: true, nota: 'Falta información esencial: sin denuncia, sin importe ni signos de fuerza (regla H4)' },
+        texto: 'Hola, nos han entrado en casa estos días que hemos estado fuera 😡 Hemos llegado esta mañana y está todo revuelto, los cajones por el suelo. Se han llevado cosas, todavía no sé cuánto, estamos mirando; creo que faltan joyas de mi mujer y un portátil, pero no estoy seguro. Las joyas valdrán unos 5.000 €, eran heredadas y no tenemos facturas. No sé por dónde han entrado, la puerta parece bien, no está forzada. El seguro lo contratamos hace solo tres semanas, al mudarnos. Todavía no hemos ido a la policía, no sé si hace falta. Luego os mando una lista. Póliza HO-604118. Necesito que venga alguien hoy, por favor, mi mujer está muy nerviosa. Llamadme al 655 330 219.',
+        esperado: { ramo: 'Hogar', revision: true, nota: 'Sin denuncia ni signos de fuerza y joyas de 5.000 € sin factura (H4); póliza de tres semanas (H7)' },
       },
     ],
   },

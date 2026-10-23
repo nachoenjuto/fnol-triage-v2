@@ -1,12 +1,13 @@
 [
   {
+    "ancla": "2026-09-17",
     "id": "MSG-A-13",
     "asunto": "Nos han entrado en casa (WhatsApp)",
     "paquete": "A",
     "ramo": "Hogar",
-    "importe": null,
+    "importe": 5000,
     "decision": "REVISION",
-    "motivo": "Robo en vivienda sin denuncia, sin relación de objetos ni importe y sin indicar signos de fuerza: falta información esencial; solicitar denuncia y lista valorada y enviar perito.",
+    "motivo": "Robo sin denuncia ni signos de fuerza, joyas de 5.000 € sin factura y póliza de tres semanas: pedir denuncia y lista valorada y enviar perito.",
     "confianza": 0.9,
     "origen": "IA",
     "criterios": [
@@ -20,7 +21,7 @@
         "regla": "H2",
         "descripcion": "Comunicación en plazo (7 días desde que se conoce el daño)",
         "resultado": "cumple",
-        "evidencia": "Ocurrido el fin de semana, comunicado el lunes 14/09"
+        "evidencia": "Ocurrido en los días de ausencia, comunicado el lunes 14/09"
       },
       {
         "regla": "H3",
@@ -32,7 +33,7 @@
         "regla": "H4",
         "descripcion": "Robo con fuerza, denuncia y dentro de límites",
         "resultado": "incumple",
-        "evidencia": "Sin denuncia (\"Todavía no hemos ido a la policía\") ni signos de fuerza (\"la puerta parece bien\"); sin relación de objetos ni importe"
+        "evidencia": "Sin denuncia (\"Todavía no hemos ido a la policía\") ni signos de fuerza (\"no está forzada\"); joyas de unos 5.000 € sin facturas, por encima del límite de 3.000 €"
       },
       {
         "regla": "H5",
@@ -49,20 +50,20 @@
       {
         "regla": "H7",
         "descripcion": "Póliza reciente (< 30 días) con siniestro > 3.000 €",
-        "resultado": "no_aplica",
-        "evidencia": "Sin importe"
+        "resultado": "incumple",
+        "evidencia": "Póliza contratada \"hace solo tres semanas\" con un siniestro de al menos 5.000 €"
       },
       {
         "regla": "H8",
         "descripcion": "Vivienda deshabitada más de 30 días",
         "resultado": "no_aplica",
-        "evidencia": "Ausencia de fin de semana"
+        "evidencia": "Ausencia de pocos días"
       },
       {
         "regla": "H9",
         "descripcion": "Importe inferior a 10.000 €",
-        "resultado": "no_aplica",
-        "evidencia": "Sin importe estimado"
+        "resultado": "cumple",
+        "evidencia": "5.000 € declarados < 10.000 € (importe total sin determinar)"
       }
     ],
     "criterios_ramo": [
@@ -75,12 +76,12 @@
       "numero_poliza": "HO-604118",
       "tipo_siniestro": "Robo en vivienda (datos pendientes)",
       "fecha_hecho": null,
-      "importe_estimado_eur": null,
+      "importe_estimado_eur": 5000,
       "lugar": null,
       "terceros_implicados": false,
       "lesionados": false,
       "documentacion_mencionada": [],
-      "observaciones": "Ocurrido \"este finde\" en ausencia de los asegurados; vivienda revuelta; sin denuncia (\"Todavía no hemos ido a la policía\"), sin signos de fuerza (\"la puerta parece bien\"), sin relación de objetos ni importe; promete enviar una lista."
+      "observaciones": "Ocurrido \"estos días que hemos estado fuera\"; vivienda revuelta; sin denuncia (\"Todavía no hemos ido a la policía\") ni signos de fuerza (\"no está forzada\"). Joyas valoradas en unos 5.000 €, heredadas y sin facturas; póliza contratada hace tres semanas. Importe total sin determinar."
     },
     "evidencias": [
       {
@@ -90,7 +91,7 @@
       },
       {
         "ref": "fecha_hecho",
-        "cita": "este finde",
+        "cita": "estos días que hemos estado fuera",
         "nota": "Fecha aproximada, sin día concreto"
       },
       {
@@ -105,13 +106,23 @@
       },
       {
         "ref": "importe_estimado_eur",
-        "cita": "todavía no sé cuánto",
-        "nota": "Importe no indicado"
+        "cita": "unos 5.000 €",
+        "nota": "Valor estimado de las joyas"
       },
       {
         "ref": "regla:H4",
-        "cita": "No sé por dónde han entrado, la puerta parece bien",
-        "nota": "Sin signos de fuerza acreditados"
+        "cita": "no tenemos facturas",
+        "nota": "Joyas por encima de 3.000 € sin justificante"
+      },
+      {
+        "ref": "regla:H4",
+        "cita": "la puerta parece bien, no está forzada",
+        "nota": "Sin signos de fuerza"
+      },
+      {
+        "ref": "regla:H7",
+        "cita": "lo contratamos hace solo tres semanas",
+        "nota": "Póliza de menos de 30 días"
       },
       {
         "ref": "regla:H4",
@@ -129,7 +140,7 @@
         "nota": "Póliza identificada"
       }
     ],
-    "raw": "{\n  \"ramo\": \"Hogar\",\n  \"criterios_ramo\": [\n    \"\\\"nos han entrado en casa\\\": sustracción en la vivienda\",\n    \"Póliza HO-604118\"\n  ],\n  \"datos_extraidos\": {\n    \"nombre_cliente\": \"Luis Miguel Arranz\",\n    \"numero_poliza\": \"HO-604118\",\n    \"tipo_siniestro\": \"Robo en vivienda (datos pendientes)\",\n    \"fecha_hecho\": null,\n    \"importe_estimado_eur\": null,\n    \"lugar\": null,\n    \"terceros_implicados\": false,\n    \"lesionados\": false,\n    \"documentacion_mencionada\": [],\n    \"observaciones\": \"Ocurrido \\\"este finde\\\" en ausencia de los asegurados; vivienda revuelta; sin denuncia (\\\"Todavía no hemos ido a la policía\\\"), sin signos de fuerza (\\\"la puerta parece bien\\\"), sin relación de objetos ni importe; promete enviar una lista.\"\n  },\n  \"criterios\": [\n    {\n      \"regla\": \"H1\",\n      \"descripcion\": \"Póliza vigente en la fecha del hecho\",\n      \"resultado\": \"cumple\",\n      \"evidencia\": \"Póliza HO-604118 identificada\"\n    },\n    {\n      \"regla\": \"H2\",\n      \"descripcion\": \"Comunicación en plazo (7 días desde que se conoce el daño)\",\n      \"resultado\": \"cumple\",\n      \"evidencia\": \"Ocurrido el fin de semana, comunicado el lunes 14/09\"\n    },\n    {\n      \"regla\": \"H3\",\n      \"descripcion\": \"Daño por agua súbito, no filtración ni falta de mantenimiento\",\n      \"resultado\": \"no_aplica\",\n      \"evidencia\": \"No es daño por agua\"\n    },\n    {\n      \"regla\": \"H4\",\n      \"descripcion\": \"Robo con fuerza, denuncia y dentro de límites\",\n      \"resultado\": \"incumple\",\n      \"evidencia\": \"Sin denuncia (\\\"Todavía no hemos ido a la policía\\\") ni signos de fuerza (\\\"la puerta parece bien\\\"); sin relación de objetos ni importe\"\n    },\n    {\n      \"regla\": \"H5\",\n      \"descripcion\": \"Despeje directo: cristales, sanitarios, eléctrico < 1.500 €\",\n      \"resultado\": \"no_aplica\",\n      \"evidencia\": \"No es cristal ni eléctrico\"\n    },\n    {\n      \"regla\": \"H6\",\n      \"descripcion\": \"Vandalismo / atmosférico con denuncia o fecha verificable, < 10.000 €\",\n      \"resultado\": \"no_aplica\",\n      \"evidencia\": \"No es vandalismo\"\n    },\n    {\n      \"regla\": \"H7\",\n      \"descripcion\": \"Póliza reciente (< 30 días) con siniestro > 3.000 €\",\n      \"resultado\": \"no_aplica\",\n      \"evidencia\": \"Sin importe\"\n    },\n    {\n      \"regla\": \"H8\",\n      \"descripcion\": \"Vivienda deshabitada más de 30 días\",\n      \"resultado\": \"no_aplica\",\n      \"evidencia\": \"Ausencia de fin de semana\"\n    },\n    {\n      \"regla\": \"H9\",\n      \"descripcion\": \"Importe inferior a 10.000 €\",\n      \"resultado\": \"no_aplica\",\n      \"evidencia\": \"Sin importe estimado\"\n    }\n  ],\n  \"decision\": \"REVISION\",\n  \"motivo\": \"Robo en vivienda sin denuncia, sin relación de objetos ni importe y sin indicar signos de fuerza: falta información esencial; solicitar denuncia y lista valorada y enviar perito.\",\n  \"confianza\": 0.9,\n  \"evidencias\": [\n    {\n      \"ref\": \"tipo_siniestro\",\n      \"cita\": \"nos han entrado en casa\",\n      \"nota\": \"Robo en la vivienda: ramo Hogar\"\n    },\n    {\n      \"ref\": \"fecha_hecho\",\n      \"cita\": \"este finde\",\n      \"nota\": \"Fecha aproximada, sin día concreto\"\n    },\n    {\n      \"ref\": \"ramo\",\n      \"cita\": \"está todo revuelto, los cajones por el suelo\",\n      \"nota\": \"Daños en el contenido de la vivienda\"\n    },\n    {\n      \"ref\": \"regla:H4\",\n      \"cita\": \"Se han llevado cosas\",\n      \"nota\": \"Sustracción sin relación de objetos\"\n    },\n    {\n      \"ref\": \"importe_estimado_eur\",\n      \"cita\": \"todavía no sé cuánto\",\n      \"nota\": \"Importe no indicado\"\n    },\n    {\n      \"ref\": \"regla:H4\",\n      \"cita\": \"No sé por dónde han entrado, la puerta parece bien\",\n      \"nota\": \"Sin signos de fuerza acreditados\"\n    },\n    {\n      \"ref\": \"regla:H4\",\n      \"cita\": \"Todavía no hemos ido a la policía\",\n      \"nota\": \"Sin denuncia\"\n    },\n    {\n      \"ref\": \"documentacion_mencionada\",\n      \"cita\": \"Luego os mando una lista\",\n      \"nota\": \"Relación de objetos pendiente\"\n    },\n    {\n      \"ref\": \"numero_poliza\",\n      \"cita\": \"HO-604118\",\n      \"nota\": \"Póliza identificada\"\n    }\n  ]\n}",
+    "raw": "{\n  \"ramo\": \"Hogar\",\n  \"criterios_ramo\": [\n    \"\\\"nos han entrado en casa\\\": sustracción en la vivienda\",\n    \"Póliza HO-604118\"\n  ],\n  \"datos_extraidos\": {\n    \"nombre_cliente\": \"Luis Miguel Arranz\",\n    \"numero_poliza\": \"HO-604118\",\n    \"tipo_siniestro\": \"Robo en vivienda (datos pendientes)\",\n    \"fecha_hecho\": null,\n    \"importe_estimado_eur\": 5000,\n    \"lugar\": null,\n    \"terceros_implicados\": false,\n    \"lesionados\": false,\n    \"documentacion_mencionada\": [],\n    \"observaciones\": \"Ocurrido \\\"estos días que hemos estado fuera\\\"; vivienda revuelta; sin denuncia (\\\"Todavía no hemos ido a la policía\\\") ni signos de fuerza (\\\"no está forzada\\\"). Joyas valoradas en unos 5.000 €, heredadas y sin facturas; póliza contratada hace tres semanas. Importe total sin determinar.\"\n  },\n  \"criterios\": [\n    {\n      \"regla\": \"H1\",\n      \"descripcion\": \"Póliza vigente en la fecha del hecho\",\n      \"resultado\": \"cumple\",\n      \"evidencia\": \"Póliza HO-604118 identificada\"\n    },\n    {\n      \"regla\": \"H2\",\n      \"descripcion\": \"Comunicación en plazo (7 días desde que se conoce el daño)\",\n      \"resultado\": \"cumple\",\n      \"evidencia\": \"Ocurrido en los días de ausencia, comunicado el lunes 14/09\"\n    },\n    {\n      \"regla\": \"H3\",\n      \"descripcion\": \"Daño por agua súbito, no filtración ni falta de mantenimiento\",\n      \"resultado\": \"no_aplica\",\n      \"evidencia\": \"No es daño por agua\"\n    },\n    {\n      \"regla\": \"H4\",\n      \"descripcion\": \"Robo con fuerza, denuncia y dentro de límites\",\n      \"resultado\": \"incumple\",\n      \"evidencia\": \"Sin denuncia (\\\"Todavía no hemos ido a la policía\\\") ni signos de fuerza (\\\"no está forzada\\\"); joyas de unos 5.000 € sin facturas, por encima del límite de 3.000 €\"\n    },\n    {\n      \"regla\": \"H5\",\n      \"descripcion\": \"Despeje directo: cristales, sanitarios, eléctrico < 1.500 €\",\n      \"resultado\": \"no_aplica\",\n      \"evidencia\": \"No es cristal ni eléctrico\"\n    },\n    {\n      \"regla\": \"H6\",\n      \"descripcion\": \"Vandalismo / atmosférico con denuncia o fecha verificable, < 10.000 €\",\n      \"resultado\": \"no_aplica\",\n      \"evidencia\": \"No es vandalismo\"\n    },\n    {\n      \"regla\": \"H7\",\n      \"descripcion\": \"Póliza reciente (< 30 días) con siniestro > 3.000 €\",\n      \"resultado\": \"incumple\",\n      \"evidencia\": \"Póliza contratada \\\"hace solo tres semanas\\\" con un siniestro de al menos 5.000 €\"\n    },\n    {\n      \"regla\": \"H8\",\n      \"descripcion\": \"Vivienda deshabitada más de 30 días\",\n      \"resultado\": \"no_aplica\",\n      \"evidencia\": \"Ausencia de pocos días\"\n    },\n    {\n      \"regla\": \"H9\",\n      \"descripcion\": \"Importe inferior a 10.000 €\",\n      \"resultado\": \"cumple\",\n      \"evidencia\": \"5.000 € declarados < 10.000 € (importe total sin determinar)\"\n    }\n  ],\n  \"decision\": \"REVISION\",\n  \"motivo\": \"Robo sin denuncia ni signos de fuerza, joyas de 5.000 € sin factura y póliza de tres semanas: pedir denuncia y lista valorada y enviar perito.\",\n  \"confianza\": 0.9,\n  \"evidencias\": [\n    {\n      \"ref\": \"tipo_siniestro\",\n      \"cita\": \"nos han entrado en casa\",\n      \"nota\": \"Robo en la vivienda: ramo Hogar\"\n    },\n    {\n      \"ref\": \"fecha_hecho\",\n      \"cita\": \"estos días que hemos estado fuera\",\n      \"nota\": \"Fecha aproximada, sin día concreto\"\n    },\n    {\n      \"ref\": \"ramo\",\n      \"cita\": \"está todo revuelto, los cajones por el suelo\",\n      \"nota\": \"Daños en el contenido de la vivienda\"\n    },\n    {\n      \"ref\": \"regla:H4\",\n      \"cita\": \"Se han llevado cosas\",\n      \"nota\": \"Sustracción sin relación de objetos\"\n    },\n    {\n      \"ref\": \"importe_estimado_eur\",\n      \"cita\": \"unos 5.000 €\",\n      \"nota\": \"Valor estimado de las joyas\"\n    },\n    {\n      \"ref\": \"regla:H4\",\n      \"cita\": \"no tenemos facturas\",\n      \"nota\": \"Joyas por encima de 3.000 € sin justificante\"\n    },\n    {\n      \"ref\": \"regla:H4\",\n      \"cita\": \"la puerta parece bien, no está forzada\",\n      \"nota\": \"Sin signos de fuerza\"\n    },\n    {\n      \"ref\": \"regla:H7\",\n      \"cita\": \"lo contratamos hace solo tres semanas\",\n      \"nota\": \"Póliza de menos de 30 días\"\n    },\n    {\n      \"ref\": \"regla:H4\",\n      \"cita\": \"Todavía no hemos ido a la policía\",\n      \"nota\": \"Sin denuncia\"\n    },\n    {\n      \"ref\": \"documentacion_mencionada\",\n      \"cita\": \"Luego os mando una lista\",\n      \"nota\": \"Relación de objetos pendiente\"\n    },\n    {\n      \"ref\": \"numero_poliza\",\n      \"cita\": \"HO-604118\",\n      \"nota\": \"Póliza identificada\"\n    }\n  ]\n}",
     "usage": {
       "input": 1414,
       "output": 610,
@@ -140,13 +151,13 @@
     "esperado": {
       "ramo": "Hogar",
       "revision": true,
-      "nota": "Falta información esencial: sin denuncia, sin importe ni signos de fuerza (regla H4)"
+      "nota": "Sin denuncia ni signos de fuerza y joyas de 5.000 € sin factura (H4); póliza de tres semanas (H7)"
     },
     "mensaje": {
       "id": "MSG-A-13",
       "canal": "whatsapp",
       "asunto": "Nos han entrado en casa (WhatsApp)",
-      "texto": "Hola, nos han entrado en casa este finde mientras estábamos fuera 😡 Hemos llegado esta mañana y está todo revuelto, los cajones por el suelo. Se han llevado cosas, todavía no sé cuánto, estamos mirando; creo que faltan joyas de mi mujer y un portátil, pero no estoy seguro. No sé por dónde han entrado, la puerta parece bien. Todavía no hemos ido a la policía, no sé si hace falta. Luego os mando una lista. Póliza HO-604118. Necesito que venga alguien hoy, por favor, mi mujer está muy nerviosa. Llamadme al 655 330 219.",
+      "texto": "Hola, nos han entrado en casa estos días que hemos estado fuera 😡 Hemos llegado esta mañana y está todo revuelto, los cajones por el suelo. Se han llevado cosas, todavía no sé cuánto, estamos mirando; creo que faltan joyas de mi mujer y un portátil, pero no estoy seguro. Las joyas valdrán unos 5.000 €, eran heredadas y no tenemos facturas. No sé por dónde han entrado, la puerta parece bien, no está forzada. El seguro lo contratamos hace solo tres semanas, al mudarnos. Todavía no hemos ido a la policía, no sé si hace falta. Luego os mando una lista. Póliza HO-604118. Necesito que venga alguien hoy, por favor, mi mujer está muy nerviosa. Llamadme al 655 330 219.",
       "remitente": {
         "nombre": "Luis Miguel Arranz",
         "contacto": "+34 655 330 219"
@@ -168,9 +179,9 @@
         "modelo": "gpt-5",
         "prompt": "reglas v2.3",
         "origen": "IA",
-        "hash_entrada": "sha256:e5388ed3ca559b7c2a2651c2b87dd8ade85eafa21844f55bd51d09ba8ecddaac",
-        "hash_salida": "sha256:913aeffad74802418177c5504c33bcaea5f0e2c43bc43d07b0b9ff783181aabb",
-        "hash_registro": "sha256:0c8e736fd531305403eb2b97482118016b6b6522980d50916e9e1a344f830749",
+        "hash_entrada": "sha256:50ab80fd481c9337e1005e3355b1dbb3fdbcb6a11090ba61fa6f6a50ed473c62",
+        "hash_salida": "sha256:4b72bfda79ea76f8e463fd163652096cba26d4f3560d48177f644340c43c3c88",
+        "hash_registro": "sha256:ad2c9f824c41939b66ff4d79eff034b7bb2975f6987158c21766b005dd9d0ee5",
         "conocimiento": [
           {
             "kb": "KB-01",
@@ -245,8 +256,8 @@
             "categoria": "indirecto",
             "tipo": "poliza",
             "posicion": [
-              416,
-              425
+              563,
+              572
             ],
             "valor_en_traza": "POL-5E95",
             "usado_en_decision": true,
@@ -261,8 +272,8 @@
             "categoria": "contacto",
             "tipo": "telefono",
             "posicion": [
-              510,
-              521
+              657,
+              668
             ],
             "valor_en_traza": "655 ••• 219",
             "usado_en_decision": false,
@@ -298,7 +309,7 @@
             "nota": "Daños en el contenido de la vivienda"
           },
           {
-            "evidencia": 9,
+            "evidencia": 11,
             "cita": "POL-5E95",
             "nota": "Póliza identificada"
           }
@@ -316,9 +327,10 @@
           }
         ],
         "reglas_determinantes": [
-          "H4"
+          "H4",
+          "H7"
         ],
-        "evidencias_verificadas": 9,
+        "evidencias_verificadas": 11,
         "normas": [
           "AI Act art. 13",
           "RGPD art. 15",
@@ -327,11 +339,31 @@
       },
       "supervision_humana": {
         "requerida": true,
-        "motivo": "Incumple H4: la decisión desfavorable o dudosa la toma una persona",
+        "motivo": "Incumple H4, H7: la decisión desfavorable o dudosa la toma una persona",
         "estado": "pendiente de revisión",
         "normas": [
           "AI Act art. 14",
           "RGPD art. 22"
+        ]
+      },
+      "antifraude": {
+        "score": 90,
+        "nivel": "siu",
+        "indicadores": [
+          "IF-01+25",
+          "IF-08+20",
+          "IF-10+20",
+          "IF-07+15",
+          "IF-09+10"
+        ],
+        "contraindicios": [],
+        "escenario": "EF-01",
+        "pago": "no_aplica",
+        "comunicado_al_cliente": false,
+        "nota": "Indicador interno de priorización: no decide ni se comunica al cliente",
+        "normas": [
+          "RGPD art. 22",
+          "RGPD cons. 47"
         ]
       },
       "clasificacion_ria": {
@@ -344,6 +376,7 @@
     }
   },
   {
+    "ancla": "2026-09-17",
     "id": "MSG-A-12",
     "asunto": "Hijo en urgencias tras caída con patinete (WhatsApp)",
     "paquete": "A",
@@ -770,6 +803,20 @@
           "RGPD art. 22"
         ]
       },
+      "antifraude": {
+        "score": 0,
+        "nivel": "sin",
+        "indicadores": [],
+        "contraindicios": [],
+        "escenario": null,
+        "pago": "libre",
+        "comunicado_al_cliente": false,
+        "nota": "Indicador interno de priorización: no decide ni se comunica al cliente",
+        "normas": [
+          "RGPD art. 22",
+          "RGPD cons. 47"
+        ]
+      },
       "clasificacion_ria": {
         "nivel": "No es alto riesgo (Anexo III 5.c solo cubre la tarificación y el riesgo en vida y salud)",
         "controles_alto_riesgo": "Aplicados como buena práctica",
@@ -780,6 +827,7 @@
     }
   },
   {
+    "ancla": "2026-09-17",
     "id": "MSG-A-11",
     "asunto": "Rayón en la puerta en un parking (WhatsApp)",
     "paquete": "A",
@@ -836,7 +884,7 @@
         "regla": "A8",
         "descripcion": "Coherencia del relato y siniestralidad",
         "resultado": "cumple",
-        "evidencia": "Relato coherente"
+        "evidencia": "Relato coherente; un siniestro previo similar (\"hace unos meses\"), por debajo de 3 en 12 meses"
       }
     ],
     "criterios_ramo": [
@@ -858,7 +906,7 @@
         "fotos",
         "denuncia en la comisaría de Alcobendas (diligencias 18734/26)"
       ],
-      "observaciones": "Tercero no identificado que se fue sin dejar nota; mensaje por WhatsApp."
+      "observaciones": "Tercero no identificado que se fue sin dejar nota; la clienta menciona un daño parecido hace unos meses en el mismo parking. Mensaje por WhatsApp."
     },
     "evidencias": [
       {
@@ -910,9 +958,14 @@
         "ref": "importe_estimado_eur",
         "cita": "600 €",
         "nota": "Presupuesto del taller"
+      },
+      {
+        "ref": "regla:A8",
+        "cita": "Ya me pasó algo parecido hace unos meses",
+        "nota": "Un siniestro previo similar: no llega a 3 en 12 meses"
       }
     ],
-    "raw": "{\n  \"ramo\": \"Auto\",\n  \"criterios_ramo\": [\n    \"Daño en vehículo: puerta del Peugeot 2008\",\n    \"Póliza AU-742210\",\n    \"Parking del Carrefour de Alcobendas\"\n  ],\n  \"datos_extraidos\": {\n    \"nombre_cliente\": \"Rocío Pascual Mena\",\n    \"numero_poliza\": \"AU-742210\",\n    \"tipo_siniestro\": \"Rayón en puerta por tercero desconocido\",\n    \"fecha_hecho\": \"2026-09-13\",\n    \"importe_estimado_eur\": 600,\n    \"lugar\": \"Parking del Carrefour de Alcobendas\",\n    \"terceros_implicados\": true,\n    \"lesionados\": false,\n    \"documentacion_mencionada\": [\n      \"fotos\",\n      \"denuncia en la comisaría de Alcobendas (diligencias 18734/26)\"\n    ],\n    \"observaciones\": \"Tercero no identificado que se fue sin dejar nota; mensaje por WhatsApp.\"\n  },\n  \"criterios\": [\n    {\n      \"regla\": \"A1\",\n      \"descripcion\": \"Póliza vigente y al corriente de pago en la fecha del hecho\",\n      \"resultado\": \"cumple\",\n      \"evidencia\": \"Póliza AU-742210; sin mención de impago\"\n    },\n    {\n      \"regla\": \"A2\",\n      \"descripcion\": \"Comunicación en plazo (7 días, art. 16 LCS)\",\n      \"resultado\": \"cumple\",\n      \"evidencia\": \"Hecho el 13/09, comunicado el 14/09\"\n    },\n    {\n      \"regla\": \"A3\",\n      \"descripcion\": \"Conductor declarado en la póliza\",\n      \"resultado\": \"no_aplica\",\n      \"evidencia\": \"Vehículo estacionado\"\n    },\n    {\n      \"regla\": \"A4\",\n      \"descripcion\": \"Sin alcohol, drogas, fuga ni uso no declarado\",\n      \"resultado\": \"cumple\",\n      \"evidencia\": \"La fuga es del tercero desconocido\"\n    },\n    {\n      \"regla\": \"A5\",\n      \"descripcion\": \"Terceros documentados y sin lesionados\",\n      \"resultado\": \"cumple\",\n      \"evidencia\": \"Tercero no identificable; denuncia presentada; sin heridos\"\n    },\n    {\n      \"regla\": \"A6\",\n      \"descripcion\": \"Importe inferior a 6.000 € y proporcionado\",\n      \"resultado\": \"cumple\",\n      \"evidencia\": \"600 € < 6.000 €\"\n    },\n    {\n      \"regla\": \"A7\",\n      \"descripcion\": \"Supuesto de despeje directo con documentación\",\n      \"resultado\": \"cumple\",\n      \"evidencia\": \"Daños por tercero desconocido con fotos y denuncia\"\n    },\n    {\n      \"regla\": \"A8\",\n      \"descripcion\": \"Coherencia del relato y siniestralidad\",\n      \"resultado\": \"cumple\",\n      \"evidencia\": \"Relato coherente\"\n    }\n  ],\n  \"decision\": \"DESPEJADO\",\n  \"motivo\": \"Rayón en puerta por tercero desconocido, con fotos y denuncia, 600 €: despeje directo.\",\n  \"confianza\": 0.94,\n  \"evidencias\": [\n    {\n      \"ref\": \"fecha_hecho\",\n      \"cita\": \"Ayer 13/09 por la tarde\",\n      \"nota\": \"Fecha del hecho\"\n    },\n    {\n      \"ref\": \"lugar\",\n      \"cita\": \"parking del Carrefour de Alcobendas\",\n      \"nota\": \"Lugar del hecho\"\n    },\n    {\n      \"ref\": \"tipo_siniestro\",\n      \"cita\": \"alguien me rayó toda la puerta del conductor\",\n      \"nota\": \"Vandalismo en el vehículo\"\n    },\n    {\n      \"ref\": \"regla:A5\",\n      \"cita\": \"se fue sin dejar nota\",\n      \"nota\": \"Tercero desconocido\"\n    },\n    {\n      \"ref\": \"documentacion_mencionada\",\n      \"cita\": \"Tengo fotos\",\n      \"nota\": \"Fotos del daño\"\n    },\n    {\n      \"ref\": \"documentacion_mencionada\",\n      \"cita\": \"he puesto denuncia en la comisaría de Alcobendas\",\n      \"nota\": \"Denuncia presentada\"\n    },\n    {\n      \"ref\": \"documentacion_mencionada\",\n      \"cita\": \"número de diligencias 18734/26\",\n      \"nota\": \"Referencia de la denuncia\"\n    },\n    {\n      \"ref\": \"ramo\",\n      \"cita\": \"Es el Peugeot 2008 blanco 2290 LKV\",\n      \"nota\": \"Vehículo asegurado: ramo Auto\"\n    },\n    {\n      \"ref\": \"numero_poliza\",\n      \"cita\": \"AU-742210\",\n      \"nota\": \"Póliza identificada\"\n    },\n    {\n      \"ref\": \"importe_estimado_eur\",\n      \"cita\": \"600 €\",\n      \"nota\": \"Presupuesto del taller\"\n    }\n  ]\n}",
+    "raw": "{\n  \"ramo\": \"Auto\",\n  \"criterios_ramo\": [\n    \"Daño en vehículo: puerta del Peugeot 2008\",\n    \"Póliza AU-742210\",\n    \"Parking del Carrefour de Alcobendas\"\n  ],\n  \"datos_extraidos\": {\n    \"nombre_cliente\": \"Rocío Pascual Mena\",\n    \"numero_poliza\": \"AU-742210\",\n    \"tipo_siniestro\": \"Rayón en puerta por tercero desconocido\",\n    \"fecha_hecho\": \"2026-09-13\",\n    \"importe_estimado_eur\": 600,\n    \"lugar\": \"Parking del Carrefour de Alcobendas\",\n    \"terceros_implicados\": true,\n    \"lesionados\": false,\n    \"documentacion_mencionada\": [\n      \"fotos\",\n      \"denuncia en la comisaría de Alcobendas (diligencias 18734/26)\"\n    ],\n    \"observaciones\": \"Tercero no identificado que se fue sin dejar nota; la clienta menciona un daño parecido hace unos meses en el mismo parking. Mensaje por WhatsApp.\"\n  },\n  \"criterios\": [\n    {\n      \"regla\": \"A1\",\n      \"descripcion\": \"Póliza vigente y al corriente de pago en la fecha del hecho\",\n      \"resultado\": \"cumple\",\n      \"evidencia\": \"Póliza AU-742210; sin mención de impago\"\n    },\n    {\n      \"regla\": \"A2\",\n      \"descripcion\": \"Comunicación en plazo (7 días, art. 16 LCS)\",\n      \"resultado\": \"cumple\",\n      \"evidencia\": \"Hecho el 13/09, comunicado el 14/09\"\n    },\n    {\n      \"regla\": \"A3\",\n      \"descripcion\": \"Conductor declarado en la póliza\",\n      \"resultado\": \"no_aplica\",\n      \"evidencia\": \"Vehículo estacionado\"\n    },\n    {\n      \"regla\": \"A4\",\n      \"descripcion\": \"Sin alcohol, drogas, fuga ni uso no declarado\",\n      \"resultado\": \"cumple\",\n      \"evidencia\": \"La fuga es del tercero desconocido\"\n    },\n    {\n      \"regla\": \"A5\",\n      \"descripcion\": \"Terceros documentados y sin lesionados\",\n      \"resultado\": \"cumple\",\n      \"evidencia\": \"Tercero no identificable; denuncia presentada; sin heridos\"\n    },\n    {\n      \"regla\": \"A6\",\n      \"descripcion\": \"Importe inferior a 6.000 € y proporcionado\",\n      \"resultado\": \"cumple\",\n      \"evidencia\": \"600 € < 6.000 €\"\n    },\n    {\n      \"regla\": \"A7\",\n      \"descripcion\": \"Supuesto de despeje directo con documentación\",\n      \"resultado\": \"cumple\",\n      \"evidencia\": \"Daños por tercero desconocido con fotos y denuncia\"\n    },\n    {\n      \"regla\": \"A8\",\n      \"descripcion\": \"Coherencia del relato y siniestralidad\",\n      \"resultado\": \"cumple\",\n      \"evidencia\": \"Relato coherente; un siniestro previo similar (\\\"hace unos meses\\\"), por debajo de 3 en 12 meses\"\n    }\n  ],\n  \"decision\": \"DESPEJADO\",\n  \"motivo\": \"Rayón en puerta por tercero desconocido, con fotos y denuncia, 600 €: despeje directo.\",\n  \"confianza\": 0.94,\n  \"evidencias\": [\n    {\n      \"ref\": \"fecha_hecho\",\n      \"cita\": \"Ayer 13/09 por la tarde\",\n      \"nota\": \"Fecha del hecho\"\n    },\n    {\n      \"ref\": \"lugar\",\n      \"cita\": \"parking del Carrefour de Alcobendas\",\n      \"nota\": \"Lugar del hecho\"\n    },\n    {\n      \"ref\": \"tipo_siniestro\",\n      \"cita\": \"alguien me rayó toda la puerta del conductor\",\n      \"nota\": \"Vandalismo en el vehículo\"\n    },\n    {\n      \"ref\": \"regla:A5\",\n      \"cita\": \"se fue sin dejar nota\",\n      \"nota\": \"Tercero desconocido\"\n    },\n    {\n      \"ref\": \"documentacion_mencionada\",\n      \"cita\": \"Tengo fotos\",\n      \"nota\": \"Fotos del daño\"\n    },\n    {\n      \"ref\": \"documentacion_mencionada\",\n      \"cita\": \"he puesto denuncia en la comisaría de Alcobendas\",\n      \"nota\": \"Denuncia presentada\"\n    },\n    {\n      \"ref\": \"documentacion_mencionada\",\n      \"cita\": \"número de diligencias 18734/26\",\n      \"nota\": \"Referencia de la denuncia\"\n    },\n    {\n      \"ref\": \"ramo\",\n      \"cita\": \"Es el Peugeot 2008 blanco 2290 LKV\",\n      \"nota\": \"Vehículo asegurado: ramo Auto\"\n    },\n    {\n      \"ref\": \"numero_poliza\",\n      \"cita\": \"AU-742210\",\n      \"nota\": \"Póliza identificada\"\n    },\n    {\n      \"ref\": \"importe_estimado_eur\",\n      \"cita\": \"600 €\",\n      \"nota\": \"Presupuesto del taller\"\n    },\n    {\n      \"ref\": \"regla:A8\",\n      \"cita\": \"Ya me pasó algo parecido hace unos meses\",\n      \"nota\": \"Un siniestro previo similar: no llega a 3 en 12 meses\"\n    }\n  ]\n}",
     "usage": {
       "input": 1434,
       "output": 590,
@@ -928,7 +981,7 @@
       "id": "MSG-A-11",
       "canal": "whatsapp",
       "asunto": "Rayón en la puerta en un parking (WhatsApp)",
-      "texto": "Hola!! os escribo por aquí porque no me aclaro con la app 😅 Ayer 13/09 por la tarde, en el parking del Carrefour de Alcobendas, alguien me rayó toda la puerta del conductor con una llave o algo así y se fue sin dejar nota 😩 El vigilante dice que las cámaras no enfocan esa zona. Tengo fotos y esta mañana he puesto denuncia en la comisaría de Alcobendas, me han dado el número de diligencias 18734/26. Es el Peugeot 2008 blanco 2290 LKV, póliza AU-742210. El taller de al lado de casa me dice que unos 600 € pintar la puerta entera. Qué hago?? Os mando las fotos por aquí si queréis 📸 Mi DNI es 53442872-A 🙏",
+      "texto": "Hola!! os escribo por aquí porque no me aclaro con la app 😅 Ayer 13/09 por la tarde, en el parking del Carrefour de Alcobendas, alguien me rayó toda la puerta del conductor con una llave o algo así y se fue sin dejar nota 😩 El vigilante dice que las cámaras no enfocan esa zona. Tengo fotos y esta mañana he puesto denuncia en la comisaría de Alcobendas, me han dado el número de diligencias 18734/26. Es el Peugeot 2008 blanco 2290 LKV, póliza AU-742210. El taller de al lado de casa me dice que unos 600 € pintar la puerta entera. Ya me pasó algo parecido hace unos meses en este mismo parking 🙄 Qué hago?? Os mando las fotos por aquí si queréis 📸 Mi DNI es 53442872-A 🙏",
       "remitente": {
         "nombre": "Rocío Pascual Mena",
         "contacto": "+34 611 204 377"
@@ -950,9 +1003,9 @@
         "modelo": "gpt-5",
         "prompt": "reglas v2.3",
         "origen": "IA",
-        "hash_entrada": "sha256:bb537a5147b7ee1ce2e2119c5c87d8cbb63049ef4ac35df0aa1902edbe0aed2c",
-        "hash_salida": "sha256:472b3b2e11203b2c6819654345a837c71f71aeb3454078aefce4929a98c7422a",
-        "hash_registro": "sha256:4a4acae28111566f05db9242884b72833a97bd5e977bc383f743dddb31290a62",
+        "hash_entrada": "sha256:0df2a2434d3617402936a513ad37a0d4b7add1b27652cd3ffc71cb1e645ad039",
+        "hash_salida": "sha256:c99d7fc7a104a0b1f05bdd6b073cf27c7414788a71a0c72d8198e495e00fb99c",
+        "hash_registro": "sha256:72be763c1386e7a7f0b08b0fb7d7aeee3f28f43fec815a131d64467d704060b8",
         "conocimiento": [
           {
             "kb": "KB-01",
@@ -1075,8 +1128,8 @@
             "categoria": "identificativo",
             "tipo": "dni",
             "posicion": [
-              598,
-              608
+              664,
+              674
             ],
             "valor_en_traza": "•••••••2-A",
             "usado_en_decision": false,
@@ -1140,7 +1193,7 @@
           "A7",
           "A8"
         ],
-        "evidencias_verificadas": 10,
+        "evidencias_verificadas": 11,
         "normas": [
           "AI Act art. 13",
           "RGPD art. 15",
@@ -1156,6 +1209,24 @@
           "RGPD art. 22"
         ]
       },
+      "antifraude": {
+        "score": 50,
+        "nivel": "vigilancia",
+        "indicadores": [
+          "IF-06+20",
+          "IF-08+20",
+          "IF-09+10"
+        ],
+        "contraindicios": [],
+        "escenario": "EF-03",
+        "pago": "retenido",
+        "comunicado_al_cliente": false,
+        "nota": "Indicador interno de priorización: no decide ni se comunica al cliente",
+        "normas": [
+          "RGPD art. 22",
+          "RGPD cons. 47"
+        ]
+      },
       "clasificacion_ria": {
         "nivel": "No es alto riesgo (Anexo III 5.c solo cubre la tarificación y el riesgo en vida y salud)",
         "controles_alto_riesgo": "Aplicados como buena práctica",
@@ -1166,6 +1237,7 @@
     }
   },
   {
+    "ancla": "2026-09-17",
     "id": "MSG-A-10",
     "asunto": "Urgencias por crisis de asma",
     "paquete": "A",
@@ -1692,6 +1764,22 @@
           "RGPD art. 22"
         ]
       },
+      "antifraude": {
+        "score": 10,
+        "nivel": "sin",
+        "indicadores": [
+          "IF-02+10"
+        ],
+        "contraindicios": [],
+        "escenario": null,
+        "pago": "libre",
+        "comunicado_al_cliente": false,
+        "nota": "Indicador interno de priorización: no decide ni se comunica al cliente",
+        "normas": [
+          "RGPD art. 22",
+          "RGPD cons. 47"
+        ]
+      },
       "clasificacion_ria": {
         "nivel": "No es alto riesgo (Anexo III 5.c solo cubre la tarificación y el riesgo en vida y salud)",
         "controles_alto_riesgo": "Aplicados como buena práctica",
@@ -1702,6 +1790,7 @@
     }
   },
   {
+    "ancla": "2026-09-17",
     "id": "MSG-A-09",
     "asunto": "Cristal de ventana roto",
     "paquete": "A",
@@ -1786,7 +1875,7 @@
         "foto",
         "presupuesto del cristalero"
       ],
-      "observaciones": "Causado por los hijos del vecino del 2.º C (Andrés Pardo, que ha facilitado su teléfono): posible recobro al responsable civil."
+      "observaciones": "Causado por los hijos del vecino del 2.º C (Andrés Pardo, que ha facilitado su teléfono): posible recobro al responsable civil. Facilita una cuenta para el pago."
     },
     "evidencias": [
       {
@@ -1840,7 +1929,7 @@
         "nota": "Documentación adjunta"
       }
     ],
-    "raw": "{\n  \"ramo\": \"Hogar\",\n  \"criterios_ramo\": [\n    \"Daño en la vivienda: cristal de la ventana del salón\",\n    \"Póliza de hogar HO-118830\",\n    \"Rotura por balón de los hijos del vecino\"\n  ],\n  \"datos_extraidos\": {\n    \"nombre_cliente\": \"Iván Castro Luque\",\n    \"numero_poliza\": \"HO-118830\",\n    \"tipo_siniestro\": \"Rotura de cristal\",\n    \"fecha_hecho\": \"2026-09-13\",\n    \"importe_estimado_eur\": 400,\n    \"lugar\": \"C/ Martínez de la Riva 48, 1.º C, Madrid\",\n    \"terceros_implicados\": true,\n    \"lesionados\": false,\n    \"documentacion_mencionada\": [\n      \"foto\",\n      \"presupuesto del cristalero\"\n    ],\n    \"observaciones\": \"Causado por los hijos del vecino del 2.º C (Andrés Pardo, que ha facilitado su teléfono): posible recobro al responsable civil.\"\n  },\n  \"criterios\": [\n    {\n      \"regla\": \"H1\",\n      \"descripcion\": \"Póliza vigente en la fecha del hecho\",\n      \"resultado\": \"cumple\",\n      \"evidencia\": \"Póliza HO-118830 identificada\"\n    },\n    {\n      \"regla\": \"H2\",\n      \"descripcion\": \"Comunicación en plazo (7 días desde que se conoce el daño)\",\n      \"resultado\": \"cumple\",\n      \"evidencia\": \"Hecho y comunicado el 13/09\"\n    },\n    {\n      \"regla\": \"H3\",\n      \"descripcion\": \"Daño por agua súbito, no filtración ni falta de mantenimiento\",\n      \"resultado\": \"no_aplica\",\n      \"evidencia\": \"No es daño por agua\"\n    },\n    {\n      \"regla\": \"H4\",\n      \"descripcion\": \"Robo con fuerza, denuncia y dentro de límites\",\n      \"resultado\": \"no_aplica\",\n      \"evidencia\": \"No es robo\"\n    },\n    {\n      \"regla\": \"H5\",\n      \"descripcion\": \"Despeje directo: cristales, sanitarios, eléctrico < 1.500 €\",\n      \"resultado\": \"cumple\",\n      \"evidencia\": \"Rotura de cristal de 400 € < 1.500 € con foto y presupuesto\"\n    },\n    {\n      \"regla\": \"H6\",\n      \"descripcion\": \"Vandalismo / atmosférico con denuncia o fecha verificable, < 10.000 €\",\n      \"resultado\": \"no_aplica\",\n      \"evidencia\": \"No es vandalismo\"\n    },\n    {\n      \"regla\": \"H7\",\n      \"descripcion\": \"Póliza reciente (< 30 días) con siniestro > 3.000 €\",\n      \"resultado\": \"no_aplica\",\n      \"evidencia\": \"Importe < 3.000 €\"\n    },\n    {\n      \"regla\": \"H8\",\n      \"descripcion\": \"Vivienda deshabitada más de 30 días\",\n      \"resultado\": \"no_aplica\",\n      \"evidencia\": \"Vivienda habitada\"\n    },\n    {\n      \"regla\": \"H9\",\n      \"descripcion\": \"Importe inferior a 10.000 €\",\n      \"resultado\": \"cumple\",\n      \"evidencia\": \"400 € < 10.000 €\"\n    }\n  ],\n  \"decision\": \"DESPEJADO\",\n  \"motivo\": \"Rotura de cristal de 400 € con foto y presupuesto: despeje directo; anotar posible recobro al vecino.\",\n  \"confianza\": 0.93,\n  \"evidencias\": [\n    {\n      \"ref\": \"terceros_implicados\",\n      \"cita\": \"Los niños del vecino del 2.º C\",\n      \"nota\": \"Causantes identificados: posible recobro\"\n    },\n    {\n      \"ref\": \"tipo_siniestro\",\n      \"cita\": \"han roto con un balón el cristal de la ventana del salón\",\n      \"nota\": \"Rotura de cristal\"\n    },\n    {\n      \"ref\": \"fecha_hecho\",\n      \"cita\": \"esta mañana (13/09)\",\n      \"nota\": \"Fecha del hecho\"\n    },\n    {\n      \"ref\": \"terceros_implicados\",\n      \"cita\": \"El vecino, Andrés Pardo, ha venido a disculparse\",\n      \"nota\": \"Responsable identificado\"\n    },\n    {\n      \"ref\": \"regla:H5\",\n      \"cita\": \"doble acristalamiento de 120x140\",\n      \"nota\": \"Cristal: supuesto de despeje directo\"\n    },\n    {\n      \"ref\": \"importe_estimado_eur\",\n      \"cita\": \"400 €\",\n      \"nota\": \"Presupuesto con instalación\"\n    },\n    {\n      \"ref\": \"lesionados\",\n      \"cita\": \"Nadie se ha hecho daño\",\n      \"nota\": \"Sin lesionados\"\n    },\n    {\n      \"ref\": \"numero_poliza\",\n      \"cita\": \"HO-118830\",\n      \"nota\": \"Póliza identificada\"\n    },\n    {\n      \"ref\": \"lugar\",\n      \"cita\": \"C/ Martínez de la Riva 48, 1.º C, Madrid\",\n      \"nota\": \"Vivienda asegurada\"\n    },\n    {\n      \"ref\": \"documentacion_mencionada\",\n      \"cita\": \"Adjunto foto y el presupuesto\",\n      \"nota\": \"Documentación adjunta\"\n    }\n  ]\n}",
+    "raw": "{\n  \"ramo\": \"Hogar\",\n  \"criterios_ramo\": [\n    \"Daño en la vivienda: cristal de la ventana del salón\",\n    \"Póliza de hogar HO-118830\",\n    \"Rotura por balón de los hijos del vecino\"\n  ],\n  \"datos_extraidos\": {\n    \"nombre_cliente\": \"Iván Castro Luque\",\n    \"numero_poliza\": \"HO-118830\",\n    \"tipo_siniestro\": \"Rotura de cristal\",\n    \"fecha_hecho\": \"2026-09-13\",\n    \"importe_estimado_eur\": 400,\n    \"lugar\": \"C/ Martínez de la Riva 48, 1.º C, Madrid\",\n    \"terceros_implicados\": true,\n    \"lesionados\": false,\n    \"documentacion_mencionada\": [\n      \"foto\",\n      \"presupuesto del cristalero\"\n    ],\n    \"observaciones\": \"Causado por los hijos del vecino del 2.º C (Andrés Pardo, que ha facilitado su teléfono): posible recobro al responsable civil. Facilita una cuenta para el pago.\"\n  },\n  \"criterios\": [\n    {\n      \"regla\": \"H1\",\n      \"descripcion\": \"Póliza vigente en la fecha del hecho\",\n      \"resultado\": \"cumple\",\n      \"evidencia\": \"Póliza HO-118830 identificada\"\n    },\n    {\n      \"regla\": \"H2\",\n      \"descripcion\": \"Comunicación en plazo (7 días desde que se conoce el daño)\",\n      \"resultado\": \"cumple\",\n      \"evidencia\": \"Hecho y comunicado el 13/09\"\n    },\n    {\n      \"regla\": \"H3\",\n      \"descripcion\": \"Daño por agua súbito, no filtración ni falta de mantenimiento\",\n      \"resultado\": \"no_aplica\",\n      \"evidencia\": \"No es daño por agua\"\n    },\n    {\n      \"regla\": \"H4\",\n      \"descripcion\": \"Robo con fuerza, denuncia y dentro de límites\",\n      \"resultado\": \"no_aplica\",\n      \"evidencia\": \"No es robo\"\n    },\n    {\n      \"regla\": \"H5\",\n      \"descripcion\": \"Despeje directo: cristales, sanitarios, eléctrico < 1.500 €\",\n      \"resultado\": \"cumple\",\n      \"evidencia\": \"Rotura de cristal de 400 € < 1.500 € con foto y presupuesto\"\n    },\n    {\n      \"regla\": \"H6\",\n      \"descripcion\": \"Vandalismo / atmosférico con denuncia o fecha verificable, < 10.000 €\",\n      \"resultado\": \"no_aplica\",\n      \"evidencia\": \"No es vandalismo\"\n    },\n    {\n      \"regla\": \"H7\",\n      \"descripcion\": \"Póliza reciente (< 30 días) con siniestro > 3.000 €\",\n      \"resultado\": \"no_aplica\",\n      \"evidencia\": \"Importe < 3.000 €\"\n    },\n    {\n      \"regla\": \"H8\",\n      \"descripcion\": \"Vivienda deshabitada más de 30 días\",\n      \"resultado\": \"no_aplica\",\n      \"evidencia\": \"Vivienda habitada\"\n    },\n    {\n      \"regla\": \"H9\",\n      \"descripcion\": \"Importe inferior a 10.000 €\",\n      \"resultado\": \"cumple\",\n      \"evidencia\": \"400 € < 10.000 €\"\n    }\n  ],\n  \"decision\": \"DESPEJADO\",\n  \"motivo\": \"Rotura de cristal de 400 € con foto y presupuesto: despeje directo; anotar posible recobro al vecino.\",\n  \"confianza\": 0.93,\n  \"evidencias\": [\n    {\n      \"ref\": \"terceros_implicados\",\n      \"cita\": \"Los niños del vecino del 2.º C\",\n      \"nota\": \"Causantes identificados: posible recobro\"\n    },\n    {\n      \"ref\": \"tipo_siniestro\",\n      \"cita\": \"han roto con un balón el cristal de la ventana del salón\",\n      \"nota\": \"Rotura de cristal\"\n    },\n    {\n      \"ref\": \"fecha_hecho\",\n      \"cita\": \"esta mañana (13/09)\",\n      \"nota\": \"Fecha del hecho\"\n    },\n    {\n      \"ref\": \"terceros_implicados\",\n      \"cita\": \"El vecino, Andrés Pardo, ha venido a disculparse\",\n      \"nota\": \"Responsable identificado\"\n    },\n    {\n      \"ref\": \"regla:H5\",\n      \"cita\": \"doble acristalamiento de 120x140\",\n      \"nota\": \"Cristal: supuesto de despeje directo\"\n    },\n    {\n      \"ref\": \"importe_estimado_eur\",\n      \"cita\": \"400 €\",\n      \"nota\": \"Presupuesto con instalación\"\n    },\n    {\n      \"ref\": \"lesionados\",\n      \"cita\": \"Nadie se ha hecho daño\",\n      \"nota\": \"Sin lesionados\"\n    },\n    {\n      \"ref\": \"numero_poliza\",\n      \"cita\": \"HO-118830\",\n      \"nota\": \"Póliza identificada\"\n    },\n    {\n      \"ref\": \"lugar\",\n      \"cita\": \"C/ Martínez de la Riva 48, 1.º C, Madrid\",\n      \"nota\": \"Vivienda asegurada\"\n    },\n    {\n      \"ref\": \"documentacion_mencionada\",\n      \"cita\": \"Adjunto foto y el presupuesto\",\n      \"nota\": \"Documentación adjunta\"\n    }\n  ]\n}",
     "usage": {
       "input": 1458,
       "output": 584,
@@ -1856,7 +1945,7 @@
       "id": "MSG-A-09",
       "canal": "web",
       "asunto": "Cristal de ventana roto",
-      "texto": "Los niños del vecino del 2.º C han roto con un balón el cristal de la ventana del salón esta mañana (13/09), sobre las 11:00, mientras jugaban en el patio comunitario. El vecino, Andrés Pardo, ha venido a disculparse y me ha dado su teléfono por si hace falta (600 712 455). Es un doble acristalamiento de 120x140 y ha quedado un agujero con el cristal astillado; lo he tapado con cartón. El cristalero, Cristalería Vallecas, me pasa 400 € con la instalación y puede venir el martes. Nadie se ha hecho daño. Póliza de hogar HO-118830, vivienda en C/ Martínez de la Riva 48, 1.º C, Madrid. Adjunto foto y el presupuesto.",
+      "texto": "Los niños del vecino del 2.º C han roto con un balón el cristal de la ventana del salón esta mañana (13/09), sobre las 11:00, mientras jugaban en el patio comunitario. El vecino, Andrés Pardo, ha venido a disculparse y me ha dado su teléfono por si hace falta (600 712 455). Es un doble acristalamiento de 120x140 y ha quedado un agujero con el cristal astillado; lo he tapado con cartón. El cristalero, Cristalería Vallecas, me pasa 400 € con la instalación y puede venir el martes. Nadie se ha hecho daño. Póliza de hogar HO-118830, vivienda en C/ Martínez de la Riva 48, 1.º C, Madrid. Adjunto foto y el presupuesto. Para el pago, la cuenta es ES91 2100 0418 4502 0005 1332.",
       "remitente": {
         "nombre": "Iván Castro Luque",
         "contacto": "ivancastro@mail.com"
@@ -1878,9 +1967,9 @@
         "modelo": "gpt-5",
         "prompt": "reglas v2.3",
         "origen": "IA",
-        "hash_entrada": "sha256:03b1af5c3936fcf3586d25a6d3f9b1b50e1e770d0cfc4d29ace4ace190c4eddd",
-        "hash_salida": "sha256:4bdb1ace45341aa55c4758fa9a7057db037172d56fa2f701aa8a558199ecad80",
-        "hash_registro": "sha256:74a203e8d0544c158d9c1805b8c559213e0a8aa2abbe89039590224573ab3cf3",
+        "hash_entrada": "sha256:8439461d9ce59aaef24688840e5a9ec32befcbd69c9744376efc7c2597f86503",
+        "hash_salida": "sha256:2275178c04f81ac4eb2cfdf25315ca5ef291a2e313e0ecdc0af6df563b184795",
+        "hash_registro": "sha256:570ba392db0b9089052780cdc316e045c74b4400c38d51fa6e4467316334222d",
         "conocimiento": [
           {
             "kb": "KB-01",
@@ -1934,18 +2023,19 @@
         ]
       },
       "datos_personales": {
-        "total": 5,
+        "total": 6,
         "por_categoria": {
           "menor": 1,
           "tercero": 1,
           "contacto": 1,
           "indirecto": 1,
-          "localizacion": 1
+          "localizacion": 1,
+          "financiero": 1
         },
         "categoria_especial_salud": 0,
         "menores": 1,
         "terceros": 1,
-        "no_usados_en_decision": 1,
+        "no_usados_en_decision": 2,
         "hallazgos": [
           {
             "id": "P1",
@@ -2025,6 +2115,22 @@
               "RGPD art. 4.1",
               "RGPD art. 5.1.c"
             ]
+          },
+          {
+            "id": "P6",
+            "categoria": "financiero",
+            "tipo": "iban",
+            "posicion": [
+              647,
+              676
+            ],
+            "valor_en_traza": "ES91 •••• •••• •••• •••• 1332",
+            "usado_en_decision": false,
+            "tratamiento": "Enmascarado; excluido del contexto de decisión",
+            "normas": [
+              "RGPD art. 32",
+              "RGPD art. 5.1.c"
+            ]
           }
         ],
         "envio_al_modelo": {
@@ -2086,6 +2192,23 @@
           "RGPD art. 22"
         ]
       },
+      "antifraude": {
+        "score": 50,
+        "nivel": "vigilancia",
+        "indicadores": [
+          "IF-03+35",
+          "IF-05+15"
+        ],
+        "contraindicios": [],
+        "escenario": "EF-02",
+        "pago": "retenido",
+        "comunicado_al_cliente": false,
+        "nota": "Indicador interno de priorización: no decide ni se comunica al cliente",
+        "normas": [
+          "RGPD art. 22",
+          "RGPD cons. 47"
+        ]
+      },
       "clasificacion_ria": {
         "nivel": "No es alto riesgo (Anexo III 5.c solo cubre la tarificación y el riesgo en vida y salud)",
         "controles_alto_riesgo": "Aplicados como buena práctica",
@@ -2096,6 +2219,7 @@
     }
   },
   {
+    "ancla": "2026-09-17",
     "id": "MSG-A-08",
     "asunto": "Accidente de moto con ingreso hospitalario",
     "paquete": "A",
@@ -2599,6 +2723,20 @@
           "RGPD art. 22"
         ]
       },
+      "antifraude": {
+        "score": 0,
+        "nivel": "sin",
+        "indicadores": [],
+        "contraindicios": [],
+        "escenario": null,
+        "pago": "no_aplica",
+        "comunicado_al_cliente": false,
+        "nota": "Indicador interno de priorización: no decide ni se comunica al cliente",
+        "normas": [
+          "RGPD art. 22",
+          "RGPD cons. 47"
+        ]
+      },
       "clasificacion_ria": {
         "nivel": "No es alto riesgo (Anexo III 5.c solo cubre la tarificación y el riesgo en vida y salud)",
         "controles_alto_riesgo": "Aplicados como buena práctica",
@@ -2609,6 +2747,7 @@
     }
   },
   {
+    "ancla": "2026-09-17",
     "id": "MSG-A-07",
     "asunto": "Luna rota por gravilla",
     "paquete": "A",
@@ -2979,6 +3118,20 @@
           "RGPD art. 22"
         ]
       },
+      "antifraude": {
+        "score": 0,
+        "nivel": "sin",
+        "indicadores": [],
+        "contraindicios": [],
+        "escenario": null,
+        "pago": "libre",
+        "comunicado_al_cliente": false,
+        "nota": "Indicador interno de priorización: no decide ni se comunica al cliente",
+        "normas": [
+          "RGPD art. 22",
+          "RGPD cons. 47"
+        ]
+      },
       "clasificacion_ria": {
         "nivel": "No es alto riesgo (Anexo III 5.c solo cubre la tarificación y el riesgo en vida y salud)",
         "controles_alto_riesgo": "Aplicados como buena práctica",
@@ -2989,6 +3142,7 @@
     }
   },
   {
+    "ancla": "2026-09-17",
     "id": "MSG-A-06",
     "asunto": "Radiografía y analítica prescritas",
     "paquete": "A",
@@ -3433,6 +3587,20 @@
           "RGPD art. 22"
         ]
       },
+      "antifraude": {
+        "score": 0,
+        "nivel": "sin",
+        "indicadores": [],
+        "contraindicios": [],
+        "escenario": null,
+        "pago": "libre",
+        "comunicado_al_cliente": false,
+        "nota": "Indicador interno de priorización: no decide ni se comunica al cliente",
+        "normas": [
+          "RGPD art. 22",
+          "RGPD cons. 47"
+        ]
+      },
       "clasificacion_ria": {
         "nivel": "No es alto riesgo (Anexo III 5.c solo cubre la tarificación y el riesgo en vida y salud)",
         "controles_alto_riesgo": "Aplicados como buena práctica",
@@ -3443,6 +3611,7 @@
     }
   },
   {
+    "ancla": "2026-09-17",
     "id": "MSG-A-05",
     "asunto": "Subida de tensión - electrodomésticos dañados",
     "paquete": "A",
@@ -3827,6 +3996,22 @@
           "RGPD art. 22"
         ]
       },
+      "antifraude": {
+        "score": 10,
+        "nivel": "sin",
+        "indicadores": [
+          "IF-02+10"
+        ],
+        "contraindicios": [],
+        "escenario": null,
+        "pago": "libre",
+        "comunicado_al_cliente": false,
+        "nota": "Indicador interno de priorización: no decide ni se comunica al cliente",
+        "normas": [
+          "RGPD art. 22",
+          "RGPD cons. 47"
+        ]
+      },
       "clasificacion_ria": {
         "nivel": "No es alto riesgo (Anexo III 5.c solo cubre la tarificación y el riesgo en vida y salud)",
         "controles_alto_riesgo": "Aplicados como buena práctica",
@@ -3837,6 +4022,7 @@
     }
   },
   {
+    "ancla": "2026-09-17",
     "id": "MSG-A-04",
     "asunto": "Daños en el coche en un parking",
     "paquete": "A",
@@ -4229,6 +4415,26 @@
           "RGPD art. 22"
         ]
       },
+      "antifraude": {
+        "score": 40,
+        "nivel": "vigilancia",
+        "indicadores": [
+          "IF-06+20",
+          "IF-02+10",
+          "IF-09+10"
+        ],
+        "contraindicios": [
+          "IF-11"
+        ],
+        "escenario": "EF-04",
+        "pago": "no_aplica",
+        "comunicado_al_cliente": false,
+        "nota": "Indicador interno de priorización: no decide ni se comunica al cliente",
+        "normas": [
+          "RGPD art. 22",
+          "RGPD cons. 47"
+        ]
+      },
       "clasificacion_ria": {
         "nivel": "No es alto riesgo (Anexo III 5.c solo cubre la tarificación y el riesgo en vida y salud)",
         "controles_alto_riesgo": "Aplicados como buena práctica",
@@ -4239,6 +4445,7 @@
     }
   },
   {
+    "ancla": "2026-09-17",
     "id": "MSG-A-03",
     "asunto": "Urgencias por esguince",
     "paquete": "A",
@@ -4686,6 +4893,20 @@
           "RGPD art. 22"
         ]
       },
+      "antifraude": {
+        "score": 0,
+        "nivel": "sin",
+        "indicadores": [],
+        "contraindicios": [],
+        "escenario": null,
+        "pago": "libre",
+        "comunicado_al_cliente": false,
+        "nota": "Indicador interno de priorización: no decide ni se comunica al cliente",
+        "normas": [
+          "RGPD art. 22",
+          "RGPD cons. 47"
+        ]
+      },
       "clasificacion_ria": {
         "nivel": "No es alto riesgo (Anexo III 5.c solo cubre la tarificación y el riesgo en vida y salud)",
         "controles_alto_riesgo": "Aplicados como buena práctica",
@@ -4696,6 +4917,7 @@
     }
   },
   {
+    "ancla": "2026-09-17",
     "id": "MSG-A-02",
     "asunto": "Rotura de tubería bajo el fregadero",
     "paquete": "A",
@@ -5103,6 +5325,22 @@
           "RGPD art. 22"
         ]
       },
+      "antifraude": {
+        "score": 35,
+        "nivel": "sin",
+        "indicadores": [
+          "IF-03+35"
+        ],
+        "contraindicios": [],
+        "escenario": "EF-02",
+        "pago": "retenido",
+        "comunicado_al_cliente": false,
+        "nota": "Indicador interno de priorización: no decide ni se comunica al cliente",
+        "normas": [
+          "RGPD art. 22",
+          "RGPD cons. 47"
+        ]
+      },
       "clasificacion_ria": {
         "nivel": "No es alto riesgo (Anexo III 5.c solo cubre la tarificación y el riesgo en vida y salud)",
         "controles_alto_riesgo": "Aplicados como buena práctica",
@@ -5113,6 +5351,7 @@
     }
   },
   {
+    "ancla": "2026-09-17",
     "id": "MSG-A-01",
     "asunto": "Golpe leve en la M-30 - póliza AU-483920",
     "paquete": "A",
@@ -5526,6 +5765,20 @@
         "normas": [
           "AI Act art. 14",
           "RGPD art. 22"
+        ]
+      },
+      "antifraude": {
+        "score": 0,
+        "nivel": "sin",
+        "indicadores": [],
+        "contraindicios": [],
+        "escenario": null,
+        "pago": "libre",
+        "comunicado_al_cliente": false,
+        "nota": "Indicador interno de priorización: no decide ni se comunica al cliente",
+        "normas": [
+          "RGPD art. 22",
+          "RGPD cons. 47"
         ]
       },
       "clasificacion_ria": {

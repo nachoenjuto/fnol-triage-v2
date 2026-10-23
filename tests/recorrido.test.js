@@ -15,8 +15,8 @@ const test = async (nombre, fn) => { try { await fn(); n++; console.log(`  ok   
 
 (async () => {
   console.log('guion');
-  await test('11 pasos, cada uno con página, acción y al menos un subtítulo de dos líneas', () => {
-    assert.strictEqual(N, 11);
+  await test('12 pasos, cada uno con página, acción y al menos un subtítulo de dos líneas', () => {
+    assert.strictEqual(N, 12);
     R.PASOS.forEach((p, i) => {
       assert.ok(['triaje', 'gobierno'].includes(p.pagina), `paso ${i + 1}: página`);
       assert.ok(p.accion && p.titulo && p.frase, `paso ${i + 1}: acción, título y frase`);

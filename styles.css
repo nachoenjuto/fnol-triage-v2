@@ -355,3 +355,11 @@ mark.ev, .ev-item[data-n] { cursor: pointer; }
 .modal-prompt-body { padding: 1rem 1.25rem 1.25rem; display: grid; gap: .6rem; }
 #prompt-grande { min-height: 0; font-size: .82rem; }
 .prompt-base .row.between, .section-body .row.between { flex-wrap: wrap; gap: .3rem; }
+
+/* Indicadores de fraude (registro y ficha) */
+.pill-fr-siu { background: color-mix(in srgb, var(--error) 14%, transparent); color: var(--error); }
+.pill-fr-vig { background: var(--review-bg); color: var(--review); }
+.pill-fr-pago { background: var(--time-bg); color: var(--time); }
+.fr-bloque { margin-top: 1.1rem; padding-top: .9rem; border-top: 1px solid var(--border); }
+.fr-bloque h3 { display: flex; align-items: center; gap: .4rem; flex-wrap: wrap; margin-bottom: .3rem; }
+.fr-bloque .criterios { margin-top: .6rem; }

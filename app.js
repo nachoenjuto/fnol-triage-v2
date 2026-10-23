@@ -106,6 +106,8 @@
     }
     if (!fecha && /\b(ayer|anoche)\b/i.test(t)) fecha = isoDate(new Date(recepcion.getTime() - 86400000));
     if (!fecha && /\b(hoy|esta (ma[ñn]ana|tarde|noche)|acabo de|ahora mismo)\b/i.test(t)) fecha = isoDate(recepcion);
+    // «29 de diciembre» recibido el 2 de enero: el hecho es del año anterior
+    if (fecha && fecha > isoDate(recepcion)) fecha = `${year - 1}${fecha.slice(4)}`;
 
     const importes = [...t.matchAll(/(\d{1,3}(?:\.\d{3})+|\d+)\s?€/g)].map((x) => Number(x[1].replace(/\./g, '')));
     const poliza = t.match(/\b(AU|HO|SA)-\d{6}\b/);
@@ -150,7 +152,7 @@
       ['H9', 'Importe inferior a 10.000 €', (t, d) => (d.importe_estimado_eur == null ? 'no_aplica' : d.importe_estimado_eur > 10000 ? 'incumple' : 'cumple'), 'Importe extraído'],
     ],
     Salud: [
-      ['S2', 'Fuera de periodo de carencia', (t) => (/\bcontrat[ée][^.]*\b(mayo|junio|julio|agosto|septiembre) de 2026\b/i.test(t) && /\b(oper\w+|cirug[ií]a|hospitaliz\w+|ingres\w+)\b/i.test(t) ? 'incumple' : 'cumple'), 'Antigüedad de la póliza vs. prestación'],
+      ['S2', 'Fuera de periodo de carencia', (t) => (/\bcontrat[ée][^.]*\b(enero|febrero|marzo|abril|mayo|junio|julio|agosto|septiembre|octubre|noviembre|diciembre) de 20\d\d\b/i.test(t) && /\b(oper\w+|cirug[ií]a|hospitaliz\w+|ingres\w+)\b/i.test(t) ? 'incumple' : 'cumple'), 'Antigüedad de la póliza vs. prestación'],
       ['S3', 'Sin preexistencias no declaradas', (t) => (/\b(arrastraba|desde hace (a[ñn]os|un par de a[ñn]os)|ya ten[ií]a)\b/i.test(t) ? 'incumple' : 'cumple'), 'Mención de patología previa'],
       ['S4', 'Autorización previa cuando procede', (t) => {
         const ses = t.match(/(\d+)\s+sesiones/i);
@@ -622,6 +624,7 @@
       th.classList.toggle('sorted', th.dataset.sort === state.sort.key);
       th.dataset.dir = th.dataset.sort === state.sort.key ? state.sort.dir : '';
     });
+    const FRv = fraudeDe();
     $('log-body').replaceChildren(...rows.map((e) => {
       const tr = document.createElement('tr');
       tr.className = e.decision === DECISION.REVIEW ? 'row-review' : 'row-ok';
@@ -632,7 +635,7 @@
         `<td><strong>${escapeHtml(e.id)}</strong><br><span class="muted small">${escapeHtml(e.asunto)}</span></td>`,
         `<td><span class="pill pill-ramo-${e.ramo.toLowerCase()}">${escapeHtml(e.ramo)}</span> ${ramoMark}</td>`,
         `<td>${fmtEur(e.importe)}</td>`,
-        `<td><span class="pill ${e.decision === DECISION.REVIEW ? 'pill-review' : 'pill-ok'}">${e.decision === DECISION.REVIEW ? 'A revisar' : 'Aprobado'}</span></td>`,
+        `<td><span class="pill ${e.decision === DECISION.REVIEW ? 'pill-review' : 'pill-ok'}">${e.decision === DECISION.REVIEW ? 'A revisar' : 'Aprobado'}</span>${chipFraude(FRv[e.id])}</td>`,
         `<td class="motivo">${escapeHtml(e.motivo)}</td>`,
         `<td>${escapeHtml(e.origen)}</td>`,
         `<td>${Math.round(e.confianza * 100)} %</td>`,
@@ -745,9 +748,30 @@
   }
 
   // Bloque _gobernanza de una decisión (determinista: se recalcula y se guarda en la propia entrada)
+  // Indicadores de fraude (fraude.js, sin IA): se evalúa todo el registro a la vez porque los cruces (cuenta, teléfono,
+  // duplicados) necesitan ver el lote. No cambia la decisión del triaje y nunca llega al cliente.
+  const fraudeDe = () => (typeof Fraude !== 'undefined' && typeof FRAUDE_DEMO !== 'undefined' ? Fraude.evaluar(state.log, FRAUDE_DEMO) : {});
   function gobDe(entry) {
-    entry.gobernanza = Cumplimiento.gobernanza(entry, entry.gob_opts || {});
+    const af = typeof Fraude !== 'undefined' ? Fraude.paraGobernanza(fraudeDe()[entry.id]) : null;
+    entry.gobernanza = Cumplimiento.gobernanza(entry, { ...(entry.gob_opts || {}), ...(af ? { antifraude: af } : {}) });
     return entry.gobernanza;
+  }
+  const NIVEL_FR = { siu: ['pill-fr-siu', 'SIU'], vigilancia: ['pill-fr-vig', 'Vigilancia'] };
+  const chipFraude = (v) => {
+    if (!v || (v.nivel === 'sin' && v.pago !== 'retenido')) return '';
+    const [cls, l] = NIVEL_FR[v.nivel] || ['pill-fr-pago', 'Pago retenido'];
+    return ` <span class="pill ${cls}" title="Indicadores de fraude: score ${v.score} de 100. No cambia la decisión ni se comunica al cliente.">${lucide('shield-alert')} ${l}${v.nivel !== 'sin' ? ` · ${v.score}` : ''}</span>`;
+  };
+  // Bloque «Indicadores de fraude» de la pestaña de reglas: score, indicadores con su cita y qué pasa ahora
+  function pintarFraude(entry) {
+    const v = fraudeDe()[entry.id]; const box = $('modal-fraude-ind');
+    if (!box) return;
+    if (!v || !v.indicadores.length) { box.innerHTML = `<h3>${lucide('shield-alert')} Indicadores de fraude</h3><p class="small muted">Sin indicios: ningún indicador de comportamiento se activa con este mensaje.</p>`; return; }
+    const lbl = { siu: 'Escalado a la SIU', vigilancia: 'Vigilancia', sin: 'Sin indicios' }[v.nivel];
+    box.innerHTML = `<h3>${lucide('shield-alert')} Indicadores de fraude <span class="pill ${(NIVEL_FR[v.nivel] || ['pill-fr-pago'])[0]}">${escapeHtml(lbl)} · ${v.score}</span></h3>
+      <p class="small muted">Motor sin IA que cruza el mensaje con el lote y con el histórico de la póliza. No cambia la decisión del triaje y no se comunica al cliente (G-12).</p>
+      <ul class="criterios">${v.indicadores.map((x) => `<li class="crit ${x.aplicado ? 'crit-incumple' : 'crit-no_aplica'}"><span class="crit-icon" aria-hidden="true">${x.aplicado ? lucide('circle-alert') : lucide('minus')}</span><div><strong>${escapeHtml(x.id)}</strong> ${escapeHtml(x.nombre)} <b>${x.aplicado ? `+${x.aplicado}` : x.contraindicio ? '· contraindicio, no suma' : '· inactivo'}</b><br><small>${escapeHtml(x.detalle || '')}${x.citas.length ? ` · ${x.citas.map((c) => `«${escapeHtml(c.cita)}»`).join(' ')}` : ''}</small></div></li>`).join('')}</ul>
+      <p class="small" style="margin-top:.5rem"><strong>Qué pasa ahora:</strong> ${escapeHtml(v.accion)}. El detalle, el escenario y la cola de la SIU están en el panel de gobierno, sección Fraude.</p>`;
   }
 
   // Respuesta cruda: la salida del modelo tal cual y, debajo, el bloque añadido por la plataforma
@@ -885,6 +909,7 @@
       return li;
     }));
     if (!(entry.criterios || []).length) $('modal-criterios').innerHTML = '<li class="muted">El resultado no incluye criterios.</li>';
+    pintarFraude(entry);
 
     $('modal-resultado').innerHTML = kv([
       ['Decisión', entry.decision === DECISION.REVIEW ? 'A revisar (revisión humana)' : 'Aprobado automáticamente'],
@@ -1144,7 +1169,7 @@
       const file = $('file-replay').files[0];
       if (!file) return;
       try {
-        const data = JSON.parse(await file.text());
+        const data = Fechas.alDia(JSON.parse(await file.text()));
         if (!Array.isArray(data) || !data.length || !data.every((e) => e && e.id && e.decision && e.mensaje)) throw new Error('El archivo no tiene el formato de «Exportar JSON»');
         // El export va de más reciente a más antiguo: reproducir en el orden original
         state.archivo = { nombre: file.name, entradas: [...data].reverse() };

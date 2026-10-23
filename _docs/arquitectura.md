@@ -22,12 +22,14 @@ C4Container
   Person(usuario, "Usuario de la demo")
   Container_Boundary(pages, "GitHub Pages (rama main)") {
     Container(triage, "Triage · index.html + app.js", "HTML/JS", "Paquetes, prompts editables, motor local o IA, registro de decisiones y ficha")
-    Container(gobierno, "Gobierno de Agentes · gobierno.html + gobierno.js", "HTML/JS", "Inicio y doce secciones en cinco bloques: operación (resumen, agentes, trazabilidad), control (autonomía, guardrails, intervención humana), calidad (razonamiento y replay, Knowledge Bases), cumplimiento y coste (termómetro, FinOps), mejora y auditoría (medidas correctivas, histórico)")
+    Container(gobierno, "Gobierno de Agentes · gobierno.html + gobierno.js", "HTML/JS", "Inicio y trece secciones en seis bloques: operación (resumen, agentes, trazabilidad), control (autonomía, guardrails, intervención humana), riesgo (indicadores de fraude), calidad (razonamiento y replay, Knowledge Bases), cumplimiento y coste (termómetro, FinOps), mejora y auditoría (medidas correctivas, histórico)")
     Container(icons, "icons.js", "JS", "Iconos Lucide compartidos")
     Container(shell, "shell.js + header.css", "JS/CSS", "Marco común: cabecera, menú lateral plegable (con encabezados de bloque en el panel) con usuario al pie, pie fino y Recorrido de la demo (modo presentador)")
     Container(evid, "evidencias.js", "JS puro", "Ancla en el texto las citas del modelo y reconstruye evidencias sin IA")
+    Container(fraude, "fraude.js", "JS puro", "Motor de indicadores de fraude sin IA: score 0-100, citas literales, cruces del lote y del histórico, contraindicios y bloque _gobernanza.antifraude")
+    Container(fechas, "fechas.js", "JS puro", "Desplaza las fechas de la demo (ancla 17/09/2026) al día de hoy al cargar la página")
     Container(cumpl, "cumplimiento.js + cumplimiento.css", "JS puro", "Detección de datos personales, seudonimización antes del modelo, explicabilidad, sellado SHA-256, retención y termómetro: bloque _gobernanza")
-    ContainerDb(datos, "data/", "JS + JSON estáticos", "mensajes.js, resultados.js (y TRAZA_DEMO), recorrido.js (guion de 11 pasos), gobierno.js (trazas, knowledge, rúbricas, controles declarados, medidas), JSON regenerados con make datos")
+    ContainerDb(datos, "data/", "JS + JSON estáticos", "mensajes.js, resultados.js (y TRAZA_DEMO), recorrido.js (guion de 12 pasos), gobierno.js (trazas, knowledge, rúbricas, controles declarados, medidas), fraude.js (indicadores, escenarios, histórico ficticio, cola SIU), JSON regenerados con make datos")
     ContainerDb(session, "sessionStorage / localStorage", "navegador", "sesión: configuración IA, prompts editados, registro del triaje con su _gobernanza (triage.log), cambios simulados del panel, modo presentador y avance del recorrido · navegador: menú plegado (shell.nav), configuración, textos y posición del recorrido")
   }
   System_Ext(foundry, "Azure AI Foundry")
@@ -49,6 +51,10 @@ C4Container
   Rel(cumpl, evid, "evidencias verificadas")
   Rel(triage, cumpl, "_gobernanza por decisión (Respuesta cruda, registro)")
   Rel(gobierno, cumpl, "Termómetro de cumplimiento, inventario, cadena de integridad")
+  Rel(triage, fraude, "Fraude.evaluar() sobre el registro: etiqueta y bloque de la ficha")
+  Rel(gobierno, fraude, "Fraude.evaluar() sobre el lote: sección Fraude, ficha de traza")
+  Rel(fraude, datos, "catálogo, escenarios e histórico (data/fraude.js)")
+  Rel(fechas, datos, "desplaza PAQUETES, RESULTADOS_GUARDADOS, GOBIERNO_DEMO y FRAUDE_DEMO")
 ```
 
 ## Nivel 3 · Componentes del panel de gobierno
@@ -63,7 +69,7 @@ flowchart LR
   demo --> G[(dataset activo G)]
   json --> G
   sesion -->|trazasDesdeSesion| G
-  G --> inicio[Inicio · una ficha por sección con su cifra y su estado, en los cinco bloques del menú]
+  G --> inicio[Inicio · una ficha por sección con su cifra y su estado, en los seis bloques del menú]
   inicio -. clic en ficha .-> resumen
   G --> resumen[Resumen · 8 KPI, agentes, coste vs cap, alertas de todas las fuentes, cumplimiento, conocimiento]
   kb -. alertas .-> resumen
@@ -95,6 +101,15 @@ flowchart LR
   medidas -. aplicar medida de coste .-> estado3
   estado5 -. controles verificados .-> cumpl
   G --> historico[Histórico · línea de tiempo por tipo de evento]
+  frd[data/fraude.js · FRAUDE_DEMO] --> motor[[fraude.js · motor de indicadores sin IA]]
+  G --> motor
+  motor --> fraude[Fraude · KPI, casos del lote, escenarios, mapa de relaciones, cola SIU, catálogo, límites, equidad por canal]
+  fraude -. clic en caso .-> mFr([Modal · ficha del caso: desglose, citas, seguimiento])
+  fraude -. interruptor y peso .-> estado6[(sessionStorage gobierno.fraude_cfg)]
+  fraude -. G-10…G-12 .-> guardrails
+  fraude -. CAP-08…CAP-11 .-> finops
+  fraude -. M-18 y M-19 .-> medidas
+  motor -. score por traza .-> trazas
   resumen -. clic en traza .-> mTraza([Modal · ficha explicada de la traza])
   resumen -. clic en agente .-> agentes
   agentes -. kill switch .-> estado

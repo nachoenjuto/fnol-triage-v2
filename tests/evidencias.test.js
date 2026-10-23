@@ -91,7 +91,7 @@ test('el modelo cita mal (todo inventado): sigue habiendo evidencias de respaldo
 });
 test('el modelo cita con acentos y mayúsculas cambiados: cuenta como verificada', () => {
   const m = PAQUETES[0].mensajes.find((x) => x.id === 'MSG-A-13'); const r = expandir(RESULTADOS_GUARDADOS['MSG-A-13']);
-  const c = E.construir(m.texto, [{ ref: 'tipo_siniestro', cita: 'NOS HAN ENTRADO EN CASA' }, { ref: 'fecha_hecho', cita: 'Este finde' }, { ref: 'regla:H4', cita: 'se han llevado cosas' }], r);
+  const c = E.construir(m.texto, [{ ref: 'tipo_siniestro', cita: 'NOS HAN ENTRADO EN CASA' }, { ref: 'fecha_hecho', cita: 'ESTOS DÍAS QUE HEMOS ESTADO FUERA' }, { ref: 'regla:H4', cita: 'se han llevado cosas' }], r);
   assert.strictEqual(c.resumen.modelo, 3);
 });
 test('texto del cliente con HTML o instrucciones no rompe nada (se escapa al pintar)', () => {

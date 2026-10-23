@@ -5,9 +5,9 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>FNOL — Primer Aviso de Siniestro</title>
   <meta name="description" content="Demo de triaje multicanal de mensajes de clientes de una aseguradora: clasificación por ramo, extracción de datos y aplicación de reglas con un proveedor de IA.">
-  <link rel="stylesheet" href="styles.css?v=33">
-  <link rel="stylesheet" href="header.css?v=33">
-  <link rel="stylesheet" href="cumplimiento.css?v=33">
+  <link rel="stylesheet" href="styles.css?v=36">
+  <link rel="stylesheet" href="header.css?v=36">
+  <link rel="stylesheet" href="cumplimiento.css?v=36">
 </head>
 <body>
   <header class="topbar">
@@ -273,6 +273,7 @@
       <section class="ficha-panel" id="tab-reglas" role="tabpanel" hidden>
         <h3 id="modal-reglas-h">Reglas de negocio del ramo</h3>
         <ul id="modal-criterios" class="criterios"></ul>
+        <div id="modal-fraude-ind" class="fr-bloque"></div>
       </section>
       <section class="ficha-panel" id="tab-razonamiento" role="tabpanel" hidden>
         <div class="ficha-resumen">
@@ -313,14 +314,17 @@
   </dialog>
 
 
-  <script src="icons.js?v=33"></script>
-  <script src="data/recorrido.js?v=33"></script>
-  <script src="shell.js?v=33"></script>
-  <script src="data/mensajes.js?v=33"></script>
-  <script src="data/resultados.js?v=33"></script>
-  <script src="prompts.js?v=33"></script>
-  <script src="evidencias.js?v=33"></script>
-  <script src="cumplimiento.js?v=33"></script>
-  <script src="app.js?v=33"></script>
+  <script src="icons.js?v=36"></script>
+  <script src="data/recorrido.js?v=36"></script>
+  <script src="shell.js?v=36"></script>
+  <script src="data/mensajes.js?v=36"></script>
+  <script src="data/resultados.js?v=36"></script>
+  <script src="data/fraude.js?v=36"></script>
+  <script src="fechas.js?v=36"></script>
+  <script src="prompts.js?v=36"></script>
+  <script src="evidencias.js?v=36"></script>
+  <script src="cumplimiento.js?v=36"></script>
+  <script src="fraude.js?v=36"></script>
+  <script src="app.js?v=36"></script>
 </body>
 </html>

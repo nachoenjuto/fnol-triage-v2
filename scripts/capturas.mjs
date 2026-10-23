@@ -38,7 +38,8 @@ let cdp; let urlActual = '';
 async function ir(url, { forzar = false } = {}) {
   if (url === urlActual && !forzar) return;
   const cargado = cdp.evento('Page.loadEventFired');
-  await cdp.send('Page.navigate', { url: `${BASE}/${url}` });
+  // Fechas congeladas en el día ancla del dataset (fechas.js): las capturas no cambian según el día en que se hagan
+  await cdp.send('Page.navigate', { url: `${BASE}/${url}${url.includes('?') ? '&' : '?'}fecha=ancla` });
   await cargado; await espera(900); urlActual = url;
 }
 async function js(codigo) {

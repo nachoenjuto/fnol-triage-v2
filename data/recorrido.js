@@ -1,4 +1,4 @@
-// Guion del Recorrido de la demo (modo presentador, shell.js): 11 pasos repartidos entre el triaje y el gobierno.
+// Guion del Recorrido de la demo (modo presentador, shell.js): 12 pasos repartidos entre el triaje y el gobierno.
 // Cada paso: minuto del guion, página, título, qué enseñar, frase clave, acción que lleva a la pantalla exacta
 // y subtítulos de dos líneas: qué hace la función (técnico-funcional) y cómo ayuda al negocio a cumplir.
 // Son los textos por defecto: cada presentador puede editarlos en el engranaje del recorrido (se guardan solo
@@ -58,7 +58,7 @@ const RECORRIDO_DEMO = {
       frase: 'Autonomía graduada con límites claros',
       subtitulos: [
         { tecnico: 'Cada agente tiene un nivel de autonomía, de L0 (solo sugiere) a L3 (decide y ejecuta). Clasificación trabaja en L3; Reglas, en L2, decide solo dentro de los guardrails.', negocio: 'La libertad del agente va en proporción al riesgo de la decisión. Cada cambio de nivel queda registrado con quién lo aprobó.' },
-        { tecnico: 'Nueve guardrails frenan a los agentes. G-02 impide aprobar un importe por encima del límite del ramo, aunque el resto de reglas se cumpla.', negocio: 'Las reglas de la aseguradora mandan sobre el modelo. G-02 saltó 118 veces en 14 días y explica el 62 % de los escalados.' },
+        { tecnico: 'Doce guardrails frenan a los agentes. G-02 impide aprobar un importe por encima del límite del ramo, aunque el resto de reglas se cumpla.', negocio: 'Las reglas de la aseguradora mandan sobre el modelo. G-02 saltó 118 veces en 14 días y explica el 62 % de los escalados.' },
       ],
     },
     {
@@ -98,7 +98,16 @@ const RECORRIDO_DEMO = {
       ],
     },
     {
-      min: '10–12', pagina: 'gobierno', titulo: 'FinOps, Medidas correctivas e Histórico', accion: 'goto:finops',
+      min: '10–11', pagina: 'gobierno', titulo: 'Indicadores de fraude', accion: 'goto:fraude',
+      que: 'Casos del lote, escenario EF-01 (MSG-A-13) con su desglose y la cuenta compartida entre MSG-A-09 y MSG-A-02 en el mapa',
+      frase: 'El indicio no acusa: prioriza y lo decide una persona',
+      subtitulos: [
+        { tecnico: 'Un motor sin IA cruza cada mensaje con el lote y con el histórico. MSG-A-13 suma 90 puntos: póliza de tres semanas, joyas sin factura, sin denuncia ni signos de fuerza.', negocio: 'El caso va a la Unidad de Investigación de Siniestros con la ficha preparada. Nada se rechaza solo y el cliente no ve el indicio (RGPD art. 22).' },
+        { tecnico: 'MSG-A-09 y MSG-A-02 piden el pago a la misma cuenta, que ya salió en un siniestro de agosto de otro titular. G-11 retiene el pago hasta verificarla.', negocio: 'Se frena el pago dudoso sin bloquear el siniestro. CAP-11 vigila el dinero retenido para no perjudicar a clientes legítimos.' },
+      ],
+    },
+    {
+      min: '11–13', pagina: 'gobierno', titulo: 'FinOps, Medidas correctivas e Histórico', accion: 'goto:finops',
       que: 'Cap superado y recomendaciones; en Medidas correctivas, «Aplicar» M-01 y ver subir el ahorro conseguido; la línea de tiempo con todo lo tocado en la demo',
       frase: 'Coste bajo control, problemas con dueño y todo auditado',
       subtitulos: [

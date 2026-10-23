@@ -45,6 +45,8 @@
     'lopdgdd-32': ['LOPDGDD art. 32', 'Bloqueo: al terminar la finalidad, los datos se bloquean (solo a disposición de jueces y autoridades) durante el plazo de prescripción y después se suprimen.'],
     'lcs-23': ['LCS art. 23', 'Prescripción de las acciones del contrato de seguro: 2 años en seguros de daños y 5 años en seguros de personas.'],
     'lossear-99': ['LOSSEAR art. 99', 'Ley 20/2015: tratamiento por las aseguradoras de los datos necesarios para el contrato, incluidos los de salud.'],
+    'lossear-99-7': ['LOSSEAR art. 99.7', 'Ficheros comunes del sector asegurador para prevenir el fraude: se pueden consultar sin consentimiento, informando al interesado y solo para esa finalidad. A validar por el DPO.'],
+    'rgpd-c47': ['RGPD cons. 47', 'El tratamiento estrictamente necesario para prevenir el fraude constituye un interés legítimo del responsable. Exige ponderar los derechos del interesado: a validar por el DPO.'],
     'dora-9': ['DORA art. 9', 'Protección y prevención: gestión de identidades, accesos y privilegios mínimos. En vigor desde 01/2025.'],
     'dora-11': ['DORA art. 11', 'Respuesta y recuperación: continuidad del servicio cuando falla un componente TIC. En vigor desde 01/2025.'],
     'dora-19': ['DORA art. 19', 'Notificación de incidentes graves relacionados con las TIC. En vigor desde 01/2025.'],
@@ -441,6 +443,7 @@
         estado: revision ? (entry.revisado ? 'revisada' : 'pendiente de revisión') : 'no requerida',
         normas: [N('ai-14'), N('rgpd-22')],
       },
+      ...(opts.antifraude ? { antifraude: { ...opts.antifraude, nota: 'Indicador interno de priorización: no decide ni se comunica al cliente', normas: [N('rgpd-22'), N('rgpd-c47')] } } : {}),
       clasificacion_ria: {
         nivel: 'No es alto riesgo (Anexo III 5.c solo cubre la tarificación y el riesgo en vida y salud)',
         controles_alto_riesgo: 'Aplicados como buena práctica',

@@ -1,4 +1,5 @@
 {
+  "ancla": "2026-09-17",
   "version": 1,
   "generado": "2026-09-17T09:30:00",
   "periodo": {
@@ -1417,6 +1418,115 @@
           "escalado"
         ]
       ]
+    },
+    {
+      "id": "G-10",
+      "agente": "reglas",
+      "condicion": "Score antifraude ≥ 70",
+      "accion": "Sin despeje automático: escalar a la SIU",
+      "severidad": "humano",
+      "disparos": 80,
+      "activa": true,
+      "descripcion": "Un score alto no rechaza nada: el caso pasa a la Unidad de Investigación de Siniestros (SIU) con el desglose de indicadores y sus citas. Decide una persona (RGPD art. 22).",
+      "disparos_dia": [
+        5,
+        6,
+        2,
+        1,
+        7,
+        6,
+        7,
+        8,
+        7,
+        2,
+        3,
+        9,
+        11,
+        6
+      ],
+      "ultimos": [
+        [
+          "2026-09-17T09:03:45",
+          "TRZ-4F36 (MSG-A-13)",
+          "escalado a la SIU"
+        ],
+        [
+          "2026-09-16T12:40:00",
+          "SIN-2026-09461",
+          "escalado a la SIU"
+        ]
+      ]
+    },
+    {
+      "id": "G-11",
+      "agente": "reglas",
+      "condicion": "IBAN compartido entre asegurados distintos (IF-03)",
+      "accion": "Retener el pago hasta verificar la titularidad",
+      "severidad": "marcar",
+      "disparos": 9,
+      "activa": true,
+      "descripcion": "Aunque el siniestro se despeje, el pago no sale hasta que Tesorería confirma con el banco que la cuenta es del asegurado. Cubre el escenario EF-02 y alimenta CAP-11.",
+      "disparos_dia": [
+        1,
+        0,
+        0,
+        0,
+        1,
+        1,
+        0,
+        1,
+        1,
+        0,
+        0,
+        1,
+        1,
+        2
+      ],
+      "ultimos": [
+        [
+          "2026-09-17T09:03:14",
+          "TRZ-4F32 (MSG-A-09)",
+          "pago retenido"
+        ],
+        [
+          "2026-09-17T09:02:18",
+          "TRZ-4F2B (MSG-A-02)",
+          "pago retenido"
+        ]
+      ]
+    },
+    {
+      "id": "G-12",
+      "agente": "reglas",
+      "condicion": "El texto al cliente menciona un indicio o un término acusatorio",
+      "accion": "Bloquear la salida y regenerar con lenguaje neutro",
+      "severidad": "marcar",
+      "disparos": 4,
+      "activa": true,
+      "descripcion": "La respuesta al cliente pide la documentación que falta sin hablar de fraude, sospechas ni investigación: el indicio es interno y no se comunica.",
+      "disparos_dia": [
+        0,
+        1,
+        0,
+        0,
+        0,
+        1,
+        0,
+        0,
+        1,
+        0,
+        0,
+        1,
+        0,
+        0
+      ],
+      "ultimos": [
+        [
+          "2026-09-15T13:22:00",
+          "TRZ-3D11 (MSG-B-19)",
+          "regenerado sin el término «sospechoso»"
+        ]
+      ]
     }
   ],
   "cambios_autonomia": [
@@ -2128,6 +2238,245 @@
           "titulo": "Escalonar el arranque de lotes para evitar ráfagas",
           "detalle": "La ráfaga del 15/09 coincidió con el arranque simultáneo de los lotes de Hogar y Auto.",
           "impacto": "Evita 429",
+          "tipo": "proceso"
+        }
+      ]
+    },
+    {
+      "id": "CAP-08",
+      "ambito": "Antifraude",
+      "tipo": "Mensajes por póliza en 24 h",
+      "limite": 3,
+      "unidad": "msg",
+      "consumo": 2,
+      "accion": "Activar IF-12 y unir los mensajes antes de tramitar",
+      "estado": "ok",
+      "desde": "2026-08-25",
+      "propietario": "SIU",
+      "agentes": {
+        "reglas": 1
+      },
+      "descripcion": "Frecuencia anómala: más de 3 mensajes de la misma póliza en 24 horas suele ser un duplicado multicanal (EF-07) o una reclamación inflada.",
+      "serie": [
+        2,
+        2,
+        1,
+        1,
+        2,
+        2,
+        2,
+        4,
+        2,
+        1,
+        1,
+        2,
+        3,
+        2
+      ],
+      "superaciones": [
+        {
+          "fecha": "2026-09-16T19:12:00",
+          "nivel": "superado",
+          "agente": "reglas",
+          "valor": 3,
+          "accion": "IF-12 activado · mensajes unidos en un expediente",
+          "duracion": "puntual",
+          "estado": "resuelto"
+        },
+        {
+          "fecha": "2026-09-11T11:30:00",
+          "nivel": "superado",
+          "agente": "reglas",
+          "valor": 4,
+          "accion": "IF-12 activado · duplicado web + WhatsApp con importe distinto",
+          "duracion": "puntual",
+          "estado": "resuelto"
+        }
+      ],
+      "correctivas": [
+        {
+          "titulo": "Sin acción necesaria: los dos casos se resolvieron uniendo los mensajes",
+          "detalle": "Revisar cada semana si los duplicados vienen de clientes sin respuesta (no es fraude) o cambian los datos.",
+          "impacto": "Preventiva",
+          "tipo": "proceso"
+        }
+      ]
+    },
+    {
+      "id": "CAP-09",
+      "ambito": "Antifraude",
+      "tipo": "Consultas al fichero sectorial por día",
+      "limite": 200,
+      "unidad": "consultas",
+      "consumo": 168,
+      "accion": "Encolar al día siguiente por orden de score",
+      "estado": "aviso",
+      "desde": "2026-08-25",
+      "propietario": "SIU",
+      "agentes": {
+        "reglas": 1
+      },
+      "descripcion": "Consultas diarias al fichero común del sector (LOSSEAR art. 99.7). Cada consulta se paga y solo se justifica con indicios: el cap obliga a un uso proporcionado.",
+      "serie": [
+        142,
+        151,
+        73,
+        65,
+        167,
+        174,
+        170,
+        181,
+        178,
+        83,
+        86,
+        193,
+        206,
+        168
+      ],
+      "superaciones": [
+        {
+          "fecha": "2026-09-17T09:30:00",
+          "nivel": "aviso",
+          "agente": "reglas",
+          "valor": 168,
+          "accion": "Aviso al 80 % a la SIU",
+          "duracion": "en curso",
+          "estado": "activo"
+        },
+        {
+          "fecha": "2026-09-16T17:05:00",
+          "nivel": "superado",
+          "agente": "reglas",
+          "valor": 206,
+          "accion": "Encoladas 6 consultas a primera hora de hoy, por orden de score",
+          "duracion": "hasta las 00:00",
+          "estado": "resuelto"
+        }
+      ],
+      "correctivas": [
+        {
+          "titulo": "Consultar el fichero solo con score ≥ 20",
+          "detalle": "Hoy se consulta con cualquier indicador activo. Con un mínimo de 20 se evita el 30 % de las consultas sin perder casos confirmados en los últimos 14 días.",
+          "impacto": "−30 % consultas",
+          "tipo": "config"
+        },
+        {
+          "titulo": "Reevaluar el límite de CAP-09",
+          "detalle": "Si el volumen de los lunes es estructural, subir a 220 con aprobación de la SIU y de FinOps.",
+          "impacto": "Requiere aprobación",
+          "tipo": "config",
+          "aprobacion": true
+        }
+      ]
+    },
+    {
+      "id": "CAP-10",
+      "ambito": "Antifraude",
+      "tipo": "Casos escalados a la SIU por día",
+      "limite": 15,
+      "unidad": "casos",
+      "consumo": 6,
+      "accion": "Ordenar por score; por debajo de 80 pasan a vigilancia",
+      "estado": "ok",
+      "desde": "2026-08-25",
+      "propietario": "SIU",
+      "agentes": {
+        "reglas": 1
+      },
+      "descripcion": "Capacidad diaria de la SIU (tres investigadores). Si se supera, los casos se ordenan por score y los de menos de 80 pasan a vigilancia para no saturar la unidad.",
+      "serie": [
+        5,
+        6,
+        2,
+        1,
+        7,
+        6,
+        7,
+        8,
+        7,
+        2,
+        3,
+        9,
+        11,
+        6
+      ],
+      "superaciones": [
+        {
+          "fecha": "2026-09-16T18:30:00",
+          "nivel": "aviso",
+          "agente": "reglas",
+          "valor": 11,
+          "accion": "Aviso a la SIU: 73 % de la capacidad",
+          "duracion": "hasta las 00:00",
+          "estado": "resuelto"
+        }
+      ]
+    },
+    {
+      "id": "CAP-11",
+      "ambito": "Antifraude",
+      "tipo": "Importe retenido pendiente de verificar",
+      "limite": 5000,
+      "unidad": "€",
+      "consumo": 2080,
+      "accion": "Avisar a Tesorería y priorizar las verificaciones",
+      "estado": "ok",
+      "desde": "2026-08-25",
+      "propietario": "Tesorería",
+      "agentes": {
+        "reglas": 1
+      },
+      "descripcion": "Dinero de asegurados retenido a la espera de verificar un indicio. Retener demasiado perjudica a clientes legítimos (trato justo, EIOPA): al 80 % se prioriza verificar.",
+      "serie": [
+        3100,
+        2860,
+        950,
+        610,
+        3420,
+        3050,
+        2980,
+        4120,
+        3610,
+        1180,
+        1240,
+        4380,
+        4910,
+        2080
+      ],
+      "superaciones": [
+        {
+          "fecha": "2026-09-16T16:50:00",
+          "nivel": "aviso",
+          "agente": "reglas",
+          "valor": 4910,
+          "accion": "Aviso a Tesorería: verificaciones priorizadas",
+          "duracion": "hasta las 00:00",
+          "estado": "resuelto"
+        },
+        {
+          "fecha": "2026-09-15T17:20:00",
+          "nivel": "aviso",
+          "agente": "reglas",
+          "valor": 4380,
+          "accion": "Aviso a Tesorería",
+          "duracion": "hasta las 00:00",
+          "estado": "resuelto"
+        },
+        {
+          "fecha": "2026-09-11T16:10:00",
+          "nivel": "aviso",
+          "agente": "reglas",
+          "valor": 4120,
+          "accion": "Aviso a Tesorería",
+          "duracion": "hasta las 00:00",
+          "estado": "resuelto"
+        }
+      ],
+      "correctivas": [
+        {
+          "titulo": "Verificar la titularidad en el mismo día",
+          "detalle": "La retención media es de 1,6 días. Con la consulta automática al banco (servicio de verificación de cuentas) baja a horas.",
+          "impacto": "−70 % tiempo retenido",
           "tipo": "proceso"
         }
       ]
@@ -2860,9 +3209,9 @@
       "ramo": "Hogar",
       "decision": "REVISION",
       "confianza": 0.9,
-      "motivo": "Robo en vivienda sin denuncia, sin relación de objetos ni importe y sin indicar signos de fuerza: falta información esencial; solicitar denuncia y lista valorada y enviar perito.",
+      "motivo": "Robo sin denuncia ni signos de fuerza, joyas de 5.000 € sin factura y póliza de tres semanas: pedir denuncia y lista valorada y enviar perito.",
       "resultado": "humano",
-      "guardrail": "G-05 datos esenciales nulos · H4 incumple",
+      "guardrail": "H4 y H7 incumplen → escalado · G-10 score antifraude 90 → SIU",
       "spans": [
         [
           "multicanal",
@@ -3283,7 +3632,7 @@
     "TRZ-4F32": [
       {
         "agente": "multicanal",
-        "entrada": "Formulario web · 619 caracteres · foto y presupuesto adjuntos",
+        "entrada": "Formulario web · 677 caracteres · foto y presupuesto adjuntos",
         "pasos": [
           "Canal web: campos estructurados + texto libre",
           "Fecha de recepción 13/09 12:00"
@@ -3312,7 +3661,7 @@
           "Póliza HO-118830 · fecha 13/09 · importe 400 € (presupuesto del cristalero) · lugar C/ Martínez de la Riva 48, 1.º C",
           "Causa: balón de los hijos del vecino del 2.º C (Andrés Pardo) → terceros = sí (posible recobro) · sin lesionados",
           "Datos de un tercero no remitente (nombre y teléfono del vecino) → se marcan como interesado distinto del remitente",
-          "Documentación: foto y presupuesto"
+          "Documentación: foto y presupuesto · cuenta para el pago (IBAN, dato financiero: no se copia a los datos extraídos)"
         ],
         "salida": "10 campos · 0 inventados · 0 nulos"
       },
@@ -3323,9 +3672,10 @@
           "H1 cumple · H2 cumple (1 día)",
           "H5 cumple: rotura de cristal < 1.500 € con foto y presupuesto → despeje directo",
           "H9 cumple (400 € < 10.000 €) · se anota el posible recobro al vecino",
-          "Decisión DESPEJADO con confianza 0,93"
+          "Decisión DESPEJADO con confianza 0,93",
+          "Motor de indicadores (sin IA): IF-03 IBAN compartido con MSG-A-02 y con un siniestro de agosto · IF-05 proveedor recurrente → score 50, vigilancia; G-11 retiene el pago"
         ],
-        "salida": "DESPEJADO · cristal, despeje directo; anotar recobro"
+        "salida": "DESPEJADO · cristal, despeje directo; anotar recobro · pago retenido (G-11)"
       }
     ],
     "TRZ-4F33": [
@@ -3405,7 +3755,8 @@
         "pasos": [
           "Póliza AU-742210 · fecha 13/09 · lugar parking del Carrefour de Alcobendas",
           "Importe 600 € (presupuesto) · tercero desconocido (no identificado) · sin lesionados",
-          "Documentación: fotos y denuncia (diligencias 18734/26)"
+          "Documentación: fotos y denuncia (diligencias 18734/26)",
+          "Observaciones: menciona un daño parecido \"hace unos meses en este mismo parking\""
         ],
         "salida": "10 campos · 0 inventados · 0 nulos"
       },
@@ -3415,10 +3766,11 @@
         "pasos": [
           "A1 cumple · A2 cumple (mismo día) · A3 cumple · A4 cumple",
           "A5 cumple: tercero desconocido con denuncia y fotos, sin heridos · A6 cumple (600 € < 6.000 €)",
-          "A7 cumple: daños propios documentados → despeje directo",
-          "Decisión DESPEJADO con confianza 0,94"
+          "A7 cumple: daños propios documentados → despeje directo · A8 cumple: un siniestro previo similar, por debajo de 3 en 12 meses",
+          "Decisión DESPEJADO con confianza 0,94",
+          "Motor de indicadores (sin IA): IF-06 siniestro similar el 21/03 sobre el mismo coche y en el mismo parking · IF-08 sin cámaras · IF-09 taller propio → score 50, vigilancia"
         ],
-        "salida": "DESPEJADO · rayón documentado con denuncia y fotos"
+        "salida": "DESPEJADO · rayón documentado con denuncia y fotos · vigilancia antifraude"
       }
     ],
     "TRZ-4F35": [
@@ -3471,7 +3823,7 @@
     "TRZ-4F36": [
       {
         "agente": "multicanal",
-        "entrada": "WhatsApp · 5 mensajes cortos · 522 caracteres · sin adjuntos · tono de urgencia",
+        "entrada": "WhatsApp · 6 mensajes cortos · 669 caracteres · sin adjuntos · tono de urgencia",
         "pasos": [
           "Canal WhatsApp: mensajes unidos; sin abreviaturas que expandir",
           "Fecha de recepción 14/09 08:05"
@@ -3497,22 +3849,23 @@
         "agente": "extraccion",
         "entrada": "Texto + ramo Hogar",
         "pasos": [
-          "Póliza HO-604118 · fecha \"este finde\" → sin día concreto (nulo) · tipo: robo en vivienda",
-          "Sin relación de objetos ni importe (\"todavía no sé cuánto\") → nulos · \"Todavía no hemos ido a la policía\" · \"la puerta parece bien\"",
-          "Sin terceros identificados · sin lesionados"
+          "Póliza HO-604118 · fecha \"estos días que hemos estado fuera\" → sin día concreto (nulo) · tipo: robo en vivienda",
+          "Importe 5.000 € (solo las joyas, \"no tenemos facturas\"); total \"todavía no sé cuánto\" · \"Todavía no hemos ido a la policía\" · \"no está forzada\"",
+          "Antigüedad de la póliza: \"hace solo tres semanas\" · sin terceros identificados · sin lesionados"
         ],
-        "salida": "10 campos · 0 inventados · 4 nulos (importe, lugar, documentación, signos de fuerza)"
+        "salida": "10 campos · 0 inventados · 3 nulos (fecha, lugar, documentación)"
       },
       {
         "agente": "reglas",
         "entrada": "Datos extraídos + bloque de reglas Hogar v2.3",
         "pasos": [
           "H1 cumple · H2 cumple (mismo día)",
-          "H4 INCUMPLE: robo sin denuncia, sin lista valorada y sin signos de fuerza acreditados (\"la puerta parece bien\")",
-          "H9 no evaluable: importe nulo · falta información esencial",
-          "Decisión REVISION con confianza 0,90: pedir denuncia y lista valorada, enviar perito"
+          "H4 INCUMPLE: sin denuncia, sin signos de fuerza (\"no está forzada\") y joyas de 5.000 € sin facturas",
+          "H7 INCUMPLE: póliza de tres semanas con un siniestro de al menos 5.000 €",
+          "Decisión REVISION con confianza 0,90: pedir denuncia y lista valorada, enviar perito",
+          "Motor de indicadores (sin IA): IF-01, IF-07, IF-08, IF-09 e IF-10 → score 90; G-10 lo escala a la SIU. La respuesta al cliente no menciona el indicio (G-12)"
         ],
-        "salida": "REVISION · falta información esencial (H4)"
+        "salida": "REVISION · H4 y H7 · escalado a la SIU"
       }
     ]
   },
@@ -3719,6 +4072,24 @@
       "usuario": "L. Prieto"
     },
     {
+      "fecha": "2026-09-17T09:03:45",
+      "tipo": "alerta",
+      "sev": "warn",
+      "agente": "reglas",
+      "titulo": "G-10: MSG-A-13 escalado a la SIU (score antifraude 90)",
+      "detalle": "Robo sin fuerza en una póliza de tres semanas, joyas sin factura (EF-01). La respuesta al cliente pide denuncia y lista valorada sin mencionar el indicio (G-12).",
+      "usuario": "Sistema"
+    },
+    {
+      "fecha": "2026-09-17T09:03:14",
+      "tipo": "alerta",
+      "sev": "warn",
+      "agente": "reglas",
+      "titulo": "G-11: pago retenido en MSG-A-09 y MSG-A-02 por cuenta compartida",
+      "detalle": "La misma cuenta aparece en dos asegurados sin relación y en un siniestro de agosto (EF-02). Tesorería verifica la titularidad: 1.480 € retenidos.",
+      "usuario": "Sistema"
+    },
+    {
       "fecha": "2026-09-17T09:03:09",
       "tipo": "alerta",
       "sev": "warn",
@@ -3764,6 +4135,15 @@
       "usuario": "M. Ortega"
     },
     {
+      "fecha": "2026-09-16T17:05:00",
+      "tipo": "alerta",
+      "sev": "warn",
+      "agente": "reglas",
+      "titulo": "CAP-09 superado: 206 consultas al fichero sectorial / 200",
+      "detalle": "Las 6 consultas restantes se encolaron a primera hora del día siguiente, por orden de score.",
+      "usuario": "Sistema"
+    },
+    {
       "fecha": "2026-09-16T16:02:00",
       "tipo": "alerta",
       "sev": "warn",
@@ -3798,6 +4178,15 @@
       "titulo": "Ráfaga de 429 en el proveedor de IA (10:12–10:19)",
       "detalle": "38 llamadas reintentadas con backoff; 1 mensaje cayó al motor local (G-08) y se marcó para revisión.",
       "usuario": "Sistema"
+    },
+    {
+      "fecha": "2026-09-15T13:00:00",
+      "tipo": "politica",
+      "sev": "info",
+      "agente": "reglas",
+      "titulo": "SIU-0426 confirmado: la cuenta …1332 no es del asegurado",
+      "detalle": "Pago anulado y comunicado al fichero sectorial. La cuenta queda en la lista que cruza IF-03.",
+      "usuario": "SIU · R. Calvo"
     },
     {
       "fecha": "2026-09-12T10:10:00",
@@ -4014,6 +4403,31 @@
         "trazas": []
       },
       {
+        "id": "rgpd-22-af",
+        "normas": [
+          "RGPD art. 22"
+        ],
+        "exige": "Intervención humana en las alertas de fraude",
+        "como": "Un score alto nunca rechaza: G-10 escala a la SIU y decide una persona; el indicio no se comunica al cliente (G-12)",
+        "medida": "1 escalado hoy · 0 rechazos automáticos en 14 días",
+        "estado": "ok",
+        "fuente": "declarado",
+        "trazas": []
+      },
+      {
+        "id": "rgpd-c47-af",
+        "normas": [
+          "RGPD cons. 47",
+          "LOSSEAR art. 99.7"
+        ],
+        "exige": "Base jurídica del tratamiento antifraude",
+        "como": "Interés legítimo en prevenir el fraude y consulta del fichero sectorial",
+        "medida": "Ponderación de intereses pendiente de firma del DPO",
+        "estado": "ambar",
+        "fuente": "declarado",
+        "trazas": []
+      },
+      {
         "id": "rgpd-15",
         "normas": [
           "RGPD art. 15"
@@ -4097,6 +4511,18 @@
         "exige": "Trato justo a los asegurados",
         "como": "Pruebas de sesgo por canal y por ramo (tasa de revisión y de override)",
         "medida": "Última prueba 07/2026 · WhatsApp con +6 pp de revisiones: en análisis",
+        "estado": "ambar",
+        "fuente": "declarado",
+        "trazas": []
+      },
+      {
+        "id": "eiopa-af",
+        "normas": [
+          "EIOPA"
+        ],
+        "exige": "Trato justo en la detección de fraude",
+        "como": "Falsos positivos y alertas por canal medidos cada semana",
+        "medida": "WhatsApp: 4,1 alertas por cada 100 mensajes frente a 2,3 en el resto de canales",
         "estado": "ambar",
         "fuente": "declarado",
         "trazas": []
@@ -5257,10 +5683,10 @@
       ],
       "preguntas": [
         [
-          "MSG-A-13 · robo sin denuncia",
+          "MSG-A-13 · robo sin denuncia en póliza reciente",
           "exclusion",
-          "REVISION por H4",
-          "prompts.js · H4"
+          "REVISION por H4 y H7",
+          "prompts.js · H4, H7"
         ],
         [
           "MSG-A-08 · moto con lesionado",
@@ -6162,6 +6588,845 @@
           "valida": "Replay en el segundo proveedor"
         }
       ]
+    },
+    {
+      "id": "M-18",
+      "dim": "cumplimiento",
+      "sev": "warn",
+      "agente": "reglas",
+      "impacto": 2,
+      "origen": [
+        "fraude",
+        "Indicadores de fraude · equidad por canal"
+      ],
+      "controles": [
+        "eiopa-af"
+      ],
+      "titulo": "WhatsApp recibe 1,8 veces más alertas de fraude que el resto de canales",
+      "detalle": "IF-09 (urgencia) dispara por el tono del canal: 4,1 alertas por cada 100 mensajes frente a 2,3 en el resto, y la SIU confirma la mitad.",
+      "alternativas": [
+        {
+          "titulo": "Bajar el peso de IF-09 en WhatsApp de 10 a 5",
+          "impacto": "Alertas en WhatsApp 4,1 → 2,9",
+          "efecto": "Algo menos de sensibilidad en el canal",
+          "esfuerzo": "bajo",
+          "aprueba": "Comité IA",
+          "valida": "Replay del motor sobre 14 días",
+          "rec": true
+        },
+        {
+          "titulo": "Buscar la urgencia después de normalizar el tono",
+          "impacto": "Iguala los canales",
+          "efecto": "Cambio en Multicanalidad",
+          "esfuerzo": "medio",
+          "aprueba": "Equipo Canales",
+          "valida": "Replay + rúbrica R-01"
+        }
+      ]
+    },
+    {
+      "id": "M-19",
+      "dim": "cumplimiento",
+      "sev": "info",
+      "agente": null,
+      "impacto": 1,
+      "origen": [
+        "fraude",
+        "Indicadores de fraude · gobierno del modelo"
+      ],
+      "controles": [
+        "rgpd-c47-af"
+      ],
+      "titulo": "Base jurídica del antifraude sin la firma del DPO",
+      "detalle": "La ponderación del interés legítimo (RGPD cons. 47) y el uso del fichero sectorial (LOSSEAR art. 99.7) están redactados, pero falta la validación del DPO.",
+      "alternativas": [
+        {
+          "titulo": "Revisar la ponderación con el DPO",
+          "impacto": "Control a verde",
+          "efecto": "Ninguno",
+          "esfuerzo": "bajo",
+          "aprueba": "DPO",
+          "valida": "Informe firmado",
+          "rec": true
+        }
+      ]
     }
-  ]
+  ],
+  "fraude": {
+    "niveles": [
+      [
+        70,
+        "siu",
+        "Escalado a la SIU",
+        "Sin despeje automático (G-10): va a la cola de la SIU con su ficha preparada"
+      ],
+      [
+        40,
+        "vigilancia",
+        "Vigilancia",
+        "Se tramita, pero el pago queda retenido hasta verificar el punto señalado; muestreo a posteriori"
+      ],
+      [
+        0,
+        "sin",
+        "Sin indicios",
+        "Solo se registra"
+      ]
+    ],
+    "indicadores": [
+      {
+        "id": "IF-01",
+        "grupo": "Temporal",
+        "icono": "calendar-clock",
+        "nombre": "Siniestro poco después del alta",
+        "senal": "El hecho ocurre a menos de 30 días del alta de la póliza",
+        "fuente": "Histórico de pólizas + texto",
+        "peso": 25,
+        "ramos": [
+          "Auto",
+          "Hogar",
+          "Salud"
+        ],
+        "activo": true,
+        "disparos_14d": 64,
+        "fp": 0.58,
+        "no_es": "Una mudanza o un coche nuevo explican muchas altas recientes: el indicador solo suma, nunca decide."
+      },
+      {
+        "id": "IF-02",
+        "grupo": "Temporal",
+        "icono": "moon",
+        "nombre": "Comunicación al límite del plazo o de madrugada",
+        "senal": "Se comunica el día 6 o 7 del plazo, o entre las 00:00 y las 06:00",
+        "fuente": "Fecha de recepción",
+        "peso": 10,
+        "ramos": [
+          "Auto",
+          "Hogar",
+          "Salud"
+        ],
+        "activo": true,
+        "disparos_14d": 212,
+        "fp": 0.91,
+        "no_es": "Quien vuelve de viaje o trabaja a turnos comunica tarde o de noche: es el indicador con más falsos positivos."
+      },
+      {
+        "id": "IF-03",
+        "grupo": "Relacional",
+        "icono": "landmark",
+        "nombre": "IBAN compartido entre asegurados distintos",
+        "senal": "La misma cuenta de cobro aparece en siniestros de titulares no relacionados",
+        "fuente": "Cruce entre mensajes e histórico",
+        "peso": 35,
+        "ramos": [
+          "Auto",
+          "Hogar",
+          "Salud"
+        ],
+        "activo": true,
+        "disparos_14d": 9,
+        "fp": 0.22,
+        "no_es": "Familiares o un administrador de fincas pueden compartir cuenta: se verifica la titularidad antes de pagar."
+      },
+      {
+        "id": "IF-04",
+        "grupo": "Relacional",
+        "icono": "phone",
+        "nombre": "Teléfono repetido en varias pólizas",
+        "senal": "El mismo teléfono de contacto en siniestros de 2 o más pólizas distintas en 90 días",
+        "fuente": "Cruce entre mensajes e histórico",
+        "peso": 20,
+        "ramos": [
+          "Auto",
+          "Hogar",
+          "Salud"
+        ],
+        "activo": true,
+        "disparos_14d": 17,
+        "fp": 0.47,
+        "no_es": "Un mediador o un familiar que comunica por otros comparte teléfono de forma legítima."
+      },
+      {
+        "id": "IF-05",
+        "grupo": "Relacional",
+        "icono": "store",
+        "nombre": "Proveedor recurrente en casos con indicios",
+        "senal": "Taller, cristalería o clínica presente en 3 o más casos marcados en 90 días",
+        "fuente": "Lista interna de proveedores",
+        "peso": 15,
+        "ramos": [
+          "Auto",
+          "Hogar"
+        ],
+        "activo": true,
+        "disparos_14d": 21,
+        "fp": 0.52,
+        "no_es": "Un proveedor grande aparece en muchos casos por volumen: se mira la proporción, no el número."
+      },
+      {
+        "id": "IF-06",
+        "grupo": "Historial",
+        "icono": "history",
+        "nombre": "Siniestro similar previo sobre el mismo bien",
+        "senal": "Mismo tipo de daño sobre el mismo vehículo o vivienda en menos de 12 meses",
+        "fuente": "Histórico de siniestros + texto",
+        "peso": 20,
+        "ramos": [
+          "Auto",
+          "Hogar"
+        ],
+        "activo": true,
+        "disparos_14d": 88,
+        "fp": 0.66,
+        "no_es": "Aparcar siempre en el mismo sitio expone al mismo riesgo: dos casos no son un patrón (A8 exige 3)."
+      },
+      {
+        "id": "IF-07",
+        "grupo": "Relato",
+        "icono": "message-circle-question",
+        "nombre": "Relato vago en el elemento clave",
+        "senal": "«no sé cuánto», «no estoy seguro», sin lista de bienes ni importe",
+        "fuente": "Mensaje (cita literal)",
+        "peso": 15,
+        "ramos": [
+          "Hogar",
+          "Auto"
+        ],
+        "activo": true,
+        "disparos_14d": 131,
+        "fp": 0.81,
+        "no_es": "Quien acaba de sufrir un robo está nervioso y no tiene la lista: es normal en las primeras horas."
+      },
+      {
+        "id": "IF-08",
+        "grupo": "Relato",
+        "icono": "file-x",
+        "nombre": "Falta de la prueba exigible",
+        "senal": "Robo sin denuncia ni signos de fuerza; vandalismo sin cámaras ni testigos",
+        "fuente": "Mensaje (cita literal) + reglas H4 / A7",
+        "peso": 20,
+        "ramos": [
+          "Auto",
+          "Hogar"
+        ],
+        "activo": true,
+        "disparos_14d": 96,
+        "fp": 0.63,
+        "no_es": "La denuncia puede llegar después: el indicador baja en cuanto se aporta."
+      },
+      {
+        "id": "IF-09",
+        "grupo": "Relato",
+        "icono": "timer",
+        "nombre": "Urgencia y proveedor propio",
+        "senal": "«que venga alguien hoy», «puedo ir a mi taller», taller de al lado de casa",
+        "fuente": "Mensaje (cita literal)",
+        "peso": 10,
+        "ramos": [
+          "Auto",
+          "Hogar"
+        ],
+        "activo": true,
+        "disparos_14d": 174,
+        "fp": 0.88,
+        "no_es": "Pedir rapidez es lo normal: por eso pesa poco. Dispara más en WhatsApp por el tono (ver equidad por canal)."
+      },
+      {
+        "id": "IF-10",
+        "grupo": "Económico",
+        "icono": "gem",
+        "nombre": "Bienes de alto valor sin justificar",
+        "senal": "Joyas, electrónica o efectivo por encima del límite y sin factura",
+        "fuente": "Mensaje (cita literal) + H4",
+        "peso": 20,
+        "ramos": [
+          "Hogar"
+        ],
+        "activo": true,
+        "disparos_14d": 23,
+        "fp": 0.39,
+        "no_es": "Las joyas heredadas rara vez tienen factura: se piden fotos o tasación, no se presume nada."
+      },
+      {
+        "id": "IF-11",
+        "grupo": "Conductor",
+        "icono": "car",
+        "nombre": "Conductor joven no declarado",
+        "senal": "Conduce un menor de 25 años que el tomador no sabe si está declarado",
+        "fuente": "Mensaje + póliza (conductores declarados)",
+        "peso": 20,
+        "ramos": [
+          "Auto"
+        ],
+        "activo": true,
+        "disparos_14d": 19,
+        "fp": 0.68,
+        "no_es": "Si la póliza lo tiene declarado, el indicador se anula (contraindicio)."
+      },
+      {
+        "id": "IF-12",
+        "grupo": "Canal",
+        "icono": "copy",
+        "nombre": "Mismo hecho por dos canales con datos distintos",
+        "senal": "La misma póliza comunica dos veces el mismo hecho con importe o relato diferentes",
+        "fuente": "Cruce entre mensajes",
+        "peso": 30,
+        "ramos": [
+          "Auto",
+          "Hogar",
+          "Salud"
+        ],
+        "activo": true,
+        "disparos_14d": 7,
+        "fp": 0.29,
+        "no_es": "Un cliente que reenvía por otro canal porque no le contestan no cambia los datos: solo cuenta si cambian."
+      }
+    ],
+    "escenarios": [
+      {
+        "id": "EF-01",
+        "icono": "house",
+        "ramo": "Hogar",
+        "nombre": "Robo sin fuerza en una póliza recién contratada",
+        "indicadores": [
+          "IF-01",
+          "IF-07",
+          "IF-08",
+          "IF-09",
+          "IF-10"
+        ],
+        "clave": null,
+        "umbral": 70,
+        "narrativa": "Se contrata el seguro (a veces con el capital de joyas ampliado) y a las pocas semanas se declara un robo sin signos de fuerza ni denuncia, con bienes de valor sin factura y prisa por que vaya alguien.",
+        "accion": "SIU: pedir denuncia, relación valorada con fotos o tasación y visita del perito antes de cualquier pago.",
+        "falsos_positivos": "Mudanzas recientes (alta nueva por cambio de vivienda) y familias que heredan joyas sin factura.",
+        "normas": [
+          "rgpd-22",
+          "rgpd-c47",
+          "lossear-99-7"
+        ],
+        "lote": [
+          "MSG-A-13"
+        ],
+        "casos_14d": 9,
+        "confirmados_14d": 3
+      },
+      {
+        "id": "EF-02",
+        "icono": "landmark",
+        "ramo": "Hogar",
+        "nombre": "Cuenta de cobro compartida entre siniestros no relacionados",
+        "indicadores": [
+          "IF-03",
+          "IF-04",
+          "IF-05"
+        ],
+        "clave": "IF-03",
+        "umbral": 40,
+        "narrativa": "Varios asegurados sin relación entre sí piden el pago a la misma cuenta, a menudo con el mismo proveedor de por medio. Es la huella típica de un intermediario que gestiona siniestros inflados o inventados.",
+        "accion": "Retener el pago (G-11) hasta verificar la titularidad de la cuenta con el banco; si no es del asegurado, SIU.",
+        "falsos_positivos": "Familiares, comunidades de propietarios o un administrador de fincas que cobra por cuenta de varios.",
+        "normas": [
+          "rgpd-c47",
+          "lossear-99-7",
+          "eiopa"
+        ],
+        "lote": [
+          "MSG-A-09",
+          "MSG-A-02"
+        ],
+        "casos_14d": 4,
+        "confirmados_14d": 1
+      },
+      {
+        "id": "EF-03",
+        "icono": "spray-can",
+        "ramo": "Auto",
+        "nombre": "Vandalismo recurrente sobre el mismo vehículo",
+        "indicadores": [
+          "IF-06",
+          "IF-08",
+          "IF-09"
+        ],
+        "clave": null,
+        "umbral": 40,
+        "narrativa": "El mismo coche declara rayones o golpes de autor desconocido cada pocos meses, en el mismo sitio y sin cámaras ni testigos, y se repara en un taller propio.",
+        "accion": "Vigilancia: comparar las fotos con las del siniestro anterior (¿es el mismo daño?) antes de liberar el pago.",
+        "falsos_positivos": "Zonas con vandalismo real y repetido: el parking es el mismo porque es el de casa o el del trabajo.",
+        "normas": [
+          "rgpd-22",
+          "eiopa"
+        ],
+        "lote": [
+          "MSG-A-11"
+        ],
+        "casos_14d": 14,
+        "confirmados_14d": 2
+      },
+      {
+        "id": "EF-04",
+        "icono": "user-round",
+        "ramo": "Auto",
+        "nombre": "Conductor habitual joven ocultado",
+        "indicadores": [
+          "IF-11",
+          "IF-06",
+          "IF-09"
+        ],
+        "clave": null,
+        "umbral": 40,
+        "narrativa": "Se contrata la póliza sin declarar al conductor joven que usa el coche a diario (prima más baja) y los siniestros los conduce siempre él.",
+        "accion": "Comprobar los conductores declarados; si no consta, regularizar la póliza (prima y franquicia) antes de pagar.",
+        "falsos_positivos": "Conductores ocasionales ya declarados. En MSG-A-04 el histórico de la póliza anula el indicador: Pablo está declarado desde 03/2026.",
+        "normas": [
+          "rgpd-22",
+          "rgpd-13"
+        ],
+        "lote": [
+          "MSG-A-04"
+        ],
+        "casos_14d": 11,
+        "confirmados_14d": 1
+      },
+      {
+        "id": "EF-05",
+        "icono": "car-front",
+        "ramo": "Auto",
+        "nombre": "Colisión concertada con un tercero vinculado",
+        "indicadores": [
+          "IF-04",
+          "IF-05",
+          "IF-12"
+        ],
+        "clave": "IF-12",
+        "umbral": 70,
+        "narrativa": "Dos vehículos con un contacto común simulan un alcance: el parte amistoso llega por un canal y el tercero reclama por otro con otro importe; ambos van al mismo taller.",
+        "accion": "SIU: peritación de los dos vehículos y cruce con el fichero sectorial.",
+        "falsos_positivos": "Vecinos o compañeros de trabajo que de verdad chocan en el mismo garaje.",
+        "normas": [
+          "rgpd-22",
+          "lossear-99-7"
+        ],
+        "lote": [],
+        "casos_14d": 3,
+        "confirmados_14d": 2
+      },
+      {
+        "id": "EF-06",
+        "icono": "receipt",
+        "ramo": "Auto",
+        "nombre": "Sobrefacturación de un proveedor",
+        "indicadores": [
+          "IF-05",
+          "IF-10"
+        ],
+        "clave": null,
+        "umbral": 40,
+        "narrativa": "Un taller o una cristalería presupuesta sistemáticamente por encima del baremo y aparece en casos con otros indicios.",
+        "accion": "Vigilancia del proveedor: peritación aleatoria y comparación con el baremo de la red concertada.",
+        "falsos_positivos": "Proveedores fuera de la red con precios de mercado más altos.",
+        "normas": [
+          "eiopa"
+        ],
+        "lote": [],
+        "casos_14d": 6,
+        "confirmados_14d": 1
+      },
+      {
+        "id": "EF-07",
+        "icono": "copy",
+        "ramo": "Auto",
+        "nombre": "Duplicado multicanal con importe inflado",
+        "indicadores": [
+          "IF-12",
+          "IF-02"
+        ],
+        "clave": "IF-12",
+        "umbral": 40,
+        "narrativa": "El mismo hecho entra por web y por WhatsApp con días de diferencia; el segundo mensaje sube el importe o añade daños.",
+        "accion": "Unir los dos mensajes en un solo expediente y pedir explicación de la diferencia.",
+        "falsos_positivos": "Clientes que reenvían porque no recibieron respuesta (mismos datos).",
+        "normas": [
+          "rgpd-13"
+        ],
+        "lote": [],
+        "casos_14d": 4,
+        "confirmados_14d": 1
+      },
+      {
+        "id": "EF-08",
+        "icono": "heart-pulse",
+        "ramo": "Salud",
+        "nombre": "Preexistencia ocultada en Salud",
+        "indicadores": [
+          "IF-01",
+          "IF-02"
+        ],
+        "clave": null,
+        "umbral": 40,
+        "narrativa": "Se contrata el seguro de salud y en pocos meses se pide una cirugía por una dolencia que «se arrastraba» (regla S3).",
+        "accion": "Revisar el cuestionario de salud firmado; decide el médico consultor, no el indicador.",
+        "falsos_positivos": "Lesiones agudas nuevas en asegurados recientes.",
+        "normas": [
+          "rgpd-9",
+          "rgpd-22"
+        ],
+        "lote": [],
+        "casos_14d": 5,
+        "confirmados_14d": 1
+      }
+    ],
+    "historico": {
+      "polizas": {
+        "HO-604118": {
+          "tomador": "Luis Miguel Arranz",
+          "alta": "2026-08-24",
+          "producto": "Hogar Plus",
+          "nota": "Alta online con el capital de joyas ampliado a 6.000 €"
+        },
+        "AU-742210": {
+          "tomador": "Rocío Pascual Mena",
+          "alta": "2024-03-02",
+          "producto": "Auto Todo Riesgo con franquicia"
+        },
+        "AU-119045": {
+          "tomador": "Antonio Navarro Blanco",
+          "alta": "2019-06-11",
+          "producto": "Auto Terceros Ampliado",
+          "conductores": [
+            "Antonio Navarro Blanco",
+            "Marisa Blanco Díaz",
+            "Pablo Navarro Blanco"
+          ],
+          "nota": "Pablo Navarro Blanco (22 años) declarado como conductor ocasional desde 03/2026"
+        },
+        "HO-118830": {
+          "tomador": "Iván Castro Luque",
+          "alta": "2025-11-20",
+          "producto": "Hogar Básico"
+        },
+        "HO-220114": {
+          "tomador": "Jorge Herrera Pino",
+          "alta": "2021-02-01",
+          "producto": "Hogar Plus"
+        }
+      },
+      "siniestros": [
+        {
+          "id": "SIN-2026-03318",
+          "poliza": "AU-742210",
+          "fecha": "2026-03-21",
+          "tipo": "Rayón en la puerta por autor desconocido",
+          "familia": "vandalismo",
+          "bien": "2290 LKV",
+          "lugar": "Parking del Carrefour de Alcobendas",
+          "importe": 540,
+          "estado": "Pagado",
+          "taller": "Taller de confianza del cliente"
+        },
+        {
+          "id": "SIN-2026-05107",
+          "poliza": "AU-119045",
+          "fecha": "2026-05-14",
+          "tipo": "Roce lateral contra una columna",
+          "familia": "daños propios",
+          "bien": "3318 LMB",
+          "lugar": "Parking de la Facultad de Económicas",
+          "conductor": "Pablo Navarro Blanco (22 años)",
+          "importe": 1350,
+          "estado": "Pagado",
+          "taller": "Talleres Ruiz de Alcorcón"
+        },
+        {
+          "id": "SIN-2026-08842",
+          "poliza": "HO-509921",
+          "fecha": "2026-08-29",
+          "tipo": "Rotura de cristal",
+          "familia": "cristales",
+          "titular": "Marcos Gil Pardo",
+          "iban": "ES91 2100 0418 4502 0005 1332",
+          "proveedor": "Cristalería Vallecas",
+          "importe": 380,
+          "estado": "Pagado"
+        },
+        {
+          "id": "SIN-2026-07730",
+          "poliza": "HO-311207",
+          "fecha": "2026-07-30",
+          "tipo": "Rotura de cristal",
+          "familia": "cristales",
+          "titular": "Elisa Moreno Caro",
+          "proveedor": "Cristalería Vallecas",
+          "importe": 420,
+          "estado": "En vigilancia"
+        }
+      ],
+      "proveedores": [
+        {
+          "nombre": "Cristalería Vallecas",
+          "tipo": "Cristalería",
+          "casos_marcados": 4,
+          "nota": "4 casos con indicios en 90 días; en 3 se pide el pago a la misma cuenta"
+        },
+        {
+          "nombre": "Talleres Ruiz de Alcorcón",
+          "tipo": "Taller",
+          "casos_marcados": 1,
+          "nota": "Por debajo del umbral (3): en observación"
+        }
+      ]
+    },
+    "seguimiento": {
+      "MSG-A-13": {
+        "estado": "pendiente",
+        "responsable": "SIU · R. Calvo",
+        "fecha": "2026-09-17T09:03:45",
+        "nota": "Pedir denuncia, relación valorada y visita del perito. No comentar el indicio con el cliente."
+      },
+      "MSG-A-09": {
+        "estado": "en_verificacion",
+        "responsable": "Tesorería · verificación de titularidad",
+        "fecha": "2026-09-17T09:03:14",
+        "nota": "Pedir al banco la titularidad de la cuenta ES91 … 1332 antes de liberar los 400 €."
+      },
+      "MSG-A-02": {
+        "estado": "en_verificacion",
+        "responsable": "Tesorería · verificación de titularidad",
+        "fecha": "2026-09-17T09:02:18",
+        "nota": "Misma cuenta que MSG-A-09 y que un siniestro de agosto de otro titular: retenidos 1.080 €."
+      },
+      "MSG-A-11": {
+        "estado": "en_verificacion",
+        "responsable": "Tramitación Auto · L. Prieto",
+        "fecha": "2026-09-17T09:03:31",
+        "nota": "Comparar las fotos con las del siniestro de marzo (SIN-2026-03318) antes de liberar los 600 €."
+      },
+      "MSG-A-04": {
+        "estado": "descartado",
+        "responsable": "Tramitación Auto · L. Prieto",
+        "fecha": "2026-09-17T09:41:00",
+        "nota": "Pablo consta como conductor declarado desde 03/2026: el patrón de EF-04 no aplica."
+      }
+    },
+    "cola": [
+      {
+        "id": "SIU-0431",
+        "caso": "SIN-2026-09461",
+        "escenario": "EF-05",
+        "ramo": "Auto",
+        "score": 84,
+        "importe": 6900,
+        "estado": "en_investigacion",
+        "responsable": "SIU · R. Calvo",
+        "abierto": "2026-09-16T12:40:00",
+        "nota": "Alcance con parte por web y reclamación del tercero por teléfono con otro importe; mismo taller."
+      },
+      {
+        "id": "SIU-0429",
+        "caso": "SIN-2026-09398",
+        "escenario": "EF-01",
+        "ramo": "Hogar",
+        "score": 78,
+        "importe": 4200,
+        "estado": "en_investigacion",
+        "responsable": "SIU · A. Ferrer",
+        "abierto": "2026-09-15T10:05:00",
+        "nota": "Robo de electrónica a los 12 días del alta; denuncia aportada después."
+      },
+      {
+        "id": "SIU-0426",
+        "caso": "SIN-2026-09177",
+        "escenario": "EF-02",
+        "ramo": "Hogar",
+        "score": 72,
+        "importe": 380,
+        "estado": "confirmado",
+        "responsable": "SIU · R. Calvo",
+        "abierto": "2026-09-11T16:20:00",
+        "cierre": "2026-09-15T13:00:00",
+        "nota": "La cuenta ES91 … 1332 no es del asegurado. Pago anulado; comunicado al fichero sectorial."
+      },
+      {
+        "id": "SIU-0422",
+        "caso": "SIN-2026-09052",
+        "escenario": "EF-03",
+        "ramo": "Auto",
+        "score": 71,
+        "importe": 350,
+        "estado": "descartado",
+        "responsable": "SIU · A. Ferrer",
+        "abierto": "2026-09-09T09:50:00",
+        "cierre": "2026-09-10T11:15:00",
+        "nota": "Vandalismo real en la zona: tres denuncias de vecinos la misma noche."
+      },
+      {
+        "id": "SIU-0418",
+        "caso": "SIN-2026-08906",
+        "escenario": "EF-01",
+        "ramo": "Hogar",
+        "score": 88,
+        "importe": 7800,
+        "estado": "confirmado",
+        "responsable": "SIU · R. Calvo",
+        "abierto": "2026-09-06T11:00:00",
+        "cierre": "2026-09-12T17:30:00",
+        "nota": "Joyas declaradas que el asegurado había vendido meses antes. Siniestro rechazado por el Comité de Siniestros (decisión humana)."
+      },
+      {
+        "id": "SIU-0415",
+        "caso": "SIN-2026-08871",
+        "escenario": "EF-08",
+        "ramo": "Salud",
+        "score": 70,
+        "importe": 3900,
+        "estado": "descartado",
+        "responsable": "Médico consultor · Dra. Sáez",
+        "abierto": "2026-09-05T15:30:00",
+        "cierre": "2026-09-08T10:00:00",
+        "nota": "Lesión nueva, sin relación con la patología previa."
+      }
+    ],
+    "diario": [
+      [
+        "2026-09-04",
+        1180,
+        31,
+        5,
+        142,
+        3100
+      ],
+      [
+        "2026-09-05",
+        1260,
+        34,
+        6,
+        151,
+        2860
+      ],
+      [
+        "2026-09-06",
+        610,
+        15,
+        2,
+        73,
+        950
+      ],
+      [
+        "2026-09-07",
+        540,
+        13,
+        1,
+        65,
+        610
+      ],
+      [
+        "2026-09-08",
+        1390,
+        38,
+        7,
+        167,
+        3420
+      ],
+      [
+        "2026-09-09",
+        1450,
+        37,
+        6,
+        174,
+        3050
+      ],
+      [
+        "2026-09-10",
+        1420,
+        39,
+        7,
+        170,
+        2980
+      ],
+      [
+        "2026-09-11",
+        1510,
+        42,
+        8,
+        181,
+        4120
+      ],
+      [
+        "2026-09-12",
+        1480,
+        40,
+        7,
+        178,
+        3610
+      ],
+      [
+        "2026-09-13",
+        690,
+        17,
+        2,
+        83,
+        1180
+      ],
+      [
+        "2026-09-14",
+        720,
+        19,
+        3,
+        86,
+        1240
+      ],
+      [
+        "2026-09-15",
+        1610,
+        44,
+        9,
+        193,
+        4380
+      ],
+      [
+        "2026-09-16",
+        1720,
+        48,
+        11,
+        206,
+        4910
+      ],
+      [
+        "2026-09-17",
+        1140,
+        29,
+        6,
+        168,
+        2080
+      ]
+    ],
+    "canales": [
+      {
+        "canal": "email",
+        "alertas": 2.4,
+        "confirmadas": 0.31
+      },
+      {
+        "canal": "web",
+        "alertas": 2.6,
+        "confirmadas": 0.34
+      },
+      {
+        "canal": "chat",
+        "alertas": 2.2,
+        "confirmadas": 0.3
+      },
+      {
+        "canal": "telefono",
+        "alertas": 2,
+        "confirmadas": 0.33
+      },
+      {
+        "canal": "whatsapp",
+        "alertas": 4.1,
+        "confirmadas": 0.16,
+        "nota": "IF-09 (urgencia) dispara 2,1 veces más por el tono del canal; la confirmación es la mitad (M-18)"
+      }
+    ]
+  }
 }
