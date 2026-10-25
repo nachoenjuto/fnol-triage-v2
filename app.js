@@ -1123,13 +1123,17 @@
       fases: () => { window.scrollTo({ top: 0 }); const f = document.querySelector('.phase'); if (f) f.click(); return ''; },
       procesar: () => {
         cerrarFase();
-        if (state.running) return 'El lote ya se está procesando.';
-        if (state.log.some((e) => e.paquete === 'A')) return 'El Paquete A ya está procesado. Para repetirlo, pulsa «Reiniciar lote».';
+        const total = ((PAQUETES.find((p) => p.id === 'A') || {}).mensajes || []).length;
+        const hechos = () => state.log.filter((e) => e.paquete === 'A').length;
+        // El paso no termina hasta que están los 13 mensajes: el recorrido no deja avanzar mientras tanto
+        const listo = () => !state.running && hechos() >= total;
+        if (state.running) return { aviso: '', listo };                                   // ya en marcha: se espera a que acabe
+        if (hechos() >= total) return 'El Paquete A ya está procesado. Para repetirlo, pulsa «Reiniciar lote».';
+        if (hechos()) resetBatch();   // lote cortado (por ejemplo, al cambiar de página a mitad): se vuelve a procesar entero
         $('sel-motor').value = 'guardado'; $('sel-motor').dispatchEvent(new Event('change'));
         $('sel-paquete').value = 'A'; $('sel-paquete').dispatchEvent(new Event('change'));
         $('btn-run').click();
-        // La demo automática no pasa a la ficha de MSG-A-08 hasta que el lote ha terminado
-        return { aviso: '', listo: () => !state.running && state.log.some((e) => e.paquete === 'A') };
+        return { aviso: '', listo };
       },
       ficha: (id, tab) => {
         cerrarFase();

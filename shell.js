@@ -228,6 +228,9 @@
     cerrar() { const r = leerRec(); r.activo = false; r.reproduciendo = false; guardarRec(r); parar(); quitarFoco(); this.pintar(); },
     ir(n) {
       const p = PASOS[n]; if (!p) return;
+      // Con el lote procesándose no se arranca un paso que lo necesita ni se cambia de página (cortaría el procesado)
+      const l = this.acciones.lote ? this.acciones.lote() : null;
+      if (l && l.procesando && p.accion !== 'procesar' && (p.requiere === 'lote' || p.pagina !== this.pagina)) return this.avisoEspera();
       const r = leerRec(); r.activo = true; r.paso = n; if (!r.vistos.includes(n)) r.vistos.push(n); guardarRec(r);
       if (p.pagina !== this.pagina) { location.href = `${PAGINA_URL[p.pagina]}#demo=${n}`; return; }
       this.aviso = ''; this.avisoTipo = ''; this.avisoIr = null; parar(); quitarFoco();
@@ -568,6 +571,7 @@
           const n = r.paso + (a === 'ant' ? -1 : 1); if (n < 0 || n >= PASOS.length) return;
           // Reproduciendo, o desde la barra minimizada al pie: el paso se ejecuta y arranca solo (cuenta y subtítulos)
           if (r.reproduciendo || r.min) return this.pasoRel(a === 'ant' ? -1 : 1);
+          if (reloj.fase === 'esperando') return this.avisoEspera();   // elegir otro paso cortaría la espera del lote
           r.paso = n; guardarRec(r); this.aviso = ''; parar(); return this.pintar();
         }
         if (a === 'reiniciar') { guardarRec({ activo: true, paso: 0, vistos: [], min: false, reproduciendo: false }); this.aviso = ''; parar(); return this.pintar(); }
