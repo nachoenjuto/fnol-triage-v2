@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>FNOL — De qué hablamos</title>
+  <meta name="description" content="Introducción a la demo: el primer aviso de siniestro (FNOL), su volumen, sus canales y lo que se decide en él.">
+  <link rel="stylesheet" href="styles.css?v=36">
+  <link rel="stylesheet" href="header.css?v=42">
+  <link rel="stylesheet" href="intro.css?v=3">
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand">
+      <span class="brand-icon" aria-hidden="true"><svg class="lucide-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" focusable="false"><path d="M3 7V5a2 2 0 0 1 2-2h2" /><path d="M17 3h2a2 2 0 0 1 2 2v2" /><path d="M21 17v2a2 2 0 0 1-2 2h-2" /><path d="M7 21H5a2 2 0 0 1-2-2v-2" /><path d="M7 8h8" /><path d="M7 12h10" /><path d="M7 16h6" /></svg></span>
+      <div>
+        <h1>Triaje FNOL con agentes de IA gobernados</h1>
+        <p class="brand-sub">Introducción · 1 de 2 · De qué hablamos</p>
+      </div>
+    </div>
+    <div class="row topbar-actions">
+      <div class="topbar-buttons">
+        <a href="index.html" class="btn btn-topbar"><span data-lucide="play" aria-hidden="true"></span> Ir a la demo</a>
+      </div>
+    </div>
+  </header>
+
+  <div class="shell" id="shell" data-pagina="intro-fnol">
+    <nav class="sidenav" aria-label="Introducción y demo">
+      <div class="sidenav-body">
+        <div class="nav-grupo">Introducción</div>
+        <a class="nav-item is-active" href="intro-fnol.html" aria-current="page" title="1 · FNOL: de qué hablamos"><span data-lucide="file-text" aria-hidden="true"></span><span class="lbl">1 · FNOL: de qué hablamos</span></a>
+        <a class="nav-item" href="intro-sistema.html" title="2 · El sistema"><span data-lucide="workflow" aria-hidden="true"></span><span class="lbl">2 · El sistema</span></a>
+        <div class="nav-grupo">Demo</div>
+        <a class="nav-item" href="index.html" title="Triaje FNOL"><span data-lucide="inbox" aria-hidden="true"></span><span class="lbl">Triaje FNOL</span></a>
+        <a class="nav-item" href="gobierno.html" title="Gobierno de Agentes"><span data-lucide="shield-check" aria-hidden="true"></span><span class="lbl">Gobierno de Agentes</span></a>
+      </div>
+      <div class="sidenav-foot"></div>
+    </nav>
+
+    <div class="shell-main">
+      <main class="intro">
+        <section class="card intro-hero">
+          <span class="kicker"><span class="step-n">1</span> De qué hablamos</span>
+          <h2>El primer aviso decide buena parte del siniestro</h2>
+          <p class="lead">Cada siniestro empieza con un mensaje del cliente. Llega por cinco canales, con prisa y sin formato, y alguien tiene que leerlo, clasificarlo y teclearlo antes de que corra el plazo.</p>
+        </section>
+
+        <section class="cifras" id="cifras" aria-label="Cifras del FNOL">
+          <article class="card cifra primary">
+            <span class="v">11 M</span>
+            <span class="l">siniestros de Auto al año en España</span>
+            <span class="f">Fuente: UNESPA</span>
+          </article>
+          <article class="card cifra primary">
+            <span class="v">3 s</span>
+            <span class="l">entre un siniestro de Auto y el siguiente</span>
+            <span class="f">Fuente: UNESPA</span>
+          </article>
+          <article class="card cifra review">
+            <span class="v">7 días</span>
+            <span class="l">para comunicar el siniestro</span>
+            <span class="f">Ley de Contrato de Seguro, art. 16</span>
+          </article>
+          <article class="card cifra">
+            <span class="v">≈10 %</span>
+            <span class="l">de la prima de Auto se va en gestionar siniestros</span>
+            <span class="f">EE. UU., 2023 · III con datos de NAIC</span>
+          </article>
+        </section>
+
+        <section class="card" id="canales">
+          <h2 class="bloque-t"><span data-lucide="messages-square" aria-hidden="true"></span> Cinco canales, un mismo aviso</h2>
+          <p class="bloque-sub">Fragmentos reales del Paquete A que vais a ver en la demo.</p>
+          <div class="canales">
+            <article class="canal">
+              <span class="canal-h"><span data-lucide="mail" aria-hidden="true"></span> Email</span>
+              <small>Texto largo, con adjuntos</small>
+              <q>El coche de delante frenó en seco; le di un pequeño toque por detrás. No hubo heridos.</q>
+              <span class="msg">MSG-A-01</span>
+            </article>
+            <article class="canal">
+              <span class="canal-h"><span data-lucide="globe" aria-hidden="true"></span> Formulario web</span>
+              <small>Campos fijos y texto libre</small>
+              <q>Se rompió el latiguillo del agua fría bajo el fregadero y se inundó parte del salón.</q>
+              <span class="msg">MSG-A-02</span>
+            </article>
+            <article class="canal">
+              <span class="canal-h"><span data-lucide="message-circle" aria-hidden="true"></span> Chat</span>
+              <small>Conversación desde la web o la app</small>
+              <q>Me ha saltado una piedra de un camión que llevaba grava; me ha hecho una grieta grande en el parabrisas.</q>
+              <span class="msg">MSG-A-07</span>
+            </article>
+            <article class="canal">
+              <span class="canal-h"><span data-lucide="phone" aria-hidden="true"></span> Teléfono</span>
+              <small>Llamada transcrita</small>
+              <q>Llamo en nombre de mi marido. Está ingresado con fractura de clavícula y dos costillas.</q>
+              <span class="msg">MSG-A-08</span>
+            </article>
+            <article class="canal">
+              <span class="canal-h"><span data-lucide="messages-square" aria-hidden="true"></span> WhatsApp</span>
+              <small>Corto, informal, con emojis</small>
+              <q>Hola!! os escribo por aquí porque no me aclaro con la app 😅</q>
+              <span class="msg">MSG-A-11</span>
+            </article>
+          </div>
+        </section>
+
+        <section class="card" id="decide">
+          <h2 class="bloque-t"><span data-lucide="scale" aria-hidden="true"></span> Lo que se decide en el primer aviso</h2>
+          <ul class="puntos">
+            <li class="punto"><span class="ico"><span data-lucide="tags" aria-hidden="true"></span></span><b>El ramo</b><span>Si se asigna mal, el expediente da vueltas entre equipos.</span></li>
+            <li class="punto"><span class="ico"><span data-lucide="file-search" aria-hidden="true"></span></span><b>Los datos</b><span>Si falta la póliza o la fecha, hay que volver a llamar al cliente.</span></li>
+            <li class="punto"><span class="ico"><span data-lucide="shield-alert" aria-hidden="true"></span></span><b>El indicio de fraude</b><span>Aquí es más barato verlo. Después, el pago ya ha salido.</span></li>
+            <li class="punto"><span class="ico"><span data-lucide="user" aria-hidden="true"></span></span><b>La experiencia del cliente</b><span>Es su primer contacto con la aseguradora, y en un mal día.</span></li>
+          </ul>
+        </section>
+
+        <section class="card" id="hoy">
+          <h2 class="bloque-t"><span data-lucide="user-check" aria-hidden="true"></span> Cómo se hace hoy</h2>
+          <div class="cadena">
+            <div class="eslabon"><span class="t"><span data-lucide="eye" aria-hidden="true"></span> Leer</span><small>Una persona abre cada mensaje, canal por canal</small></div>
+            <span class="flecha" aria-hidden="true"><span data-lucide="chevron-right"></span></span>
+            <div class="eslabon"><span class="t"><span data-lucide="tags" aria-hidden="true"></span> Clasificar</span><small>Decide el ramo y a qué equipo va</small></div>
+            <span class="flecha" aria-hidden="true"><span data-lucide="chevron-right"></span></span>
+            <div class="eslabon"><span class="t"><span data-lucide="pencil" aria-hidden="true"></span> Teclear</span><small>Pasa los datos del texto al sistema</small></div>
+            <span class="flecha" aria-hidden="true"><span data-lucide="chevron-right"></span></span>
+            <div class="eslabon"><span class="t"><span data-lucide="list-checks" aria-hidden="true"></span> Decidir</span><small>Comprueba coberturas, plazos e importes</small></div>
+          </div>
+          <p class="nota">Ahí se va el tiempo del tramitador y ahí se va el dinero.</p>
+        </section>
+
+        <nav class="intro-nav" aria-label="Siguiente">
+          <span class="muted small">1 de 2</span>
+          <div class="derecha">
+            <a class="btn" href="index.html"><span data-lucide="play" aria-hidden="true"></span> Ir a la demo</a>
+            <a class="btn btn-primary" href="intro-sistema.html">Siguiente: el sistema <span data-lucide="arrow-right" aria-hidden="true"></span></a>
+          </div>
+        </nav>
+      </main>
+      <footer class="pie">
+        <span>Demo estática · HTML + JavaScript · sin backend · datos solo en esta sesión</span>
+        <a href="https://github.com/nachoenjuto/fnol-triage" target="_blank" rel="noopener">Código en GitHub</a>
+      </footer>
+    </div>
+  </div>
+
+  <script src="icons.js?v=39"></script>
+  <script src="data/recorrido.js?v=41"></script>
+  <script src="shell.js?v=48"></script>
+  <script src="intro.js?v=2"></script>
+</body>
+</html>

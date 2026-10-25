@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>FNOL — El sistema</title>
+  <meta name="description" content="Introducción a la demo: cuatro agentes de IA automatizan el primer aviso de siniestro y una capa de gobierno controla su autonomía, su gasto, el fraude y el cumplimiento.">
+  <link rel="stylesheet" href="styles.css?v=36">
+  <link rel="stylesheet" href="header.css?v=42">
+  <link rel="stylesheet" href="intro.css?v=3">
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand">
+      <span class="brand-icon" aria-hidden="true"><svg class="lucide-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" focusable="false"><path d="M3 7V5a2 2 0 0 1 2-2h2" /><path d="M17 3h2a2 2 0 0 1 2 2v2" /><path d="M21 17v2a2 2 0 0 1-2 2h-2" /><path d="M7 21H5a2 2 0 0 1-2-2v-2" /><path d="M7 8h8" /><path d="M7 12h10" /><path d="M7 16h6" /></svg></span>
+      <div>
+        <h1>Triaje FNOL con agentes de IA gobernados</h1>
+        <p class="brand-sub">Introducción · 2 de 2 · El sistema que vais a ver</p>
+      </div>
+    </div>
+    <div class="row topbar-actions">
+      <div class="topbar-buttons">
+        <a href="index.html" class="btn btn-topbar"><span data-lucide="play" aria-hidden="true"></span> Ir a la demo</a>
+      </div>
+    </div>
+  </header>
+
+  <div class="shell" id="shell" data-pagina="intro-sistema">
+    <nav class="sidenav" aria-label="Introducción y demo">
+      <div class="sidenav-body">
+        <div class="nav-grupo">Introducción</div>
+        <a class="nav-item" href="intro-fnol.html" title="1 · FNOL: de qué hablamos"><span data-lucide="file-text" aria-hidden="true"></span><span class="lbl">1 · FNOL: de qué hablamos</span></a>
+        <a class="nav-item is-active" href="intro-sistema.html" aria-current="page" title="2 · El sistema"><span data-lucide="workflow" aria-hidden="true"></span><span class="lbl">2 · El sistema</span></a>
+        <div class="nav-grupo">Demo</div>
+        <a class="nav-item" href="index.html" title="Triaje FNOL"><span data-lucide="inbox" aria-hidden="true"></span><span class="lbl">Triaje FNOL</span></a>
+        <a class="nav-item" href="gobierno.html" title="Gobierno de Agentes"><span data-lucide="shield-check" aria-hidden="true"></span><span class="lbl">Gobierno de Agentes</span></a>
+      </div>
+      <div class="sidenav-foot"></div>
+    </nav>
+
+    <div class="shell-main">
+      <main class="intro">
+        <section class="card intro-hero">
+          <span class="kicker"><span class="step-n">2</span> El sistema</span>
+          <h2>Automatizar el primer contacto, con la IA bajo control</h2>
+          <p class="lead">Cuatro agentes de IA reciben el aviso, deciden el ramo, extraen los datos y aplican las reglas de la aseguradora. El tramitador recibe el caso preparado, con una propuesta y su justificación.</p>
+        </section>
+
+        <section class="card" id="logicalis">
+          <h2 class="bloque-t"><span data-lucide="lightbulb" aria-hidden="true"></span> Lo que hemos aprendido implantando gobierno de IA</h2>
+          <p class="bloque-sub">Esta plataforma reúne en un solo caso lo que Logicalis ha implantado en gobierno y observabilidad de IA en clientes de distintas industrias. Cambia el sector; el objetivo es siempre el mismo.</p>
+          <ul class="puntos">
+            <li class="punto"><span class="ico"><span data-lucide="gauge" aria-hidden="true"></span></span><b>Mejores resultados</b><span>Control sobre lo que deciden los agentes y con qué calidad.</span></li>
+            <li class="punto"><span class="ico"><span data-lucide="user" aria-hidden="true"></span></span><b>Mejor servicio al cliente</b><span>Respuestas rápidas y explicables, y una persona donde hace falta criterio.</span></li>
+            <li class="punto"><span class="ico"><span data-lucide="wallet" aria-hidden="true"></span></span><b>Gasto controlado</b><span>Coste de cada decisión al momento, con topes que actúan solos.</span></li>
+            <li class="punto"><span class="ico"><span data-lucide="scale" aria-hidden="true"></span></span><b>Cumplimiento</b><span>Evidencia por decisión para el DPO, el auditor y el supervisor.</span></li>
+          </ul>
+        </section>
+
+        <section class="cifras" id="cifras" aria-label="Resultado del lote de la demo">
+          <article class="card cifra primary"><span class="v">13</span><span class="l">avisos en el lote de la demo</span><span class="f">5 canales · Auto, Hogar y Salud</span></article>
+          <article class="card cifra ok"><span class="v">10</span><span class="l">aprobados sin intervención</span><span class="f">con cada regla y su evidencia</span></article>
+          <article class="card cifra review"><span class="v">3</span><span class="l">a revisar por una persona</span><span class="f">con el motivo y la frase del cliente</span></article>
+          <article class="card cifra ok"><span class="v">81 %</span><span class="l">de decisiones sin intervención humana</span><span class="f">últimos 14 días · 16.720 mensajes</span></article>
+        </section>
+
+        <section class="card" id="agentes">
+          <h2 class="bloque-t"><span data-lucide="bot" aria-hidden="true"></span> Cuatro agentes especialistas</h2>
+          <p class="bloque-sub">Cada uno con su modelo, su versión de prompt, su responsable y su nivel de autonomía.</p>
+          <div class="cadena agentes">
+            <article class="agente">
+              <span class="t"><span data-lucide="inbox" aria-hidden="true"></span> Multicanalidad</span>
+              <p>Recibe por los cinco canales, transcribe las llamadas y normaliza el mensaje.</p>
+              <span class="meta"><span class="chip">gpt-5-nano + voz</span><span class="chip l3">L3 · Autónomo</span></span>
+            </article>
+            <span class="flecha" aria-hidden="true"><span data-lucide="chevron-right"></span></span>
+            <article class="agente">
+              <span class="t"><span data-lucide="tags" aria-hidden="true"></span> Clasificación</span>
+              <p>Asigna Auto, Hogar o Salud citando los indicios del texto.</p>
+              <span class="meta"><span class="chip">gpt-5-nano</span><span class="chip l3">L3 · Autónomo</span></span>
+            </article>
+            <span class="flecha" aria-hidden="true"><span data-lucide="chevron-right"></span></span>
+            <article class="agente">
+              <span class="t"><span data-lucide="file-search" aria-hidden="true"></span> Extracción</span>
+              <p>Convierte el texto en 10 campos. Si un dato no está, queda vacío.</p>
+              <span class="meta"><span class="chip">gpt-5-mini</span><span class="chip l2">L2 · Supervisado</span></span>
+            </article>
+            <span class="flecha" aria-hidden="true"><span data-lucide="chevron-right"></span></span>
+            <article class="agente">
+              <span class="t"><span data-lucide="list-checks" aria-hidden="true"></span> Reglas de negocio</span>
+              <p>Aplica las 25 reglas de Auto, Hogar y Salud de la aseguradora.</p>
+              <span class="meta"><span class="chip">gpt-5</span><span class="chip l2">L2 · Supervisado</span></span>
+            </article>
+            <span class="flecha" aria-hidden="true"><span data-lucide="chevron-right"></span></span>
+            <div class="decision">
+              <span class="pill-ok"><span data-lucide="thumbs-up" aria-hidden="true"></span> Aprobado</span>
+              <span class="pill-review"><span data-lucide="user-check" aria-hidden="true"></span> A revisar</span>
+            </div>
+          </div>
+        </section>
+
+        <section class="dos" id="usuarios" aria-label="Los dos usuarios">
+          <article class="card usuario-card">
+            <h2 class="t"><span data-lucide="user-check" aria-hidden="true"></span> El tramitador</h2>
+            <p class="quien">Pantalla de triaje</p>
+            <ul>
+              <li>Recibe cada aviso clasificado y con los datos extraídos</li>
+              <li>Ve por qué se aprobó o por qué le ha llegado, regla a regla</li>
+              <li>Dedica su tiempo a los casos que necesitan criterio</li>
+            </ul>
+            <a class="btn" href="index.html"><span data-lucide="inbox" aria-hidden="true"></span> Triaje FNOL</a>
+          </article>
+          <article class="card usuario-card">
+            <h2 class="t"><span data-lucide="shield-check" aria-hidden="true"></span> Quien gobierna la IA</h2>
+            <p class="quien">Comité de IA, Riesgos, Auditoría, DPO y Finanzas · panel de gobierno</p>
+            <ul>
+              <li>Ve si los agentes deciden bien y con qué conocimiento</li>
+              <li>Controla cuánto deciden solos y cuánto cuestan</li>
+              <li>Puede demostrar ante un auditor cómo se decidió cada caso</li>
+            </ul>
+            <a class="btn" href="gobierno.html"><span data-lucide="shield-check" aria-hidden="true"></span> Gobierno de Agentes</a>
+          </article>
+        </section>
+
+        <section class="card" id="porque">
+          <h2 class="bloque-t"><span data-lucide="triangle-alert" aria-hidden="true"></span> Por qué el gobierno decide el éxito</h2>
+          <div class="porque">
+            <div>
+              <div class="v">&gt;40 %</div>
+              <p class="f">de los proyectos de IA agéntica se cancelarán antes de que acabe 2027 por coste, valor poco claro o riesgo sin controlar · Gartner</p>
+            </div>
+            <div>
+              <p class="lead">Clasificar un mensaje con IA ya no diferencia a nadie. Los proyectos mueren cuando nadie sabe responder:</p>
+              <ul class="preguntas">
+                <li><span data-lucide="message-circle-question" aria-hidden="true"></span> ¿Por qué decidió eso?</li>
+                <li><span data-lucide="user-round" aria-hidden="true"></span> ¿Quién lo controla?</li>
+                <li><span data-lucide="euro" aria-hidden="true"></span> ¿Cuánto cuesta?</li>
+              </ul>
+            </div>
+          </div>
+        </section>
+
+        <section class="card">
+          <h2 class="bloque-t"><span data-lucide="route" aria-hidden="true"></span> La trazabilidad es la base del gobierno</h2>
+          <div class="pilares">
+            <article class="pilar">
+              <span class="t"><span data-lucide="sliders-horizontal" aria-hidden="true"></span> Autonomía</span>
+              <span class="v">L0 → L3</span>
+              <p>Cada agente tiene un nivel que se gana y se pierde con datos. Reglas bajó a L2 cuando los tramitadores corrigieron el 4,1 % de sus decisiones.</p>
+            </article>
+            <article class="pilar">
+              <span class="t"><span data-lucide="wallet" aria-hidden="true"></span> Gasto</span>
+              <span class="v">Al segundo</span>
+              <p>El proveedor de IA informa del gasto cada 8 horas. Aquí cada decisión suma su coste al momento y los topes actúan solos: si se agota, cambia a un modelo más barato y sigue.</p>
+            </article>
+            <article class="pilar">
+              <span class="t"><span data-lucide="shield-alert" aria-hidden="true"></span> Fraude</span>
+              <span class="v">3 de 13</span>
+              <p>IA, histórico y reglas buscan los patrones que la compañía ya conoce. El indicio prioriza y decide una persona.</p>
+            </article>
+            <article class="pilar">
+              <span class="t"><span data-lucide="thermometer" aria-hidden="true"></span> Cumplimiento</span>
+              <span class="v">87 %</span>
+              <p>RGPD, DORA y EIOPA en vigor; el Reglamento de IA, como buena práctica. Cada decisión lleva su prueba.</p>
+            </article>
+          </div>
+          <div class="base" id="base">
+            <div class="lado"><b><span data-lucide="cpu" aria-hidden="true"></span> Traza técnica</b><small>Modelo, tokens, latencia y coste de cada llamada. La ofrecen los proveedores de IA, y es necesaria.</small></div>
+            <span class="mas" aria-hidden="true">+</span>
+            <div class="lado"><b><span data-lucide="landmark" aria-hidden="true"></span> Proceso de negocio</b><small>Ramo, reglas, plazos, importes, guardrails y quién revisa. Lo que la traza técnica no sabe.</small></div>
+            <div class="base-pie"><span data-lucide="route" aria-hidden="true"></span> Una traza por decisión que une los dos mundos: sobre ella se construye todo lo demás</div>
+          </div>
+        </section>
+
+        <nav class="intro-nav" aria-label="Navegación">
+          <a class="btn" href="intro-fnol.html"><span data-lucide="arrow-left" aria-hidden="true"></span> Anterior: el FNOL</a>
+          <div class="derecha">
+            <a class="btn" href="gobierno.html"><span data-lucide="shield-check" aria-hidden="true"></span> Panel de gobierno</a>
+            <a class="btn btn-primary" href="index.html"><span data-lucide="play" aria-hidden="true"></span> Empezar la demo</a>
+          </div>
+        </nav>
+      </main>
+      <footer class="pie">
+        <span>Demo estática · HTML + JavaScript · sin backend · datos solo en esta sesión</span>
+        <a href="https://github.com/nachoenjuto/fnol-triage" target="_blank" rel="noopener">Código en GitHub</a>
+      </footer>
+    </div>
+  </div>
+
+  <script src="icons.js?v=39"></script>
+  <script src="data/recorrido.js?v=41"></script>
+  <script src="shell.js?v=48"></script>
+  <script src="intro.js?v=2"></script>
+</body>
+</html>

@@ -1117,9 +1117,12 @@
     // Menú lateral común con el panel de gobierno (shell.js): plegado deja solo los iconos de las secciones
     Shell.initShell();
     // Recorrido de la demo (modo presentador): acciones de los pasos que ocurren en el triaje
+    // Cierra la ficha de la fase abierta en la barra (la cierra el Escape de la propia barra)
+    const cerrarFase = () => { if (!$('phase-pop').hidden) document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape' })); };
     Shell.Recorrido.init({
       fases: () => { window.scrollTo({ top: 0 }); const f = document.querySelector('.phase'); if (f) f.click(); return ''; },
       procesar: () => {
+        cerrarFase();
         if (state.running) return 'El lote ya se está procesando.';
         if (state.log.some((e) => e.paquete === 'A')) return 'El Paquete A ya está procesado. Para repetirlo, pulsa «Reiniciar lote».';
         $('sel-motor').value = 'guardado'; $('sel-motor').dispatchEvent(new Event('change'));
@@ -1129,11 +1132,29 @@
         return { aviso: '', listo: () => !state.running && state.log.some((e) => e.paquete === 'A') };
       },
       ficha: (id, tab) => {
+        cerrarFase();
         const e = state.log.find((x) => x.id === id);
-        if (!e) return `Todavía no hay ficha de ${id}: haz antes el paso 2 (Procesar el Paquete A) y espera a que termine.`;
+        if (!e) return `Todavía no hay ficha de ${id}: procesa antes el Paquete A y espera a que termine.`;
         openModal(e); if (tab) setTab(tab);
         return '';
       },
+      // Subpasos: abre la ficha de una fase de la barra (sin cerrarla si ya está abierta) o la cierra
+      fase: (id) => {
+        const pop = $('phase-pop');
+        if (id === 'cerrar') { cerrarFase(); return ''; }
+        const b = document.querySelector(`.phase[data-phase="${id}"]`);
+        if (b && (pop.hidden || !b.classList.contains('is-active'))) b.click();
+        return '';
+      },
+      // Subpasos: despliega el menú lateral y la sección «Paquete de mensajes»
+      paquete: () => {
+        const shell = document.querySelector('.shell');
+        if (shell && shell.classList.contains('nav-collapsed')) { const t = document.querySelector('.sidenav-toggle'); if (t) t.click(); }
+        const d = document.querySelector('.nav-sec summary[title="Paquete de mensajes"]'); if (d && !d.parentElement.open) d.parentElement.open = true;
+        return '';
+      },
+      // Estado del lote para los avisos de espera del recorrido
+      lote: () => ({ total: ((PAQUETES.find((p) => p.id === 'A') || {}).mensajes || []).length, hechos: state.log.filter((e) => e.paquete === 'A').length, procesando: !!state.running }),
     });
     $('btn-toggle-config').addEventListener('click', () => {
       const panel = $('config-panel');
@@ -1453,7 +1474,7 @@
     pop.addEventListener('mouseenter', () => clearTimeout(hideTimer));
     pop.addEventListener('mouseleave', scheduleHide);
     document.addEventListener('keydown', (ev) => { if (ev.key === 'Escape' && !pop.hidden) hide(); });
-    document.addEventListener('click', (ev) => { if (!pop.hidden && !ev.target.closest('.phase, #phase-pop')) hide(); });
+    document.addEventListener('click', (ev) => { if (!pop.hidden && ev.isTrusted && !ev.target.closest('.phase, #phase-pop, #recorrido')) hide(); });
     window.addEventListener('resize', () => { if (active) position(active); });
     window.addEventListener('scroll', () => { if (active) position(active); }, { passive: true });
   }

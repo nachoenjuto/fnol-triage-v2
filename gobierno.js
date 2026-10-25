@@ -164,7 +164,7 @@
       kpi({ cls: 'primary', icono: 'activity', etiqueta: 'Mensajes procesados', valor: num(totalMsgs), sub: `${dias.length} día${dias.length > 1 ? 's' : ''} · ${num(Math.round(totalMsgs / dias.length))} / día de media`, id: 'res-msgs' }),
       kpi({ ...aut, id: 'res-aut' }), conGoto(kpi(esc1), 'hitl'), conGoto(kpi(ovr), 'hitl'),
       kpi({ cls: 'warn', icono: 'euro', etiqueta: 'Coste del periodo', valor: eur(coste, coste < 10 ? 2 : 0), sub: `${Math.round((coste / capMes) * 100)} % del cap mensual (${eur(capMes, 0)}) · ${eur(totalMsgs ? coste / totalMsgs : 0, 4)} por mensaje`, medidor: (coste / capMes) * 100, id: 'res-coste' }),
-      (() => { const al = alertasTodas(); const c = al.filter((x) => x.sev === 'crit').length; return kpi({ ...alr, id: 'res-alertas', cls: c ? 'crit' : 'warn', valor: String(al.length), sub: `${c} ${c === 1 ? 'crítica' : 'críticas'} · ${al.length - c} avisos · coste, conocimiento y cumplimiento` }); })(),
+      (() => { const al = alertasTodas(); const c = al.filter((x) => x.sev === 'crit').length; return kpi({ ...alr, id: 'res-alertas', cls: c ? 'crit' : 'warn', valor: String(al.length), sub: `${c} ${c === 1 ? 'crítica' : 'críticas'} · ${al.length - c} avisos · ${origenesTexto(al)}` }); })(),
       (() => { const { T } = estadoCumplimiento(); const p = T.marcos.reduce((a, m) => a + m.cuenta.ambar + m.cuenta.rojo, 0); return conGoto(kpi({ cls: T.global >= 90 ? 'ok' : 'warn', icono: 'thermometer', etiqueta: 'Cumplimiento', valor: `${T.global} %`, sub: `cobertura de controles · ${p} parciales`, medidor: T.global }), 'cumplimiento'); })(),
       (() => { const E = estadoKB(); const ok = E.filter(({ s }) => s.estado === 'ok').length; const r = E.filter(({ s }) => s.estado === 'rojo').length; return conGoto(kpi({ cls: r ? 'crit' : ok < E.length ? 'warn' : 'ok', icono: 'book-open', etiqueta: 'Knowledge Bases', valor: `${ok} / ${E.length}`, sub: `knowledge bases sanas · ${r} ${r === 1 ? 'crítica' : 'críticas'}` }), 'knowledge'); })(),
     ].join('');
@@ -1278,19 +1278,25 @@
     },
   };
 
+  // Orígenes de las alertas: orden, color, icono y sección a la que llevan
+  const ORIGENES_AL = [['Coste', 'var(--primary)', 'coins', 'finops', 'FinOps'], ['Fraude', 'var(--crit)', 'shield-alert', 'fraude', 'Fraude'], ['Knowledge Bases', 'var(--time)', 'book-open', 'knowledge', 'Knowledge Bases'], ['Cumplimiento', 'var(--warn)', 'thermometer', 'cumplimiento', 'Cumplimiento']];
+  const origenesTexto = (al) => { const n = ORIGENES_AL.filter(([o]) => al.some((a) => a.origen === o)).map(([o]) => (o === 'Knowledge Bases' ? 'conocimiento' : o.toLowerCase())); return n.length > 1 ? `${n.slice(0, -1).join(', ')} y ${n[n.length - 1]}` : n[0] || 'sin alertas'; };
+
   KPI_FIN['res-alertas'] = {
     icono: 'bell', titulo: 'Alertas activas',
     render: () => {
-      const d = datosResumen(); const act = alertasTodas(); const evs = (G.eventos || []).filter((e) => e.tipo === 'alerta' || e.tipo === 'incidente');
+      const act = alertasTodas(); const evs = (G.eventos || []).filter((e) => e.tipo === 'alerta' || e.tipo === 'incidente');
       const fechasEv = fechasSerie(); const porDia = (sev) => fechasEv.map((f) => evs.filter((e) => e.fecha.slice(0, 10) === f && e.sev === sev).length);
       const series = [{ label: 'Crítica', color: 'var(--crit)', vals: porDia('crit') }, { label: 'Aviso', color: 'var(--warn)', vals: porDia('warn') }, { label: 'Informativa', color: 'var(--time)', vals: porDia('info') }, { label: 'Cerrada', color: 'var(--ok)', vals: porDia('ok') }];
       const nCrit = act.filter((a) => a.sev === 'crit').length, nWarn = act.filter((a) => a.sev === 'warn').length;
-      return `<p class="small muted">Situaciones que requieren atención ahora, de todas las fuentes: caps de coste superados, knowledge bases críticas o degradadas y controles de cumplimiento pendientes. Clic en una alerta para ir a su origen. Las críticas pueden activar una acción automática (por ejemplo degradar el modelo).</p>
-        <div class="kpi-mini">${kmini('bell', 'Alertas activas', cnt(act.length))}${kmini('triangle-alert', 'Críticas', `<span style="color:var(--crit)">${cnt(nCrit)}</span>`)}${kmini('circle-alert', 'Avisos', `<span style="color:var(--warn)">${cnt(nWarn)}</span>`)}${kmini('history', 'Eventos en 14 días', cnt(evs.length), 'alertas e incidentes')}</div>
-        <div class="two"><div><h3>Alertas activas por severidad</h3>${anilloConLeyenda([['Crítica', nCrit, 'var(--crit)'], ['Aviso', nWarn, 'var(--warn)'], ['Informativa', act.length - nCrit - nWarn, 'var(--time)']].filter((x) => x[1] > 0), String(act.length), 'activas')}</div>
-        <div><h3>Alertas e incidentes por día</h3>${chartApilada(series, fechasEv, { H: 200, fmt: (v) => String(Math.round(v)), aria: 'Alertas por día y severidad' })}${leyenda(series.map((s) => [s.label, s.color]))}</div></div>
-        <div><h3>Alertas activas</h3><div class="alerts">${act.map(alertaHtml).join('') || '<p class="muted">Sin alertas activas.</p>'}</div>
-        <div class="row" style="margin-top:.6rem"><button class="btn btn-sm" type="button" data-goto="finops">${ic('coins')} Ir a FinOps</button><button class="btn btn-sm" type="button" data-goto="historico">${ic('history')} Ver el histórico</button></div></div>`;
+      const grupos = ORIGENES_AL.map(([o, color, icono, vista, dest]) => ({ o, color, icono, vista, dest, al: act.filter((a) => a.origen === o) })).filter((g) => g.al.length);
+      return `<p class="small muted">Situaciones que requieren atención ahora, de todas las fuentes: caps de coste superados, casos de fraude escalados a la SIU y pagos retenidos, knowledge bases críticas o degradadas y controles de cumplimiento pendientes. Clic en una alerta para ir a su origen; las de un caso de fraude abren su ficha. Las críticas pueden activar una acción automática (por ejemplo, degradar el modelo o retener un pago).</p>
+        <div class="kpi-mini">${kmini('bell', 'Alertas activas', cnt(act.length), origenesTexto(act))}${kmini('triangle-alert', 'Críticas', `<span style="color:var(--crit)">${cnt(nCrit)}</span>`)}${kmini('circle-alert', 'Avisos', `<span style="color:var(--warn)">${cnt(nWarn)}</span>`)}${kmini('shield-alert', 'De fraude', cnt(act.filter((a) => a.origen === 'Fraude').length), 'SIU y pagos retenidos')}${kmini('history', 'Eventos en 14 días', cnt(evs.length), 'alertas e incidentes')}</div>
+        <div class="two"><div><h3>Por severidad</h3>${anilloConLeyenda([['Crítica', nCrit, 'var(--crit)'], ['Aviso', nWarn, 'var(--warn)'], ['Informativa', act.length - nCrit - nWarn, 'var(--time)']].filter((x) => x[1] > 0), String(act.length), 'activas')}</div>
+        <div><h3>Por origen</h3>${anilloConLeyenda(grupos.map((g) => [g.o, g.al.length, g.color]), String(grupos.length), grupos.length === 1 ? 'fuente' : 'fuentes')}</div></div>
+        <div><h3>Alertas activas por origen</h3>${grupos.map((g) => `<div class="al-grupo"><div class="al-grupo-h"><span style="color:${g.color}">${ic(g.icono)}</span><b>${esc(g.o)}</b><span class="pill pill-muted">${g.al.length}</span><button class="btn btn-sm" type="button" data-goto="${g.vista}">${ic('arrow-right')} Ir a ${esc(g.dest)}</button></div><div class="alerts">${g.al.map(alertaHtml).join('')}</div></div>`).join('') || '<p class="muted">Sin alertas activas.</p>'}</div>
+        <div><h3>Alertas e incidentes por día · 14 días</h3>${chartApilada(series, fechasEv, { H: 180, fmt: (v) => String(Math.round(v)), aria: 'Alertas por día y severidad' })}${leyenda(series.map((s) => [s.label, s.color]))}
+        <div class="row" style="margin-top:.6rem"><button class="btn btn-sm" type="button" data-goto="historico">${ic('history')} Ver el histórico</button></div></div>`;
     },
   };
 
@@ -2280,13 +2286,29 @@
   function alertasTodas() {
     const out = (G.alertas || []).map((a) => ({ ...a, origen: 'Coste', goto: 'finops' }));
     estadoKB().filter(({ s }) => s.estado !== 'ok').filter(({ k, s }) => s.estado === 'rojo' || k.metricas.obsoletos > 10 || k.metricas.pii).forEach(({ k, s }) => out.push({ sev: s.estado === 'rojo' ? 'crit' : 'warn', titulo: `${k.id} · ${k.nombre}: ${s.estado === 'rojo' ? 'crítica' : 'degradada'}`, detalle: k.nota || s.motivos.slice(0, 2).join(' · '), cuando: 'conocimiento', origen: 'Knowledge Bases', goto: 'knowledge', kb: k.id }));
+    alertasFraude().forEach((a) => out.push(a));
     const { T, cadena } = estadoCumplimiento();
     if (cadena.roto !== null) out.push({ sev: 'crit', titulo: 'Cadena de integridad del registro rota', detalle: `La traza ${cadena.items[cadena.roto].traza_id} no coincide con su sello.`, cuando: 'cumplimiento', origen: 'Cumplimiento', goto: 'cumplimiento' });
     T.marcos.flatMap((m) => m.controles).filter((c) => c.estado !== 'ok' && CONTROLES_ALERTA.includes(c.id)).forEach((c) => out.push({ sev: 'warn', titulo: `${c.normas.join(' · ')}: ${c.exige}`, detalle: c.medida, cuando: 'cumplimiento', origen: 'Cumplimiento', goto: 'cumplimiento' }));
     const orden = { crit: 0, warn: 1, info: 2, ok: 3 };
     return out.sort((a, b) => (orden[a.sev] ?? 9) - (orden[b.sev] ?? 9));
   }
-  const alertaHtml = (a) => `<div class="alert ${a.sev} alert-link" data-goto="${esc(a.goto)}" role="button" tabindex="0" title="Ir a ${esc(a.origen)}"><span class="ico">${ic(SEV_ICON[a.sev] || 'info')}</span><div><b>${conGuardrails(esc(a.titulo))}</b><small>${conGuardrails(esc(a.detalle))}</small></div><span class="muted small alert-meta"><span class="pill pill-muted">${esc(a.origen)}</span>${a.cuando && !['conocimiento', 'cumplimiento'].includes(a.cuando) ? `<br>${esc(a.cuando)}` : ''}</span></div>`;
+  // Fraude: casos escalados a la SIU (abren la ficha del caso), pagos retenidos y caps antifraude en aviso o superados
+  function alertasFraude() {
+    const L = Object.values(FR); const out = [];
+    L.filter((v) => v.nivel === 'siu').forEach((v) => {
+      const s = (FD().escenarios || []).find((x) => x.id === v.escenario);
+      out.push({ sev: 'crit', titulo: `${v.id} · score ${v.score}: escalado a la SIU`, detalle: `${s ? `${s.id} ${s.nombre}. ` : ''}Sin despeje automático (G-10) y sin comunicar el indicio al cliente (G-12).`, cuando: 'fraude', origen: 'Fraude', goto: 'fraude', frCaso: v.id });
+    });
+    const ret = L.filter((v) => v.pago === 'retenido');
+    if (ret.length) {
+      const imp = ret.reduce((a, v) => a + (v.importe || 0), 0); const c11 = (G.caps || []).find((c) => c.id === 'CAP-11');
+      out.push({ sev: 'warn', titulo: `${ret.length} ${ret.length === 1 ? 'pago retenido' : 'pagos retenidos'} pendientes de verificar · ${eur(imp, 0)}`, detalle: `${ret.map((v) => v.id).join(', ')}: indicio en vigilancia o cuenta de cobro compartida (G-11)${c11 ? ` · CAP-11 al ${Math.round((imp / c11.limite) * 100)} %` : ''}.`, cuando: 'fraude', origen: 'Fraude', goto: 'fraude' });
+    }
+    (G.caps || []).filter((c) => c.ambito === 'Antifraude' && c.id !== 'CAP-11' && c.estado !== 'ok').forEach((c) => out.push({ sev: c.estado === 'superado' ? 'crit' : 'warn', titulo: `${c.id} ${c.estado === 'superado' ? 'superado' : 'en aviso'} · ${c.tipo}: ${num(c.consumo)} / ${num(c.limite)} ${c.unidad}`, detalle: `Acción configurada: ${c.accion}.`, cuando: 'fraude', origen: 'Fraude', goto: 'fraude' }));
+    return out;
+  }
+  const alertaHtml = (a) => `<div class="alert ${a.sev} alert-link" ${a.frCaso ? `data-fr-caso="${esc(a.frCaso)}"` : `data-goto="${esc(a.goto)}"`} role="button" tabindex="0" title="${a.frCaso ? `Abrir el caso ${esc(a.frCaso)}` : `Ir a ${esc(a.origen)}`}"><span class="ico">${ic(SEV_ICON[a.sev] || 'info')}</span><div><b>${conGuardrails(esc(a.titulo))}</b><small>${conGuardrails(esc(a.detalle))}</small></div><span class="muted small alert-meta"><span class="pill pill-muted">${esc(a.origen)}</span>${a.cuando && !['conocimiento', 'cumplimiento', 'fraude'].includes(a.cuando) ? `<br>${esc(a.cuando)}` : ''}</span></div>`;
   const conGoto = (html, vista) => html.replace('<article class="card kpi', `<article data-goto="${vista}" role="button" tabindex="0" class="card kpi kpi-goto`);
 
   // Bloques de cumplimiento y conocimiento del Resumen
@@ -2978,15 +3000,61 @@
     // Menú lateral común con el triaje (shell.js); al plegar o desplegar se reajustan las tarjetas de agentes
     Shell.initShell({ onChange: () => ajustarAgentes() });
     // Recorrido de la demo (modo presentador): acciones de los pasos que ocurren en el panel
+    // El guion trabaja con la fuente «Sesión actual» (las trazas del lote procesado en el triaje) si hay lote
+    const trazaDeMensaje = (msg) => G.trazas.find((t) => t.mensaje === msg);
+    const fuenteSesion = () => {
+      const hayLote = (ssGet('triage.log', []) || []).length > 0;
+      if (hayLote && $('fuente').value !== 'sesion') { $('fuente').value = 'sesion'; setFuente('sesion'); }
+      return hayLote ? '' : 'Sin lote procesado en esta pestaña: se ven los datos de demostración.';
+    };
     Shell.Recorrido.init({
-      agentes: () => {
-        const hayLote = (ssGet('triage.log', []) || []).length > 0;
-        if (hayLote && $('fuente').value !== 'sesion') { $('fuente').value = 'sesion'; setFuente('sesion'); }
-        verAgente('reglas');
-        return hayLote ? '' : 'Sin lote procesado en esta pestaña: se ven los datos de demostración.';
+      agentes: () => { const aviso = fuenteSesion(); verAgente('reglas'); return aviso; },
+      goto: (v) => { cerrarTodos(); const aviso = fuenteSesion(); goto(v); return aviso; },
+      // Si la ficha de esa KB ya está abierta, solo cambia de pestaña (sin cerrarla y volverla a abrir)
+      kb: (id, sec) => {
+        if (!($('modal-kb').open && kbSel === id)) { cerrarTodos(); fuenteSesion(); goto('knowledge'); abrirModalKB(id); }
+        kbSec = sec || 'salud'; pintarModalKB(); return '';
       },
-      goto: (v) => { cerrarTodos(); goto(v); return ''; },
-      kb: (id, sec) => { cerrarTodos(); goto('knowledge'); abrirModalKB(id); kbSec = sec || 'salud'; pintarModalKB(); return ''; },
+      // ── Subpasos del recorrido: ventanas y selección (solo ver) ──
+      sel: (msg) => { const t = trazaDeMensaje(msg); if (t) selectTraza(t.id); return ''; },
+      traza: (msg) => { const t = trazaDeMensaje(msg); if (t) abrirModalTraza(t.id); return ''; },
+      kpi: (key) => { abrirModalKpiFin(key); return ''; },
+      gr: (id) => { abrirModalGr(id); return ''; },
+      cambio: (texto) => { const i = (G.cambios_autonomia || []).findIndex((c) => String(c.motivo || '').includes(texto)); if (i >= 0) abrirModalCambio(i); return ''; },
+      fr: (id) => { abrirModalFraude(id); return ''; },
+      med: (id) => { abrirModalMed(id); return ''; },
+      cmp: (msg) => { const i = cmpItems.findIndex((x) => x.entry && x.entry.id === msg); if (i >= 0) abrirModalCmp(i); return ''; },
+      // ── Subpasos que cambian el estado de la demo: dejan X en un estado (idempotentes) y quedan en el Histórico ──
+      agente: (id, estado) => {
+        const a = AG[id]; if (!a) return '';
+        const pausado = estadoAgente(a) === 'pausado';
+        if ((estado === 'pausado') !== pausado) toggleAgente(id);
+        return '';
+      },
+      guardrail: (id, v) => { const p = (G.politicas || []).find((x) => x.id === id); if (p && politicaActiva(p) !== (v === 'on')) toggleGuardrail(id); return ''; },
+      medida: (id, estado) => {
+        const m = medidas().find((x) => x.id === id); if (!m) return '';
+        const est = estadoMedida(m); const k = m.alternativas.indexOf(recomendada(m));
+        if (estado === 'abierta' && ['aplicada', 'pendiente'].includes(est)) accionMedida(id, 'reabrir', 0);
+        if ((estado === 'aplicada' || estado === 'pendiente') && est === 'abierta') accionMedida(id, 'aplicar', k);
+        return '';
+      },
+      alteracion: (v) => { if ((cmpAlterada !== null) !== (v === 'on')) { cmpAlterada = v === 'on' ? Math.min(4, cmpItems.length - 1) : null; renderCumplimiento(); } return ''; },
+      'kb-aplicar': (id) => {
+        const hechas = ssGet('gobierno.recorrido_kb', []); if (hechas.includes(id)) return '';
+        const k = (G.knowledge || GOBIERNO_DEMO.knowledge || []).find((x) => x.id === id); if (!k) return '';
+        const i = (k.comparativa || []).findIndex((x) => x.recomendada && !x.actual); if (i < 0) return '';
+        kbSel = id; accionKB(`aplicar:${i}`); ssSet('gobierno.recorrido_kb', [...hechas, id]);
+        return '';
+      },
+      replay: (modo, modelo) => {
+        $('rp-modo').value = modo === 'whatif' ? 'whatif' : 'identico';
+        const o = [...$('rp-modelo').options].find((x) => x.value.split(' ')[0] === modelo); if (o) $('rp-modelo').value = o.value;
+        renderDiff(true); $('card-replay').scrollIntoView({ block: 'center', behavior: 'smooth' });
+        return '';
+      },
+      // Estado del lote del triaje (misma pestaña) para los avisos de espera del recorrido
+      lote: () => ({ total: ((PAQUETES.find((x) => x.id === 'A') || {}).mensajes || []).length, hechos: (ssGet('triage.log', []) || []).filter((e) => e.paquete === 'A').length, procesando: false }),
     });
     document.addEventListener('recorrido:presentador', () => renderInicio());
     $('tabs').addEventListener('click', (e) => { const b = e.target.closest('.tab'); if (b) goto(b.dataset.view); });

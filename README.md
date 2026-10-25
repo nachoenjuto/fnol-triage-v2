@@ -103,6 +103,9 @@ Compatibilidad: para modelos de razonamiento (`gpt-5*`, `o*`) no se envían `tem
 ## Estructura
 
 ```
+intro-fnol.html   introducción 1: el FNOL (sustituye a las slides de contexto antes de la demo)
+intro-sistema.html introducción 2: el sistema, los agentes, los dos usuarios y por qué el gobierno
+intro.css / intro.js estilos y arranque de las dos páginas de introducción (mismo marco que el triaje)
 index.html        UI del triaje: conexión IA, menú lateral, contadores, registro, ficha modal
 app.js            motor local, cliente Azure, procesamiento con pausa, registro, render
 prompts.js        prompt base + bloques de reglas Auto / Hogar / Salud
@@ -117,13 +120,15 @@ Makefile          `make run` (servidor local), `make test`, `make datos` y `make
 icons.js          iconos Lucide compartidos (lucide(name) + hidratación de [data-lucide])
 styles.css        estilos del triaje (claro/oscuro, responsive)
 header.css        marco común de las dos páginas: cabecera, barra de fases, menú lateral y pie
-shell.js          comportamiento del menú lateral común (plegado, usuario y botón al pie) y recorrido de la demo (modo presentador con contraseña, demo automática y subtítulos)
+shell.js          comportamiento del menú lateral común (plegado, usuario y botón al pie) y recorrido de la demo (modo presentador con contraseña, demo automática, subtítulos y subpasos con sus acciones, esperas y teclas Re Pág / Av Pág)
 gobierno.html     panel «Gobierno de Agentes» (portada Inicio y trece secciones en seis bloques del menú lateral)
 gobierno.js       render del panel: fuentes de datos, trazas, replay, gráficos SVG
 gobierno.css      estilos del panel (mismos tokens que styles.css)
 data/mensajes.js  tres paquetes de mensajes
 data/resultados.js fichas de triaje guardadas para reproducción
-data/recorrido.js guion del recorrido de la demo: 12 pasos con su acción y los subtítulos por defecto (técnico-funcional y negocio/cumplimiento)
+data/recorrido.js pasos del recorrido de la demo (22) con su acción, sus clics y 177 subtítulos por tipo; generado desde _docs/guion-demo.md con `make recorrido`
+scripts/generar-recorrido.js genera data/recorrido.js a partir del guion
+scripts/generar-guion-docx.js genera _docs/guion-demo.docx a partir del guion (`make guion-docx`)
 data/gobierno.js  dataset de demostración del panel (Paquete A + 14 días, Knowledge Bases, rúbricas, controles declarados y medidas correctivas)
 data/fraude.js    indicadores de fraude: catálogo IF-01…IF-12, escenarios EF-01…EF-08, histórico ficticio de pólizas y siniestros, cola de la SIU y evolución de 14 días
 data/gobierno-paquete-A.json      el mismo dataset, para «Cargar JSON» en el panel
@@ -137,7 +142,7 @@ _docs/            arquitectura (C4 en Mermaid), guía de referencia de la demo, 
 
 | Sección | Qué muestra |
 |---|---|
-| **Inicio** | portada: estado actual (alertas, cumplimiento, KB sanas) y una ficha por sección agrupada en los mismos cinco bloques que el menú lateral (operación, control, calidad, cumplimiento y coste, mejora y auditoría), con una cifra grande en vivo, su detalle y sus normas; el estado solo se marca cuando hay algo que mirar (punto verde si está al día, etiqueta «Revisar» o «Atención» si no), salvo en Resumen, Trazabilidad, Razonamiento y replay y Guardrails; interruptor **Modo presentador**, que activa el **Recorrido de la demo** (panel flotante en las dos páginas con los 11 pasos del guion y un «Ir» que lleva a la pantalla exacta) |
+| **Inicio** | portada: estado actual (alertas, cumplimiento, KB sanas) y una ficha por sección agrupada en los mismos cinco bloques que el menú lateral (operación, control, calidad, cumplimiento y coste, mejora y auditoría), con una cifra grande en vivo, su detalle y sus normas; el estado solo se marca cuando hay algo que mirar (punto verde si está al día, etiqueta «Revisar» o «Atención» si no), salvo en Resumen, Trazabilidad, Razonamiento y replay y Guardrails; interruptor **Modo presentador**, que activa el **Recorrido de la demo** (panel flotante en las páginas de introducción, el triaje y el panel con los 22 pasos de `_docs/guion-demo.md`, un «Ir» que lleva a la pantalla exacta, sus clics y subtítulos que se pueden filtrar por tipo) |
 | **Resumen** | 8 KPI (mensajes, autonomía efectiva, escalados, overrides, coste vs cap mensual, alertas, **cumplimiento** y **conocimiento**), tarjetas de agentes (modelo, prompt, nivel de autonomía, estado, coste del día vs cap, **kill switch** funcional), coste diario frente al cap, **alertas de todas las fuentes** (coste, knowledge bases y cumplimiento, cada una enlazada a su origen), bloques de cumplimiento y de conocimiento, y últimas trazas con sus datos personales y KB usadas; clic en una traza abre su **ficha explicada** (qué llegó, qué hizo cada agente, decisión, coste, y el botón «Cumplimiento»); clic en un agente lleva a su pestaña en **Agentes** |
 | **Agentes** | los cuatro agentes como pestañas en el orden de la cadena (con lo que se pasan entre ellos) y, para el seleccionado, su ficha completa: cabecera con modelo, prompt, trazas, latencia p50/p95, coste frente al cap, escalado, override y **kill switch**; identidad y permisos; configuración, guardrails y caps; rendimiento y coste de 14 días y comportamiento por modelo; calidad propia de cada agente con un **índice de calidad** (círculo de porcentaje con el color del semáforo, media de sus indicadores medibles) y una barra por indicador; knowledge bases que consume; datos personales que trata; histórico; últimas trazas; y, plegado, el **contrato de entrada y salida** con un ejemplo real de una traza |
 | **Trazabilidad** | panel de detalle **fijo arriba de la sección** (waterfall de spans por agente, guardrail disparado, override humano) que no se oculta al recorrer la lista; lista de trazas filtrable por agente, canal, decisión y resultado (incluido «Con intervención humana»); «Ver razonamiento» y «Replay» abren Razonamiento y replay con esa traza |
@@ -164,7 +169,7 @@ Todos los iconos de la web (triaje y panel) son [Lucide](https://lucide.dev) (li
 
 ## Guía de referencia
 
-[`_docs/guia-demo.md`](_docs/guia-demo.md) describe cada pantalla y sección de la demo (qué muestra, qué se puede hacer y para qué sirve) e incluye un guion de demo de 12 minutos. [`_docs/guion-sesion.md`](_docs/guion-sesion.md) es el guion de la sesión completa (presentación y demo). La presentación es [`slides-sesion-v4.pptx`](_docs/slides-sesion-v4.pptx) (28 slides, con una por sección de gobierno); se genera a partir de la v3 con `python3 _docs/build_slides_sesion_v4.py` y su contenido está en [`slides-sesion.md`](_docs/slides-sesion.md).
+[`_docs/guia-demo.md`](_docs/guia-demo.md) describe cada pantalla y sección de la demo (qué muestra, qué se puede hacer y para qué sirve) e incluye un guion de demo de 12 minutos. [`_docs/guion-demo.md`](_docs/guion-demo.md) es el guion paso a paso de la demo de 30-35 minutos (introducción con `intro-fnol.html` e `intro-sistema.html`, triaje y las trece secciones de gobierno, cada paso con su mensaje del Paquete A, el texto para decir y su valor de negocio). [`_docs/guion-sesion.md`](_docs/guion-sesion.md) es el guion de la sesión completa (presentación y demo). La presentación es [`slides-sesion-v4.pptx`](_docs/slides-sesion-v4.pptx) (28 slides, con una por sección de gobierno); se genera a partir de la v3 con `python3 _docs/build_slides_sesion_v4.py` y su contenido está en [`slides-sesion.md`](_docs/slides-sesion.md).
 
 [`_docs/slides-observabilidad.md`](_docs/slides-observabilidad.md) es una presentación genérica sobre observabilidad y gobierno de la IA agéntica, ilustrada con capturas del panel de gobierno. Su versión en PowerPoint ([`slides-observabilidad.pptx`](_docs/slides-observabilidad.pptx), plantilla Logicalis, 84 slides) se genera con `python3 _docs/build_slides_observabilidad.py`. Las capturas se regeneran con `make capturas` (con `make run` en marcha y Google Chrome instalado).
 

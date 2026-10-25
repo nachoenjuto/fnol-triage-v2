@@ -1,5 +1,5 @@
 # Flujos de trabajo habituales (la demo es estática: no hay build)
-.PHONY: run test test-ia datos capturas
+.PHONY: run test test-ia datos recorrido guion-docx capturas
 
 run: ## Sirve la demo en http://localhost:8792
 	python3 -m http.server 8792
@@ -16,6 +16,13 @@ test-ia: ## Mide las evidencias con un modelo real (variables TRIAGE_*, ver test
 
 datos: ## Regenera los JSON de ejemplo de data/ desde las fuentes JS (tras cambiar mensajes o resultados)
 	node scripts/generar-datos.js
+
+recorrido: ## Regenera los pasos y subtítulos del Recorrido de la demo (data/recorrido.js) desde _docs/guion-demo.md
+	node scripts/generar-recorrido.js
+
+guion-docx: ## Genera _docs/guion-demo.docx desde _docs/guion-demo.md (texto para decir en verde); instala docx en una carpeta temporal
+	npm install --silent --prefix "$${TMPDIR:-/tmp}/fnol-docx" docx@9 >/dev/null
+	NODE_PATH="$${TMPDIR:-/tmp}/fnol-docx/node_modules" node scripts/generar-guion-docx.js
 
 capturas: ## Regenera las capturas de las slides y sus compuestas (requiere make run en otra terminal y Google Chrome)
 	node scripts/capturas.mjs

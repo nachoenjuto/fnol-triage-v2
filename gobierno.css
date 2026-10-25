@@ -594,6 +594,11 @@ tbody tr.is-sel td { background: var(--bg); }
 .kpi-goto:hover { box-shadow: 0 4px 14px rgba(10, 20, 50, .1); }
 .alert-link:hover { border-color: var(--primary); }
 .alert-meta { text-align: right; white-space: nowrap; }
+/* Ventana «Alertas activas» del Resumen: alertas agrupadas por origen */
+.al-grupo { margin-bottom: .9rem; }
+.al-grupo-h { display: flex; align-items: center; gap: .5rem; margin-bottom: .45rem; }
+.al-grupo-h svg { width: 1.05rem; height: 1.05rem; }
+.al-grupo-h .btn { margin-left: auto; }
 .res-termos { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .5rem 1.2rem; }
 .res-termo { display: grid; grid-template-columns: minmax(0, 1fr) 90px auto; gap: .5rem; align-items: center; }
 .res-lista { list-style: none; margin: 0; padding: 0; display: grid; gap: .35rem; font-size: .84rem; }
