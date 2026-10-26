@@ -1,0 +1,439 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>FNOL — Introducción</title>
+  <meta name="description" content="Introducción a la demo en cuatro partes: el problema (FNOL y gobierno de la IA), la solución, los actores y el recorrido de la demo.">
+  <link rel="stylesheet" href="styles.css?v=36">
+  <link rel="stylesheet" href="header.css?v=43">
+  <link rel="stylesheet" href="intro.css?v=5">
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand">
+      <span class="brand-icon" aria-hidden="true"><svg class="lucide-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" focusable="false"><path d="M3 7V5a2 2 0 0 1 2-2h2" /><path d="M17 3h2a2 2 0 0 1 2 2v2" /><path d="M21 17v2a2 2 0 0 1-2 2h-2" /><path d="M7 21H5a2 2 0 0 1-2-2v-2" /><path d="M7 8h8" /><path d="M7 12h10" /><path d="M7 16h6" /></svg></span>
+      <div>
+        <h1>Triaje FNOL con agentes de IA gobernados</h1>
+        <p class="brand-sub" id="intro-sub">Introducción · 1 de 4 · El problema</p>
+      </div>
+    </div>
+    <div class="row topbar-actions">
+      <div class="topbar-buttons">
+        <a href="index.html" class="btn btn-topbar"><span data-lucide="play" aria-hidden="true"></span> Ir a la demo</a>
+      </div>
+    </div>
+  </header>
+
+  <div class="shell" id="shell" data-pagina="intro">
+    <nav class="sidenav" aria-label="Introducción y demo">
+      <div class="sidenav-body">
+        <div class="nav-grupo">Introducción</div>
+        <a class="nav-item is-active" href="#problema" data-sec="problema" aria-current="page" title="1 · El problema"><span data-lucide="triangle-alert" aria-hidden="true"></span><span class="lbl">1 · El problema</span></a>
+        <a class="nav-item" href="#solucion" data-sec="solucion" title="2 · La solución"><span data-lucide="workflow" aria-hidden="true"></span><span class="lbl">2 · La solución</span></a>
+        <a class="nav-item" href="#actores" data-sec="actores" title="3 · Los actores"><span data-lucide="users" aria-hidden="true"></span><span class="lbl">3 · Los actores</span></a>
+        <a class="nav-item" href="#demo" data-sec="demo" title="4 · La demo"><span data-lucide="route" aria-hidden="true"></span><span class="lbl">4 · La demo</span></a>
+        <div class="nav-grupo">Demo</div>
+        <a class="nav-item" href="index.html" title="Triaje FNOL"><span data-lucide="inbox" aria-hidden="true"></span><span class="lbl">Triaje FNOL</span></a>
+        <a class="nav-item" href="gobierno.html" title="Gobierno de Agentes"><span data-lucide="shield-check" aria-hidden="true"></span><span class="lbl">Gobierno de Agentes</span></a>
+      </div>
+      <div class="sidenav-foot"></div>
+    </nav>
+
+    <div class="shell-main">
+      <main class="intro">
+
+        <!-- 1 · El problema -->
+        <section class="intro-sec" id="sec-problema" data-sec="problema" data-titulo="El problema" aria-labelledby="t-problema">
+          <section class="card intro-hero con-puntos">
+            <div class="hero-titulo">
+              <span class="kicker"><span class="step-n">1</span> El problema</span>
+              <h2 id="t-problema">Un proceso crítico (FNOL), y un buen gobierno de la IA</h2>
+            </div>
+            <ul class="hero-puntos">
+              <li><b>Un proceso crítico.</b> Cada siniestro empieza con un mensaje del cliente que llega por cinco canales, con prisa y sin formato.</li>
+              <li><b>Se decide pronto.</b> Alguien tiene que leerlo, clasificarlo y teclearlo antes de que corra el plazo, y ahí se decide el ramo, los datos y el fraude.</li>
+              <li><b>Controlar la IA desde muchos ángulos.</b> La autonomía que damos a los agentes, la salud de las bases de conocimiento, la normativa y el gasto.</li>
+            </ul>
+          </section>
+
+          <section class="cifras" id="cifras-fnol" aria-label="Cifras del FNOL">
+            <article class="card cifra primary">
+              <span class="v">11 M</span>
+              <span class="l">siniestros de Auto al año en España</span>
+              <span class="f">Fuente: UNESPA</span>
+            </article>
+            <article class="card cifra primary">
+              <span class="v">3 s</span>
+              <span class="l">entre un siniestro de Auto y el siguiente</span>
+              <span class="f">Fuente: UNESPA</span>
+            </article>
+            <article class="card cifra review">
+              <span class="v">7 días</span>
+              <span class="l">para comunicar el siniestro</span>
+              <span class="f">Ley de Contrato de Seguro, art. 16</span>
+            </article>
+            <article class="card cifra">
+              <span class="v">≈10 %</span>
+              <span class="l">de la prima de Auto se va en gestionar siniestros</span>
+              <span class="f">EE. UU., 2023 · III con datos de NAIC</span>
+            </article>
+          </section>
+
+          <section class="card" id="canales">
+            <h2 class="bloque-t"><span data-lucide="messages-square" aria-hidden="true"></span> Cinco canales, un mismo aviso</h2>
+            <p class="bloque-sub">Fragmentos reales del Paquete A que vais a ver en la demo.</p>
+            <div class="canales">
+              <article class="canal">
+                <span class="canal-h"><span data-lucide="mail" aria-hidden="true"></span> Email</span>
+                <small>Texto largo, con adjuntos</small>
+                <q>El coche de delante frenó en seco; le di un pequeño toque por detrás. No hubo heridos.</q>
+                <span class="msg">MSG-A-01</span>
+              </article>
+              <article class="canal">
+                <span class="canal-h"><span data-lucide="globe" aria-hidden="true"></span> Formulario web</span>
+                <small>Campos fijos y texto libre</small>
+                <q>Se rompió el latiguillo del agua fría bajo el fregadero y se inundó parte del salón.</q>
+                <span class="msg">MSG-A-02</span>
+              </article>
+              <article class="canal">
+                <span class="canal-h"><span data-lucide="message-circle" aria-hidden="true"></span> Chat</span>
+                <small>Conversación desde la web o la app</small>
+                <q>Me ha saltado una piedra de un camión que llevaba grava; me ha hecho una grieta grande en el parabrisas.</q>
+                <span class="msg">MSG-A-07</span>
+              </article>
+              <article class="canal">
+                <span class="canal-h"><span data-lucide="phone" aria-hidden="true"></span> Teléfono</span>
+                <small>Llamada transcrita</small>
+                <q>Llamo en nombre de mi marido. Está ingresado con fractura de clavícula y dos costillas.</q>
+                <span class="msg">MSG-A-08</span>
+              </article>
+              <article class="canal">
+                <span class="canal-h"><span data-lucide="messages-square" aria-hidden="true"></span> WhatsApp</span>
+                <small>Corto, informal, con emojis</small>
+                <q>Hola!! os escribo por aquí porque no me aclaro con la app 😅</q>
+                <span class="msg">MSG-A-11</span>
+              </article>
+            </div>
+          </section>
+
+          <section class="card" id="decide">
+            <h2 class="bloque-t"><span data-lucide="scale" aria-hidden="true"></span> Lo que se decide en los mensajes FNOL</h2>
+            <ul class="puntos">
+              <li class="punto"><span class="ico"><span data-lucide="tags" aria-hidden="true"></span></span><b>El ramo</b><span>Si se asigna mal, el expediente da vueltas entre equipos.</span></li>
+              <li class="punto"><span class="ico"><span data-lucide="file-search" aria-hidden="true"></span></span><b>Los datos</b><span>Si falta la póliza o la fecha, hay que volver a llamar al cliente.</span></li>
+              <li class="punto"><span class="ico"><span data-lucide="shield-alert" aria-hidden="true"></span></span><b>El indicio de fraude</b><span>Aquí es más barato verlo. Después, el pago ya ha salido.</span></li>
+              <li class="punto"><span class="ico"><span data-lucide="user" aria-hidden="true"></span></span><b>La experiencia del cliente</b><span>Es su primer contacto con la aseguradora, y en un mal día.</span></li>
+            </ul>
+          </section>
+
+          <section class="card" id="hoy">
+            <h2 class="bloque-t"><span data-lucide="user-check" aria-hidden="true"></span> Cómo se hace hoy</h2>
+            <div class="cadena">
+              <div class="eslabon"><span class="t"><span data-lucide="eye" aria-hidden="true"></span> Leer</span><small>Una persona abre cada mensaje, canal por canal</small></div>
+              <span class="flecha" aria-hidden="true"><span data-lucide="chevron-right"></span></span>
+              <div class="eslabon"><span class="t"><span data-lucide="tags" aria-hidden="true"></span> Clasificar</span><small>Decide el ramo y a qué equipo va</small></div>
+              <span class="flecha" aria-hidden="true"><span data-lucide="chevron-right"></span></span>
+              <div class="eslabon"><span class="t"><span data-lucide="pencil" aria-hidden="true"></span> Teclear</span><small>Pasa los datos del texto al sistema</small></div>
+              <span class="flecha" aria-hidden="true"><span data-lucide="chevron-right"></span></span>
+              <div class="eslabon"><span class="t"><span data-lucide="list-checks" aria-hidden="true"></span> Decidir</span><small>Comprueba coberturas, plazos e importes</small></div>
+            </div>
+            <p class="nota">Ahí se va el tiempo del tramitador y ahí se va el dinero.</p>
+          </section>
+
+          <section class="card" id="porque">
+            <h2 class="bloque-t"><span data-lucide="triangle-alert" aria-hidden="true"></span> Por qué el gobierno decide el éxito</h2>
+            <div class="porque">
+              <div>
+                <div class="v">&gt;40 %</div>
+                <p class="f">de los proyectos de IA agéntica se cancelarán antes de que acabe 2027 por coste, valor poco claro o riesgo sin controlar · Gartner</p>
+              </div>
+              <div>
+                <p class="lead">Clasificar un mensaje con IA ya no diferencia a nadie. Los proyectos mueren cuando nadie sabe responder:</p>
+                <ul class="preguntas">
+                  <li><span data-lucide="message-circle-question" aria-hidden="true"></span> ¿Por qué decidió eso?</li>
+                  <li><span data-lucide="user-round" aria-hidden="true"></span> ¿Quién lo controla?</li>
+                  <li><span data-lucide="euro" aria-hidden="true"></span> ¿Cuánto cuesta?</li>
+                </ul>
+              </div>
+            </div>
+          </section>
+
+          <nav class="intro-nav" aria-label="Navegación">
+            <span class="muted small">1 de 4</span>
+            <div class="derecha">
+              <a class="btn" href="index.html"><span data-lucide="play" aria-hidden="true"></span> Ir a la demo</a>
+              <a class="btn btn-primary" href="#solucion">Siguiente: la solución <span data-lucide="arrow-right" aria-hidden="true"></span></a>
+            </div>
+          </nav>
+        </section>
+
+        <!-- 2 · La solución -->
+        <section class="intro-sec" id="sec-solucion" data-sec="solucion" data-titulo="La solución" aria-labelledby="t-solucion" hidden>
+          <section class="card intro-hero con-puntos">
+            <div class="hero-titulo">
+              <span class="kicker"><span class="step-n">2</span> La solución</span>
+              <h2 id="t-solucion">La solución: una plataforma multicanal integrada, orquestada por 4 agentes y con un buen gobierno de la IA</h2>
+            </div>
+            <ul class="hero-puntos">
+              <li><b>Los beneficios de la IA.</b> Cuatro agentes reciben el aviso, deciden el ramo, extraen los datos y aplican las reglas de la aseguradora.</li>
+              <li><b>Una buena interfaz de usuario.</b> El tramitador recibe el caso preparado, con una propuesta y su justificación.</li>
+              <li><b>Una buena trazabilidad.</b> Una traza por decisión que une la parte técnica con el proceso de negocio.</li>
+              <li><b>Un gobierno completo, desde todos los ángulos.</b> Autonomía, gasto, fraude, conocimiento y cumplimiento.</li>
+            </ul>
+          </section>
+
+          <section class="card" id="logicalis">
+            <h2 class="bloque-t"><span data-lucide="lightbulb" aria-hidden="true"></span> Lo que hemos aprendido implantando gobierno de IA</h2>
+            <ul class="bloque-sub bloque-lista">
+              <li>Esta plataforma reúne en un solo caso lo que Logicalis ha implantado en gobierno y observabilidad de IA en clientes de distintas industrias.</li>
+              <li>Cambia el sector; el objetivo es siempre el mismo.</li>
+            </ul>
+            <ul class="puntos">
+              <li class="punto"><span class="ico"><span data-lucide="gauge" aria-hidden="true"></span></span><b>Mejores resultados</b><span>Control sobre lo que deciden los agentes y con qué calidad.</span></li>
+              <li class="punto"><span class="ico"><span data-lucide="user" aria-hidden="true"></span></span><b>Mejor servicio al cliente</b><span>Respuestas rápidas y explicables, y una persona donde hace falta criterio.</span></li>
+              <li class="punto"><span class="ico"><span data-lucide="wallet" aria-hidden="true"></span></span><b>Gasto controlado</b><span>Coste de cada decisión al momento, con topes que actúan solos.</span></li>
+              <li class="punto"><span class="ico"><span data-lucide="scale" aria-hidden="true"></span></span><b>Cumplimiento</b><span>Evidencia por decisión para el DPO, el auditor y el supervisor.</span></li>
+            </ul>
+          </section>
+
+          <!-- Los 8 KPI del Resumen de gobierno.html, copiados con el panel recién abierto (allí se recalculan) -->
+          <section class="kpis-intro" id="kpis-resumen" aria-label="Indicadores del Resumen del panel de gobierno">
+            <div class="cifras">
+              <article class="card cifra primary"><span class="l"><span data-lucide="activity" aria-hidden="true"></span> Mensajes procesados</span><span class="v">16.720</span><span class="f">14 días · 1.194 / día de media</span></article>
+              <article class="card cifra ok"><span class="l"><span data-lucide="zap" aria-hidden="true"></span> Autonomía efectiva</span><span class="v">81 %</span><span class="f">13.540 decisiones sin intervención humana</span></article>
+              <article class="card cifra review"><span class="l"><span data-lucide="user-check" aria-hidden="true"></span> Escalados a humano</span><span class="v">19 %</span><span class="f">3.180 · 62 % por importe (G-02), 20 % por lesionados (G-04)</span></article>
+              <article class="card cifra"><span class="l"><span data-lucide="repeat" aria-hidden="true"></span> Overrides humanos</span><span class="v">2,1 %</span><span class="f">67 decisiones cambiadas · objetivo ≤ 3 %</span></article>
+              <article class="card cifra review"><span class="l"><span data-lucide="euro" aria-hidden="true"></span> Coste del periodo</span><span class="v">215 €</span><span class="f">43 % del cap mensual (500 €) · 0,0128 € por mensaje</span></article>
+              <article class="card cifra crit"><span class="l"><span data-lucide="bell" aria-hidden="true"></span> Alertas activas</span><span class="v">11</span><span class="f">3 críticas · 8 avisos</span></article>
+              <article class="card cifra review"><span class="l"><span data-lucide="thermometer" aria-hidden="true"></span> Cumplimiento</span><span class="v">87 %</span><span class="f">cobertura de controles · 9 parciales</span></article>
+              <article class="card cifra crit"><span class="l"><span data-lucide="book-open" aria-hidden="true"></span> Knowledge Bases</span><span class="v">5 / 9</span><span class="f">knowledge bases sanas · 1 crítica</span></article>
+            </div>
+            <p class="kpis-nota muted small">Últimos 14 días · los mismos indicadores del Resumen del <a href="gobierno.html">panel de gobierno</a></p>
+          </section>
+
+          <section class="card" id="agentes">
+            <h2 class="bloque-t"><span data-lucide="bot" aria-hidden="true"></span> Cuatro agentes especialistas</h2>
+            <p class="bloque-sub">Cada uno con su modelo, su versión de prompt, su responsable y su nivel de autonomía.</p>
+            <div class="cadena agentes">
+              <article class="agente">
+                <span class="t"><span data-lucide="inbox" aria-hidden="true"></span> Multicanalidad</span>
+                <p>Recibe por los cinco canales, transcribe las llamadas y normaliza el mensaje.</p>
+                <span class="meta"><span class="chip">gpt-5-nano + voz</span><span class="chip l3">L3 · Autónomo</span></span>
+              </article>
+              <span class="flecha" aria-hidden="true"><span data-lucide="chevron-right"></span></span>
+              <article class="agente">
+                <span class="t"><span data-lucide="tags" aria-hidden="true"></span> Clasificación</span>
+                <p>Asigna Auto, Hogar o Salud citando los indicios del texto.</p>
+                <span class="meta"><span class="chip">gpt-5-nano</span><span class="chip l3">L3 · Autónomo</span></span>
+              </article>
+              <span class="flecha" aria-hidden="true"><span data-lucide="chevron-right"></span></span>
+              <article class="agente">
+                <span class="t"><span data-lucide="file-search" aria-hidden="true"></span> Extracción</span>
+                <p>Convierte el texto en 10 campos. Si un dato no está, queda vacío.</p>
+                <span class="meta"><span class="chip">gpt-5-mini</span><span class="chip l2">L2 · Supervisado</span></span>
+              </article>
+              <span class="flecha" aria-hidden="true"><span data-lucide="chevron-right"></span></span>
+              <article class="agente">
+                <span class="t"><span data-lucide="list-checks" aria-hidden="true"></span> Reglas de negocio</span>
+                <p>Aplica las 25 reglas de Auto, Hogar y Salud de la aseguradora.</p>
+                <span class="meta"><span class="chip">gpt-5</span><span class="chip l2">L2 · Supervisado</span></span>
+              </article>
+              <span class="flecha" aria-hidden="true"><span data-lucide="chevron-right"></span></span>
+              <div class="decision">
+                <span class="pill-ok"><span data-lucide="thumbs-up" aria-hidden="true"></span> Aprobado</span>
+                <span class="pill-review"><span data-lucide="user-check" aria-hidden="true"></span> A revisar</span>
+              </div>
+            </div>
+          </section>
+
+          <section class="card" id="trazabilidad">
+            <h2 class="bloque-t"><span data-lucide="route" aria-hidden="true"></span> La trazabilidad es la base del gobierno</h2>
+            <div class="pilares">
+              <article class="pilar">
+                <span class="t"><span data-lucide="sliders-horizontal" aria-hidden="true"></span> Autonomía</span>
+                <span class="v">L0 → L3</span>
+                <p>Cada agente tiene un nivel que se gana y se pierde con datos. Reglas bajó a L2 cuando los tramitadores corrigieron el 4,1 % de sus decisiones.</p>
+              </article>
+              <article class="pilar">
+                <span class="t"><span data-lucide="wallet" aria-hidden="true"></span> Gasto</span>
+                <span class="v">Al segundo</span>
+                <p>El proveedor de IA informa del gasto cada 8 horas. Aquí cada decisión suma su coste al momento y los topes actúan solos: si se agota, cambia a un modelo más barato y sigue.</p>
+              </article>
+              <article class="pilar">
+                <span class="t"><span data-lucide="shield-alert" aria-hidden="true"></span> Fraude</span>
+                <span class="v">3 de 13</span>
+                <p>IA, histórico y reglas buscan los patrones que la compañía ya conoce. El indicio prioriza y decide una persona.</p>
+              </article>
+              <article class="pilar">
+                <span class="t"><span data-lucide="thermometer" aria-hidden="true"></span> Cumplimiento</span>
+                <span class="v">87 %</span>
+                <p>RGPD, DORA y EIOPA en vigor; el Reglamento de IA, como buena práctica. Cada decisión lleva su prueba.</p>
+              </article>
+            </div>
+            <div class="base" id="base">
+              <div class="lado"><b><span data-lucide="cpu" aria-hidden="true"></span> Traza técnica</b><small>Modelo, tokens, latencia y coste de cada llamada. La ofrecen los proveedores de IA, y es necesaria.</small></div>
+              <span class="mas" aria-hidden="true">+</span>
+              <div class="lado"><b><span data-lucide="landmark" aria-hidden="true"></span> Proceso de negocio</b><small>Ramo, reglas, plazos, importes, guardrails y quién revisa. Lo que la traza técnica no sabe.</small></div>
+              <div class="base-pie"><span data-lucide="route" aria-hidden="true"></span> Una traza por decisión que une los dos mundos: sobre ella se construye todo lo demás</div>
+            </div>
+          </section>
+
+          <nav class="intro-nav" aria-label="Navegación">
+            <a class="btn" href="#problema"><span data-lucide="arrow-left" aria-hidden="true"></span> Anterior: el problema</a>
+            <div class="derecha">
+              <span class="muted small">2 de 4</span>
+              <a class="btn btn-primary" href="#actores">Siguiente: los actores <span data-lucide="arrow-right" aria-hidden="true"></span></a>
+            </div>
+          </nav>
+        </section>
+
+        <!-- 3 · Los actores -->
+        <section class="intro-sec" id="sec-actores" data-sec="actores" data-titulo="Los actores" aria-labelledby="t-actores" hidden>
+          <section class="card intro-hero con-puntos">
+            <div class="hero-titulo">
+              <span class="kicker"><span class="step-n">3</span> Los actores</span>
+              <h2 id="t-actores">Los actores: el tramitador y los equipos de IT, Finanzas, Compliance, etc.</h2>
+            </div>
+            <ul class="hero-puntos">
+              <li><b>El tramitador de FNOL.</b> Una interfaz muy ágil donde ve el detalle de cada mensaje, cómo y por qué se clasificó, por qué decidió la IA y los indicios de fraude.</li>
+              <li><b>Los equipos que gobiernan la IA.</b> IT, Finanzas, Compliance, Riesgos, Auditoría y DPO, con un panel de control: si los agentes deciden bien, con qué conocimiento, cuánto cuestan y si cumplen.</li>
+            </ul>
+          </section>
+
+          <section class="dos" id="usuarios" aria-label="Los dos actores">
+            <article class="card usuario-card">
+              <h2 class="t"><span data-lucide="user-check" aria-hidden="true"></span> El tramitador</h2>
+              <p class="quien">Pantalla de triaje</p>
+              <ul>
+                <li>Recibe cada aviso clasificado y con los datos extraídos</li>
+                <li>Ve los detalles del mensaje y cómo y por qué se clasificó</li>
+                <li>Ve por qué se aprobó o por qué le ha llegado, regla a regla</li>
+                <li>Ve los indicios de fraude y la frase del cliente que los justifica</li>
+                <li>Dedica su tiempo a los casos que necesitan criterio</li>
+              </ul>
+              <a class="btn" href="index.html"><span data-lucide="inbox" aria-hidden="true"></span> Triaje FNOL</a>
+            </article>
+            <article class="card usuario-card">
+              <h2 class="t"><span data-lucide="shield-check" aria-hidden="true"></span> IT, Finanzas, Compliance…</h2>
+              <p class="quien">Comité de IA, IT, Riesgos, Auditoría, Compliance, DPO y Finanzas · panel de gobierno</p>
+              <ul>
+                <li>Ve si los agentes deciden bien y con qué conocimiento</li>
+                <li>Controla cuánto deciden solos y cuánto cuestan</li>
+                <li>Puede demostrar ante un auditor cómo se decidió cada caso</li>
+                <li>Ve si algún agente está consumiendo de más</li>
+                <li>Compara el gasto de cada agente con su presupuesto</li>
+                <li>Entiende los posibles fraudes y en qué indicios se apoyan</li>
+                <li>Sabe si cumplimos con RGPD, DORA y las guías de EIOPA</li>
+                <li>Comprueba qué datos personales usa cada agente</li>
+                <li>Recibe una alerta cuando un agente pasa de su umbral</li>
+              </ul>
+              <a class="btn" href="gobierno.html"><span data-lucide="shield-check" aria-hidden="true"></span> Gobierno de Agentes</a>
+            </article>
+          </section>
+
+          <nav class="intro-nav" aria-label="Navegación">
+            <a class="btn" href="#solucion"><span data-lucide="arrow-left" aria-hidden="true"></span> Anterior: la solución</a>
+            <div class="derecha">
+              <span class="muted small">3 de 4</span>
+              <a class="btn btn-primary" href="#demo">Siguiente: la demo <span data-lucide="arrow-right" aria-hidden="true"></span></a>
+            </div>
+          </nav>
+        </section>
+
+        <!-- 4 · La demo -->
+        <section class="intro-sec" id="sec-demo" data-sec="demo" data-titulo="La demo" aria-labelledby="t-demo" hidden>
+          <section class="card intro-hero apilado">
+            <div class="hero-titulo">
+              <span class="kicker"><span class="step-n">4</span> La demo</span>
+              <h2 id="t-demo">La demo: el viaje de un aviso</h2>
+            </div>
+            <div class="viaje" id="viaje">
+              <h3 class="bloque-t"><span data-lucide="route" aria-hidden="true"></span> El viaje, de principio a fin</h3>
+              <ol class="viaje-pasos">
+                <li class="viaje-paso">
+                  <span class="t"><span data-lucide="inbox" aria-hidden="true"></span> Llega el mensaje</span>
+                  <ul>
+                    <li>13 avisos del Paquete A por email, web, chat, teléfono y WhatsApp</li>
+                    <li>Multicanalidad transcribe las llamadas y normaliza el formato</li>
+                    <li>Los datos personales se seudonimizan antes de ir al modelo</li>
+                  </ul>
+                  <a class="ir" href="index.html">Ver en el triaje <span data-lucide="arrow-right" aria-hidden="true"></span></a>
+                </li>
+                <li class="viaje-paso">
+                  <span class="t"><span data-lucide="bot" aria-hidden="true"></span> Análisis</span>
+                  <ul>
+                    <li>Clasificación: Auto, Hogar o Salud, citando los indicios del texto</li>
+                    <li>Extracción: 10 campos; si un dato no está, queda vacío</li>
+                    <li>Reglas: 25 reglas de negocio y una propuesta, Aprobado o A revisar</li>
+                    <li>Indicios de fraude: IA, histórico y reglas</li>
+                  </ul>
+                  <a class="ir" href="index.html">Ver en el triaje <span data-lucide="arrow-right" aria-hidden="true"></span></a>
+                </li>
+                <li class="viaje-paso">
+                  <span class="t"><span data-lucide="user-check" aria-hidden="true"></span> Tramitador</span>
+                  <ul>
+                    <li>10 avisos aprobados solos y 3 a revisar, cada uno con su motivo</li>
+                    <li>Ficha de cada decisión: mensaje, datos, reglas y razonamiento</li>
+                    <li>La frase del cliente que justifica cada regla incumplida</li>
+                  </ul>
+                  <a class="ir" href="index.html">Ver en el triaje <span data-lucide="arrow-right" aria-hidden="true"></span></a>
+                </li>
+                <li class="viaje-paso">
+                  <span class="t"><span data-lucide="file-search" aria-hidden="true"></span> Evidencias</span>
+                  <ul>
+                    <li>Lo que recibió el modelo y lo que respondió</li>
+                    <li>Datos personales detectados, explicación de la decisión y sello SHA-256</li>
+                    <li>Cadena de hashes: si se altera un registro, se detecta</li>
+                  </ul>
+                  <a class="ir" href="index.html">Ver en el triaje <span data-lucide="arrow-right" aria-hidden="true"></span></a>
+                </li>
+                <li class="viaje-paso">
+                  <span class="t"><span data-lucide="shield-check" aria-hidden="true"></span> Panel de control</span>
+                  <ul>
+                    <li>Resumen, agentes y autonomía de L0 a L3</li>
+                    <li>Trazas, guardrails, revisión humana y fraude</li>
+                    <li>Replay, knowledge bases, cumplimiento, gasto, medidas e histórico</li>
+                  </ul>
+                  <a class="ir" href="gobierno.html">Ver en el panel <span data-lucide="arrow-right" aria-hidden="true"></span></a>
+                </li>
+              </ol>
+            </div>
+          </section>
+
+          <section class="card" id="preguntas-panel">
+            <h2 class="bloque-t"><span data-lucide="message-circle-question" aria-hidden="true"></span> Lo que responde el panel de gobierno</h2>
+            <ul class="puntos">
+              <li class="punto"><span class="ico"><span data-lucide="bot" aria-hidden="true"></span></span><b>Qué agentes intervinieron</b><span>Qué hizo cada uno, cómo y con qué nivel de autonomía.</span></li>
+              <li class="punto"><span class="ico"><span data-lucide="shield-alert" aria-hidden="true"></span></span><b>Qué límites tenían</b><span>Guardrails, revisión humana e indicios de fraude.</span></li>
+              <li class="punto"><span class="ico"><span data-lucide="brain" aria-hidden="true"></span></span><b>Qué razonamiento hay debajo</b><span>El replay de cada traza, paso a paso.</span></li>
+              <li class="punto"><span class="ico"><span data-lucide="book-open" aria-hidden="true"></span></span><b>Qué conocimiento utilizaron</b><span>Las bases de conocimiento y su salud.</span></li>
+              <li class="punto"><span class="ico"><span data-lucide="scale" aria-hidden="true"></span></span><b>Cómo de compliance es</b><span>Termómetro normativo y prueba por decisión.</span></li>
+              <li class="punto"><span class="ico"><span data-lucide="wallet" aria-hidden="true"></span></span><b>Cuándo gasta y por qué</b><span>El coste de cada decisión al segundo, con topes.</span></li>
+              <li class="punto"><span class="ico"><span data-lucide="sparkles" aria-hidden="true"></span></span><b>Cómo mejorarlo todo</b><span>Medidas con su evidencia y su ahorro.</span></li>
+            </ul>
+          </section>
+
+          <nav class="intro-nav" aria-label="Navegación">
+            <a class="btn" href="#actores"><span data-lucide="arrow-left" aria-hidden="true"></span> Anterior: los actores</a>
+            <div class="derecha">
+              <a class="btn" href="gobierno.html"><span data-lucide="shield-check" aria-hidden="true"></span> Panel de gobierno</a>
+              <a class="btn btn-primary" id="empezar-demo" href="index.html"><span data-lucide="play" aria-hidden="true"></span> Empezar la demo</a>
+            </div>
+          </nav>
+        </section>
+
+      </main>
+      <footer class="pie">
+        <span>Demo estática · HTML + JavaScript · sin backend · datos solo en esta sesión</span>
+        <a href="https://github.com/nachoenjuto/fnol-triage" target="_blank" rel="noopener">Código en GitHub</a>
+      </footer>
+    </div>
+  </div>
+
+  <script src="icons.js?v=39"></script>
+  <script src="data/recorrido.js?v=43"></script>
+  <script src="shell.js?v=50"></script>
+  <script src="intro.js?v=3"></script>
+</body>
+</html>

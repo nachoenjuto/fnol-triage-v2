@@ -103,9 +103,9 @@ Compatibilidad: para modelos de razonamiento (`gpt-5*`, `o*`) no se envían `tem
 ## Estructura
 
 ```
-intro-fnol.html   introducción 1: el FNOL (sustituye a las slides de contexto antes de la demo)
-intro-sistema.html introducción 2: el sistema, los agentes, los dos usuarios y por qué el gobierno
-intro.css / intro.js estilos y arranque de las dos páginas de introducción (mismo marco que el triaje)
+intro.html        introducción en cuatro secciones (#problema, #solucion, #actores, #demo): sustituye a las slides de contexto antes de la demo
+intro-fnol.html / intro-sistema.html  redirigen a intro.html#problema y #solucion (enlaces antiguos)
+intro.css / intro.js estilos, cambio de sección y arranque de la introducción (mismo marco que el triaje)
 index.html        UI del triaje: conexión IA, menú lateral, contadores, registro, ficha modal
 app.js            motor local, cliente Azure, procesamiento con pausa, registro, render
 prompts.js        prompt base + bloques de reglas Auto / Hogar / Salud
@@ -126,9 +126,9 @@ gobierno.js       render del panel: fuentes de datos, trazas, replay, gráficos 
 gobierno.css      estilos del panel (mismos tokens que styles.css)
 data/mensajes.js  tres paquetes de mensajes
 data/resultados.js fichas de triaje guardadas para reproducción
-data/recorrido.js pasos del recorrido de la demo (22) con su acción, sus clics y 177 subtítulos por tipo; generado desde _docs/guion-demo.md con `make recorrido`
+data/recorrido.js pasos del recorrido de la demo (24) con su acción, sus clics y 185 subtítulos por tipo; generado desde _docs/guion-demo.md con `make recorrido`
 scripts/generar-recorrido.js genera data/recorrido.js a partir del guion
-scripts/generar-guion-docx.js genera _docs/guion-demo.docx a partir del guion (`make guion-docx`)
+scripts/generar-guion-docx.js genera los Word de los dos guiones (`make guion-docx`)
 data/gobierno.js  dataset de demostración del panel (Paquete A + 14 días, Knowledge Bases, rúbricas, controles declarados y medidas correctivas)
 data/fraude.js    indicadores de fraude: catálogo IF-01…IF-12, escenarios EF-01…EF-08, histórico ficticio de pólizas y siniestros, cola de la SIU y evolución de 14 días
 data/gobierno-paquete-A.json      el mismo dataset, para «Cargar JSON» en el panel
@@ -169,7 +169,7 @@ Todos los iconos de la web (triaje y panel) son [Lucide](https://lucide.dev) (li
 
 ## Guía de referencia
 
-[`_docs/guia-demo.md`](_docs/guia-demo.md) describe cada pantalla y sección de la demo (qué muestra, qué se puede hacer y para qué sirve) e incluye un guion de demo de 12 minutos. [`_docs/guion-demo.md`](_docs/guion-demo.md) es el guion paso a paso de la demo de 30-35 minutos (introducción con `intro-fnol.html` e `intro-sistema.html`, triaje y las trece secciones de gobierno, cada paso con su mensaje del Paquete A, el texto para decir y su valor de negocio). [`_docs/guion-sesion.md`](_docs/guion-sesion.md) es el guion de la sesión completa (presentación y demo). La presentación es [`slides-sesion-v4.pptx`](_docs/slides-sesion-v4.pptx) (28 slides, con una por sección de gobierno); se genera a partir de la v3 con `python3 _docs/build_slides_sesion_v4.py` y su contenido está en [`slides-sesion.md`](_docs/slides-sesion.md).
+[`_docs/guia-demo.md`](_docs/guia-demo.md) describe cada pantalla y sección de la demo (qué muestra, qué se puede hacer y para qué sirve) e incluye un guion de demo de 12 minutos. [`_docs/guion-demo-corto.md`](_docs/guion-demo-corto.md) es su versión de bolsillo (mismos pasos y tiempos, frase clave y viñetas con lo que se dice, y los mensajes que se enseñan). [`_docs/guion-demo.md`](_docs/guion-demo.md) es el guion paso a paso de la demo de 30-35 minutos (introducción en las cuatro secciones de `intro.html`, triaje y las trece secciones de gobierno, cada paso con su mensaje del Paquete A, el texto para decir y su valor de negocio). [`_docs/guion-sesion.md`](_docs/guion-sesion.md) es el guion de la sesión completa (presentación y demo). La presentación es [`slides-sesion-v4.pptx`](_docs/slides-sesion-v4.pptx) (28 slides, con una por sección de gobierno); se genera a partir de la v3 con `python3 _docs/build_slides_sesion_v4.py` y su contenido está en [`slides-sesion.md`](_docs/slides-sesion.md).
 
 [`_docs/slides-observabilidad.md`](_docs/slides-observabilidad.md) es una presentación genérica sobre observabilidad y gobierno de la IA agéntica, ilustrada con capturas del panel de gobierno. Su versión en PowerPoint ([`slides-observabilidad.pptx`](_docs/slides-observabilidad.pptx), plantilla Logicalis, 84 slides) se genera con `python3 _docs/build_slides_observabilidad.py`. Las capturas se regeneran con `make capturas` (con `make run` en marcha y Google Chrome instalado).
 

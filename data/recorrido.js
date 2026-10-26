@@ -7,11 +7,11 @@ const RECORRIDO_DEMO = {
   "pasos": [
     {
       "min": "0–1",
-      "pagina": "intro-fnol",
-      "titulo": "FNOL: de qué hablamos",
-      "accion": "inicio",
-      "que": "Introducción · el FNOL",
-      "frase": "El primer aviso decide buena parte de lo que pasa con el siniestro.",
+      "pagina": "intro",
+      "titulo": "El problema: FNOL y el gobierno de la IA",
+      "accion": "sec:problema",
+      "que": "Introducción · El problema",
+      "frase": "El primer aviso decide buena parte de lo que pasa con el siniestro, y la IA que lo automatice tiene que estar bajo control.",
       "clics": [],
       "subtitulos": [
         {
@@ -19,7 +19,7 @@ const RECORRIDO_DEMO = {
           "texto": "Antes de empezar, quiero situar de qué estamos hablando. En España se declaran unos 11 millones de siniestros de Auto al año, según UNESPA; eso es uno cada tres segundos.",
           "accion": [
             "arriba",
-            "ver:#cifras"
+            "ver:#cifras-fnol"
           ]
         },
         {
@@ -58,15 +58,41 @@ const RECORRIDO_DEMO = {
         {
           "tipo": "intro",
           "texto": "Para que os hagáis una idea del peso que tiene, en Estados Unidos la gestión de siniestros se lleva en torno al 10 % de la prima de Auto. Ahí es donde se nos va el tiempo y el dinero."
+        },
+        {
+          "tipo": "intro",
+          "texto": "Y hay un segundo problema.",
+          "accion": [
+            "ver:#sec-problema .hero-puntos"
+          ]
+        },
+        {
+          "tipo": "intro",
+          "texto": "En cuanto metemos IA en un proceso así, hay que controlarla desde muchos ángulos: cuánta autonomía damos a los agentes, si las bases de conocimiento que usan están sanas, si cumplimos la normativa y cuánto nos cuesta cada decisión."
+        },
+        {
+          "tipo": "intro",
+          "texto": "Hoy clasificar un mensaje con IA ya no diferencia a nadie; con un buen prompt se consigue más de un 90 % de acierto. El reto de verdad está en pasar del piloto a producción."
+        },
+        {
+          "tipo": "intro",
+          "texto": "Gartner estima que más del 40 % de los proyectos de IA agéntica se van a cancelar antes de que acabe 2027, por coste, por un valor poco claro o por riesgos sin controlar. Es decir, los proyectos no se caen porque la IA falle.",
+          "accion": [
+            "ver:#porque"
+          ]
+        },
+        {
+          "tipo": "intro",
+          "texto": "Se caen porque nadie sabe responder a tres preguntas: por qué ha decidido eso, quién lo controla y cuánto cuesta."
         }
       ]
     },
     {
-      "min": "1–5",
-      "pagina": "intro-sistema",
-      "titulo": "El sistema que vais a ver",
-      "accion": "inicio",
-      "que": "Introducción · el sistema, bloque a bloque de arriba abajo",
+      "min": "1–3",
+      "pagina": "intro",
+      "titulo": "La solución: plataforma integrada y gobernada",
+      "accion": "sec:solucion",
+      "que": "Introducción · La solución, bloque a bloque de arriba abajo",
       "frase": "Automatizamos el primer contacto, con la IA bajo control.",
       "clics": [],
       "subtitulos": [
@@ -97,7 +123,7 @@ const RECORRIDO_DEMO = {
         {
           "tipo": "intro",
           "etiqueta": "Qué hace",
-          "texto": "Lo que os vamos a enseñar hoy automatiza ese primer contacto."
+          "texto": "Lo que os vamos a enseñar hoy es una plataforma integrada que automatiza ese primer contacto."
         },
         {
           "tipo": "intro",
@@ -112,10 +138,20 @@ const RECORRIDO_DEMO = {
         {
           "tipo": "intro",
           "etiqueta": "Qué hace",
-          "texto": "En el lote que vamos a procesar entran 13 avisos. 10 se aprueban solos y 3 pasan a una persona, cada uno con su motivo y con la frase del cliente que lo justifica.",
+          "texto": "En el lote que vamos a procesar entran 13 avisos. 10 se aprueban solos y 3 pasan a una persona, cada uno con su motivo y con la frase del cliente que lo justifica."
+        },
+        {
+          "tipo": "intro",
+          "etiqueta": "Qué hace",
+          "texto": "Y así se ve el panel de gobierno en los últimos 14 días: 16.720 mensajes procesados, un 81 % de autonomía efectiva, un 19 % escalado a una persona y solo un 2,1 % de decisiones corregidas por un tramitador.",
           "accion": [
-            "ver:#cifras"
+            "ver:#kpis-resumen"
           ]
+        },
+        {
+          "tipo": "intro",
+          "etiqueta": "Qué hace",
+          "texto": "Al lado, el coste del periodo, las alertas activas, el cumplimiento y la salud de las bases de conocimiento."
         },
         {
           "tipo": "intro",
@@ -129,42 +165,6 @@ const RECORRIDO_DEMO = {
           "tipo": "intro",
           "etiqueta": "Los cuatro agentes",
           "texto": "Y el modelo más caro lo usamos solo donde de verdad hace falta razonar, que es en las reglas de negocio."
-        },
-        {
-          "tipo": "intro",
-          "etiqueta": "Dos usuarios, dos pantallas",
-          "texto": "La solución tiene dos tipos de usuario. Por un lado está el tramitador, que trabaja en la pantalla de triaje: ve cada aviso y entiende por qué se ha aprobado o por qué le ha llegado a él.",
-          "accion": [
-            "ver:#usuarios"
-          ]
-        },
-        {
-          "tipo": "intro",
-          "etiqueta": "Dos usuarios, dos pantallas",
-          "texto": "Por otro lado están las personas que gobiernan la IA, ya sea el Comité de IA, Riesgos, Auditoría, el DPO o Finanzas, que trabajan en el panel de gobierno."
-        },
-        {
-          "tipo": "intro",
-          "etiqueta": "Dos usuarios, dos pantallas",
-          "texto": "Desde ahí ven si los agentes deciden bien, cuánto cuestan y si la aseguradora puede demostrar que cumple."
-        },
-        {
-          "tipo": "intro",
-          "etiqueta": "Por qué el gobierno decide el éxito",
-          "texto": "Hoy clasificar un mensaje con IA ya no diferencia a nadie; con un buen prompt se consigue más de un 90 % de acierto. El reto de verdad está en pasar del piloto a producción."
-        },
-        {
-          "tipo": "intro",
-          "etiqueta": "Por qué el gobierno decide el éxito",
-          "texto": "Gartner estima que más del 40 % de los proyectos de IA agéntica se van a cancelar antes de que acabe 2027, por coste, por un valor poco claro o por riesgos sin controlar. Es decir, los proyectos no se caen porque la IA falle.",
-          "accion": [
-            "ver:#porque"
-          ]
-        },
-        {
-          "tipo": "intro",
-          "etiqueta": "Por qué el gobierno decide el éxito",
-          "texto": "Se caen porque nadie sabe responder a tres preguntas: por qué ha decidido eso, quién lo controla y cuánto cuesta."
         },
         {
           "tipo": "intro",
@@ -260,13 +260,77 @@ const RECORRIDO_DEMO = {
           "tipo": "intro",
           "etiqueta": "Cumplimiento demostrable",
           "texto": "Cada decisión lleva pegada su prueba de cumplimiento: qué datos personales había, por qué se decidió así y si la revisó una persona."
+        }
+      ]
+    },
+    {
+      "min": "3–4",
+      "pagina": "intro",
+      "titulo": "Los actores: el tramitador y quien gobierna la IA",
+      "accion": "sec:actores",
+      "que": "Introducción · Los actores",
+      "frase": "Dos actores, dos pantallas: el tramitador y quien gobierna la IA.",
+      "clics": [],
+      "subtitulos": [
+        {
+          "tipo": "intro",
+          "texto": "En la demo vamos a ver dos tipos de usuario. Por un lado está el tramitador de FNOL, que trabaja en la pantalla de triaje.",
+          "accion": [
+            "arriba",
+            "ver:#usuarios .usuario-card~El tramitador"
+          ]
+        },
+        {
+          "tipo": "intro",
+          "texto": "Es una interfaz muy ágil: ve el detalle de cada mensaje, cómo y por qué se ha clasificado, por qué la IA ha tomado cada decisión y los indicios de fraude, con la frase del cliente que los justifica."
+        },
+        {
+          "tipo": "intro",
+          "texto": "Así dedica su tiempo a los casos que necesitan criterio."
+        },
+        {
+          "tipo": "intro",
+          "texto": "Por otro lado están los equipos que gobiernan la IA: IT, Finanzas, Compliance, Riesgos, Auditoría o el DPO, que trabajan en el panel de gobierno.",
+          "accion": [
+            "ver:#usuarios .usuario-card~IT, Finanzas"
+          ]
+        },
+        {
+          "tipo": "intro",
+          "texto": "Desde ahí ven si los agentes deciden bien, con qué conocimiento, cuánto cuestan y si la aseguradora puede demostrar que cumple."
+        }
+      ]
+    },
+    {
+      "min": "4–5",
+      "pagina": "intro",
+      "titulo": "La demo: un viaje de principio a fin",
+      "accion": "sec:demo",
+      "que": "Introducción · La demo",
+      "frase": "Seguimos un mensaje de principio a fin y vemos todo lo que la IA deja detrás.",
+      "clics": [],
+      "subtitulos": [
+        {
+          "tipo": "intro",
+          "texto": "La demo es un viaje. Empieza cuando llega un mensaje, sigue con su análisis por los agentes y con la revisión del tramitador, y pasa por las evidencias que deja la IA en cada decisión.",
+          "accion": [
+            "arriba",
+            "ver:#viaje"
+          ]
+        },
+        {
+          "tipo": "intro",
+          "texto": "Y termina en el panel de gobierno, donde vamos a entender qué agentes intervinieron, qué hicieron y cómo, qué límites tenían, qué razonamiento hay debajo, qué conocimiento usaron, cómo de compliance es la solución, cuándo gasta y por qué, y cómo podemos mejorarlo todo.",
+          "accion": [
+            "ver:#preguntas-panel"
+          ]
         },
         {
           "tipo": "intro",
           "etiqueta": "Puente a la demo",
           "texto": "Vamos a verlo. Primero os enseño lo que ve el tramitador y después lo que ve quien gobierna la IA: el responsable de los agentes, el auditor y el CFO.",
           "accion": [
-            "ver:.intro-nav .btn-primary"
+            "ver:#empezar-demo"
           ]
         }
       ]

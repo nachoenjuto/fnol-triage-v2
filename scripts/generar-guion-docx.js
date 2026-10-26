@@ -1,6 +1,7 @@
-// Genera _docs/guion-demo.docx a partir de _docs/guion-demo.md (plantilla Word normal, sin marca).
-// El texto para decir en voz alta (párrafos en cita, «> …») sale en verde con un filete verde a la izquierda.
-// Uso: `make guion-docx` (instala la librería docx en una carpeta temporal, fuera del repositorio).
+// Genera el Word de un guion a partir de su markdown (plantilla Word normal, sin marca). Por defecto,
+// _docs/guion-demo.md → _docs/guion-demo.docx; con argumento, otro guion: `node … _docs/guion-demo-corto.md`.
+// El texto para decir en voz alta (párrafos en cita, «> …», también viñetas «> - …») sale en verde; los párrafos,
+// además, con un filete verde a la izquierda. Uso: `make guion-docx` (instala la librería docx en una carpeta temporal, fuera del repositorio).
 const fs = require('fs');
 const path = require('path');
 const {
@@ -9,8 +10,8 @@ const {
 } = require('docx');
 
 const RAIZ = path.join(__dirname, '..');
-const ENTRADA = path.join(RAIZ, '_docs', 'guion-demo.md');
-const SALIDA = path.join(RAIZ, '_docs', 'guion-demo.docx');
+const ENTRADA = path.resolve(RAIZ, process.argv[2] || path.join('_docs', 'guion-demo.md'));
+const SALIDA = ENTRADA.replace(/\.md$/, '.docx');
 
 const VERDE = '1E7B34';
 const AZUL = '1B2A4A';
@@ -108,12 +109,16 @@ for (let i = 0; i < lineas.length; i++) {
     const bloque = [];
     while (i < lineas.length && lineas[i].startsWith('>')) { bloque.push(lineas[i].replace(/^>\s?/, '')); i++; }
     i--;
-    bloque.join('\n').split(/\n\s*\n/).map((p) => p.replace(/\s*\n\s*/g, ' ').trim()).filter(Boolean).forEach((p) => {
-      hijos.push(new Paragraph({
-        indent: { left: 284 }, spacing: { before: 60, after: 120, line: 300 },
-        border: { left: { style: BorderStyle.SINGLE, size: 18, color: VERDE, space: 8 } },
-        children: runs(p, { color: VERDE, size: 23 }),
-      }));
+    const filete = { left: { style: BorderStyle.SINGLE, size: 18, color: VERDE, space: 8 } };
+    bloque.join('\n').split(/\n\s*\n/).forEach((par) => {
+      const ls = par.split('\n').map((x) => x.trim()).filter(Boolean);
+      if (!ls.length) return;
+      if (ls.every((x) => x.startsWith('- '))) {   // viñetas para decir: en verde, sin filete
+        // Un párrafo con filete izquierdo dentro de una lista (o con viñeta y tabulador) cuelga Word para Mac al abrir
+        ls.forEach((x) => hijos.push(new Paragraph({ numbering: { reference: 'vinetas-verdes', level: 0 }, spacing: { after: 80, line: 300 }, children: runs(x.slice(2), { color: VERDE, size: 23 }) })));
+        return;
+      }
+      hijos.push(new Paragraph({ indent: { left: 284 }, spacing: { before: 60, after: 120, line: 300 }, border: filete, children: runs(ls.join(' '), { color: VERDE, size: 23 }) }));
     });
     continue;
   }
@@ -148,7 +153,7 @@ for (let i = 0; i < lineas.length; i++) {
 }
 
 const doc = new Document({
-  creator: 'Logicalis', title: titulo, description: 'Guion de la demo de triaje FNOL con agentes gobernados',
+  creator: 'Logicalis', title: titulo, description: titulo,
   features: { updateFields: true },
   styles: {
     default: { document: { run: { font: FUENTE, size: 22 }, paragraph: { spacing: { line: 276 } } } },
@@ -164,6 +169,7 @@ const doc = new Document({
         { level: 0, format: LevelFormat.BULLET, text: '•', alignment: AlignmentType.LEFT, style: { paragraph: { indent: { left: 567, hanging: 283 } } } },
         { level: 1, format: LevelFormat.BULLET, text: '–', alignment: AlignmentType.LEFT, style: { paragraph: { indent: { left: 1134, hanging: 283 } } } },
       ] },
+      { reference: 'vinetas-verdes', levels: [{ level: 0, format: LevelFormat.BULLET, text: '•', alignment: AlignmentType.LEFT, style: { paragraph: { indent: { left: 567, hanging: 283 } }, run: { color: VERDE } } }] },
       { reference: 'numeros', levels: [{ level: 0, format: LevelFormat.DECIMAL, text: '%1.', alignment: AlignmentType.LEFT, style: { paragraph: { indent: { left: 567, hanging: 340 } } } }] },
     ],
   },

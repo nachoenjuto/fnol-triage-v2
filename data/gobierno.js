@@ -217,6 +217,8 @@ const GOBIERNO_DEMO = {
       { cls: 'crit', icono: 'bell', etiqueta: 'Alertas activas', valor: '3', sub: '1 crítica (cap de Reglas) · 2 avisos' },
     ],
     cap_mensual: 500,
+    // Hipótesis del escenario de ahorro de FinOps (ahorro.js): coste de un tramitador y tiempo por mensaje
+    negocio: { salario_bruto: 28000, factor_ss: 1.32, estructura: 0.15, horas_convenio: 1700, productividad: 0.8, minutos_mensaje: 8, ahorro_escalados: 0.4 },
     autonomia: [
       { cls: 'ok', icono: 'zap', etiqueta: 'Decisiones autónomas', valor: '81 %', sub: '13.540 de 16.720 · objetivo ≥ 80 %', medidor: 81 },
       { cls: 'review', icono: 'user-check', etiqueta: 'Escaladas por guardrail', valor: '19 %', sub: 'G-02 importe 62 % · G-04 lesionados 20 % · G-05 datos 11 % · resto 7 %' },

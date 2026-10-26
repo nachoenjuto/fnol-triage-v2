@@ -54,8 +54,8 @@
   // textos de cada paso, que solo ve quien los edita (se guardan en su navegador).
   // Con una ventana modal abierta, el panel y los subtítulos se mueven dentro de ella para seguir visibles y usables.
   // ---------------------------------------------------------------------------
-  const PAGINA_URL = { 'intro-fnol': 'intro-fnol.html', 'intro-sistema': 'intro-sistema.html', triaje: 'index.html', gobierno: 'gobierno.html' };
-  const PAGINA_LBL = { 'intro-fnol': 'Introducción', 'intro-sistema': 'Introducción', triaje: 'Triaje', gobierno: 'Gobierno' };
+  const PAGINA_URL = { intro: 'intro.html', triaje: 'index.html', gobierno: 'gobierno.html' };
+  const PAGINA_LBL = { intro: 'Introducción', triaje: 'Triaje', gobierno: 'Gobierno' };
   // Tipos de subtítulo (data/recorrido.js, generado desde _docs/guion-demo.md): cada uno se puede mostrar u ocultar
   const TIPOS = { intro: ['message-circle', 'Introducción'], para: ['lightbulb', 'Para qué sirve'], que: ['cpu', 'Qué es y qué hace'], valor: ['shield-check', 'Valor'] };
   const CPS = 15; const CUE_MIN = 4000;   // velocidad de lectura (caracteres por segundo) y tiempo mínimo por subtítulo
@@ -72,7 +72,8 @@
   const ESPERA_MAX = 180000;   // un paso que espera (el lote) empieza a contar como mucho a los 3 minutos
   // Versión del guion: los textos editados se guardan por número de paso. La 3 rehace el recorrido desde
   // _docs/guion-demo.md (22 pasos, subtítulos con tipo): los textos editados con versiones anteriores se descartan.
-  const GUION = 3;
+  // La 4 parte la introducción en cuatro secciones de intro.html (24 pasos): los números de paso se desplazan.
+  const GUION = 4;
   const TIPOS_DEF = Object.fromEntries(Object.keys(TIPOS).map((k) => [k, true]));
   const CONF_DEF = { guion: GUION, auto: false, segundos: SEG.def, alTerminar: 'parar', pausarAlTocar: true, subtitulos: true, subTipos: { ...TIPOS_DEF }, subPos: 'pie', subTam: 'normal', textos: {} };
   const alm = (s) => ({

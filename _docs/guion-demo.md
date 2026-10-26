@@ -1,6 +1,6 @@
 # Guion de la demo · Triaje FNOL con agentes gobernados
 
-Guion paso a paso para una sesión de 30-35 minutos: introducción con las páginas `intro-fnol.html` e `intro-sistema.html` y demo sobre el Paquete A (13 mensajes) en `index.html` y `gobierno.html`. Base: [guia-demo.md](guia-demo.md) y el Recorrido de la demo (`data/recorrido.js`).
+Guion paso a paso para una sesión de 30-35 minutos: introducción en las cuatro secciones de `intro.html` y demo sobre el Paquete A (13 mensajes) en `index.html` y `gobierno.html`. Base: [guia-demo.md](guia-demo.md) y el Recorrido de la demo (`data/recorrido.js`).
 
 **Cómo leer este guion**
 
@@ -15,7 +15,7 @@ Guion paso a paso para una sesión de 30-35 minutos: introducción con las pági
 
 **Preparación (5 minutos antes)**
 
-1. Servir la demo (`make run`) y abrir `intro-fnol.html`.
+1. Servir la demo (`make run`) y abrir `intro.html`.
 2. En una segunda pestaña, abrir `index.html`. En el menú lateral, **Configuración → Motor de triaje → Resultados guardados** (no depende de red) y **Paquete de mensajes → Paquete A**. Comprobar que «Seudonimizar antes de enviar al modelo» está activada.
 3. No procesar el lote todavía: se hace en directo en el paso 2.
 4. Si se van a hacer capturas, añadir `?fecha=2026-09-17` a la URL. Sin ese parámetro las fechas de los mensajes se desplazan al día de hoy.
@@ -25,20 +25,22 @@ Guion paso a paso para una sesión de 30-35 minutos: introducción con las pági
 
 | Min | Bloque | Pantalla |
 |---|---|---|
-| 0-1 | 1. FNOL: de qué hablamos | `intro-fnol.html` |
-| 1-5 | 2. El sistema que vais a ver | `intro-sistema.html` |
-| 5-14 | 3. Parte 1 · Triaje (pasos 1-5) | `index.html` |
-| 14-15 | 4.0 Entrada al panel de gobierno | `gobierno.html` · Inicio |
-| 15-34 | 4. Parte 2 · Gobierno (pasos 6-18) | `gobierno.html` |
-| 34-35 | 5. Cierre | `gobierno.html` · Histórico |
+| 0-1 | 1. El problema | `intro.html` · El problema |
+| 1-3 | 2. La solución | `intro.html` · La solución |
+| 3-4 | 3. Los actores | `intro.html` · Los actores |
+| 4-5 | 4. La demo | `intro.html` · La demo |
+| 5-14 | 5. Parte 1 · Triaje (pasos 1-5) | `index.html` |
+| 14-15 | 6.0 Entrada al panel de gobierno | `gobierno.html` · Inicio |
+| 15-34 | 6. Parte 2 · Gobierno (pasos 6-18) | `gobierno.html` |
+| 34-35 | 7. Cierre | `gobierno.html` · Histórico |
 
 ---
 
-## 1. FNOL: de qué hablamos (≈1 min)
+## 1. El problema: FNOL, un proceso crítico, y el gobierno de la IA (≈1 min)
 
-**Pantalla:** `intro-fnol.html`.
+**Pantalla:** `intro.html` · El problema.
 
-**Frase clave:** «El primer aviso decide buena parte de lo que pasa con el siniestro.»
+**Frase clave:** «El primer aviso decide buena parte de lo que pasa con el siniestro, y la IA que lo automatice tiene que estar bajo control.»
 
 > Antes de empezar, quiero situar de qué estamos hablando. En España se declaran unos 11 millones de siniestros de Auto al año, según UNESPA; eso es uno cada tres segundos. Y todos empiezan de la misma forma: con un primer aviso del cliente.
 >
@@ -47,6 +49,10 @@ Guion paso a paso para una sesión de 30-35 minutos: introducción con las pági
 > En el FNOL se decide buena parte de lo que pasa después. Si el ramo se asigna mal, el expediente va dando vueltas entre equipos. Si falta un dato, hay que volver a llamar al cliente. Si un indicio de fraude se nos escapa aquí, después cuesta mucho más encontrarlo. Y además es el primer contacto del cliente con su aseguradora, normalmente en un mal día.
 >
 > Hoy todo ese trabajo lo hace una persona: lee el mensaje, lo clasifica y teclea los datos en el sistema. Para que os hagáis una idea del peso que tiene, en Estados Unidos la gestión de siniestros se lleva en torno al 10 % de la prima de Auto. Ahí es donde se nos va el tiempo y el dinero.
+>
+> Y hay un segundo problema. En cuanto metemos IA en un proceso así, hay que controlarla desde muchos ángulos: cuánta autonomía damos a los agentes, si las bases de conocimiento que usan están sanas, si cumplimos la normativa y cuánto nos cuesta cada decisión.
+>
+> Hoy clasificar un mensaje con IA ya no diferencia a nadie; con un buen prompt se consigue más de un 90 % de acierto. El reto de verdad está en pasar del piloto a producción. Gartner estima que más del 40 % de los proyectos de IA agéntica se van a cancelar antes de que acabe 2027, por coste, por un valor poco claro o por riesgos sin controlar. Es decir, los proyectos no se caen porque la IA falle. Se caen porque nadie sabe responder a tres preguntas: por qué ha decidido eso, quién lo controla y cuánto cuesta.
 
 **Notas**
 
@@ -55,9 +61,9 @@ Guion paso a paso para una sesión de 30-35 minutos: introducción con las pági
 
 ---
 
-## 2. El sistema que vais a ver (≈4 min)
+## 2. La solución: una plataforma multicanal integrada, orquestada por 4 agentes y con un buen gobierno de la IA (≈2 min)
 
-**Pantalla:** `intro-sistema.html`, bloque a bloque de arriba abajo.
+**Pantalla:** `intro.html` · La solución, bloque a bloque de arriba abajo.
 
 **Frase clave:** «Automatizamos el primer contacto, con la IA bajo control.»
 
@@ -71,9 +77,11 @@ Guion paso a paso para una sesión de 30-35 minutos: introducción con las pági
 
 ### 2.2 Qué hace
 
-> Lo que os vamos a enseñar hoy automatiza ese primer contacto. Tenemos cuatro agentes de IA que reciben el aviso por cualquier canal, deciden a qué ramo pertenece, extraen los datos y aplican las reglas de negocio de la aseguradora. Al tramitador le llega el aviso ya clasificado, con los datos extraídos y con una propuesta: aprobado o a revisar.
+> Lo que os vamos a enseñar hoy es una plataforma integrada que automatiza ese primer contacto. Tenemos cuatro agentes de IA que reciben el aviso por cualquier canal, deciden a qué ramo pertenece, extraen los datos y aplican las reglas de negocio de la aseguradora. Al tramitador le llega el aviso ya clasificado, con los datos extraídos y con una propuesta: aprobado o a revisar.
 >
 > En el lote que vamos a procesar entran 13 avisos. 10 se aprueban solos y 3 pasan a una persona, cada uno con su motivo y con la frase del cliente que lo justifica.
+>
+> Y así se ve el panel de gobierno en los últimos 14 días: 16.720 mensajes procesados, un 81 % de autonomía efectiva, un 19 % escalado a una persona y solo un 2,1 % de decisiones corregidas por un tramitador. Al lado, el coste del periodo, las alertas activas, el cumplimiento y la salud de las bases de conocimiento.
 
 ### 2.3 Los cuatro agentes
 
@@ -86,13 +94,7 @@ Guion paso a paso para una sesión de 30-35 minutos: introducción con las pági
 
 > La idea es tener cuatro especialistas pequeños en lugar de una única IA que lo hace todo. Cada uno tiene su modelo, su versión de prompt, su responsable y sus propios límites. Y el modelo más caro lo usamos solo donde de verdad hace falta razonar, que es en las reglas de negocio.
 
-### 2.4 Dos usuarios, dos pantallas
-
-> La solución tiene dos tipos de usuario. Por un lado está el tramitador, que trabaja en la pantalla de triaje: ve cada aviso y entiende por qué se ha aprobado o por qué le ha llegado a él. Por otro lado están las personas que gobiernan la IA, ya sea el Comité de IA, Riesgos, Auditoría, el DPO o Finanzas, que trabajan en el panel de gobierno. Desde ahí ven si los agentes deciden bien, cuánto cuestan y si la aseguradora puede demostrar que cumple.
-
-### 2.5 Por qué el gobierno decide el éxito
-
-> Hoy clasificar un mensaje con IA ya no diferencia a nadie; con un buen prompt se consigue más de un 90 % de acierto. El reto de verdad está en pasar del piloto a producción. Gartner estima que más del 40 % de los proyectos de IA agéntica se van a cancelar antes de que acabe 2027, por coste, por un valor poco claro o por riesgos sin controlar. Es decir, los proyectos no se caen porque la IA falle. Se caen porque nadie sabe responder a tres preguntas: por qué ha decidido eso, quién lo controla y cuánto cuesta.
+### 2.4 La trazabilidad, base del gobierno
 
 Cinco ideas, una por bloque de la página:
 
@@ -116,6 +118,30 @@ Cinco ideas, una por bloque de la página:
 
 > El RGPD, DORA y la opinión de EIOPA sobre IA ya están en vigor. El Reglamento de IA llega después, y el triaje no se considera de alto riesgo, pero aplicamos sus artículos como buena práctica. Cada decisión lleva pegada su prueba de cumplimiento: qué datos personales había, por qué se decidió así y si la revisó una persona.
 
+---
+
+## 3. Los actores: el tramitador y los equipos de IT, Finanzas, Compliance, etc. (≈1 min)
+
+**Pantalla:** `intro.html` · Los actores.
+
+**Frase clave:** «Dos actores, dos pantallas: el tramitador y quien gobierna la IA.»
+
+> En la demo vamos a ver dos tipos de usuario. Por un lado está el tramitador de FNOL, que trabaja en la pantalla de triaje. Es una interfaz muy ágil: ve el detalle de cada mensaje, cómo y por qué se ha clasificado, por qué la IA ha tomado cada decisión y los indicios de fraude, con la frase del cliente que los justifica. Así dedica su tiempo a los casos que necesitan criterio.
+>
+> Por otro lado están los equipos que gobiernan la IA: IT, Finanzas, Compliance, Riesgos, Auditoría o el DPO, que trabajan en el panel de gobierno. Desde ahí ven si los agentes deciden bien, con qué conocimiento, cuánto cuestan y si la aseguradora puede demostrar que cumple.
+
+---
+
+## 4. La demo: un viaje desde que llega un mensaje hasta el panel de gobierno (≈1 min)
+
+**Pantalla:** `intro.html` · La demo.
+
+**Frase clave:** «Seguimos un mensaje de principio a fin y vemos todo lo que la IA deja detrás.»
+
+> La demo es un viaje. Empieza cuando llega un mensaje, sigue con su análisis por los agentes y con la revisión del tramitador, y pasa por las evidencias que deja la IA en cada decisión.
+>
+> Y termina en el panel de gobierno, donde vamos a entender qué agentes intervinieron, qué hicieron y cómo, qué límites tenían, qué razonamiento hay debajo, qué conocimiento usaron, cómo de compliance es la solución, cuándo gasta y por qué, y cómo podemos mejorarlo todo.
+
 **Puente a la demo**
 
 > Vamos a verlo. Primero os enseño lo que ve el tramitador y después lo que ve quien gobierna la IA: el responsable de los agentes, el auditor y el CFO.
@@ -124,7 +150,7 @@ Cinco ideas, una por bloque de la página:
 
 ---
 
-## 3. Parte 1 · Triaje
+## 5. Parte 1 · Triaje
 
 ### Paso 1 · Las seis fases y los cinco canales (min 5-6:30)
 
@@ -327,9 +353,9 @@ Cinco ideas, una por bloque de la página:
 
 ---
 
-## 4. Parte 2 · Gobierno
+## 6. Parte 2 · Gobierno
 
-### 4.0 Entrada al panel (min 14-15)
+### 6.0 Entrada al panel (min 14-15)
 
 **Pantalla:** `gobierno.html` → **Inicio**. Recorrer los seis bloques de arriba abajo, sin entrar en ninguno.
 
@@ -876,7 +902,7 @@ MSG-A-02 (rotura de tubería, 1.080 €) pide el pago a esa misma cuenta: score 
 
 ---
 
-## 5. Cierre (min 34-35)
+## 7. Cierre (min 34-35)
 
 **Pantalla:** `gobierno.html` → **Histórico**.
 
@@ -942,9 +968,9 @@ MSG-A-02 (rotura de tubería, 1.080 €) pide el pago a esa misma cuenta: score 
 
 | Quitar o acortar | Ahorro |
 |---|---|
-| Intro: dejar 2.1, 2.2, 2.3 y una frase por idea de 2.5 | 2 min |
+| Intro: en La solución, dejar 2.1, 2.2, 2.3 y una frase por idea de 2.4 | 2 min |
 | Paso 3 (ficha de MSG-A-01): enseñar solo las evidencias desde el paso 4 | 1,5 min |
-| Entrada al panel (4.0) y «Para qué sirve esta sección»: leer solo la primera frase | 1,5 min |
+| Entrada al panel (6.0) y «Para qué sirve esta sección»: leer solo la primera frase | 1,5 min |
 | Unir Autonomía y Guardrails (pasos 9 y 10) en 1,5 min | 1 min |
 | Paso 14 (Knowledge Bases): solo la comparativa de KB-02 | 1 min |
 | Paso 15 (Cumplimiento): solo «Simular una alteración» | 1 min |

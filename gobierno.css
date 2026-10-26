@@ -816,3 +816,9 @@ mark.fr-cita sup { font: 700 .6rem ui-monospace, SFMono-Regular, Menlo, monospac
 .fr-act li { display: flex; align-items: center; gap: .45rem; flex-wrap: wrap; font-size: .84rem; padding: .35rem .5rem; border: 1px solid var(--border); border-radius: 5px; }
 .fr-act li > span:last-child { margin-left: auto; }
 #fr-siu td:first-child { white-space: normal; min-width: 170px; max-width: 220px; }
+
+/* FinOps · ficha del ahorro estimado: escenario y hipótesis editables encima del cálculo */
+.ahorro-ctl { display: flex; flex-wrap: wrap; gap: .8rem 1rem; align-items: end; padding: .8rem; border: 1px solid var(--border); border-radius: 6px; background: var(--bg); }
+.ahorro-ctl label.f input { width: 11rem; max-width: 100%; }
+.ahorro-ctl .seg { align-self: end; }
+tr.ahorro-total td { background: var(--bg); font-weight: 700; }

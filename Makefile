@@ -4,11 +4,12 @@
 run: ## Sirve la demo en http://localhost:8792
 	python3 -m http.server 8792
 
-test: ## Pruebas de evidencias.js, cumplimiento.js, fraude.js, fechas.js y del recorrido de la demo (sin dependencias, requiere Node)
+test: ## Pruebas de evidencias.js, cumplimiento.js, fraude.js, fechas.js, ahorro.js y del recorrido de la demo (sin dependencias, requiere Node)
 	node tests/evidencias.test.js
 	node tests/cumplimiento.test.js
 	node tests/fraude.test.js
 	node tests/fechas.test.js
+	node tests/ahorro.test.js
 	node tests/recorrido.test.js
 
 test-ia: ## Mide las evidencias con un modelo real (variables TRIAGE_*, ver tests/ia-real.js)
@@ -20,9 +21,10 @@ datos: ## Regenera los JSON de ejemplo de data/ desde las fuentes JS (tras cambi
 recorrido: ## Regenera los pasos y subtítulos del Recorrido de la demo (data/recorrido.js) desde _docs/guion-demo.md
 	node scripts/generar-recorrido.js
 
-guion-docx: ## Genera _docs/guion-demo.docx desde _docs/guion-demo.md (texto para decir en verde); instala docx en una carpeta temporal
+guion-docx: ## Genera los Word de los guiones (_docs/guion-demo.md y guion-demo-corto.md, texto para decir en verde); instala docx en una carpeta temporal
 	npm install --silent --prefix "$${TMPDIR:-/tmp}/fnol-docx" docx@9 >/dev/null
 	NODE_PATH="$${TMPDIR:-/tmp}/fnol-docx/node_modules" node scripts/generar-guion-docx.js
+	NODE_PATH="$${TMPDIR:-/tmp}/fnol-docx/node_modules" node scripts/generar-guion-docx.js _docs/guion-demo-corto.md
 
 capturas: ## Regenera las capturas de las slides y sus compuestas (requiere make run en otra terminal y Google Chrome)
 	node scripts/capturas.mjs

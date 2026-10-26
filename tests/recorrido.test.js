@@ -15,16 +15,16 @@ const test = async (nombre, fn) => { try { await fn(); n++; console.log(`  ok   
 
 (async () => {
   console.log('guion');
-  await test('22 pasos generados desde el guion, cada uno con página, acción, frase y subtítulos con tipo', () => {
-    assert.strictEqual(N, 22);
+  await test('24 pasos generados desde el guion, cada uno con página, acción, frase y subtítulos con tipo', () => {
+    assert.strictEqual(N, 24);
     R.PASOS.forEach((p, i) => {
-      assert.ok(['intro-fnol', 'intro-sistema', 'triaje', 'gobierno'].includes(p.pagina), `paso ${i + 1}: página`);
+      assert.ok(['intro', 'triaje', 'gobierno'].includes(p.pagina), `paso ${i + 1}: página`);
       assert.ok(p.accion && p.titulo && p.frase && p.que, `paso ${i + 1}: acción, título, pantalla y frase`);
       assert.ok(Array.isArray(p.clics), `paso ${i + 1}: clics`);
       assert.ok(p.subtitulos.length >= 1, `paso ${i + 1}: subtítulos`);
       p.subtitulos.forEach((s) => assert.ok(R.TIPOS[s.tipo] && s.texto && s.texto.length <= 400, `paso ${i + 1}: subtítulo sin tipo, vacío o largo`));
     });
-    assert.deepStrictEqual(R.PASOS.slice(0, 2).map((p) => p.pagina), ['intro-fnol', 'intro-sistema']);
+    assert.deepStrictEqual(R.PASOS.slice(0, 4).map((p) => p.accion), ['sec:problema', 'sec:solucion', 'sec:actores', 'sec:demo']);
     assert.ok(['intro', 'para', 'que', 'valor'].every((t) => R.PASOS.some((p) => p.subtitulos.some((s) => s.tipo === t))), 'hay subtítulos de los cuatro tipos');
   });
   await test('data/recorrido.js está al día con _docs/guion-demo.md', () => {
@@ -39,7 +39,7 @@ const test = async (nombre, fn) => { try { await fn(); n++; console.log(`  ok   
   await test('subpasos: acciones conocidas en cada página y los pasos con lote lo piden', () => {
     const COMUNES = ['ver', 'clic', 'cerrar', 'arriba', 'espera'];
     const PAGINA = {
-      'intro-fnol': ['inicio'], 'intro-sistema': ['inicio'],
+      intro: ['inicio', 'sec'],
       triaje: ['fases', 'procesar', 'ficha', 'fase', 'paquete'],
       gobierno: ['goto', 'agentes', 'kb', 'sel', 'traza', 'kpi', 'gr', 'cambio', 'fr', 'med', 'cmp', 'agente', 'guardrail', 'medida', 'alteracion', 'kb-aplicar', 'replay'],
     };
@@ -84,7 +84,7 @@ const test = async (nombre, fn) => { try { await fn(); n++; console.log(`  ok   
   });
   await test('textos editados: solo pasos existentes, máximo 40 subtítulos de 400 caracteres y tipo válido', () => {
     const largo = 'x'.repeat(500);
-    const c = R._normalizarConfig({ guion: 3, textos: { 0: { frase: largo, subtitulos: Array.from({ length: 50 }, () => ({ tipo: 'raro', texto: largo })) }, 99: { frase: 'no' }, '-1': { frase: 'no' }, 2: 'texto' } });
+    const c = R._normalizarConfig({ guion: 4, textos: { 0: { frase: largo, subtitulos: Array.from({ length: 50 }, () => ({ tipo: 'raro', texto: largo })) }, 99: { frase: 'no' }, '-1': { frase: 'no' }, 2: 'texto' } });
     assert.deepStrictEqual(Object.keys(c.textos), ['0']);
     assert.strictEqual(c.textos[0].frase.length, 400);
     assert.strictEqual(c.textos[0].subtitulos.length, 40);
@@ -94,12 +94,12 @@ const test = async (nombre, fn) => { try { await fn(); n++; console.log(`  ok   
   await test('los textos guardados con un guion anterior se descartan (otros pasos y otro formato)', () => {
     assert.deepStrictEqual(R._normalizarConfig({ textos: { 5: { frase: 'seis' } } }).textos, {});
     assert.deepStrictEqual(R._normalizarConfig({ guion: 2, textos: { 5: { frase: 'seis' } } }).textos, {});
-    const c = R._normalizarConfig({ guion: 3, textos: { 5: { frase: 'seis' } } });
-    assert.strictEqual(c.textos[5].frase, 'seis'); assert.strictEqual(c.guion, 3);
+    const c = R._normalizarConfig({ guion: 4, textos: { 5: { frase: 'seis' } } });
+    assert.strictEqual(c.textos[5].frase, 'seis'); assert.strictEqual(c.guion, 4);
     assert.deepStrictEqual(R._normalizarConfig(c).textos, c.textos);
   });
   await test('los textos editados se superponen a los del guion sin tocar el resto del paso', () => {
-    const c = R._normalizarConfig({ guion: 3, textos: { 3: { frase: 'Otra frase' } } });
+    const c = R._normalizarConfig({ guion: 4, textos: { 3: { frase: 'Otra frase' } } });
     const p = R._pasoDe(3, c);
     assert.strictEqual(p.frase, 'Otra frase');
     assert.strictEqual(p.titulo, R.PASOS[3].titulo);

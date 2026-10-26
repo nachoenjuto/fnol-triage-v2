@@ -864,6 +864,11 @@
   // ---------------------------------------------------------------------------
   const CAP_ESTADO = { ok: ['pill-ok', 'check', 'Dentro'], aviso: ['pill-warn', 'circle-alert', 'Aviso ≥ 80 %'], superado: ['pill-crit', 'triangle-alert', 'Superado'] };
   const capRow = (c) => { const u = c.consumo / c.limite; const [pc, pi, pl] = CAP_ESTADO[c.estado] || CAP_ESTADO.ok; const f = (v) => (c.unidad === '€' ? eur(v, v < 1 ? 3 : 2) : `${num(v)} ${esc(c.unidad)}`); return `<tr class="clickable" data-cap="${esc(c.id)}" tabindex="0" title="Ver el detalle de ${esc(c.id)}"><td class="mono"><b>${esc(c.id)}</b>${c.nuevo ? ' <span class="pill pill-time">nuevo</span>' : ''}</td><td>${ambitoHtml(c)}</td><td>${esc(c.tipo)}</td><td class="tnum">${f(c.limite)}</td><td class="tnum">${f(c.consumo)}</td><td><div class="meter" style="--c:${u >= 1 ? 'var(--crit)' : u >= .8 ? 'var(--warn)' : 'var(--ok)'};margin:0"><i style="width:${Math.min(100, u * 100)}%"></i></div><span class="small muted tnum">${Math.round(u * 100)} %</span></td><td class="wrap">${conGuardrails(esc(c.accion))}</td><td>${((n) => (n ? `<button class="pill pill-warn cap-chip" type="button" data-ir-alerta="${esc(c.id)}" title="Ver la alerta de ${esc(c.id)}">${ic('bell')} ${n}</button>` : '<span class="muted">—</span>'))(alertasDeCap(c.id).length)}</td><td><span class="pill ${pc}">${ic(pi)} ${pl}</span></td></tr>`; };
+  // Escenario de ahorro (ahorro.js): hipótesis del dataset (`kpis.negocio`), editables en la ficha sin guardarse
+  let ahorroEdit = {};
+  const ahorroParams = () => ({ ...((G.kpis && G.kpis.negocio) || {}), ...ahorroEdit });
+  const ahorroDe = (dias, p = ahorroParams()) => Ahorro.calcular({ mensajes: dias.reduce((a, d) => a + d[1], 0), autonomia: datosResumen().pAut, costeIA: dias.reduce((a, d) => a + costeDia(d), 0), dias: dias.length }, p);
+  const meur = (v) => (Math.abs(v) >= 1e6 ? `${(v / 1e6).toFixed(2).replace('.', ',')} M€` : eur(v, 0));
   function renderFinops() {
     const dias = diarioVisible(), hoy = G.diario[G.diario.length - 1], cap = capDiario();
     const totalMsgs = dias.reduce((a, d) => a + d[1], 0), coste = dias.reduce((a, d) => a + costeDia(d), 0);
@@ -875,6 +880,7 @@
       kpi({ ...G.kpis.finops[0], id: 'coste-mensual' }),
       kpi({ ...G.kpis.finops[1], id: 'caps-superados', valor: String(superados.length), ...(capsNuevos.some((c) => c.estado === 'superado') ? { sub: superados.map((c) => c.id).join(' · ') } : {}) }),
       kpi({ cls: 'time', icono: 'cpu', etiqueta: 'Coste medio por mensaje', valor: eur(totalMsgs ? coste / totalMsgs : 0, 4), subHtml: reparto, id: 'coste-medio' }),
+      ((a) => kpi({ cls: 'ok', icono: 'banknote', etiqueta: 'Ahorro estimado', valor: eur(a.neto, 0), sub: `${meur(a.anual)} al año · ${num(a.automatizados)} mensajes automatizados · ${num(Math.round(a.retorno))} € por cada € de IA`, id: 'ahorro' }))(ahorroDe(dias)),
     ].join('');
     $('caps').innerHTML = G.caps.map(capRow).join('');
     renderCorrectivas();
@@ -1315,6 +1321,66 @@
         ${sobre.length ? `<div><h3>Días cerca del cap o por encima</h3><div class="tw tabla-compacta"><table><thead><tr><th>Día</th><th>Coste</th><th style="min-width:180px">Uso del cap</th><th>Estado</th></tr></thead><tbody>${sobre.map(([f, v, u]) => `<tr><td class="tnum">${fecha(f)}</td><td class="tnum"><b>${eur(v)}</b></td><td><div class="meter" style="--c:var(--${u >= 1 ? 'crit' : 'warn'});margin:0"><i style="width:${Math.min(100, u * 100)}%"></i></div><span class="small muted tnum">${Math.round(u * 100)} %</span></td><td><span class="pill ${u >= 1 ? 'pill-crit' : 'pill-warn'}">${u >= 1 ? 'Superado' : 'Aviso ≥ 80 %'}</span></td></tr>`).join('')}</tbody></table></div></div>` : ''}`;
     },
   };
+
+  // FinOps · ficha del ahorro estimado: escenario, hipótesis editables, cálculo paso a paso y ahorro por día
+  function ahorroResultado() {
+    const d = datosResumen(), p = { ...Ahorro.DEFECTO, ...ahorroParams() }, a = ahorroDe(d.dias, p);
+    const pct = (v) => `${num(Math.round(v * 100))} %`, dec = (v, k = 2) => v.toFixed(k).replace('.', ',');
+    const origen = (m) => `<span class="pill ${m ? 'pill-ok' : 'pill-time'}">${m ? 'Medido' : 'Hipótesis'}</span>`;
+    const pasos = [
+      ['Mensajes procesados', true, 'todos los canales, en el periodo', num(a.mensajes)],
+      ['Mensajes automatizados', true, `${num(a.mensajes)} × ${dec(d.pAut, 0)} % de autonomía efectiva`, num(a.automatizados)],
+      ['Coste evitado en automatizados', false, `${num(a.automatizados)} × ${eur(a.mensaje)} por mensaje a mano`, eur(a.evitadoAut, 0)],
+      ['Coste evitado en escalados', false, `${num(a.escalados)} × ${eur(a.mensaje)} × ${pct(p.ahorro_escalados)} del tiempo (datos ya extraídos)`, eur(a.evitadoEsc, 0)],
+      ['Coste de la IA', true, 'llamadas a modelos de todos los agentes', `− ${eur(a.costeIA)}`],
+    ];
+    const tramitador = [
+      ['Salario bruto anual', `${eur(p.salario_bruto, 0)}`],
+      ['Coste empresa', `× ${dec(p.factor_ss)} (Seguridad Social) = ${eur(a.costeEmpresa, 0)}`],
+      ['Con estructura', `+ ${pct(p.estructura)} (puesto, licencias, supervisión) = ${eur(a.costeTotal, 0)}`],
+      ['Horas de tramitación al año', `${num(p.horas_convenio)} h × ${pct(p.productividad)} = ${num(Math.round(a.horas))} h`],
+      ['Coste por hora', eur(a.hora)],
+      ['Coste de tramitar un mensaje a mano', `${dec(p.minutos_mensaje, p.minutos_mensaje % 1 ? 1 : 0)} min × ${eur(a.hora / 60, 3)}/min = <b>${eur(a.mensaje)}</b>`],
+    ];
+    const cm = a.mensaje, fa = d.pAut / 100;
+    const series = [
+      { label: 'Automatizados', color: 'var(--ok)', vals: d.dias.map((x) => x[1] * fa * cm) },
+      { label: 'Escalados (tiempo ahorrado)', color: 'var(--ag-extraccion)', vals: d.dias.map((x) => x[1] * (1 - fa) * cm * p.ahorro_escalados) },
+    ];
+    const escs = Ahorro.ESCENARIOS.map((e) => [e, ahorroDe(d.dias, { ...p, minutos_mensaje: e.minutos_mensaje })]);
+    return `<div class="kpi-mini">${kmini('banknote', 'Ahorro neto del periodo', eur(a.neto, 0), `${d.n} ${d.n === 1 ? 'día' : 'días'}`)}${kmini('calendar', 'Proyección anual', meur(a.anual), 'al ritmo del periodo')}${kmini('coins', 'Retorno por € de IA', `${num(Math.round(a.retorno))} €`, 'coste evitado / coste IA')}${kmini('scale', 'Coste por mensaje', `${eur(a.mensaje)} a mano`, `${eur(a.costeIAMensaje, 4)} con IA`)}</div>
+      <div><h3>Cómo se calcula</h3><div class="tw"><table><thead><tr><th>Paso</th><th>Dato</th><th>Cálculo</th><th>Resultado</th></tr></thead><tbody>${pasos.map(([l, m, c, v]) => `<tr><td>${l}</td><td>${origen(m)}</td><td class="small muted">${c}</td><td class="tnum">${v}</td></tr>`).join('')}<tr class="ahorro-total"><td colspan="3"><b>Ahorro neto</b></td><td class="tnum"><b>${eur(a.neto, 0)}</b></td></tr></tbody></table></div></div>
+      <div><h3>Coste de un tramitador</h3><div class="tw"><table><tbody>${tramitador.map(([l, v]) => `<tr><td>${l}</td><td class="tnum">${v}</td></tr>`).join('')}</tbody></table></div></div>
+      <div><h3>Coste evitado por día</h3>${chartApilada(series, d.fechas, { fmt: (v) => eur(v, 0), aria: 'Coste evitado por día en mensajes automatizados y escalados' })}${leyenda(series.map((s) => [s.label, s.color]))}</div>
+      <div><h3>Escenarios</h3><div class="tw"><table><thead><tr><th>Escenario</th><th>Minutos por mensaje</th><th>Coste por mensaje a mano</th><th>Ahorro neto del periodo</th><th>Proyección anual</th></tr></thead><tbody>${escs.map(([e, r]) => `<tr${e.minutos_mensaje === p.minutos_mensaje ? ' class="ahorro-total"' : ''}><td>${e.nombre}</td><td class="tnum">${e.minutos_mensaje}</td><td class="tnum">${eur(r.mensaje)}</td><td class="tnum">${eur(r.neto, 0)}</td><td class="tnum">${meur(r.anual)}</td></tr>`).join('')}</tbody></table></div></div>
+      <p class="muted small">Es un escenario de negocio, no un dato contable. Los mensajes, la autonomía efectiva y el coste de la IA salen del sistema; el coste del tramitador y los minutos por mensaje son hipótesis que hay que contrastar con los datos de la aseguradora. El ahorro es coste operativo evitado: el tiempo que el equipo deja de dedicar a mensajes rutinarios pasa a los siniestros complejos y a la atención al cliente.</p>`;
+  }
+  KPI_FIN['ahorro'] = {
+    icono: 'banknote', titulo: 'Ahorro estimado',
+    render: () => {
+      const p = { ...Ahorro.DEFECTO, ...ahorroParams() };
+      const campo = (k, l, v, o) => `<label class="f">${l}<input type="number" data-ahorro="${k}" value="${v}" min="${o[0]}" max="${o[1]}" step="${o[2]}"></label>`;
+      return `<p class="small muted">Lo que costaría tramitar a mano los mensajes que el sistema ha resuelto solo, menos lo que ha costado la IA. Parte de los mensajes procesados y de la autonomía efectiva del periodo, y de lo que cuesta un tramitador y el tiempo que le lleva cada mensaje.</p>
+        <div class="ahorro-ctl">
+          <div class="seg" role="group" aria-label="Escenario">${Ahorro.ESCENARIOS.map((e) => `<button type="button" class="seg-btn" data-ahorro-esc="${e.minutos_mensaje}" aria-pressed="${e.minutos_mensaje === p.minutos_mensaje}">${e.nombre}</button>`).join('')}</div>
+          ${campo('salario_bruto', 'Salario bruto anual (€)', p.salario_bruto, [12000, 80000, 500])}
+          ${campo('minutos_mensaje', 'Minutos por mensaje', p.minutos_mensaje, [1, 60, 0.5])}
+          ${campo('ahorro_escalados', 'Tiempo ahorrado en un escalado (%)', Math.round(p.ahorro_escalados * 100), [0, 100, 5])}
+          <button type="button" class="btn btn-sm" data-ahorro-reset${Object.keys(ahorroEdit).length ? '' : ' disabled'}>${ic('rotate-ccw')} Valores de partida</button>
+        </div>
+        <div id="ahorro-res">${ahorroResultado()}</div>`;
+    },
+  };
+  function ahorroCambia(redibujar) {
+    if (redibujar) { $('modal-kpi-fin-body').innerHTML = KPI_FIN.ahorro.render(); animar($('modal-kpi-fin-body')); }
+    else {
+      $('ahorro-res').innerHTML = ahorroResultado();
+      const m = ahorroParams().minutos_mensaje ?? Ahorro.DEFECTO.minutos_mensaje;
+      document.querySelectorAll('[data-ahorro-esc]').forEach((b) => b.setAttribute('aria-pressed', String(Number(b.dataset.ahorroEsc) === m)));
+      const r = document.querySelector('[data-ahorro-reset]'); if (r) r.disabled = !Object.keys(ahorroEdit).length;
+    }
+    renderFinops();
+  }
 
   function abrirModalKpiFin(key) {
     const info = KPI_FIN[key];
@@ -3071,6 +3137,8 @@
       const sw = e.target.closest('[data-switch]'); if (sw) { e.preventDefault(); e.stopPropagation(); toggleAgente(sw.dataset.switch); return; }
       const gr = e.target.closest('[data-guardrail]'); if (gr) { e.preventDefault(); toggleGuardrail(gr.dataset.guardrail); if (gr.dataset.reabrir) abrirModalGr(gr.dataset.reabrir); return; }
       const cb = e.target.closest('[data-cambio]'); if (cb) { abrirModalCambio(Number(cb.dataset.cambio)); return; }
+      const ae = e.target.closest('[data-ahorro-esc]'); if (ae) { ahorroEdit = { ...ahorroEdit, minutos_mensaje: Number(ae.dataset.ahorroEsc) }; ahorroCambia(true); return; }
+      if (e.target.closest('[data-ahorro-reset]')) { ahorroEdit = {}; ahorroCambia(true); return; }
       const fm = e.target.closest('[data-fin-modo]'); if (fm) { finModo = fm.dataset.finModo; renderFinGraf(); animar($('fin-porque').closest('.card')); return; }
       const irc = e.target.closest('[data-ir-reco]'); if (irc) { const al = document.querySelector(`#recos [data-reco="${irc.dataset.irReco}"]`); if (al) { al.scrollIntoView({ block: 'center', behavior: 'smooth' }); al.style.outline = '2px solid var(--primary)'; setTimeout(() => { al.style.outline = ''; }, 1600); } return; }
       const va = e.target.closest('[data-ver-agente]'); if (va) { verAgente(va.dataset.verAgente); return; }
@@ -3126,6 +3194,7 @@
     // Formularios de «Nuevo cap» y «Nuevo guardrail»
     document.addEventListener('submit', (e) => { e.preventDefault(); if (e.target.id === 'form-cap') guardarCapNuevo(); else if (e.target.id === 'form-gr') guardarGrNuevo(); else if (e.target.id === 'form-fr') guardarFrNuevo(); });
     document.addEventListener('input', (e) => {
+      if (e.target.matches('[data-ahorro]')) { const k = e.target.dataset.ahorro, v = Number(e.target.value); if (!(v >= Number(e.target.min) && v <= Number(e.target.max))) return; ahorroEdit = { ...ahorroEdit, [k]: k === 'ahorro_escalados' ? v / 100 : v }; ahorroCambia(false); return; }
       if (e.target.closest('#form-cap')) actualizarPreviewCap();
       else if (e.target.closest('#form-gr')) actualizarPreviewGr();
       else if (e.target.closest('#form-fr')) actualizarPreviewFr();

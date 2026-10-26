@@ -2514,6 +2514,15 @@
       }
     ],
     "cap_mensual": 500,
+    "negocio": {
+      "salario_bruto": 28000,
+      "factor_ss": 1.32,
+      "estructura": 0.15,
+      "horas_convenio": 1700,
+      "productividad": 0.8,
+      "minutos_mensaje": 8,
+      "ahorro_escalados": 0.4
+    },
     "autonomia": [
       {
         "cls": "ok",

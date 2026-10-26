@@ -21,14 +21,22 @@ const MAX_TXT = 400;     // límite de shell.js por subtítulo
 // Las acciones que cambian el estado de la demo (kill switch, guardrails, medidas, alteración, replay, comparativa)
 // son idempotentes («deja X en tal estado»), así que repetirlas al volver atrás no duplica nada.
 const MAPA = [
-  ['## 1. FNOL', { pagina: 'intro-fnol', accion: 'inicio', titulo: 'FNOL: de qué hablamos', min: '0–1', momentos: [
-    ['Antes de empezar', 'arriba | ver:#cifras'], ['cinco canales a la vez', 'ver:#canales'], ['se decide buena parte', 'ver:#decide'], ['Hoy todo ese trabajo', 'ver:#hoy'],
+  // Introducción: las cuatro secciones de intro.html (la acción «sec:X» enseña la sección X)
+  ['## 1. El problema', { pagina: 'intro', accion: 'sec:problema', titulo: 'El problema: FNOL y el gobierno de la IA', min: '0–1', momentos: [
+    ['Antes de empezar', 'arriba | ver:#cifras-fnol'], ['cinco canales a la vez', 'ver:#canales'], ['se decide buena parte', 'ver:#decide'], ['Hoy todo ese trabajo', 'ver:#hoy'],
+    ['un segundo problema', 'ver:#sec-problema .hero-puntos'], ['Gartner', 'ver:#porque'],
   ] }],
-  ['## 2. El sistema', { pagina: 'intro-sistema', accion: 'inicio', titulo: 'El sistema que vais a ver', min: '1–5', momentos: [
-    ['Antes de entrar en el detalle', 'arriba | ver:#logicalis'], ['En el lote que vamos a procesar', 'ver:#cifras'], ['cuatro especialistas', 'ver:#agentes'],
-    ['dos tipos de usuario', 'ver:#usuarios'], ['Gartner', 'ver:#porque'], ['La base de todo es la trazabilidad', 'ver:#base'],
+  ['## 2. La solución', { pagina: 'intro', accion: 'sec:solucion', titulo: 'La solución: plataforma integrada y gobernada', min: '1–3', momentos: [
+    ['Antes de entrar en el detalle', 'arriba | ver:#logicalis'], ['Y así se ve el panel de gobierno', 'ver:#kpis-resumen'], ['cuatro especialistas', 'ver:#agentes'],
+    ['La base de todo es la trazabilidad', 'ver:#base'],
     ['nivel de autonomía, que va de L0', 'ver:.pilar~Autonomía'], ['El gasto lo controlamos', 'ver:.pilar~Gasto'], ['Para el fraude', 'ver:.pilar~Fraude'],
-    ['El RGPD, DORA', 'ver:.pilar~Cumplimiento'], ['Vamos a verlo', 'ver:.intro-nav .btn-primary'],
+    ['El RGPD, DORA', 'ver:.pilar~Cumplimiento'],
+  ] }],
+  ['## 3. Los actores', { pagina: 'intro', accion: 'sec:actores', titulo: 'Los actores: el tramitador y quien gobierna la IA', min: '3–4', momentos: [
+    ['dos tipos de usuario', 'arriba | ver:#usuarios .usuario-card~El tramitador'], ['los equipos que gobiernan la IA', 'ver:#usuarios .usuario-card~IT, Finanzas'],
+  ] }],
+  ['## 4. La demo', { pagina: 'intro', accion: 'sec:demo', titulo: 'La demo: un viaje de principio a fin', min: '4–5', momentos: [
+    ['La demo es un viaje', 'arriba | ver:#viaje'], ['termina en el panel de gobierno', 'ver:#preguntas-panel'], ['Vamos a verlo', 'ver:#empezar-demo'],
   ] }],
   ['### Paso 1 ', { pagina: 'triaje', accion: 'fases', momentos: [
     ['Aquí veis las seis fases', 'fase:multicanal'], ['Las cuatro primeras', 'fase:reglas'], ['Las dos últimas', 'fase:registro'],
@@ -52,7 +60,7 @@ const MAPA = [
     ['sello SHA-256', 'ver:#modal-raw .g-key.g-traz | ver:#modal-raw .g-key.g-ret'], ['Los datos de salud y los de menores', 'ver:#modal-raw .g-key.g-pii'],
     ['la cadena de hashes se rompe', 'ver:#modal-raw .g-key.g-traz'],
   ] }],
-  ['### 4.0 ', { pagina: 'gobierno', accion: 'goto:inicio', titulo: 'Entrada al panel de gobierno', requiere: 'lote', momentos: [
+  ['### 6.0 ', { pagina: 'gobierno', accion: 'goto:inicio', titulo: 'Entrada al panel de gobierno', requiere: 'lote', momentos: [
     ['Está organizado en trece secciones', 'ver:#inicio-grupos'], ['Cada ficha de esta portada', 'ver:#inicio-hero'],
   ] }],
   ['### Paso 6 ', { pagina: 'gobierno', accion: 'goto:resumen', requiere: 'lote', momentos: [
@@ -106,14 +114,14 @@ const MAPA = [
   ['### Paso 18 ', { pagina: 'gobierno', accion: 'goto:historico', requiere: 'lote', momentos: [
     ['El Histórico es la línea', 'ver:#timeline'], ['Se puede filtrar', 'ver:#hist-chips'], ['Un auditor puede ver', 'ver:#timeline'],
   ] }],
-  ['## 5. Cierre', { pagina: 'gobierno', accion: 'goto:historico', titulo: 'Cierre', min: '34–35', requiere: 'lote', momentos: [['Hemos visto entrar', 'arriba']] }],
+  ['## 7. Cierre', { pagina: 'gobierno', accion: 'goto:historico', titulo: 'Cierre', min: '34–35', requiere: 'lote', momentos: [['Hemos visto entrar', 'arriba']] }],
 ];
 const TIPO_DE = { 'Para qué sirve esta sección': 'para', 'Qué es y qué hace': 'que', Valor: 'valor' };
 
 const limpio = (t) => t.replace(/\*\*/g, '').replace(/`/g, '').replace(/\[([^\]]+)\]\([^)]+\)/g, '$1').replace(/\s+/g, ' ').trim();
 
 // La pantalla del paso con nombres de página en lugar de ficheros (`index.html` → Triaje)
-const PAGINAS = { 'intro-fnol.html': 'Introducción · el FNOL', 'intro-sistema.html': 'Introducción · el sistema', 'index.html': 'Triaje', 'gobierno.html': 'Panel de gobierno' };
+const PAGINAS = { 'intro.html': 'Introducción', 'index.html': 'Triaje', 'gobierno.html': 'Panel de gobierno' };
 const pantallaLegible = (t) => limpio(t.replace(/`([\w-]+\.html)`/g, (m, f) => PAGINAS[f] || f)).replace(/\.$/, '');
 
 // Trocea un párrafo en subtítulos de una o dos frases (sin cortar frases salvo que una sola pase del límite)
@@ -142,7 +150,7 @@ for (let i = 0; i < lineas.length; i++) {
   const m = esInicio(l);
   if (m) {
     const [, cfg] = m;
-    const tit = l.replace(/^#+\s*/, '').replace(/^Paso \d+ · /, '').replace(/^4\.0 /, '').replace(/^\d+\.\s*/, '');
+    const tit = l.replace(/^#+\s*/, '').replace(/^Paso \d+ · /, '').replace(/^6\.0 /, '').replace(/^\d+\.\s*/, '');
     const min = (tit.match(/\((?:min )?([^)]*)\)\s*$/) || [])[1] || '';
     paso = { min: cfg.min || min.replace('-', '–').replace(/^≈/, ''), pagina: cfg.pagina, titulo: cfg.titulo || tit.replace(/\s*\([^)]*\)\s*$/, ''), accion: cfg.accion, ...(cfg.requiere ? { requiere: cfg.requiere } : {}), que: '', frase: '', clics: [], subtitulos: [], _momentos: cfg.momentos || [] };
     pasos.push(paso); etiqueta = null; enClics = false; continue;
