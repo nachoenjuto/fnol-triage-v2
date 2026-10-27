@@ -2753,14 +2753,16 @@
       "decision": "REVISION",
       "confianza": 0.9,
       "motivo": "Conducía el hijo del tomador (22 años), no consta como conductor declarado: comprobar conductores habituales y condiciones de la póliza antes de tramitar.",
-      "resultado": "override",
+      "resultado": "humano",
       "guardrail": "A3 incumple → escalado",
-      "override": {
+      "revision": {
         "usuario": "L. Prieto (tramitador)",
         "fecha": "2026-09-17T09:41:00",
         "de": "REVISION",
         "a": "DESPEJADO",
-        "motivo": "Pablo Navarro consta como segundo conductor declarado desde 03/2026 (consulta en el sistema de pólizas); el modelo no tenía acceso a ese dato."
+        "resultado": "aprobada",
+        "motivo": "Pablo Navarro consta como segundo conductor declarado desde 03/2026 (consulta en el sistema de pólizas); el modelo no tenía acceso a ese dato.",
+        "nota": "Dato no accesible al modelo: candidato a dar al agente de Extracción la consulta de conductores declarados."
       },
       "spans": [
         [
@@ -4075,11 +4077,11 @@
   "eventos": [
     {
       "fecha": "2026-09-17T09:41:00",
-      "tipo": "override",
+      "tipo": "revision",
       "sev": "info",
       "agente": "reglas",
-      "titulo": "Override humano en TRZ-4F2D (MSG-A-04): A revisar → Aprobado",
-      "detalle": "L. Prieto verificó que el conductor consta declarado desde 03/2026. Se registra como dato no accesible al modelo.",
+      "titulo": "Revisión humana en TRZ-4F2D (MSG-A-04): A revisar → Aprobado",
+      "detalle": "L. Prieto verificó que el conductor consta declarado desde 03/2026. No es override: el agente ya lo había escalado (A3). El dato no estaba al alcance del modelo.",
       "usuario": "L. Prieto"
     },
     {
@@ -4162,6 +4164,24 @@
       "titulo": "CAP-01 al 82 %: coste diario global 16,4 € / 20 €",
       "detalle": "Aviso al 80 %. Sin acción automática.",
       "usuario": "Sistema"
+    },
+    {
+      "fecha": "2026-09-15T15:52:00",
+      "tipo": "override",
+      "sev": "warn",
+      "agente": "reglas",
+      "titulo": "Override humano en TRZ-39E4: Aprobado → A revisar",
+      "detalle": "J. Herrera: el agente aprobó solo un daño por agua de 2.950 € sin IVA; con IVA supera el límite de despeje directo de H5. Confianza del agente 91 %.",
+      "usuario": "J. Herrera"
+    },
+    {
+      "fecha": "2026-09-15T11:20:00",
+      "tipo": "override",
+      "sev": "warn",
+      "agente": "reglas",
+      "titulo": "Override humano en TRZ-38B7: Aprobado → A revisar",
+      "detalle": "S. Gil: el agente aprobó solo un parte de Auto con la póliza en periodo de carencia por cambio de vehículo. Cobertura o exclusión fuera del bloque de reglas.",
+      "usuario": "S. Gil"
     },
     {
       "fecha": "2026-09-15T16:40:00",
@@ -4674,7 +4694,7 @@
           {
             "pregunta": "MSG-A-04 · conductor no declarado",
             "esperado": "REVISION por A3",
-            "obtenido": "REVISION por A3 (acierto); override posterior porque el conductor sí estaba declarado",
+            "obtenido": "REVISION por A3 (acierto); en la revisión se aprobó porque el conductor sí estaba declarado",
             "motivo": "Dato fuera del alcance del modelo (consulta de conductores)"
           }
         ]
@@ -6488,9 +6508,9 @@
       "impacto": 2,
       "origen": [
         "hitl",
-        "Intervención humana · override de MSG-A-04"
+        "Intervención humana · revisión de MSG-A-04"
       ],
-      "titulo": "Overrides por datos que el modelo no puede ver",
+      "titulo": "Escalados por datos que el modelo no puede ver",
       "detalle": "MSG-A-04: el conductor sí estaba declarado, pero el agente no tiene acceso a los conductores de la póliza.",
       "alternativas": [
         {

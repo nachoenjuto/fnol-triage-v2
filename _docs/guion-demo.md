@@ -257,6 +257,8 @@ Cinco ideas, una por bloque de la página:
 **Valor**
 
 > Los avisos sencillos y bien documentados se aprueban sin que nadie tenga que tocarlos. Y si mañana alguien pregunta por qué se aprobó uno, la respuesta está aquí, regla por regla y con las palabras del propio cliente. El tramitador no tiene que fiarse de una caja negra: puede comprobar cada regla en segundos. Y ya no tiene que abrir el parte y las fotos para compararlos a ojo con el email: el cruce viene hecho, y solo tiene que mirar lo que no cuadra.
+>
+> Si no está de acuerdo con una aprobación, el botón Override de la tarjeta Decisión la pasa a revisión, con un comentario opcional. Ese cambio cuenta en la tasa de override del agente, y con esa tasa se decide su nivel de autonomía.
 
 **Norma y por qué importa**
 
@@ -265,7 +267,7 @@ Cinco ideas, una por bloque de la página:
 
 **Clics**
 
-1. Arriba de la ficha: las tres cifras (Decisión, Ramo, Confianza 95 %).
+1. Arriba de la ficha: las tres cifras (Decisión, Ramo, Confianza 95 %) y el botón **Override** en la tarjeta Decisión. Señalarlo sin confirmarlo: un override cambia las cifras del panel de gobierno.
 2. Pestaña **Mensaje**: las evidencias resaltadas y numeradas en el texto. Pasar el ratón por una: el título «Evidencias» cambia a su tipo (por ejemplo «Fecha del hecho»). Abrir **Leyenda**.
 3. Pestaña **Adjuntos** (3): el parte amistoso en el visor de PDF y, a la derecha, sus datos con el contraste contra el email (todo coincide; los datos del otro vehículo solo constan en el parte). Pasar a las dos fotos: clic en la imagen para ampliarla.
 4. Pestaña **Datos extraídos**: los 10 campos (cliente, póliza, tipo, fecha, 1.350 €, lugar, terceros sí, lesionados no, documentación: parte amistoso, presupuesto y fotos).
@@ -296,7 +298,7 @@ Cinco ideas, una por bloque de la página:
 
 **Valor**
 
-> El tramitador entiende el motivo en segundos y puede corregirlo si no está de acuerdo. Si el cliente pide explicaciones, la respuesta ya está preparada en la ficha. Y los daños personales siempre los valora una persona: en los últimos 14 días, el guardrail de lesionados explica el 20 % de los escalados.
+> El tramitador entiende el motivo en segundos. Cuando termina de revisarlo, lo resuelve con el botón Validar de la tarjeta Decisión: elige si lo aprueba o si lo deja en revisión, y puede dejar un comentario. Como el agente ya había escalado el caso, eso no es un override y no afecta a su autonomía. Si el cliente pide explicaciones, la respuesta ya está preparada en la ficha. Y los daños personales siempre los valora una persona: en los últimos 14 días, el guardrail de lesionados explica el 20 % de los escalados.
 >
 > Además, el modelo decide sin saber quién es el asegurado. La minimización de datos deja de ser una política escrita en un documento y pasa a ser lo que el modelo recibe de verdad.
 
@@ -313,6 +315,7 @@ Cinco ideas, una por bloque de la página:
 3. Pestaña **Datos extraídos**: `importe_estimado_eur` vacío. Señalarlo.
 4. Pestaña **Razonamiento**: por qué es Auto y no Salud (el hecho causante es el accidente de tráfico).
 5. Pestaña **Respuesta cruda** → vista **Enviado al modelo**: los marcadores [PERSONA_1], [POLIZA_AU_1], [MATRICULA_1], [TELEFONO_1] en lugar de los datos reales. La fractura y la diabetes siguen ahí.
+6. Tarjeta Decisión: el botón **Validar**. Al pulsarlo se elige el resultado (Aprobar o Mantener en «A revisar») y se puede dejar un comentario. Cancelar sin confirmar.
 
 **Si preguntan:** ¿seudonimizar es anonimizar? No. La traza conserva la relación con la persona, y por eso sigue siendo un dato personal (RGPD art. 4.5). Lo explica el Termómetro de cumplimiento (paso 15).
 
@@ -586,7 +589,7 @@ Cinco ideas, una por bloque de la página:
 | MSG-A-04 · Email · «Daños en el coche en un parking» |
 |---|
 | «Hola, el jueves 10, sobre las 14:00, mi hijo Pablo (tiene 22 años) cogió mi coche, el Peugeot 308 3318 LMB de la póliza AU-119045, para ir a la universidad y al salir del parking subterráneo de la Facultad de Económicas de la Complutense rozó una columna. Tiene la puerta trasera derecha y la aleta bastante hundidas y el piloto trasero roto. No hay otro vehículo implicado, así que no hicimos parte, y él está bien. Pablo tiene el carné desde hace 3 años; no sé si lo incluimos en la póliza cuando la renovamos, la llevaba mi mujer. El taller de confianza, Talleres Ruiz de Alcorcón, dice que son unos 2.200 € y que puede tenerlo en una semana. Quiero que me digáis a qué taller lo llevo o si puedo ir al mío. Mi teléfono es el 677 019 334. Un saludo, Antonio Navarro Blanco.» |
-| **Resultado del agente:** Auto · A revisar · regla A3 (conductor no declarado). **Revisión humana:** L. Prieto comprueba que Pablo sí está declarado y cambia la decisión a Aprobado en 38 minutos (override) |
+| **Resultado del agente:** Auto · A revisar · regla A3 (conductor no declarado). **Revisión humana:** L. Prieto comprueba que Pablo sí está declarado y lo aprueba en 38 minutos. No es override: el agente ya lo había escalado |
 
 **Para qué sirve esta sección**
 
@@ -594,7 +597,7 @@ Cinco ideas, una por bloque de la página:
 
 **Qué es y qué hace**
 
-> Cada traza que se escala entra en una cola con su motivo, su estado y la persona que la revisa. Cuando un tramitador cambia la decisión del agente, eso es un override, y queda registrado con su motivo.
+> Cada traza que se escala entra en una cola con su motivo, su estado y la persona que la revisa. Resolver un caso escalado no es un override. Override es cuando un tramitador cambia una decisión que el agente tomó solo, por ejemplo una aprobación automática que pasa a revisión, y queda registrado con su motivo.
 >
 > El panel también mide cómo se revisa: cuánto tarda cada tramitador, qué porcentaje de aprobaciones se firma en menos de 30 segundos y qué tramitadores tienen la formación en IA.
 
@@ -602,7 +605,7 @@ Cinco ideas, una por bloque de la página:
 
 > La cola demuestra que una persona ha tomado la decisión, con su nombre y su hora. En la demo, el 3,3 % de las aprobaciones se firma en menos de 30 segundos y tres tramitadores pasan del máximo del 5 %. Dos de ellos aún no tienen la formación en IA, y eso ya es una medida abierta.
 >
-> Además, cada override alimenta la autonomía: si los tramitadores corrigen más del 3 %, el agente baja de nivel.
+> Además, cada override alimenta la autonomía: si los tramitadores corrigen más del 3 % de lo que el agente decide solo, el panel propone bajarle de nivel y una persona lo aprueba.
 
 **Norma y por qué importa**
 
@@ -613,7 +616,7 @@ Cinco ideas, una por bloque de la página:
 
 1. KPI: 3.180 escalados (19 %), override 2,1 %, 2 pendientes de revisión, revisiones exprés 3,3 %, supervisión humana efectiva «Cubierto».
 2. **Mecanismos de supervisión**: escalado, override y nivel, kill switch, control normativo.
-3. **Cola de revisión**: las tres trazas del lote. Clic en MSG-A-04: la ficha de la traza con el override de L. Prieto y su motivo. Navegar con › a MSG-A-08 y MSG-A-13 (pendientes).
+3. **Cola de revisión**: las tres trazas del lote. Clic en MSG-A-04: la ficha de la traza con la revisión de L. Prieto, que lo aprueba, y su motivo. Navegar con › a MSG-A-08 y MSG-A-13 (pendientes).
 4. **Escalados**: el anillo de causas (G-02 62 %, G-04 20 %, G-05 11 %).
 5. **Calidad de la revisión**: tiempos por tramos, el 3,3 % de aprobaciones en menos de 30 segundos y la tabla por tramitador con su formación en IA.
 6. **Medidas**: clic en M-10 (formación de los tramitadores).
@@ -890,7 +893,7 @@ MSG-A-02 (rotura de tubería, 1.080 €) pide el pago a esa misma cuenta: score 
 
 **Qué es y qué hace**
 
-> Recoge cada acción con su usuario y su hora: agentes pausados, guardrails activados o desactivados, medidas aplicadas o deshechas, overrides, cambios de modelo, de prompt y de nivel, e incidentes. Se puede filtrar por tipo de evento.
+> Recoge cada acción con su usuario y su hora: agentes pausados, guardrails activados o desactivados, medidas aplicadas o deshechas, revisiones, overrides, cambios de modelo, de prompt y de nivel, e incidentes. Se puede filtrar por tipo de evento.
 
 **Valor**
 
@@ -903,7 +906,7 @@ MSG-A-02 (rotura de tubería, 1.080 €) pide el pago a esa misma cuenta: score 
 **Clics**
 
 1. La línea de tiempo: arriba, lo que se ha hecho en la demo con el usuario «Operador (esta sesión)»: el kill switch de Extracción, M-01 aplicada y deshecha, M-02 pendiente, la configuración aplicada en KB-02.
-2. Chips de tipo: **Operaciones**, **Políticas**, **Overrides** (el de L. Prieto en MSG-A-04), **Despliegues** (cambios de modelo y de prompt), **Incidentes** (la ráfaga de errores 429).
+2. Chips de tipo: **Operaciones**, **Políticas**, **Overrides** (los de J. Herrera y S. Gil el 15/09, el día que Reglas bajó de nivel), **Revisiones** (la de L. Prieto en MSG-A-04), **Despliegues** (cambios de modelo y de prompt), **Incidentes** (la ráfaga de errores 429).
 
 ---
 
@@ -930,7 +933,7 @@ MSG-A-02 (rotura de tubería, 1.080 €) pide el pago a esa misma cuenta: score 
 | MSG-A-01 | Email | Golpe leve en la M-30 | Auto | Aprobado | Colisión leve con parte amistoso, sin heridos, 1.350 € | — | 3, 14 |
 | MSG-A-02 | Web | Rotura de tubería bajo el fregadero | Hogar | Aprobado | Daño por agua súbito, 1.080 € | 35 · pago retenido (G-11) | 12 |
 | MSG-A-03 | Chat | Urgencias por esguince | Salud | Aprobado | Urgencias en hospital del cuadro | — | — |
-| MSG-A-04 | Email | Daños en el coche en un parking | Auto | A revisar → Aprobado (override) | A3: conductor no declarado; L. Prieto comprueba que sí lo está | 30 · contraindicio | 11, 12, 13 |
+| MSG-A-04 | Email | Daños en el coche en un parking | Auto | A revisar → Aprobado (revisión de L. Prieto) | A3: conductor no declarado; L. Prieto comprueba que sí lo está | 30 · contraindicio | 11, 12, 13 |
 | MSG-A-05 | Web | Subida de tensión | Hogar | Aprobado | Daño eléctrico reconocido, 640 € | — | — |
 | MSG-A-06 | Email | Radiografía y analítica prescritas | Salud | Aprobado | Pruebas básicas sin autorización previa | — | — |
 | MSG-A-07 | Chat | Luna rota por gravilla | Auto | Aprobado | Luna en taller concertado, 280 € | — | — |

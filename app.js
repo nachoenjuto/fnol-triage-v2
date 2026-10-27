@@ -616,6 +616,17 @@
     });
   }
 
+  // Decisión en el registro: la vigente y, si una persona actuó, si validó la revisión o hizo override
+  function pillDecision(e) {
+    const rev = e.revision && e.revision.a ? e.revision : null;
+    const final = rev ? rev.a : e.decision;
+    const base = `<span class="pill ${final === DECISION.REVIEW ? 'pill-review' : 'pill-ok'}">${final === DECISION.REVIEW ? 'A revisar' : 'Aprobado'}</span>`;
+    if (!rev) return base;
+    return rev.accion === 'override'
+      ? `${base} <span class="pill pill-time" title="Override de ${escapeHtml(rev.usuario)}: el agente lo había aprobado">${lucide('repeat')} Override</span>`
+      : `${base} <span class="pill pill-revisado" title="Revisión validada por ${escapeHtml(rev.usuario)}">${lucide('circle-check')} Validado</span>`;
+  }
+
   function renderLog() {
     const rows = sortedFilteredLog();
     $('log-count').textContent = state.log.length ? `(${state.log.length})` : '';
@@ -635,7 +646,7 @@
         `<td><strong>${escapeHtml(e.id)}</strong><br><span class="muted small">${escapeHtml(e.asunto)}</span></td>`,
         `<td><span class="pill pill-ramo-${e.ramo.toLowerCase()}">${escapeHtml(e.ramo)}</span> ${ramoMark}</td>`,
         `<td>${fmtEur(e.importe)}</td>`,
-        `<td><span class="pill ${e.decision === DECISION.REVIEW ? 'pill-review' : 'pill-ok'}">${e.decision === DECISION.REVIEW ? 'A revisar' : 'Aprobado'}</span>${chipFraude(FRv[e.id])}</td>`,
+        `<td>${pillDecision(e)}${chipFraude(FRv[e.id])}</td>`,
         `<td class="motivo">${escapeHtml(e.motivo)}</td>`,
         `<td>${escapeHtml(e.origen)}</td>`,
         `<td>${Math.round(e.confianza * 100)} %</td>`,
@@ -916,6 +927,8 @@
 
   function pintarSiguientePaso(entry) {
     const paso = Evidencias.siguientePaso(entry);
+    // Los «A revisar» se validan y los aprobados admiten override desde la tarjeta Decisión; tras eso no hay nada que marcar
+    const review = entry.decision === DECISION.REVIEW || !!entry.revision;
     const card = $('modal-sig'); card.className = `sig-card ${paso.tono === 'ok' ? 'ok' : ''}`;
     const borrador = Evidencias.borradorSolicitud(entry, paso);
     card.innerHTML = `<span class="k">Siguiente paso recomendado</span>
@@ -924,10 +937,10 @@
       ${paso.pedir.length ? `<div class="small muted">Qué pedir al cliente:</div><div class="pedir">${paso.pedir.map((x) => `<span>${escapeHtml(x)}</span>`).join('')}</div>` : ''}
       ${paso.otras && paso.otras.length ? `<div class="small muted">También: ${escapeHtml(paso.otras.join(' · '))}</div>` : ''}
       <div class="sig-acciones">
-        <button class="btn btn-sm btn-primary" type="button" id="btn-revisado">${lucide('check')} ${entry.revisado ? 'Revisado' : paso.tono === 'ok' ? 'Marcar como tramitado' : 'Marcar como revisado'}</button>
+        ${review ? '' : `<button class="btn btn-sm btn-primary" type="button" id="btn-revisado">${lucide('check')} ${entry.revisado ? 'Revisado' : 'Marcar como tramitado'}</button>`}
         ${borrador ? `<button class="btn btn-sm" type="button" id="btn-solicitud">${lucide('copy')} Copiar solicitud al cliente</button>` : ''}
       </div>`;
-    $('btn-revisado').addEventListener('click', () => { entry.revisado = !entry.revisado; gobDe(entry); persistLog(); pintarSiguientePaso(entry); pintarIndicadores(entry); pintarRaw(entry); });
+    if (!review) $('btn-revisado').addEventListener('click', () => { entry.revisado = !entry.revisado; gobDe(entry); persistLog(); pintarSiguientePaso(entry); pintarIndicadores(entry); pintarRaw(entry); });
     const bs = $('btn-solicitud');
     if (bs) bs.addEventListener('click', async () => {
       try { await navigator.clipboard.writeText(borrador); bs.innerHTML = `${lucide('check')} Copiado`; } catch { bs.textContent = 'No se pudo copiar'; }
@@ -935,21 +948,82 @@
     });
   }
 
-  function pintarIndicadores(entry) {
+  // Acción humana desde la tarjeta Decisión. Las dos piden confirmación con un comentario opcional y se pueden cancelar.
+  // · Validar (solo «A revisar»): el tramitador resuelve la revisión y elige el resultado. No cuenta como override:
+  //   el agente ya había escalado el caso, así que no afecta a su autonomía.
+  // · Override (solo «Aprobado»): el tramitador cambia una decisión que el agente tomó solo y la pasa a «A revisar».
+  //   Cuenta en la tasa de override del agente de Reglas y puede proponer bajarle de nivel (gobierno.html).
+  const ACC_REV = {
+    validar: { icono: 'circle-check', boton: 'Validar', titulo: 'Validar la revisión', confirmar: 'Confirmar', pista: 'Qué has comprobado', ayuda: 'Resuelves un caso que el agente ya escaló: no cuenta como override ni afecta a su autonomía.' },
+    override: { icono: 'repeat', boton: 'Override', titulo: 'Cambiar a «A revisar» (override)', confirmar: 'Pasar a «A revisar»', pista: 'Por qué no estás de acuerdo con la aprobación', ayuda: 'Cambias una decisión que el agente tomó solo: cuenta como override del agente de Reglas y, si la tasa pasa del 3 %, se propone bajarle de nivel.' },
+  };
+  const RESULTADO_REV = { aprobada: 'Aprobar', mantenida: 'Mantener en «A revisar»' };
+  // Decisión vigente tras la acción humana (la del agente se conserva en entry.decision)
+  const decisionFinal = (e) => (e.revision && e.revision.a ? e.revision.a : e.decision);
+  function tarjetaDecision(entry, inc) {
     const review = entry.decision === DECISION.REVIEW;
+    const rev = entry.revision && entry.revision.a ? entry.revision : null;
+    const final = decisionFinal(entry);
+    const finalReview = final === DECISION.REVIEW;
+    const accion = review ? 'validar' : 'override';
+    const abierta = !rev && modalState.revForm === accion;
+    const quien = rev ? `${escapeHtml(rev.usuario)} · ${new Date(rev.fecha).toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' })}` : '';
+    const sub = entry.revisado && !rev ? '<span class="pill pill-revisado">Revisado</span>' : inc.length ? `incumple ${escapeHtml(inc.join(', '))}` : 'sin reglas incumplidas';
+    // Columna derecha: el botón (sigue visible con el formulario abierto, así la tarjeta no cambia de alto)
+    // o, tras la acción, quién la hizo, el cambio y el comentario (recortado a dos líneas; entero al pasar el ratón)
+    const lado = rev
+      ? `<span class="pill ${rev.accion === 'override' ? 'pill-time' : 'pill-revisado'}">${lucide(ACC_REV[rev.accion === 'override' ? 'override' : 'validar'].icono)} ${rev.accion === 'override' ? 'Override' : 'Validado'}</span>
+        <span class="dec-quien">${quien}</span>
+        ${rev.de !== rev.a ? `<span class="dec-antes">El agente decidió «${review ? 'A revisar' : 'Aprobado'}»</span>` : ''}
+        ${rev.comentario ? `<q class="dec-coment" title="${escapeHtml(rev.comentario)}">${escapeHtml(rev.comentario)}</q>` : ''}`
+      : `<button class="btn btn-sm${review ? ' btn-primary' : ''}" type="button" data-rev="${accion}" aria-expanded="${abierta}" aria-controls="modal-rev">${lucide(ACC_REV[accion].icono)} ${ACC_REV[accion].boton}</button>`;
+    return `<div class="kpi-tile ico dec-tile${abierta ? ' activa' : ''}" style="--tc:${finalReview ? 'var(--review)' : 'var(--ok)'}">
+      <span class="kpi-ico">${lucide(finalReview ? 'eye' : 'thumbs-up')}</span>
+      <div class="txt"><span class="l">Decisión</span><span class="v">${finalReview ? 'A revisar' : 'Aprobado'}</span><span class="s">${sub}</span></div>
+      <div class="dec-lado">${lado}</div>
+    </div>`;
+  }
+  // Formulario de la acción: fila propia bajo las tres tarjetas, fuera de su rejilla, para no moverlas
+  function pintarFormRevision(entry) {
+    const accion = entry.decision === DECISION.REVIEW ? 'validar' : 'override';
+    const f = !entry.revision && modalState.revForm === accion && ACC_REV[accion];
+    const box = $('modal-rev');
+    box.hidden = !f;
+    box.innerHTML = f ? `<form class="dec-form" data-accion="${accion}">
+        <b>${f.titulo}</b>
+        ${accion === 'validar' ? `<fieldset class="dec-resultado"><legend>Resultado de la revisión</legend>${Object.entries(RESULTADO_REV).map(([k, l], i) => `<label class="inline"><input type="radio" name="dec-resultado" value="${k}"${i ? '' : ' checked'}> ${l}</label>`).join('')}</fieldset>` : ''}
+        <label for="dec-coment">Comentario <span class="muted">(opcional)</span></label>
+        <textarea id="dec-coment" rows="2" maxlength="500" placeholder="${f.pista}"></textarea>
+        <p class="small muted">${f.ayuda}</p>
+        <div class="dec-acciones"><button class="btn btn-sm btn-primary" type="submit">${lucide('check')} ${f.confirmar}</button><button class="btn btn-sm" type="button" data-rev="cancelar">Cancelar</button></div>
+      </form>` : '';
+  }
+  function revisar(entry, accion, { resultado, comentario } = {}) {
+    const de = entry.decision;
+    const a = accion === 'override' ? DECISION.REVIEW : resultado === 'aprobada' ? DECISION.CLEARED : DECISION.REVIEW;
+    entry.revision = { accion: accion === 'override' ? 'override' : 'validada', ...(accion === 'override' ? {} : { resultado }), de, a, usuario: Shell.USUARIO.nombre, fecha: new Date().toISOString(), ...(comentario ? { comentario } : {}) };
+    entry.revisado = true;
+    modalState.revForm = null;
+    gobDe(entry); persistLog(); renderLog();
+    pintarIndicadores(entry); pintarSiguientePaso(entry); pintarRaw(entry);
+  }
+
+  function pintarIndicadores(entry) {
     const ramoColor = { Auto: 'var(--auto)', Hogar: 'var(--hogar)', Salud: 'var(--salud)' }[entry.ramo] || 'var(--muted)';
     const ramoIcon = { Auto: 'car', Hogar: 'house', Salud: 'heart-pulse' }[entry.ramo] || 'circle-help';
     const inc = (entry.criterios || []).filter((c) => c.resultado === 'incumple').map((c) => c.regla);
     const esperado = entry.esperado || {};
     $('modal-kpis').innerHTML = `
-      <div class="kpi-tile ico" style="--tc:${review ? 'var(--review)' : 'var(--ok)'}"><span class="kpi-ico">${lucide(review ? 'eye' : 'thumbs-up')}</span><div class="txt"><span class="l">Decisión</span><span class="v">${review ? 'A revisar' : 'Aprobado'}</span><span class="s">${entry.revisado ? '<span class="pill pill-revisado">Revisado</span>' : inc.length ? `incumple ${escapeHtml(inc.join(', '))}` : 'sin reglas incumplidas'}</span></div></div>
+      ${tarjetaDecision(entry, inc)}
       <div class="kpi-tile ico" style="--tc:${ramoColor}"><span class="kpi-ico">${lucide(ramoIcon)}</span><div class="txt"><span class="l">Ramo</span><span class="v">${escapeHtml(entry.ramo)}</span><span class="s">${esperado.ramo ? (esperado.ramo === entry.ramo ? 'coincide con el esperado' : `esperado ${escapeHtml(esperado.ramo)}`) : escapeHtml(entry.origen.startsWith('IA') ? 'asignado por el modelo' : 'asignado por reglas locales')}</span></div></div>
-      <div class="kpi-tile ico conf" style="--tc:${entry.confianza >= 0.85 ? 'var(--ok)' : entry.confianza >= 0.7 ? 'var(--review)' : 'var(--error)'}"><span class="kpi-ico">${lucide('gauge')}</span><div class="txt"><span class="l">Confianza</span><span class="v" style="color:var(--tc)">${entry.confianza >= 0.85 ? 'Alta' : entry.confianza >= 0.7 ? 'Media' : 'Baja'}</span><span class="s">del modelo en su decisión</span></div><svg class="ring" viewBox="0 0 64 64" role="img" aria-label="Confianza ${Math.round(entry.confianza * 100)} por ciento"><circle class="pista" cx="32" cy="32" r="26"/><circle class="valor" cx="32" cy="32" r="26" stroke-dasharray="${(entry.confianza * 163.36).toFixed(1)} 999"/><text x="32" y="37" text-anchor="middle">${Math.round(entry.confianza * 100)}%</text></svg></div>`
+      <div class="kpi-tile ico conf" style="--tc:${entry.confianza >= 0.85 ? 'var(--ok)' : entry.confianza >= 0.7 ? 'var(--review)' : 'var(--error)'}"><span class="kpi-ico">${lucide('gauge')}</span><div class="txt"><span class="l">Confianza</span><span class="v" style="color:var(--tc)">${entry.confianza >= 0.85 ? 'Alta' : entry.confianza >= 0.7 ? 'Media' : 'Baja'}</span><span class="s">del modelo en su decisión</span></div><svg class="ring" viewBox="0 0 64 64" role="img" aria-label="Confianza ${Math.round(entry.confianza * 100)} por ciento"><circle class="pista" cx="32" cy="32" r="26"/><circle class="valor" cx="32" cy="32" r="26" stroke-dasharray="${(entry.confianza * 163.36).toFixed(1)} 999"/><text x="32" y="37" text-anchor="middle">${Math.round(entry.confianza * 100)}%</text></svg></div>`;
+    pintarFormRevision(entry);
   }
 
   function openModal(entry, lista, { conservarTab = false } = {}) {
     if (lista) modalState.lista = lista; else modalState.lista = sortedFilteredLog();
     modalState.idx = Math.max(0, modalState.lista.findIndex((e) => e.id === entry.id));
+    if (modalState.entry !== entry) modalState.revForm = null;
     modalState.entry = entry;
     const m = entry.mensaje;
     const datos = entry.datos_extraidos || {};
@@ -1352,6 +1426,28 @@
       if (entry) openModal(entry);
     });
     $('modal-close').addEventListener('click', cerrarFicha);
+    // Tarjeta Decisión: Validar / Override abren el formulario; Cancelar (o Esc dentro) lo cierra sin registrar nada
+    const botonRev = () => $('modal-kpis').querySelector('[data-rev]');
+    const cerrarFormRev = () => { modalState.revForm = null; pintarIndicadores(modalState.entry); const b = botonRev(); if (b) b.focus(); };
+    ['modal-kpis', 'modal-rev'].forEach((id) => $(id).addEventListener('click', (ev) => {
+      const b = ev.target.closest('[data-rev]'); const entry = modalState.entry;
+      if (!b || !entry) return;
+      if (b.dataset.rev === 'cancelar' || modalState.revForm === b.dataset.rev) { cerrarFormRev(); return; }
+      modalState.revForm = b.dataset.rev;
+      pintarIndicadores(entry);
+      const f = $('modal-rev').querySelector('input:checked, textarea'); if (f) f.focus();
+    }));
+    $('modal-rev').addEventListener('submit', (ev) => {
+      ev.preventDefault();
+      const f = ev.target.closest('.dec-form');
+      const r = f && f.querySelector('input[name="dec-resultado"]:checked');
+      if (f && modalState.entry) revisar(modalState.entry, f.dataset.accion, { resultado: r ? r.value : undefined, comentario: $('dec-coment').value.trim() });
+    });
+    $('modal-rev').addEventListener('keydown', (ev) => {
+      if (ev.key !== 'Escape') return;
+      ev.preventDefault(); ev.stopPropagation();
+      cerrarFormRev();
+    });
     // Esc cierra con animación (la leyenda abierta se cierra antes, en su propio manejador); 'close' limpia el estado si se cierra desde fuera
     $('modal').addEventListener('cancel', (ev) => { ev.preventDefault(); cerrarFicha(); });
     $('modal').addEventListener('close', () => $('modal').classList.remove('cerrando'));

@@ -147,8 +147,9 @@ Versión de bolsillo de [guion-demo.md](guion-demo.md): los mismos pasos y tiemp
 
 > - Los avisos sencillos y bien documentados se aprueban sin que nadie los toque.
 > - Si alguien pregunta por qué, la respuesta está aquí, regla por regla y con las palabras del cliente.
+> - Si el tramitador no está de acuerdo, el botón Override pasa la aprobación a revisión; cuenta en la tasa de override del agente.
 
-**Clics:** ficha de MSG-A-01 (golpe en la M-30, 1.350 €): Mensaje, Adjuntos (el parte y las dos fotos), Datos extraídos, Reglas de negocio y Razonamiento.
+**Clics:** ficha de MSG-A-01 (golpe en la M-30, 1.350 €): botón Override en la tarjeta Decisión (señalarlo sin confirmar), Mensaje, Adjuntos (el parte y las dos fotos), Datos extraídos, Reglas de negocio y Razonamiento.
 
 ### Paso 4 · La ficha de un «A revisar»: MSG-A-08 (min 10-12)
 
@@ -165,11 +166,11 @@ Versión de bolsillo de [guion-demo.md](guion-demo.md): los mismos pasos y tiemp
 
 **Valor**
 
-> - El tramitador entiende el motivo en segundos y puede corregirlo.
+> - El tramitador entiende el motivo en segundos y lo resuelve con Validar: aprueba o deja en revisión. No es override: el agente ya lo había escalado.
 > - Los daños personales siempre los valora una persona: el guardrail de lesionados explica el 20 % de los escalados.
 > - El modelo decide sin saber quién es el asegurado: la minimización es real.
 
-**Clics:** ficha de MSG-A-08 (moto, lesionado): Reglas (A5), Datos extraídos (importe vacío) y Respuesta cruda → «Enviado al modelo».
+**Clics:** ficha de MSG-A-08 (moto, lesionado): Reglas (A5), Datos extraídos (importe vacío), Respuesta cruda → «Enviado al modelo» y botón Validar (sin confirmar).
 
 ### Paso 5 · La respuesta cruda de MSG-A-12 (min 12-14)
 
@@ -338,7 +339,8 @@ Versión de bolsillo de [guion-demo.md](guion-demo.md): los mismos pasos y tiemp
 **Qué es y qué hace**
 
 > - Cada caso escalado entra en una cola con su motivo, su estado y su revisor.
-> - Si un tramitador cambia la decisión del agente, es un override y queda registrado con su motivo.
+> - Resolver un caso escalado no es override. Override es cambiar algo que el agente decidió solo, y queda registrado con su motivo.
+> - Si los overrides pasan del 3 %, el panel propone bajar de nivel al agente y una persona lo aprueba.
 > - El panel mide cuánto tarda cada tramitador y qué aprobaciones se firman en menos de 30 segundos.
 
 **Valor**
@@ -346,7 +348,7 @@ Versión de bolsillo de [guion-demo.md](guion-demo.md): los mismos pasos y tiemp
 > - La cola demuestra que decidió una persona, con nombre y hora.
 > - El 3,3 % de las aprobaciones se firma en menos de 30 segundos; dos tramitadores aún no tienen la formación en IA.
 
-**Clics:** cola de revisión → traza de MSG-A-04 (override de L. Prieto: el hijo sí estaba declarado); calidad de la revisión y M-10.
+**Clics:** cola de revisión → traza de MSG-A-04 (revisión de L. Prieto, que lo aprueba: el hijo sí estaba declarado); calidad de la revisión y M-10.
 
 ### Paso 12 · Fraude: MSG-A-13, MSG-A-09 y MSG-A-02 (min 24-26)
 
@@ -501,13 +503,13 @@ Versión de bolsillo de [guion-demo.md](guion-demo.md): los mismos pasos y tiemp
 
 **Qué es y qué hace**
 
-> - Recoge agentes pausados, guardrails, medidas, overrides, cambios de modelo, de prompt y de nivel, e incidentes.
+> - Recoge agentes pausados, guardrails, medidas, revisiones, overrides, cambios de modelo, de prompt y de nivel, e incidentes.
 
 **Valor**
 
 > - Un auditor ve cada cambio con su autor y su fecha; todo lo que hemos tocado en la demo ya está aquí.
 
-**Clics:** línea de tiempo y filtros; override de L. Prieto en MSG-A-04.
+**Clics:** línea de tiempo y filtros; revisión de L. Prieto en MSG-A-04 y overrides del 15/09.
 
 ---
 

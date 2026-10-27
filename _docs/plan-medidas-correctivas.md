@@ -22,7 +22,7 @@ Justo después de **Resumen**, con el icono `wrench`. En Inicio se añade su fic
 | **Coste** | Caps superados o en aviso y sus acciones correctivas (las mismas de FinOps, con el mismo estado) | CAP-03 (Reglas al 114 %), CAP-04 y CAP-05 (coste y razonamiento por traza), CAP-01 al 87 % |
 | **Conocimiento** | KB degradadas o críticas (motivos de su salud) y rúbricas con acuerdo bajo | KB-06 Red de talleres caída, KB-02 con recall a la baja, KB-04 con datos personales y huecos, KB-09 sin aviso de IA, R-04 con acuerdo juez-humano 0,84 |
 | **Cumplimiento** | Controles parciales del Termómetro | Minimización (RGPD 5.1.c), EIPD pendiente (RGPD 35), aviso de IA en WhatsApp (AI Act 50), formación (AI Act 4), pruebas de sesgo (EIOPA), supresión en índices (RGPD 17) |
-| **Calidad y autonomía** | Overrides, agentes degradados o con nivel bajado, guardrails inactivos | Override de MSG-A-04 (dato de conductores no accesible al modelo), Reglas bajó de L3 a L2, G-09 inactivo |
+| **Calidad y autonomía** | Overrides, agentes degradados o con nivel bajado, guardrails inactivos | Revisión de MSG-A-04 (dato de conductores no accesible al modelo), Reglas bajó de L3 a L2, G-09 inactivo |
 | **Resiliencia** | Incidencias de las trazas | Ráfagas de 429 del proveedor de IA |
 
 ## 4. Diseño
@@ -98,7 +98,7 @@ Un clic en el problema abre su ventana, con flechas para pasar al siguiente. Mue
 | EIPD pendiente (RGPD 35) | ★ revisión de la EIPD por el DPO tras el cambio de modelo |
 | Formación (AI Act 4) | ★ formar a los 2 tramitadores nuevos |
 | Sesgo en WhatsApp (+6 pp de revisiones) | ★ analizar la causa con replay · ajustar la normalización de WhatsApp · umbral específico por canal |
-| Override por conductor no declarado (MSG-A-04) | ★ dar al agente de Extracción una herramienta de consulta de conductores declarados · añadir la pregunta a la plantilla de petición de datos |
+| Escalado por conductor no declarado (MSG-A-04) | ★ dar al agente de Extracción una herramienta de consulta de conductores declarados · añadir la pregunta a la plantilla de petición de datos |
 | Reglas bajó a L2 | ★ plan de recuperación: 2 semanas con override ≤ 3 % y replay de los casos corregidos |
 | G-09 inactivo (confianza STT) | ★ activarlo con umbral 0,7 · activarlo solo en llamadas con lesionados |
 | Ráfagas de 429 | ★ cuota reservada con el proveedor · segundo proveedor como respaldo (ya validado para DORA) |

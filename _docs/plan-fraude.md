@@ -7,7 +7,7 @@ Estado: **aplicado** · 23/10/2026 · repo `fnol-triage/v2` · decisiones D2–D
 > - No se reordenan las series por día de la semana: movería valores de días con superaciones y eventos fechados y descuadraría las fichas de los caps.
 > - Corte de la mañana a las 09:45 (el último evento del lote es de las 09:41), no a las 09:30.
 > - Sin cambio de prompt (sigue `reglas v2.3`): el motor detecta las señales de relato con sus citas literales sin pedírselas al modelo.
-> - MSG-A-04 no llega a la SIU: el panel ya registra que Pablo está declarado desde 03/2026 (override de L. Prieto), así que IF-11 se anula como **contraindicio** (score 30). Sirve para enseñar que el histórico también resta.
+> - MSG-A-04 no llega a la SIU: el panel ya registra que Pablo está declarado desde 03/2026 (revisión de L. Prieto, que lo aprobó), así que IF-11 se anula como **contraindicio** (score 30). Sirve para enseñar que el histórico también resta.
 > - MSG-A-11 dice «hace unos meses» en vez de «en marzo», para que el texto no dependa de la fecha.
 > - CAP-11 pasa a ser «importe retenido pendiente de verificar» (límite 5.000 €): un cap con límite 0 € siempre estaría superado. La regla «ningún pago a una cuenta sin verificar» la aplica G-11.
 > - En el menú la sección se llama «Fraude» (bloque «Riesgo»); el título de la página es «Indicadores de fraude».

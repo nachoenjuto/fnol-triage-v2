@@ -158,4 +158,35 @@ test('las rúbricas suman 100 y apuntan a KB existentes', () => {
   }
 });
 
+console.log('acción humana: validar y override');
+const conAccion = (m, revision) => ({ ...entrada(m), revisado: true, revision: { usuario: 'Ignacio Sánchez', fecha: '2026-09-17T10:00:00.000Z', ...revision } });
+test('validar un «A revisar» (MSG-A-04) lo resuelve sin contar como override', () => {
+  const s = C.gobernanza(conAccion(A[3], { accion: 'validada', resultado: 'aprobada', de: 'REVISION', a: 'DESPEJADO', comentario: 'Conductor declarado' })).supervision_humana;
+  assert.strictEqual(s.estado, 'revisada: aprobada');
+  assert.strictEqual(s.accion_humana.tipo, 'revision');
+  assert.strictEqual(s.accion_humana.cuenta_para_autonomia, false);
+  assert.strictEqual(s.accion_humana.a, 'Aprobado');
+});
+test('override de un aprobado (MSG-A-01) cuenta para la autonomía y deja el comentario', () => {
+  const s = C.gobernanza(conAccion(A[0], { accion: 'override', de: 'DESPEJADO', a: 'REVISION', comentario: 'Falta el parte firmado' })).supervision_humana;
+  assert.ok(/^override/.test(s.estado));
+  assert.strictEqual(s.accion_humana.cuenta_para_autonomia, true);
+  assert.deepStrictEqual([s.accion_humana.de, s.accion_humana.a, s.accion_humana.comentario], ['Aprobado', 'A revisar', 'Falta el parte firmado']);
+});
+test('tasa de override: solo cuentan las decisiones que el agente tomó solo', () => {
+  const lote = [...Array(10)].map(() => ({ decision: 'DESPEJADO' })).concat([{ decision: 'REVISION', revision: { a: 'DESPEJADO' } }, { decision: 'REVISION' }]);
+  const sin = C.tasaOverride(lote, 2);
+  assert.deepStrictEqual([sin.solas, sin.overrides, sin.tasa, sin.proponerBajada], [10, 0, 0, false]);
+  lote[0].override = { a: 'REVISION' };
+  const con = C.tasaOverride(lote, 2);
+  assert.deepStrictEqual([con.overrides, con.tasa, con.proponerBajada, con.nivelPropuesto], [1, 10, true, 1]);
+});
+test('tasa de override: en el umbral no se propone bajada y en L0 no se baja más', () => {
+  const lote = [...Array(100)].map((_, i) => ({ decision: 'DESPEJADO', ...(i < 3 ? { override: {} } : {}) }));
+  assert.strictEqual(C.tasaOverride(lote, 2).proponerBajada, false);
+  lote[3].override = {};
+  assert.strictEqual(C.tasaOverride(lote, 2).proponerBajada, true);
+  assert.strictEqual(C.tasaOverride(lote, 0).proponerBajada, false);
+});
+
 console.log(`\n${n} pruebas ejecutadas${process.exitCode ? ' con fallos' : ' correctamente'}`);

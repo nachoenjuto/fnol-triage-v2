@@ -456,7 +456,7 @@ const RECORRIDO_DEMO = {
       "que": "Triaje → ficha de MSG-A-01",
       "frase": "Una decisión aprobada también tiene que poder explicarse.",
       "clics": [
-        "Arriba de la ficha: las tres cifras (Decisión, Ramo, Confianza 95 %).",
+        "Arriba de la ficha: las tres cifras (Decisión, Ramo, Confianza 95 %) y el botón Override en la tarjeta Decisión. Señalarlo sin confirmarlo: un override cambia las cifras del panel de gobierno.",
         "Pestaña Mensaje: las evidencias resaltadas y numeradas en el texto. Pasar el ratón por una: el título «Evidencias» cambia a su tipo (por ejemplo «Fecha del hecho»). Abrir Leyenda.",
         "Pestaña Adjuntos (3): el parte amistoso en el visor de PDF y, a la derecha, sus datos con el contraste contra el email (todo coincide; los datos del otro vehículo solo constan en el parte). Pasar a las dos fotos: clic en la imagen para ampliarla.",
         "Pestaña Datos extraídos: los 10 campos (cliente, póliza, tipo, fecha, 1.350 €, lugar, terceros sí, lesionados no, documentación: parte amistoso, presupuesto y fotos).",
@@ -518,6 +518,17 @@ const RECORRIDO_DEMO = {
         {
           "tipo": "valor",
           "texto": "Y ya no tiene que abrir el parte y las fotos para compararlos a ojo con el email: el cruce viene hecho, y solo tiene que mirar lo que no cuadra."
+        },
+        {
+          "tipo": "valor",
+          "texto": "Si no está de acuerdo con una aprobación, el botón Override de la tarjeta Decisión la pasa a revisión, con un comentario opcional.",
+          "accion": [
+            "ver:#modal-kpis [data-rev=override]"
+          ]
+        },
+        {
+          "tipo": "valor",
+          "texto": "Ese cambio cuenta en la tasa de override del agente, y con esa tasa se decide su nivel de autonomía."
         }
       ]
     },
@@ -534,7 +545,8 @@ const RECORRIDO_DEMO = {
         "Pestaña Reglas de negocio: A5 · Terceros documentados y sin lesionados en «incumple», con su evidencia.",
         "Pestaña Datos extraídos: importe_estimado_eur vacío. Señalarlo.",
         "Pestaña Razonamiento: por qué es Auto y no Salud (el hecho causante es el accidente de tráfico).",
-        "Pestaña Respuesta cruda → vista Enviado al modelo: los marcadores [PERSONA_1], [POLIZA_AU_1], [MATRICULA_1], [TELEFONO_1] en lugar de los datos reales. La fractura y la diabetes siguen ahí."
+        "Pestaña Respuesta cruda → vista Enviado al modelo: los marcadores [PERSONA_1], [POLIZA_AU_1], [MATRICULA_1], [TELEFONO_1] en lugar de los datos reales. La fractura y la diabetes siguen ahí.",
+        "Tarjeta Decisión: el botón Validar. Al pulsarlo se elige el resultado (Aprobar o Mantener en «A revisar») y se puede dejar un comentario. Cancelar sin confirmar."
       ],
       "subtitulos": [
         {
@@ -577,10 +589,15 @@ const RECORRIDO_DEMO = {
         },
         {
           "tipo": "valor",
-          "texto": "El tramitador entiende el motivo en segundos y puede corregirlo si no está de acuerdo. Si el cliente pide explicaciones, la respuesta ya está preparada en la ficha.",
+          "texto": "El tramitador entiende el motivo en segundos. Cuando termina de revisarlo, lo resuelve con el botón Validar de la tarjeta Decisión: elige si lo aprueba o si lo deja en revisión, y puede dejar un comentario.",
           "accion": [
-            "clic:#modal-tabs [data-tab=mensaje]"
+            "clic:#modal-tabs [data-tab=mensaje]",
+            "ver:#modal-kpis [data-rev=validar]"
           ]
+        },
+        {
+          "tipo": "valor",
+          "texto": "Como el agente ya había escalado el caso, eso no es un override y no afecta a su autonomía. Si el cliente pide explicaciones, la respuesta ya está preparada en la ficha."
         },
         {
           "tipo": "valor",
@@ -1017,7 +1034,7 @@ const RECORRIDO_DEMO = {
       "clics": [
         "KPI: 3.180 escalados (19 %), override 2,1 %, 2 pendientes de revisión, revisiones exprés 3,3 %, supervisión humana efectiva «Cubierto».",
         "Mecanismos de supervisión: escalado, override y nivel, kill switch, control normativo.",
-        "Cola de revisión: las tres trazas del lote. Clic en MSG-A-04: la ficha de la traza con el override de L. Prieto y su motivo. Navegar con › a MSG-A-08 y MSG-A-13 (pendientes).",
+        "Cola de revisión: las tres trazas del lote. Clic en MSG-A-04: la ficha de la traza con la revisión de L. Prieto, que lo aprueba, y su motivo. Navegar con › a MSG-A-08 y MSG-A-13 (pendientes).",
         "Escalados: el anillo de causas (G-02 62 %, G-04 20 %, G-05 11 %).",
         "Calidad de la revisión: tiempos por tramos, el 3,3 % de aprobaciones en menos de 30 segundos y la tabla por tramitador con su formación en IA.",
         "Medidas: clic en M-10 (formación de los tramitadores)."
@@ -1036,11 +1053,15 @@ const RECORRIDO_DEMO = {
         },
         {
           "tipo": "que",
-          "texto": "Cada traza que se escala entra en una cola con su motivo, su estado y la persona que la revisa. Cuando un tramitador cambia la decisión del agente, eso es un override, y queda registrado con su motivo.",
+          "texto": "Cada traza que se escala entra en una cola con su motivo, su estado y la persona que la revisa. Resolver un caso escalado no es un override.",
           "accion": [
             "ver:#hitl-cola",
             "traza:MSG-A-04"
           ]
+        },
+        {
+          "tipo": "que",
+          "texto": "Override es cuando un tramitador cambia una decisión que el agente tomó solo, por ejemplo una aprobación automática que pasa a revisión, y queda registrado con su motivo."
         },
         {
           "tipo": "que",
@@ -1063,7 +1084,7 @@ const RECORRIDO_DEMO = {
         },
         {
           "tipo": "valor",
-          "texto": "Además, cada override alimenta la autonomía: si los tramitadores corrigen más del 3 %, el agente baja de nivel.",
+          "texto": "Además, cada override alimenta la autonomía: si los tramitadores corrigen más del 3 % de lo que el agente decide solo, el panel propone bajarle de nivel y una persona lo aprueba.",
           "accion": [
             "cerrar",
             "ver:#hitl-overrides"
@@ -1512,7 +1533,7 @@ const RECORRIDO_DEMO = {
       "frase": "Este es el libro de registro que pide el regulador, y se rellena solo.",
       "clics": [
         "La línea de tiempo: arriba, lo que se ha hecho en la demo con el usuario «Operador (esta sesión)»: el kill switch de Extracción, M-01 aplicada y deshecha, M-02 pendiente, la configuración aplicada en KB-02.",
-        "Chips de tipo: Operaciones, Políticas, Overrides (el de L. Prieto en MSG-A-04), Despliegues (cambios de modelo y de prompt), Incidentes (la ráfaga de errores 429)."
+        "Chips de tipo: Operaciones, Políticas, Overrides (los de J. Herrera y S. Gil el 15/09, el día que Reglas bajó de nivel), Revisiones (la de L. Prieto en MSG-A-04), Despliegues (cambios de modelo y de prompt), Incidentes (la ráfaga de errores 429)."
       ],
       "subtitulos": [
         {
@@ -1524,7 +1545,7 @@ const RECORRIDO_DEMO = {
         },
         {
           "tipo": "que",
-          "texto": "Recoge cada acción con su usuario y su hora: agentes pausados, guardrails activados o desactivados, medidas aplicadas o deshechas, overrides, cambios de modelo, de prompt y de nivel, e incidentes."
+          "texto": "Recoge cada acción con su usuario y su hora: agentes pausados, guardrails activados o desactivados, medidas aplicadas o deshechas, revisiones, overrides, cambios de modelo, de prompt y de nivel, e incidentes."
         },
         {
           "tipo": "que",

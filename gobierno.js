@@ -106,14 +106,51 @@
         spans = [['multicanal', 0, 40, 'local', 0, 0, 0], ['local', 40, dur - 40, 'local', 0, 0, 0]];
       }
       const incumple = (e.criterios || []).filter((c) => c.resultado === 'incumple').map((c) => c.regla);
+      const rev = e.revision && e.revision.a ? e.revision : null;
       const incidencias = /fallback/i.test(e.origen || '') ? [`Fallback al motor local: ${e.origen.replace(/^.*fallback IA:\s*/i, '').replace(/\)$/, '')}`] : [];
+      const id = (e.gobernanza && e.gobernanza.trazabilidad && e.gobernanza.trazabilidad.traza_id) || `TRZ-S${String(i + 1).padStart(3, '0')}`;
+      const inicio = new Date(new Date(e.timestamp).getTime() - dur).toISOString();
       return {
-        id: (e.gobernanza && e.gobernanza.trazabilidad && e.gobernanza.trazabilidad.traza_id) || `TRZ-S${String(i + 1).padStart(3, '0')}`, mensaje: e.id, asunto: e.asunto, canal: e.mensaje?.canal || 'chat',
-        inicio: new Date(new Date(e.timestamp).getTime() - dur).toISOString(), ramo: e.ramo, decision: e.decision, confianza: e.confianza ?? 0, motivo: e.motivo,
-        resultado: e.decision === 'REVISION' ? 'humano' : 'auto', guardrail: incumple.length ? `${incumple.join(', ')} incumple → escalado` : undefined,
+        id, mensaje: e.id, asunto: e.asunto, canal: e.mensaje?.canal || 'chat',
+        inicio, ramo: e.ramo, decision: e.decision, confianza: e.confianza ?? 0, motivo: e.motivo,
+        resultado: rev && rev.accion === 'override' ? 'override' : e.decision === 'REVISION' ? 'humano' : 'auto', guardrail: incumple.length ? `${incumple.join(', ')} incumple → escalado` : undefined,
         incidencias: incidencias.length ? incidencias : undefined, spans, origen: e.origen,
+        ...(rev ? accionHumanaDeSesion(rev) : accionHumanaDeDemo(id, inicio)),
       };
     });
+  }
+
+  // Acción humana registrada en la ficha del triaje (app.js · revisar):
+  // · override: el agente aprobó solo y una persona lo pasó a «A revisar» → cuenta en la tasa de override de Reglas
+  // · validada: el agente ya lo había escalado y una persona resolvió la revisión → no es override
+  function accionHumanaDeSesion(rev) {
+    if (!rev) return {};
+    const base = { usuario: rev.usuario, fecha: rev.fecha, de: rev.de, a: rev.a, motivo: rev.comentario || '', sesion: true };
+    return rev.accion === 'override' ? { override: base } : { revision: { ...base, resultado: rev.resultado || 'aprobada' } };
+  }
+  // Sin acción en la ficha, la traza conserva la que ya registra la demo con el mismo id (con el motor «guardado» los ids
+  // coinciden): así la revisión de L. Prieto en MSG-A-04 sigue en la cola, con su tiempo desplazado al inicio de la sesión.
+  function accionHumanaDeDemo(id, inicio) {
+    const t = (GOBIERNO_DEMO.trazas || []).find((x) => x.id === id && (x.revision || x.override));
+    if (!t) return {};
+    const k = t.override ? 'override' : 'revision'; const a = t[k];
+    return { [k]: { ...a, fecha: new Date(new Date(inicio).getTime() + (new Date(a.fecha) - new Date(t.inicio))).toISOString() } };
+  }
+  // Eventos del histórico y efecto en la autonomía de lo que se hizo en la sesión: cada override suma a la tasa de Reglas
+  // (overrides entre aprobaciones automáticas); por encima del 3 % se propone bajarle un nivel, pendiente de que lo apruebe una persona.
+  const UMBRAL_OVERRIDE = 3;
+  function efectoSesion(trazas, agentes) {
+    const eventos = []; const traza = (t) => `${t.id} (${t.mensaje})`;
+    trazas.forEach((t) => {
+      if (t.override && t.override.sesion) eventos.push({ fecha: t.override.fecha, tipo: 'override', sev: 'warn', agente: 'reglas', titulo: `Override humano en ${traza(t)}: Aprobado → A revisar`, detalle: `${t.override.motivo ? `${t.override.motivo} · ` : ''}El agente lo había aprobado solo con confianza ${Math.round(t.confianza * 100)} %. Cuenta en la tasa de override de Reglas.`, usuario: t.override.usuario });
+      if (t.revision && t.revision.sesion) eventos.push({ fecha: t.revision.fecha, tipo: 'revision', sev: 'info', agente: 'reglas', titulo: `Revisión humana en ${traza(t)}: ${t.revision.resultado === 'aprobada' ? 'A revisar → Aprobado' : 'se mantiene en A revisar'}`, detalle: `${t.revision.motivo ? `${t.revision.motivo} · ` : ''}No es override: el agente ya lo había escalado.`, usuario: t.revision.usuario });
+    });
+    const reglas = agentes.find((a) => a.id === 'reglas');
+    const { solas: aprobadasSolas, overrides, tasa, proponerBajada, nivelPropuesto } = Cumplimiento.tasaOverride(trazas, reglas ? reglas.nivel : null, UMBRAL_OVERRIDE);
+    const propuesta = proponerBajada
+      ? { fecha: new Date().toISOString(), agente: 'reglas', de: reglas.nivel, a: nivelPropuesto, motivo: `Propuesta: tasa de override de la sesión ${tasa.toFixed(1).replace('.', ',')} % (${overrides} de ${aprobadasSolas} aprobaciones automáticas) > ${UMBRAL_OVERRIDE} % objetivo`, usuario: 'Sistema · pendiente de aprobación', pendiente: true }
+      : null;
+    return { eventos, overrides, aprobadasSolas, tasa, propuesta, altaConfianza: trazas.filter((t) => t.override && t.confianza >= 0.85).length };
   }
 
   function setFuente(f) {
@@ -122,7 +159,13 @@
       const trazas = trazasDesdeSesion();
       if (!trazas) { status.textContent = 'La sesión actual no tiene decisiones registradas: procesa un paquete en el triaje y vuelve a este panel (misma pestaña).'; $('fuente').value = 'demo'; return setFuente('demo'); }
       const extra = [{ id: 'ia', nombre: 'IA · clasificación + extracción + reglas (1 paso)', icono: 'sparkles', modelo: '—', prompt: '—', nivel: 2, estado: 'activo' }, { id: 'local', nombre: 'Motor local (sin IA)', icono: 'workflow', modelo: 'reglas', prompt: '—', nivel: 3, estado: 'activo' }];
-      G = { ...GOBIERNO_DEMO, agentes: [...GOBIERNO_DEMO.agentes, ...extra], precios: { ...GOBIERNO_DEMO.precios, local: { in: 0, out: 0 } }, trazas, razonamiento: {} };
+      const agentes = [...GOBIERNO_DEMO.agentes, ...extra];
+      const ses = efectoSesion(trazas, agentes);
+      const alertas = ses.propuesta ? [{ sev: 'warn', titulo: `Override de Reglas en la sesión: ${ses.tasa.toFixed(1).replace('.', ',')} % (> ${UMBRAL_OVERRIDE} %)`, detalle: `Se propone bajar Reglas de L${ses.propuesta.de} a L${ses.propuesta.a}. Queda pendiente de aprobación en Autonomía.`, cuando: 'sesión', origen: 'Autonomía', goto: 'autonomia' }] : [];
+      G = { ...GOBIERNO_DEMO, agentes, precios: { ...GOBIERNO_DEMO.precios, local: { in: 0, out: 0 } }, trazas, razonamiento: {},
+        eventos: [...ses.eventos.sort((a, b) => b.fecha.localeCompare(a.fecha)), ...(GOBIERNO_DEMO.eventos || [])],
+        cambios_autonomia: [...(ses.propuesta ? [ses.propuesta] : []), ...(GOBIERNO_DEMO.cambios_autonomia || [])],
+        sesion: ses, alertas_autonomia: alertas };
       status.textContent = `Trazas de la sesión actual: ${trazas.length} decisiones del registro del triaje. Histórico, caps, guardrails y modelos siguen siendo datos de demostración.`;
     } else if (f === 'archivo' && archivo) {
       G = { ...GOBIERNO_DEMO, ...archivo.datos };
@@ -254,7 +297,14 @@
     const botones = `<button class="btn btn-sm" type="button" data-goto="replay">${ic('brain')} Ver razonamiento</button><button class="btn btn-sm" type="button" data-goto="replay" data-replay="1">${ic('repeat')} Replay</button>${conCmp ? `<button class="btn btn-sm" type="button" data-cmp-ficha="${esc(t.id)}">${ic('fingerprint')} Cumplimiento</button>` : ''}`;
     const pills = `${ramoPill(t.ramo)} ${decPill(t.decision)} ${resPill(t)}`;
     const datos = `<dl class="kv"><dt>Inicio</dt><dd>${new Date(t.inicio).toLocaleString('es-ES')}</dd><dt>Canal</dt><dd>${canal(t.canal)}</dd><dt>Confianza</dt><dd>${pct(t.confianza)}</dd><dt>Guardrail</dt><dd>${t.guardrail ? `<span class="policy fail">${ic('shield-check')} ${conGuardrails(esc(t.guardrail))}</span>` : `<span class="policy pass">${ic('check')} Ninguno disparado</span>`}</dd>${frTraza(t)}<dt>Versiones</dt><dd class="mono">${esc(versiones)}</dd>${t.origen ? `<dt>Origen</dt><dd>${esc(t.origen)}</dd>` : ''}<dt>Ciclo · tokens · coste</dt><dd>${ms(m.dur)} · ${num(m.tokens)} · ${eur(m.coste, 4)}</dd><dt>Incidencias</dt><dd>${(t.incidencias || []).map((i) => `<span class="pill pill-warn">${ic('circle-alert')} ${conGuardrails(esc(i))}</span>`).join(' ') || '<span class="muted">—</span>'}</dd></dl>`;
-    const override = t.override ? `<div class="box" style="border-color:var(--time)"><b>${ic('repeat')} Override humano · ${esc(t.override.usuario)} · ${hora(t.override.fecha)}</b><br><span class="pill pill-review">A revisar</span> → <span class="pill pill-ok">Aprobado</span><br><span class="small">${esc(t.override.motivo)}</span><br><span class="muted small">Se registra como «dato no accesible al modelo»: candidato a integrar la consulta de conductores declarados como herramienta del agente de Extracción.</span></div>` : '';
+    const decTxt = (d) => (d === 'DESPEJADO' ? '<span class="pill pill-ok">Aprobado</span>' : '<span class="pill pill-review">A revisar</span>');
+    // Override: una persona cambia una decisión que el agente tomó solo (cuenta para su autonomía).
+    // Revisión: una persona resuelve un caso que el agente ya escaló (no es override).
+    const override = t.override
+      ? `<div class="box" style="border-color:var(--time)"><b>${ic('repeat')} Override humano · ${esc(t.override.usuario)} · ${hora(t.override.fecha)}</b><br>${decTxt(t.override.de)} → ${decTxt(t.override.a)}<br>${t.override.motivo ? `<span class="small">${esc(t.override.motivo)}</span><br>` : ''}<span class="muted small">El agente lo había decidido solo: cuenta en su tasa de override (objetivo ≤ 3 %).</span></div>`
+      : t.revision
+        ? `<div class="box" style="border-color:var(--ok)"><b>${ic('user-check')} Revisión humana · ${esc(t.revision.usuario)} · ${hora(t.revision.fecha)}</b><br>${decTxt(t.revision.de)} → ${t.revision.resultado === 'aprobada' ? decTxt('DESPEJADO') : `${decTxt('REVISION')} <span class="small muted">se mantiene</span>`}<br>${t.revision.motivo ? `<span class="small">${esc(t.revision.motivo)}</span><br>` : ''}<span class="muted small">${t.revision.nota ? `${esc(t.revision.nota)} ` : ''}No es override: el agente ya lo había escalado.</span></div>`
+        : '';
     if (modo === 'panel') {
       return `<div class="card-head"><h2>${ic('route')} ${esc(t.id)} · ${esc(t.mensaje)} <span class="muted" style="font-weight:400">· ${esc(t.asunto)}</span></h2><div class="row">${pills} ${botones}</div></div>
         <div class="two">
@@ -268,7 +318,7 @@
       <div><h3>Qué llegó</h3><p class="small">${ic(ci)} <b>${esc(t.mensaje)}</b> · «${esc(t.asunto)}» · recibido por <b>${esc(cl)}</b> · procesado el ${new Date(t.inicio).toLocaleString('es-ES')}.</p></div>
       <div><h3>Qué hizo cada agente</h3><div class="explica"><ul>${t.spans.map((s, i) => explicaSpan(t, s, i)).join('')}</ul></div></div>
       <div><h3>Cadena de agentes (waterfall)</h3>${waterfall(t)}<p class="muted small" style="margin-top:.4rem">↑ tokens de entrada · ↓ salida · ⟳ razonamiento · ciclo total ${ms(m.dur)} · ${num(m.tokens)} tokens · ${eur(m.coste, 4)}.</p></div>
-      <div><h3>Decisión</h3><p class="small">${decPill(t.decision)} con confianza ${pct(t.confianza)} · ${t.resultado === 'auto' ? 'ejecutada de forma autónoma, sin intervención humana' : t.resultado === 'override' ? 'escalada a una persona, que cambió la decisión (override)' : 'escalada a una persona por un guardrail'}.${t.motivo ? ` <b>Motivo:</b> ${esc(t.motivo)}` : ''}</p>${t.guardrail ? `<p class="small" style="margin-top:.4rem"><span class="policy fail">${ic('shield-check')} ${conGuardrails(esc(t.guardrail))}</span> <span class="muted">— pasa el ratón por el código para ver la regla</span></p>` : ''}</div>
+      <div><h3>Decisión</h3><p class="small">${decPill(t.decision)} con confianza ${pct(t.confianza)} · ${t.resultado === 'auto' ? 'ejecutada de forma autónoma, sin intervención humana' : t.resultado === 'override' ? 'ejecutada de forma autónoma; una persona la cambió después (override)' : t.revision ? `escalada a una persona por un guardrail, que la revisó y ${t.revision.resultado === 'aprobada' ? 'la aprobó' : 'la mantuvo en revisión'}` : 'escalada a una persona por un guardrail'}.${t.motivo ? ` <b>Motivo:</b> ${esc(t.motivo)}` : ''}</p>${t.guardrail ? `<p class="small" style="margin-top:.4rem"><span class="policy fail">${ic('shield-check')} ${conGuardrails(esc(t.guardrail))}</span> <span class="muted">— pasa el ratón por el código para ver la regla</span></p>` : ''}</div>
       ${override}
       <div class="two"><div><h3>Datos de la traza</h3>${datos}</div><div><h3>Coste</h3><div class="kpi-mini"><div class="box"><span class="muted small">Coste</span><b>${eur(m.coste, 4)}</b></div><div class="box"><span class="muted small">Tokens</span><b>${num(m.tokens)}</b></div><div class="box"><span class="muted small">Ciclo</span><b>${ms(m.dur)}</b></div></div>${m.coste > 0.05 ? `<p class="small" style="margin-top:.5rem;color:var(--crit)">${ic('triangle-alert')} Por encima del cap por traza (${grRef('CAP-04')}).</p>` : ''}</div></div>`;
   }
@@ -477,7 +527,7 @@
   function renderAutonomia() {
     $('kpis-aut').innerHTML = G.kpis.autonomia.map(kpi).join('');
     $('levels').innerHTML = G.niveles.map((l) => `<div class="level l${l.n}"><b>${lvlBadge(l.n, l.desc)} ${esc(l.nombre)}</b><span class="muted">${esc(l.desc)}</span><span class="small">${agentesPrincipales().filter((a) => a.nivel === l.n).map((a) => agTag(a.id)).join(' ') || '<span class="muted">sin agentes</span>'}</span></div>`).join('');
-    $('cambios').innerHTML = (G.cambios_autonomia || []).map((c, i) => `<tr class="clickable" data-cambio="${i}" tabindex="0"><td class="tnum">${fechaHora(c.fecha)}</td><td>${agTag(c.agente)}</td><td>${c.de === c.a ? `${lvlBadge(c.a)} <span class="muted small">sin cambio</span>` : `${lvlBadge(c.de)} → ${lvlBadge(c.a)}`}</td><td class="wrap">${conGuardrails(esc(c.motivo))}</td><td>${esc(c.usuario)}</td></tr>`).join('');
+    $('cambios').innerHTML = (G.cambios_autonomia || []).map((c, i) => `<tr class="clickable" data-cambio="${i}" tabindex="0"><td class="tnum">${fechaHora(c.fecha)}</td><td>${agTag(c.agente)}</td><td>${c.de === c.a ? `${lvlBadge(c.a)} <span class="muted small">sin cambio</span>` : `${lvlBadge(c.de)} → ${lvlBadge(c.a)}`}</td><td class="wrap">${c.pendiente ? '<span class="pill pill-review">Pendiente de aprobación</span> ' : ''}${conGuardrails(esc(c.motivo))}</td><td>${esc(c.usuario)}</td></tr>`).join('');
   }
 
   // Identidad del agente: quién es, con qué credencial actúa, quién responde de él y qué puede tocar
@@ -570,7 +620,8 @@
     const conf = items.reduce((s, x) => s + (x.entry.confianza || 0), 0) / n;
     const inc = {}; items.forEach((x) => (x.entry.criterios || []).filter((c) => c.resultado === 'incumple').forEach((c) => { inc[c.regla] = (inc[c.regla] || 0) + 1; }));
     const ov = G.trazas.filter((t) => t.resultado === 'override').length;
-    return [fila('Acierto de la decisión frente al esperado', `${ok}/${items.length}`, `${Math.round((ok / n) * 100)} %`, ok === items.length, (ok / n) * 100), fila('Confianza media', dec2(conf), 'umbral G-01: 0,85', conf >= 0.85, conf * 100), fila('Evidencias verificadas', dec2(items.reduce((s, x) => s + x.gob.explicabilidad.evidencias_verificadas, 0) / n), 'por decisión (mínimo 5)', true, (items.reduce((s, x) => s + x.gob.explicabilidad.evidencias_verificadas, 0) / n / 5) * 100), fila('Reglas que más frenan', Object.entries(inc).sort((x, y) => y[1] - x[1]).map(([r, v]) => `${r} ×${v}`).join(' · ') || '—', 'en el periodo', true), fila('Overrides humanos', num(ov), 'decisiones cambiadas por una persona', ov <= 1)];
+    const ovAlta = G.trazas.filter((t) => t.resultado === 'override' && t.confianza >= 0.85).length;
+    return [fila('Acierto de la decisión frente al esperado', `${ok}/${items.length}`, `${Math.round((ok / n) * 100)} %`, ok === items.length, (ok / n) * 100), fila('Confianza media', dec2(conf), 'umbral G-01: 0,85', conf >= 0.85, conf * 100), fila('Evidencias verificadas', dec2(items.reduce((s, x) => s + x.gob.explicabilidad.evidencias_verificadas, 0) / n), 'por decisión (mínimo 5)', true, (items.reduce((s, x) => s + x.gob.explicabilidad.evidencias_verificadas, 0) / n / 5) * 100), fila('Reglas que más frenan', Object.entries(inc).sort((x, y) => y[1] - x[1]).map(([r, v]) => `${r} ×${v}`).join(' · ') || '—', 'en el periodo', true), fila('Overrides humanos', num(ov), 'decisiones tomadas solas y cambiadas por una persona', ov <= 1), fila('Overrides con confianza alta', num(ovAlta), 'el agente estaba seguro (≥ 85 %) y una persona lo corrigió: revisar la calibración', ovAlta === 0)];
   }
 
   // Ejemplo real de lo que recibe y devuelve el agente, sacado de una traza del Paquete A
@@ -1192,7 +1243,8 @@
     const motivos = [['Dato no accesible al modelo', 41, 'var(--ag-extraccion)'], ['Importe mal interpretado', 22, 'var(--ag-reglas)'], ['Cobertura o exclusión', 19, 'var(--review)'], ['Otros', 18, 'var(--muted)']];
     const recientes = (G.eventos || []).filter((e) => e.tipo === 'override').slice(0, 3);
     return `<div class="card-head"><h2>${ic('repeat')} Overrides: decisiones que cambia una persona</h2><button class="btn btn-sm" type="button" data-goto="autonomia">Abrir autonomía</button></div>
-      <p class="small muted">Un <b>override</b> es una decisión del agente que un tramitador cambia después. Es la mejor señal de calidad real: si sube por encima del 3 %, el nivel de autonomía del agente se revisa a la baja.</p>
+      <p class="small muted">Un <b>override</b> es una decisión que el agente tomó solo y que un tramitador cambia después. Resolver un caso que el agente ya escaló no es override. Es la mejor señal de calidad real: si sube por encima del 3 %, el nivel de autonomía del agente se revisa a la baja.</p>
+      ${G.sesion ? `<p class="small">${ic('user-check')} <b>Sesión actual:</b> ${G.sesion.overrides} ${G.sesion.overrides === 1 ? 'override' : 'overrides'} sobre ${G.sesion.aprobadasSolas} aprobaciones automáticas (${G.sesion.tasa.toFixed(1).replace('.', ',')} %)${G.sesion.propuesta ? ` · <span style="color:var(--crit)">por encima del 3 %: propuesta de bajar Reglas a L${G.sesion.propuesta.a} pendiente de aprobación</span>` : ''}.</p>` : ''}
       <div class="kpi-mini">${kmini('repeat', 'Tasa de override', cnt(d.pOvr, 'pct1'))}${kmini('user-check', 'Decisiones cambiadas', cnt(cambiadas))}${kmini('gauge', 'Objetivo', '≤ 3 %', `<span style="color:var(--${d.pOvr <= 3 ? 'ok' : 'crit'})">${d.pOvr <= 3 ? 'dentro del objetivo' : 'por encima'}</span>`)}${kmini('triangle-alert', 'Pico del periodo', cnt(Math.max(...serie), 'pct1'), 'semana del 15/09')}</div>
       <div><h3>Tasa de override por día</h3>${chartTendencia(serie, d.fechas, { min: 0, max: 5, ref: { v: 3, label: 'umbral de bajada de nivel 3 %', color: 'var(--crit)' }, aria: 'Tasa de override por día', color: 'var(--time)', puntoDe: (v) => (v > 3 ? 'var(--crit)' : 'var(--time)') })}</div>
       <div class="two"><div><h3>Override por agente (14 días, %)</h3>${hbars(porAgente.map(([l, v, c]) => [l, v, c]), { pl: 190, fmt: (v) => `${String(v).replace('.', ',')} %`, total: 100, aria: 'Override por agente' })}</div>
@@ -1214,12 +1266,14 @@
       const cod = (String(t.guardrail || '').match(/G-\d{2}/) || [])[0]; const agente = (cod && POL[cod] && POL[cod].agente) || 'reglas';
       const sup = (gobDe[t.id] || {}).supervision_humana || {};
       const r = rng(`rev-${t.id}`);
-      if (t.override) return { t, agente, estado: 'cambiada', revisor: t.override.usuario.replace(/ \(.*\)$/, ''), min: Math.round((new Date(t.override.fecha) - new Date(t.inicio)) / 60000) };
+      const minutos = (f) => Math.max(0, Math.round((new Date(f) - new Date(t.inicio)) / 60000));
+      if (t.override) return { t, agente, estado: 'cambiada', revisor: t.override.usuario.replace(/ \(.*\)$/, ''), min: minutos(t.override.fecha) };
+      if (t.revision) return { t, agente, estado: t.revision.resultado === 'aprobada' ? 'aprobada' : 'revisada', revisor: t.revision.usuario.replace(/ \(.*\)$/, ''), min: minutos(t.revision.fecha) };
       if (sup.estado === 'revisada') return { t, agente, estado: 'revisada', revisor: TRAMITADORES[Math.floor(r() * 8)][0], min: Math.round(4 + r() * 30) };
       return { t, agente, estado: 'pendiente', revisor: null, min: null };
     });
   }
-  const EST_HITL = { pendiente: ['pill-review', 'user-check', 'Pendiente de revisión'], revisada: ['pill-ok', 'circle-check', 'Revisada · confirmada'], cambiada: ['pill-time', 'repeat', 'Cambiada (override)'] };
+  const EST_HITL = { pendiente: ['pill-review', 'user-check', 'Pendiente de revisión'], revisada: ['pill-ok', 'circle-check', 'Revisada · se mantiene'], aprobada: ['pill-ok', 'circle-check', 'Revisada · aprobada'], cambiada: ['pill-time', 'repeat', 'Override · aprobación cambiada'] };
 
   function hitlCalidad() {
     const d = datosResumen();
@@ -1259,7 +1313,7 @@
     $('hitl-mec').innerHTML = mec.map(([v, i, t, txt, dest]) => `<article class="box alert-link" data-goto="${v}" role="button" tabindex="0" title="Ir a ${esc(dest)}"><b>${ic(i)} ${esc(t)}</b><span class="small">${esc(txt)}</span><span class="muted small">${esc(dest)} ${ic('arrow-right')}</span></article>`).join('');
     titulo('h-hitl-cola', 'inbox', `Cola de revisión (${cola.length})`);
     $('btn-hitl-trazas').innerHTML = `${ic('route')} Ver en trazabilidad`;
-    $('hitl-cola').innerHTML = cola.map(({ t, agente, estado, revisor, min }) => { const [cls, i, l] = EST_HITL[estado]; return `<tr class="clickable" data-id="${esc(t.id)}" tabindex="0"><td class="mono">${esc(t.id)}</td><td class="tnum">${fechaHora(t.inicio)}</td><td>${esc(t.mensaje)}<br><small class="muted">${esc(t.asunto || '')}</small></td><td>${esc(t.ramo)}</td><td>${agTag(agente)}</td><td class="wrap small">${conGuardrails(esc(t.guardrail || 'Confianza baja'))}</td><td><span class="pill ${cls}">${ic(i)} ${l}</span></td><td>${revisor ? esc(revisor) : '<span class="muted">—</span>'}</td><td class="tnum">${min != null ? `${min} min` : '<span class="muted">en cola</span>'}</td></tr>`; }).join('') || '<tr><td colspan="9" class="muted" style="text-align:center">Ninguna traza de la fuente actual pasó por una persona.</td></tr>';
+    $('hitl-cola').innerHTML = cola.map(({ t, agente, estado, revisor, min }) => { const [cls, i, l] = EST_HITL[estado]; return `<tr class="clickable" data-id="${esc(t.id)}" tabindex="0"><td class="mono">${esc(t.id)}</td><td class="tnum">${fechaHora(t.inicio)}</td><td>${esc(t.mensaje)}<br><small class="muted">${esc(t.asunto || '')}</small></td><td>${esc(t.ramo)}</td><td>${agTag(agente)}</td><td class="wrap small">${conGuardrails(esc(t.guardrail || (t.override ? 'Aprobado por el agente · override posterior' : 'Confianza baja')))}</td><td><span class="pill ${cls}">${ic(i)} ${l}</span></td><td>${revisor ? esc(revisor) : '<span class="muted">—</span>'}</td><td class="tnum">${min != null ? `${min} min` : '<span class="muted">en cola</span>'}</td></tr>`; }).join('') || '<tr><td colspan="9" class="muted" style="text-align:center">Ninguna traza de la fuente actual pasó por una persona.</td></tr>';
     $('hitl-escalados').innerHTML = hitlEscalados();
     $('hitl-overrides').innerHTML = hitlOverrides();
     $('hitl-calidad').innerHTML = hitlCalidad();
@@ -1285,7 +1339,7 @@
   };
 
   // Orígenes de las alertas: orden, color, icono y sección a la que llevan
-  const ORIGENES_AL = [['Coste', 'var(--primary)', 'coins', 'finops', 'FinOps'], ['Fraude', 'var(--crit)', 'shield-alert', 'fraude', 'Fraude'], ['Knowledge Bases', 'var(--time)', 'book-open', 'knowledge', 'Knowledge Bases'], ['Cumplimiento', 'var(--warn)', 'thermometer', 'cumplimiento', 'Cumplimiento']];
+  const ORIGENES_AL = [['Coste', 'var(--primary)', 'coins', 'finops', 'FinOps'], ['Autonomía', 'var(--review)', 'sliders-horizontal', 'autonomia', 'Autonomía'], ['Fraude', 'var(--crit)', 'shield-alert', 'fraude', 'Fraude'], ['Knowledge Bases', 'var(--time)', 'book-open', 'knowledge', 'Knowledge Bases'], ['Cumplimiento', 'var(--warn)', 'thermometer', 'cumplimiento', 'Cumplimiento']];
   const origenesTexto = (al) => { const n = ORIGENES_AL.filter(([o]) => al.some((a) => a.origen === o)).map(([o]) => (o === 'Knowledge Bases' ? 'conocimiento' : o.toLowerCase())); return n.length > 1 ? `${n.slice(0, -1).join(', ')} y ${n[n.length - 1]}` : n[0] || 'sin alertas'; };
 
   KPI_FIN['res-alertas'] = {
@@ -1931,6 +1985,7 @@
         <div class="box lvl-box" style="border-color:var(--${dir === 'sube' ? 'ok' : dir === 'baja' ? 'crit' : 'border'})">${lvlBadge(c.a)}<b>${esc(la.nombre || '—')}</b><span class="muted small">${esc(la.desc || '')}</span></div>
       </div>
       <p class="small"><b>Motivo:</b> ${conGuardrails(esc(c.motivo))}</p>
+      ${c.pendiente ? `<p class="small"><span class="pill pill-review">${ic('clock')} Pendiente de aprobación</span> Es una propuesta generada por la regla del 3 %: el nivel no cambia hasta que lo apruebe el equipo de Gobierno IA.</p>` : ''}
       <p class="small muted">${CONSECUENCIA[dir]}</p>
       <div class="two">
         <div><h3>Registro de auditoría</h3><dl class="kv"><dt>Id de auditoría</dt><dd class="mono">${esc(auditId)}</dd><dt>Fecha y hora</dt><dd>${new Date(c.fecha).toLocaleString('es-ES')}</dd><dt>Agente</dt><dd>${agTag(c.agente)} <button class="btn btn-sm" type="button" data-ver-agente="${esc(c.agente)}">Ver agente</button></dd><dt>Aprobado por</dt><dd>${esc(c.usuario)}</dd><dt>Tipo de aprobación</dt><dd>${esc(rol)}</dd><dt>Estado del cambio</dt><dd>${sig ? `<span class="pill pill-muted">Sustituido por ${esc(`AUD-${sig[0].fecha.slice(0, 10).replace(/-/g, '')}-${String(asc.findIndex(([, i]) => i === sig[1]) + 1).padStart(2, '0')}`)}</span>` : '<span class="pill pill-ok">Vigente</span>'}</dd><dt>Tiempo vigente</dt><dd>${esc(vigente)}</dd><dt>Reversible</dt><dd>Sí · se puede volver a ${lvlBadge(c.de)} desde la ficha del agente en cualquier momento</dd></dl></div>
@@ -1949,7 +2004,7 @@
   // ---------------------------------------------------------------------------
   // Histórico
   // ---------------------------------------------------------------------------
-  const TIPOS = { alerta: ['bell', 'Alertas', 'var(--crit)'], politica: ['sliders-horizontal', 'Políticas y niveles', 'var(--time)'], replay: ['repeat', 'Replays', 'var(--ag-clasificacion)'], override: ['user-check', 'Overrides', 'var(--review)'], despliegue: ['rocket', 'Despliegues', 'var(--primary)'], incidente: ['activity', 'Incidentes', 'var(--warn)'], operacion: ['power', 'Operación', 'var(--muted)'] };
+  const TIPOS = { alerta: ['bell', 'Alertas', 'var(--crit)'], politica: ['sliders-horizontal', 'Políticas y niveles', 'var(--time)'], replay: ['repeat', 'Replays', 'var(--ag-clasificacion)'], override: ['repeat', 'Overrides', 'var(--review)'], revision: ['user-check', 'Revisiones', 'var(--ok)'], despliegue: ['rocket', 'Despliegues', 'var(--primary)'], incidente: ['activity', 'Incidentes', 'var(--warn)'], operacion: ['power', 'Operación', 'var(--muted)'] };
   function renderHistorico() {
     const evs = G.eventos || [];
     $('hist-chips').innerHTML = `<button class="chip${filtroTipo ? '' : ' is-active'}" type="button" data-t="">Todo</button>` + Object.entries(TIPOS).filter(([k]) => k !== 'operacion' || evs.some((e) => e.tipo === 'operacion')).map(([k, [i, l]]) => `<button class="chip${filtroTipo === k ? ' is-active' : ''}" type="button" data-t="${k}">${ic(i)} ${l} (${evs.filter((e) => e.tipo === k).length})</button>`).join('');
@@ -2351,6 +2406,7 @@
   const estadoKB = () => { const KB = G.knowledge || GOBIERNO_DEMO.knowledge || []; return KB.map((k) => ({ k, s: saludKB(k) })); };
   function alertasTodas() {
     const out = (G.alertas || []).map((a) => ({ ...a, origen: 'Coste', goto: 'finops' }));
+    (G.alertas_autonomia || []).forEach((a) => out.push(a));
     estadoKB().filter(({ s }) => s.estado !== 'ok').filter(({ k, s }) => s.estado === 'rojo' || k.metricas.obsoletos > 10 || k.metricas.pii).forEach(({ k, s }) => out.push({ sev: s.estado === 'rojo' ? 'crit' : 'warn', titulo: `${k.id} · ${k.nombre}: ${s.estado === 'rojo' ? 'crítica' : 'degradada'}`, detalle: k.nota || s.motivos.slice(0, 2).join(' · '), cuando: 'conocimiento', origen: 'Knowledge Bases', goto: 'knowledge', kb: k.id }));
     alertasFraude().forEach((a) => out.push(a));
     const { T, cadena } = estadoCumplimiento();
@@ -2431,8 +2487,9 @@
     return PAQUETES.flatMap((p) => p.mensajes).filter((m) => ids.has(m.id)).map((m) => {
       const r = RESULTADOS_GUARDADOS[m.id] ? expandirResultadoGuardado(RESULTADOS_GUARDADOS[m.id]) : {};
       const t = G.trazas.find((x) => x.mensaje === m.id) || {};
-      // Tras un override, la decisión vigente es la del tramitador (MSG-A-04 pasa a aprobado)
-      return { id: m.id, asunto: m.asunto, ramo: t.ramo || r.ramo, mensaje: m, decision: t.override ? t.override.a : (t.decision || r.decision), decision_triaje: t.decision || r.decision, override: t.override, datos_extraidos: r.datos_extraidos || {}, traza: t.id };
+      // Tras una revisión o un override, la decisión vigente es la del tramitador (MSG-A-04 pasa a aprobado al revisarlo)
+      const humana = t.override || t.revision;
+      return { id: m.id, asunto: m.asunto, ramo: t.ramo || r.ramo, mensaje: m, decision: humana ? humana.a : (t.decision || r.decision), decision_triaje: t.decision || r.decision, override: t.override, revision: t.revision, datos_extraidos: r.datos_extraidos || {}, traza: t.id };
     });
   }
   function evaluarFraude() { FRL = loteFraude(); FR = Fraude.evaluar(FRL, { ...FD(), indicadores: frCatalogo() }); }
@@ -2608,7 +2665,7 @@
     $('modal-fraude-body').innerHTML = `
       <div class="kpi-mini">
         <div class="box"><span class="muted small">${ic('gauge')} Score antifraude</span><b style="color:${NIVEL_FR[v.nivel][3]}">${v.score}</b><span class="muted small">vigilancia ≥ 40 · SIU ≥ 70</span></div>
-        <div class="box"><span class="muted small">${ic('list-checks')} Triaje</span><b>${e.decision_triaje === 'REVISION' ? 'A revisar' : 'Aprobado'}</b><span class="muted small">${e.override ? `override: ${e.override.a === 'DESPEJADO' ? 'aprobado' : 'a revisar'}` : 'no cambia por el antifraude'}</span></div>
+        <div class="box"><span class="muted small">${ic('list-checks')} Triaje</span><b>${e.decision_triaje === 'REVISION' ? 'A revisar' : 'Aprobado'}</b><span class="muted small">${e.override ? `override: ${e.override.a === 'DESPEJADO' ? 'aprobado' : 'a revisar'}` : e.revision ? `revisado: ${e.revision.a === 'DESPEJADO' ? 'aprobado' : 'a revisar'}` : 'no cambia por el antifraude'}</span></div>
         <div class="box"><span class="muted small">${ic('banknote')} Pago</span><b>${PAGO_FR[v.pago][2]}</b><span class="muted small">${v.importe != null ? eur(v.importe, 0) : 'sin importe'}</span></div>
         <div class="box"><span class="muted small">${ic('route')} Escenario</span><b>${esc0 ? esc(esc0.id) : '—'}</b><span class="muted small">${esc0 ? esc(esc0.nombre) : 'no encaja en ninguno'}</span></div>
         <div class="box"><span class="muted small">${ic('search-check')} Seguimiento</span><b>${(EST_SIU[s.estado] || EST_SIU.registrado)[2]}</b><span class="muted small">${esc(s.responsable || '—')}</span></div>
@@ -2791,7 +2848,7 @@
       const m = msgs[t.mensaje];
       const r = expandirResultadoGuardado(RESULTADOS_GUARDADOS[m.id]);
       const { usage, ...json } = r;
-      const entry = { ...r, id: m.id, raw: JSON.stringify(json, null, 2), origen: 'IA', mensaje: m, timestamp: new Date(t.inicio).toISOString(), revisado: t.resultado === 'override' };
+      const entry = { ...r, id: m.id, raw: JSON.stringify(json, null, 2), origen: 'IA', mensaje: m, timestamp: new Date(t.inicio).toISOString(), revisado: !!(t.override || t.revision), ...(t.override || t.revision ? { revision: { accion: t.override ? 'override' : 'validada', ...(t.revision ? { resultado: t.revision.resultado } : {}), de: (t.override || t.revision).de, a: (t.override || t.revision).a, usuario: (t.override || t.revision).usuario, fecha: (t.override || t.revision).fecha, comentario: (t.override || t.revision).motivo } } : {}) };
       const reglas = t.spans.find((s) => s[0] === 'reglas');
       return { entry, gob: Cumplimiento.gobernanza(entry, { traza_id: t.id, modelo: reglas ? reglas[3] : null, prompt: PROMPT_VERSION }), texto: m.texto, raw: entry.raw };
     });

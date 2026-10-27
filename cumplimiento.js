@@ -405,6 +405,7 @@
     };
   }
 
+  const DEC_TXT = { REVISION: 'A revisar', DESPEJADO: 'Aprobado' };
   function gobernanza(entry = {}, opts = {}) {
     const m = entry.mensaje || {};
     const texto = String(m.texto || '');
@@ -424,6 +425,7 @@
 
     const incumplidas = (entry.criterios || []).filter((c) => c.resultado === 'incumple').map((c) => c.regla);
     const revision = entry.decision === 'REVISION';
+    const rev = entry.revision && entry.revision.a ? entry.revision : null;   // acción humana desde la ficha (validar u override)
     const personas = entry.ramo === 'Salud';
     const hashEntrada = sha256(texto);
     const hashSalida = sha256(entry.raw || '');
@@ -484,7 +486,11 @@
       supervision_humana: {
         requerida: revision,
         motivo: revision ? (incumplidas.length ? `Incumple ${incumplidas.join(', ')}: la decisión desfavorable o dudosa la toma una persona` : 'Decisión dudosa: revisión por un tramitador') : 'Decisión favorable al asegurado dentro de los guardrails: aprobación automática permitida',
-        estado: revision ? (entry.revisado ? 'revisada' : 'pendiente de revisión') : 'no requerida',
+        // Override = una persona cambia una decisión que el agente tomó solo (Aprobado → A revisar): cuenta para su autonomía.
+        // Validar = una persona resuelve un caso que el agente ya escaló: no es override.
+        estado: rev && rev.accion === 'override' ? 'override: una persona pasó a revisión una aprobación automática'
+          : revision ? (rev ? `revisada: ${rev.resultado === 'aprobada' ? 'aprobada' : 'se mantiene en revisión'}` : entry.revisado ? 'revisada' : 'pendiente de revisión') : 'no requerida',
+        ...(rev ? { accion_humana: { tipo: rev.accion === 'override' ? 'override' : 'revision', de: DEC_TXT[rev.de] || rev.de, a: DEC_TXT[rev.a] || rev.a, cuenta_para_autonomia: rev.accion === 'override', revisor: rev.usuario, fecha: rev.fecha, comentario: rev.comentario || null } } : {}),
         normas: [N('ai-14'), N('rgpd-22')],
       },
       ...(opts.antifraude ? { antifraude: { ...opts.antifraude, nota: 'Indicador interno de priorización: no decide ni se comunica al cliente', normas: [N('rgpd-22'), N('rgpd-c47')] } } : {}),
@@ -633,7 +639,18 @@
     return rec(valor, 0, '', { gob });
   }
 
-  const API = { seudonimizarMensaje, rehidratar, seudonimizarTexto, resumenSeudonimizacion, ESQUEMA, NORMAS, CONOCIMIENTO, conocimientoDe, NORMA_POR_ETIQUETA, CATEGORIAS, CLAVES_NORMA, sha256, corto, detectar, enmascarar, camposSensibles, descartados, gobernanza, hallazgosConCita, encadenar, verificarCadena, termometro, jsonHtml };
+  // Tasa de override de un agente: decisiones que tomó solo («Aprobado») y que una persona cambió después, entre todas las
+  // que tomó solo. Resolver un caso que el agente ya escaló (validar) no es override y no cuenta. Por encima del umbral
+  // se propone bajarle un nivel; la propuesta queda pendiente de que la apruebe una persona.
+  function tasaOverride(trazas = [], nivel = null, umbral = 3) {
+    const solas = trazas.filter((t) => t.decision === 'DESPEJADO').length;
+    const overrides = trazas.filter((t) => t.decision === 'DESPEJADO' && t.override).length;
+    const tasa = solas ? (overrides / solas) * 100 : 0;
+    const proponerBajada = tasa > umbral && nivel != null && nivel > 0;
+    return { solas, overrides, tasa, proponerBajada, nivelPropuesto: proponerBajada ? nivel - 1 : null };
+  }
+
+  const API = { tasaOverride, seudonimizarMensaje, rehidratar, seudonimizarTexto, resumenSeudonimizacion, ESQUEMA, NORMAS, CONOCIMIENTO, conocimientoDe, NORMA_POR_ETIQUETA, CATEGORIAS, CLAVES_NORMA, sha256, corto, detectar, enmascarar, camposSensibles, descartados, gobernanza, hallazgosConCita, encadenar, verificarCadena, termometro, jsonHtml };
   if (typeof module !== 'undefined' && module.exports) module.exports = API;
   root.Cumplimiento = API;
 })(typeof window !== 'undefined' ? window : globalThis);
