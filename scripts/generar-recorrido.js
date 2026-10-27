@@ -47,8 +47,8 @@ const MAPA = [
     ['dedique su tiempo', 'ver:#log-body tr[data-id=MSG-A-04] | ver:#log-body tr[data-id=MSG-A-08] | ver:#log-body tr[data-id=MSG-A-13]'],
   ] }],
   ['### Paso 3 ', { pagina: 'triaje', accion: 'ficha:MSG-A-01:mensaje', requiere: 'lote', momentos: [
-    ['Esta es la ficha de una decisión', 'clic:#modal-tabs [data-tab=mensaje]'], ['tres adjuntos', 'clic:#modal-tabs [data-tab=adjuntos] | clic:#adj-lista [data-adj=0]'],
-    ['Las fotos muestran', 'clic:#adj-lista [data-adj=1]'], ['En las siguientes pestañas', 'clic:#modal-tabs [data-tab=datos]'],
+    ['Esta es la ficha de una decisión', 'clic:#modal-tabs [data-tab=mensaje]'], ['tres adjuntos', 'clic:#modal-tabs [data-tab=adjuntos] | clic:#adj-lista [data-adj="0"]'],
+    ['Las fotos muestran', 'clic:#adj-lista [data-adj="1"]'], ['En las siguientes pestañas', 'clic:#modal-tabs [data-tab=datos]'],
     ['Los avisos sencillos', 'clic:#modal-tabs [data-tab=reglas]'], ['El tramitador no tiene que fiarse', 'clic:#modal-tabs [data-tab=razonamiento]'],
   ] }],
   ['### Paso 4 ', { pagina: 'triaje', accion: 'ficha:MSG-A-08:mensaje', requiere: 'lote', momentos: [

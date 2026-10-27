@@ -193,7 +193,7 @@ Cinco ideas, una por bloque de la página:
 3. Clic en **5 · Trazabilidad** y **6 · Automatización**.
 4. Menú lateral → **Paquete de mensajes**: la lista de los 13 con el icono de su canal. Señalar MSG-A-11 (WhatsApp) y MSG-A-08 (teléfono).
 
-**Si preguntan:** ¿y los adjuntos o los audios? La llamada se transcribe con un modelo de voz a texto; los adjuntos se registran como documentación mencionada. El guardrail G-09 puede escalar a una persona las transcripciones con confianza baja.
+**Si preguntan:** ¿y los adjuntos o los audios? La llamada se transcribe con un modelo de voz a texto. Los adjuntos se registran con su huella y sus datos se contrastan con el texto: lo veremos en la ficha de MSG-A-01, que trae el parte amistoso y dos fotos. El guardrail G-09 puede escalar a una persona las transcripciones con confianza baja.
 
 ---
 
@@ -974,7 +974,7 @@ MSG-A-02 (rotura de tubería, 1.080 €) pide el pago a esa misma cuenta: score 
 | Quitar o acortar | Ahorro |
 |---|---|
 | Intro: en La solución, dejar 2.1, 2.2, 2.3 y una frase por idea de 2.4 | 2 min |
-| Paso 3 (ficha de MSG-A-01): enseñar solo las evidencias desde el paso 4 | 1,5 min |
+| Paso 3 (ficha de MSG-A-01): enseñar solo la pestaña Adjuntos y dejar las evidencias para el paso 4 | 1 min |
 | Entrada al panel (6.0) y «Para qué sirve esta sección»: leer solo la primera frase | 1,5 min |
 | Unir Autonomía y Guardrails (pasos 9 y 10) en 1,5 min | 1 min |
 | Paso 14 (Knowledge Bases): solo la comparativa de KB-02 | 1 min |

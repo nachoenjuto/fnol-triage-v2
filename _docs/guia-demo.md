@@ -96,17 +96,20 @@ Capacidades: **ordenar** por cualquier columna con cabecera, **filtrar** por ram
 
 ### 2.5 Ficha del mensaje (ventana modal)
 
-Es la pantalla de **explicabilidad** de una decisión. Arriba, tres cifras con icono: **Decisión** (pulgar si es Aprobado, ojo si es A revisar), **Ramo** (coche, casa o corazón) y **Confianza**. Debajo, cinco pestañas:
+Es la pantalla de **explicabilidad** de una decisión. Arriba, tres cifras con icono: **Decisión** (pulgar si es Aprobado, ojo si es A revisar), **Ramo** (coche, casa o corazón) y **Confianza**. Debajo, cinco pestañas, o seis si el mensaje trae adjuntos (en la demo, solo MSG-A-01):
 
 | Pestaña | Qué muestra |
 |---|---|
 | **Mensaje** | Datos del mensaje y el **texto con las evidencias resaltadas** (fondo oscuro, texto blanco, numeradas). A la derecha, la lista de evidencias. Al pasar el ratón o hacer clic sobre una evidencia (en el texto o en la lista), el título «Evidencias» se sustituye por su tipo (por ejemplo «3 · Fecha del hecho»). El botón **Leyenda**, a la derecha del título, abre los colores y las etiquetas al pasar el ratón o con un clic |
+| **Adjuntos** (solo si los hay) | A la izquierda, las miniaturas; en el centro, el visor (el PDF con el visor del navegador; las fotos con zoom por botones, clic o Ctrl + rueda, y arrastre), con «Abrir» y «Descargar»; a la derecha, los datos extraídos de cada adjunto, las reglas que refuerza y el **contraste con el mensaje** (coincide, no consta o discrepa, con la cita del email) |
 | **Datos extraídos** | Los campos del siniestro; los que no aparecen en el texto salen nulos |
 | **Reglas de negocio** | Cada regla del ramo: cumple / incumple / no aplica, con su evidencia |
 | **Razonamiento** | Ramo, decisión, siguiente paso recomendado y cronología |
 | **Respuesta cruda** | La salida del modelo tal cual y, con **+ Gobierno**, el bloque `_gobernanza` que añade la plataforma (ver 2.6) |
 
 Uso típico: abrir un mensaje «A revisar» y enseñar **exactamente qué regla lo ha frenado y con qué frase del cliente**.
+
+**Adjuntos de MSG-A-01.** El email del golpe en la M-30 trae la declaración amistosa de accidente en PDF y dos fotos de los daños. El parte confirma la fecha, la hora, el lugar y que no hubo heridos, y aporta la matrícula, la aseguradora y la póliza del otro conductor, que no venían en el texto. Las fotos muestran un daño leve en el paragolpes y el faro delanteros derechos, que es lo que presupuesta el taller. Con un modelo en vivo, los adjuntos todavía no se envían: sus datos salen de los resultados guardados y la pestaña lo avisa.
 
 ### 2.6 Respuesta cruda con metadatos de gobierno
 
@@ -121,6 +124,7 @@ Debajo de la salida del modelo aparece el bloque **`_gobernanza`**, marcado como
 | Teja · `datos_personales` | Cada dato detectado con su categoría, su valor en la traza (seudonimizado o enmascarado) y si se usó para decidir. Los de salud, en rojo | RGPD art. 4.5, 8, 9, 14 y 25 |
 | Verde · `explicabilidad` | Por qué este ramo (evidencias verificadas) y **por qué no los otros dos** | AI Act art. 13, RGPD art. 15 y 22 |
 | Violeta · `supervision_humana` | Si la decisión requiere a una persona y en qué estado está | AI Act art. 14, RGPD art. 22 |
+| Teja · `adjuntos` (solo si los hay) | Cada archivo con su tamaño y su SHA-256 calculado al recibirlo, los datos personales leídos en él (los del tercero del parte, enmascarados) y cómo llegó al modelo | AI Act art. 12, RGPD art. 4.5 y 14 |
 
 Al pasar el ratón por una norma aparece qué exige. «Copiar JSON» copia lo que se ve (con o sin el bloque).
 
@@ -140,6 +144,7 @@ Al pasar el ratón por una norma aparece qué exige. «Copiar JSON» copia lo qu
 - **Tabla de correspondencias:** solo existe en memoria durante la llamada; no viaja al modelo ni se guarda en la traza.
 - **Vista «Enviado al modelo»** en Respuesta cruda: el texto que recibió el modelo, con los marcadores resaltados, y una nota con cuántos datos se sustituyeron y de qué tipo. «Salida del modelo» muestra la respuesta tal cual llegó, con marcadores.
 - **Prueba en la traza:** `_gobernanza.datos_personales.envio_al_modelo` (seudonimizado sí o no, datos sustituidos por tipo, marcadores y hash del texto enviado).
+- **Adjuntos:** la sustitución solo se aplica al texto. El PDF y las fotos llegan al modelo con los datos personales que contengan; «Enviado al modelo» los lista debajo del texto y `_gobernanza.adjuntos.envio_al_modelo` lo deja registrado. Es un hueco real y conviene decirlo.
 - **Resultados guardados:** se simula sobre la respuesta guardada («Simulado sobre la respuesta guardada»).
 - **En el panel**, con la fuente «Sesión actual», el control de minimización (RGPD art. 5.1.c) del Termómetro pasa a verde y la medida M-08 sale verificada. Con la fuente «Demo» sigue en ámbar: es el histórico anterior a activarla.
 
@@ -462,6 +467,7 @@ El guion completo, paso a paso y con el texto para decir, es [guion-demo.md](gui
 - **Los datos del panel son de demostración**: inventados pero coherentes con el Paquete A. Solo las trazas de «Sesión actual» proceden del lote real; histórico, caps y guardrails siguen siendo de demo.
 - **Los cambios hechos en el panel** (kill switch, guardrails, caps nuevos, acciones correctivas, medidas aplicadas o verificadas, acciones sobre las Knowledge Bases y rúbricas editadas) son simulados y viven en `sessionStorage`: se pierden al cerrar la pestaña. El estado plegado del menú es una preferencia y se guarda en el navegador.
 - **Los datos personales de los mensajes son ficticios**: están para que se vea cómo se detectan, se seudonimizan y se protegen.
+- **Los adjuntos de MSG-A-01 también son ficticios**: las fotos se generaron con un modelo de imagen y el parte se genera en el navegador con los datos del mensaje, así que su fecha siempre coincide con la del email.
 - **Solo una knowledge base es real** («Reglas de negocio», los bloques de `prompts.js`); el resto aparece marcado como «simulada».
 - **Aplicación estática**: sin backend. La clave de IA solo se guarda en la sesión del navegador.
 - **Las fechas se mueven solas**: los datos se escribieron con «hoy» = 17/09/2026 y al abrir la página se desplazan al día de hoy (antes de las 09:45, a ayer). Para capturas estables, añadir `?fecha=2026-09-17` a la URL.

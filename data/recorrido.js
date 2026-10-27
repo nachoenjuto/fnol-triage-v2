@@ -480,7 +480,7 @@ const RECORRIDO_DEMO = {
           "texto": "Este aviso trae además tres adjuntos: el parte amistoso escaneado y dos fotos de los daños. En la pestaña Adjuntos los vemos al lado de los datos que el agente ha leído en cada uno, comparados con lo que dice el email.",
           "accion": [
             "clic:#modal-tabs [data-tab=adjuntos]",
-            "clic:#adj-lista [data-adj=0]"
+            "clic:#adj-lista [data-adj=\"0\"]"
           ]
         },
         {
@@ -491,7 +491,7 @@ const RECORRIDO_DEMO = {
           "tipo": "que",
           "texto": "Las fotos muestran un daño leve en el paragolpes y el faro delanteros derechos, que es justo lo que presupuesta el taller.",
           "accion": [
-            "clic:#adj-lista [data-adj=1]"
+            "clic:#adj-lista [data-adj=\"1\"]"
           ]
         },
         {
