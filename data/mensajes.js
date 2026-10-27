@@ -14,6 +14,21 @@ const PAQUETES = [
         asunto: 'Golpe leve en la M-30 - póliza AU-483920',
         texto: 'Buenos días. Me llamo Marta Gil Sanz, con DNI 50123456-Q, y soy la tomadora de la póliza AU-483920. El sábado 12 de septiembre, sobre las 18:30, iba por la M-30 en dirección a la A-5, a la altura del Puente de Segovia, en una retención, y el coche de delante frenó en seco; le di un pequeño toque por detrás. No hubo heridos y los dos coches pudimos seguir circulando. Rellenamos el parte amistoso los dos en el momento (lo adjunto escaneado); el otro conductor es Raúl Méndez, con un Citroën C4 asegurado en otra compañía. Mi coche es el Seat León 4521 KLM. El taller Autos Carabanchel me ha hecho un presupuesto de 1.350 € por el paragolpes y el faro derecho; también os adjunto fotos de los daños. Podéis llamarme al 619 554 210 por las tardes. ¿Qué tengo que hacer ahora? Gracias.',
         esperado: { ramo: 'Auto', revision: false },
+        // Adjuntos del email. El parte se genera como PDF a partir de `contenido` (adjuntos.js); datos ficticios.
+        adjuntos: [
+          {
+            id: 'ADJ-1', archivo: 'parte-amistoso.pdf', tipo: 'declaracion_amistosa', mime: 'application/pdf', titulo: 'Declaración amistosa de accidente',
+            contenido: {
+              fecha: '12/09/2026', hora: '18:30', localizacion: 'M-30 sentido A-5, a la altura del Puente de Segovia (Madrid)', heridos: false, danos_otros: false, testigos: 'Ninguno',
+              a: { tomador: 'Marta Gil Sanz', direccion: 'C/ Toledo 88, 3.º B, 28005 Madrid', telefono: '619 554 210', marca: 'Seat León', matricula: '4521 KLM', aseguradora: 'Seguros Demo FNOL', poliza: 'AU-483920', conductor: 'Marta Gil Sanz', dni: '50123456-Q', permiso: 'B', choque: 'delantero', danos: 'Paragolpes delantero y faro derecho', observaciones: 'El vehículo B frenó en seco en la retención' },
+              b: { tomador: 'Raúl Méndez Torres', direccion: 'Av. de Portugal 41, 2.º A, 28011 Madrid', telefono: '655 870 214', marca: 'Citroën C4', matricula: '7730 JZN', aseguradora: 'Mutua Ejemplo', poliza: 'ME-77120458', conductor: 'Raúl Méndez Torres', dni: '47258931-K', permiso: 'B', choque: 'trasero', danos: 'Paragolpes trasero', observaciones: 'Conforme con lo declarado' },
+              circunstancias_a: [8], circunstancias_b: [],
+              croquis_via: 'M-30 · calzada sentido A-5 · retención', croquis_sentido: 'A-5',
+            },
+          },
+          { id: 'ADJ-2', archivo: 'foto-danos-1.jpg', tipo: 'foto_danos', mime: 'image/jpeg', titulo: 'Foto: frontal del vehículo', src: 'data/adjuntos/foto-danos-1.jpg' },
+          { id: 'ADJ-3', archivo: 'foto-danos-2.jpg', tipo: 'foto_danos', mime: 'image/jpeg', titulo: 'Foto: faro y paragolpes derechos', src: 'data/adjuntos/foto-danos-2.jpg' },
+        ],
       },
       {
         id: 'MSG-A-02', canal: 'web', fecha_recepcion: '2026-09-14T11:40:00',

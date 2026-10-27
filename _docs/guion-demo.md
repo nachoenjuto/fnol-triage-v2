@@ -250,11 +250,13 @@ Cinco ideas, una por bloque de la página:
 
 > Esta es la ficha de una decisión. Arriba vemos la decisión, el ramo y la confianza del modelo. Debajo, el mensaje del cliente con las evidencias resaltadas. Cada evidencia es una cita literal del mensaje, y el sistema comprueba que existe en el texto original: si el modelo se la inventa, no aparece.
 >
+> Este aviso trae además tres adjuntos: el parte amistoso escaneado y dos fotos de los daños. En la pestaña Adjuntos los vemos al lado de los datos que el agente ha leído en cada uno, comparados con lo que dice el email. El parte confirma la fecha, la hora y que no hubo heridos, y aporta la matrícula y la aseguradora del otro conductor, que no venían en el texto. Las fotos muestran un daño leve en el paragolpes y el faro delanteros derechos, que es justo lo que presupuesta el taller.
+>
 > En las siguientes pestañas vemos los datos que el agente ha extraído del texto libre, cada una de las reglas del ramo que ha evaluado el agente de Reglas, con su resultado y su evidencia, y el razonamiento que le ha llevado a la decisión.
 
 **Valor**
 
-> Los avisos sencillos y bien documentados se aprueban sin que nadie tenga que tocarlos. Y si mañana alguien pregunta por qué se aprobó uno, la respuesta está aquí, regla por regla y con las palabras del propio cliente. El tramitador no tiene que fiarse de una caja negra: puede comprobar cada regla en segundos.
+> Los avisos sencillos y bien documentados se aprueban sin que nadie tenga que tocarlos. Y si mañana alguien pregunta por qué se aprobó uno, la respuesta está aquí, regla por regla y con las palabras del propio cliente. El tramitador no tiene que fiarse de una caja negra: puede comprobar cada regla en segundos. Y ya no tiene que abrir el parte y las fotos para compararlos a ojo con el email: el cruce viene hecho, y solo tiene que mirar lo que no cuadra.
 
 **Norma y por qué importa**
 
@@ -265,11 +267,14 @@ Cinco ideas, una por bloque de la página:
 
 1. Arriba de la ficha: las tres cifras (Decisión, Ramo, Confianza 95 %).
 2. Pestaña **Mensaje**: las evidencias resaltadas y numeradas en el texto. Pasar el ratón por una: el título «Evidencias» cambia a su tipo (por ejemplo «Fecha del hecho»). Abrir **Leyenda**.
-3. Pestaña **Datos extraídos**: los 10 campos (cliente, póliza, tipo, fecha, 1.350 €, lugar, terceros sí, lesionados no, documentación: parte amistoso, presupuesto y fotos).
-4. Pestaña **Reglas de negocio**: A1 a A8, todas en «cumple» o «no aplica», cada una con su evidencia.
-5. Pestaña **Razonamiento**: ramo, decisión, siguiente paso recomendado y cronología.
+3. Pestaña **Adjuntos** (3): el parte amistoso en el visor de PDF y, a la derecha, sus datos con el contraste contra el email (todo coincide; los datos del otro vehículo solo constan en el parte). Pasar a las dos fotos: clic en la imagen para ampliarla.
+4. Pestaña **Datos extraídos**: los 10 campos (cliente, póliza, tipo, fecha, 1.350 €, lugar, terceros sí, lesionados no, documentación: parte amistoso, presupuesto y fotos).
+5. Pestaña **Reglas de negocio**: A1 a A8, todas en «cumple» o «no aplica», cada una con su evidencia.
+6. Pestaña **Razonamiento**: ramo, decisión, siguiente paso recomendado y cronología.
 
 **Si preguntan:** ¿quién escribe las reglas? Negocio. Están en el menú lateral, sección **Prompt**, y se editan sin programar (botón «Editar en grande»). La llamada al modelo usa siempre el texto vigente.
+
+**Si preguntan:** ¿el modelo lee de verdad los adjuntos? En esta demo, los datos de los adjuntos salen de los resultados guardados, también cuando se conecta un modelo en vivo; el paso siguiente es enviarle las fotos y el PDF en la llamada de extracción. Y ojo: la seudonimización solo se aplica al texto, así que los adjuntos llegan al modelo con los datos personales que contengan. La traza lo registra así en `_gobernanza.adjuntos`.
 
 ---
 

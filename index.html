@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>FNOL — Primer Aviso de Siniestro</title>
   <meta name="description" content="Demo de triaje multicanal de mensajes de clientes de una aseguradora: clasificación por ramo, extracción de datos y aplicación de reglas con un proveedor de IA.">
-  <link rel="stylesheet" href="styles.css?v=36">
+  <link rel="stylesheet" href="styles.css?v=39">
   <link rel="stylesheet" href="header.css?v=43">
   <link rel="stylesheet" href="cumplimiento.css?v=36">
 </head>
@@ -266,6 +266,16 @@
           </div>
         </div>
       </section>
+      <section class="ficha-panel" id="tab-adjuntos" role="tabpanel" hidden>
+        <div class="adj-layout">
+          <ul id="adj-lista" class="adj-lista" aria-label="Adjuntos del mensaje"></ul>
+          <div class="adj-centro">
+            <div id="adj-barra" class="adj-barra"></div>
+            <div id="adj-visor" class="adj-visor"></div>
+          </div>
+          <aside id="adj-datos" class="adj-datos" aria-label="Datos extraídos del adjunto"></aside>
+        </div>
+      </section>
       <section class="ficha-panel" id="tab-datos" role="tabpanel" hidden>
         <h3>Datos extraídos</h3>
         <div class="box"><dl id="modal-datos" class="kv kv-wide"></dl></div>
@@ -314,17 +324,18 @@
   </dialog>
 
 
-  <script src="icons.js?v=39"></script>
-  <script src="data/recorrido.js?v=43"></script>
-  <script src="shell.js?v=50"></script>
-  <script src="data/mensajes.js?v=36"></script>
-  <script src="data/resultados.js?v=36"></script>
+  <script src="icons.js?v=40"></script>
+  <script src="data/recorrido.js?v=44"></script>
+  <script src="shell.js?v=51"></script>
+  <script src="data/mensajes.js?v=37"></script>
+  <script src="data/resultados.js?v=37"></script>
   <script src="data/fraude.js?v=36"></script>
   <script src="fechas.js?v=36"></script>
   <script src="prompts.js?v=36"></script>
   <script src="evidencias.js?v=36"></script>
-  <script src="cumplimiento.js?v=36"></script>
+  <script src="cumplimiento.js?v=37"></script>
   <script src="fraude.js?v=36"></script>
-  <script src="app.js?v=42"></script>
+  <script src="adjuntos.js?v=1"></script>
+  <script src="app.js?v=45"></script>
 </body>
 </html>

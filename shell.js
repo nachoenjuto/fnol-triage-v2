@@ -364,7 +364,7 @@
         try {
           if (nombre === '@paso') { const [n, ...args] = arg.split(':'); const fn = this.acciones[n]; if (fn && n !== 'procesar') fn(...args); await pausa(250); continue; }
           if (nombre === 'espera') { await pausa(Number(arg) || 1000); continue; }
-          if (nombre === 'arriba') { const d = [...document.querySelectorAll('dialog[open]')].pop(); const c = d ? (d.querySelector('.modal-body') || d) : (document.scrollingElement || document.documentElement); c.scrollTop = 0; continue; }
+          if (nombre === 'arriba') { const d = [...document.querySelectorAll('dialog[open]')].pop(); const c = d ? (d.querySelector('.modal-body, .ficha-body') || d) : (document.scrollingElement || document.documentElement); c.scrollTop = 0; continue; }
           if (nombre === 'cerrar') { document.querySelectorAll('dialog[open]').forEach((d) => { if (d.id !== 'rec-clave') d.close(); }); await pausa(150); continue; }
           if (nombre === 'ver' || nombre === 'clic') {
             const [sel, txt] = arg.split('~'); const el = await esperarEl(sel, txt); if (!el || !vigente()) continue;

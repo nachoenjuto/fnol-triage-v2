@@ -39,6 +39,50 @@ const RESULTADOS_GUARDADOS = {
     d: { nombre_cliente: 'Marta Gil Sanz', numero_poliza: 'AU-483920', tipo_siniestro: 'Colisión por alcance en retención', fecha_hecho: '2026-09-12', importe_estimado_eur: 1350, lugar: 'M-30 a la altura del Puente de Segovia, Madrid', terceros_implicados: true, lesionados: false, documentacion_mencionada: ['parte amistoso escaneado', 'presupuesto de taller', 'fotos de los daños'], observaciones: 'Daños en paragolpes y faro derecho; la asegurada reconoce haber golpeado por detrás.' },
     c: [['A1', 'cumple', 'No hay mención de impago ni baja; póliza AU-483920 identificada'], ['A2', 'cumple', 'Hecho el 12/09, comunicado el 14/09 (2 días)'], ['A3', 'cumple', 'Conducía la propia tomadora ("iba por la M-30")'], ['A4', 'cumple', 'Sin indicios de alcohol, drogas ni fuga'], ['A5', 'cumple', 'Tercero implicado con parte amistoso firmado por ambos; "No hubo heridos"'], ['A6', 'cumple', '1.350 € < 6.000 €'], ['A7', 'cumple', 'Colisión simple sin heridos, parte amistoso y presupuesto adjuntos'], ['A8', 'cumple', 'Relato coherente con los daños (paragolpes y faro)']],
     dec: 'DESPEJADO', motivo: 'Colisión leve con parte amistoso, sin heridos y presupuesto de 1.350 €: cumple todas las reglas del ramo Auto.', conf: 0.95, tok: [1478, 612, 214],
+    // Datos extraídos de los adjuntos (formato completo, sin compactar). `contraste`: coincide | no_consta | discrepa
+    adj: [
+      {
+        id: 'ADJ-1', archivo: 'parte-amistoso.pdf', tipo: 'declaracion_amistosa',
+        datos: {
+          fecha_hecho: '2026-09-12', hora: '18:30', lugar: 'M-30 sentido A-5, a la altura del Puente de Segovia (Madrid)', heridos: false, danos_otros_bienes: false, testigos: null,
+          vehiculo_a: { conductor: 'Marta Gil Sanz', dni: '50123456-Q', vehiculo: 'Seat León', matricula: '4521 KLM', aseguradora: 'Seguros Demo FNOL', poliza: 'AU-483920', punto_choque: 'delantero', danos: 'Paragolpes delantero y faro derecho' },
+          vehiculo_b: { conductor: 'Raúl Méndez Torres', dni: '47258931-K', vehiculo: 'Citroën C4', matricula: '7730 JZN', aseguradora: 'Mutua Ejemplo', poliza: 'ME-77120458', punto_choque: 'trasero', danos: 'Paragolpes trasero' },
+          circunstancias_a: [8], circunstancias_b: [], firmado_ambos: true,
+        },
+        contraste: [
+          { campo: 'fecha_hecho', resultado: 'coincide', detalle: 'Misma fecha y hora que el email', cita: 'El sábado 12 de septiembre, sobre las 18:30' },
+          { campo: 'lugar', resultado: 'coincide', detalle: 'M-30 a la altura del Puente de Segovia', cita: 'a la altura del Puente de Segovia' },
+          { campo: 'heridos', resultado: 'coincide', detalle: 'Casilla «Heridos: no»', cita: 'No hubo heridos' },
+          { campo: 'vehiculo_a', resultado: 'coincide', detalle: 'Seat León 4521 KLM, póliza AU-483920, conducía la tomadora', cita: 'Mi coche es el Seat León 4521 KLM' },
+          { campo: 'vehiculo_b', resultado: 'no_consta', detalle: 'La matrícula, la aseguradora y la póliza del tercero solo constan en el parte', cita: 'el otro conductor es Raúl Méndez, con un Citroën C4' },
+          { campo: 'circunstancias', resultado: 'coincide', detalle: 'A marca la casilla 8 (alcance por detrás); B no marca ninguna', cita: 'le di un pequeño toque por detrás' },
+          { campo: 'firmado_ambos', resultado: 'coincide', detalle: 'Firmas de los dos conductores', cita: 'Rellenamos el parte amistoso los dos en el momento' },
+        ],
+        reglas: ['A5', 'A7'],
+        resumen: 'Parte firmado por ambos conductores que confirma el alcance por detrás, sin heridos, y documenta al tercero.',
+      },
+      {
+        id: 'ADJ-2', archivo: 'foto-danos-1.jpg', tipo: 'foto_danos',
+        datos: { vista: 'Frontal en tres cuartos, lado derecho', zona_danada: 'Paragolpes delantero derecho', danos_visibles: ['Grieta en el paragolpes bajo el faro', 'Pintura levantada'], gravedad_aparente: 'leve', vehiculo: 'Seat León gris', matricula_visible: 'no legible' },
+        contraste: [
+          { campo: 'zona_danada', resultado: 'coincide', detalle: 'Daño frontal derecho, el que corresponde a un alcance por detrás', cita: 'el paragolpes y el faro derecho' },
+          { campo: 'vehiculo', resultado: 'coincide', detalle: 'Seat León, como en el email y el parte', cita: 'Seat León 4521 KLM' },
+          { campo: 'gravedad_aparente', resultado: 'coincide', detalle: 'Daño leve, coherente con un presupuesto de 1.350 €', cita: '1.350 €' },
+        ],
+        reglas: ['A8'],
+        resumen: 'Daño leve en el paragolpes delantero derecho, compatible con el relato.',
+      },
+      {
+        id: 'ADJ-3', archivo: 'foto-danos-2.jpg', tipo: 'foto_danos',
+        datos: { vista: 'Detalle del lado delantero derecho', zona_danada: 'Faro delantero derecho y paragolpes', danos_visibles: ['Carcasa del faro rota en la esquina', 'Grieta vertical en el paragolpes'], gravedad_aparente: 'leve', vehiculo: 'Seat León gris', matricula_visible: 'no aparece' },
+        contraste: [
+          { campo: 'zona_danada', resultado: 'coincide', detalle: 'El faro derecho roto aparece en el presupuesto', cita: 'el paragolpes y el faro derecho' },
+          { campo: 'danos_visibles', resultado: 'coincide', detalle: 'Misma grieta que en la otra foto: es el mismo daño', cita: 'también os adjunto fotos de los daños' },
+        ],
+        reglas: ['A8'],
+        resumen: 'Faro derecho roto y grieta en el paragolpes: confirma las dos partidas del presupuesto.',
+      },
+    ],
   },
   'MSG-A-02': {
     ev: [['fecha_hecho', 'Ayer 13/09 por la mañana', 'Fecha del hecho'], ['tipo_siniestro', 'se rompió el latiguillo del agua fría', 'Rotura súbita: daño por agua'], ['regla:H3', 'se inundó parte del salón', 'Daño súbito, no filtración'], ['importe_estimado_eur', 'factura 180 €', 'Fontanero de urgencia'], ['ramo', 'La tarima del salón se ha levantado', 'Daño en la vivienda: ramo Hogar'], ['importe_estimado_eur', '900 €', 'Presupuesto del parquetista (total 1.080 €)'], ['terceros_implicados', 'El agua no ha llegado al piso de abajo', 'Sin daños a terceros'], ['numero_poliza', 'HO-220114', 'Póliza identificada'], ['lugar', 'C/ Alcalá 210, 4.º A, 28028 Madrid', 'Vivienda asegurada'], ['documentacion_mencionada', 'Adjunto fotos y las dos facturas', 'Documentación adjunta']],
@@ -379,6 +423,7 @@ function expandirResultadoGuardado(r) {
     motivo: r.motivo,
     confianza: r.conf,
     evidencias: (r.ev || []).map(([ref, cita, nota]) => ({ ref, cita, nota })),
+    ...(r.adj ? { adjuntos: r.adj } : {}),
     usage: { input: r.tok[0], output: r.tok[1], reasoning: r.tok[2] },
   };
 }

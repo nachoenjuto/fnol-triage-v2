@@ -30,8 +30,9 @@ const registro = PAQUETES[0].mensajes.map((m) => {
     ancla: '2026-09-17', id: m.id, asunto: m.asunto, paquete: 'A', ramo: r.ramo, importe: r.datos_extraidos.importe_estimado_eur ?? null,
     decision: r.decision, motivo: r.motivo, confianza: r.confianza, origen: 'IA', criterios: r.criterios, criterios_ramo: r.criterios_ramo,
     pasos: null, datos_extraidos: r.datos_extraidos, evidencias: r.evidencias, raw: JSON.stringify(json, null, 2), usage,
+    ...(r.adjuntos ? { adjuntos: r.adjuntos, adjuntos_origen: 'modelo' } : {}),
     duracion_ms: dur, timestamp: new Date(new Date(t.inicio).getTime() + dur).toISOString(), esperado: m.esperado,
-    mensaje: { id: m.id, canal: m.canal, asunto: m.asunto, texto: m.texto, remitente: m.remitente },
+    mensaje: { id: m.id, canal: m.canal, asunto: m.asunto, texto: m.texto, remitente: m.remitente, ...(m.adjuntos ? { adjuntos: m.adjuntos } : {}) },
     gob_opts: { traza_id: TRAZA_DEMO[m.id], modelo: (t.spans.find((s) => s[0] === 'reglas') || [])[3] || 'gpt-5', prompt: PROMPT_VERSION },
   };
   return entrada;

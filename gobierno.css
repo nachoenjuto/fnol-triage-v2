@@ -315,7 +315,7 @@ label.f { display: grid; gap: .2rem; font-size: .72rem; font-weight: 700; text-t
 .agn.short .pre::before { content: 'Ag. de '; }
 .sub-head { margin-top: 1.1rem; padding-top: 1rem; border-top: 1px solid var(--border); }
 .modal.wide { width: min(1120px, 94vw); }
-/* Todas las ventanas modales con las mismas dimensiones (también las de index.html): cabecera fija y cuerpo con scroll.
+/* Todas las ventanas modales con las mismas dimensiones: cabecera fija y cuerpo con scroll.
    Navegar a otro elemento o cambiar de pestaña no mueve ni redimensiona la ventana. */
 .modal, .modal.wide { width: min(1120px, 94vw); height: min(780px, 88vh); max-height: 88vh; }
 .modal[open] { display: flex; flex-direction: column; }

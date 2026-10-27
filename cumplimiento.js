@@ -269,6 +269,13 @@
     if (d.nombre_cliente) out['datos_extraidos.nombre_cliente'] = 'identificativo';
     if (d.numero_poliza) out['datos_extraidos.numero_poliza'] = 'indirecto';
     if (d.lugar) out['datos_extraidos.lugar'] = 'localizacion';
+    (entry.adjuntos || []).forEach((a, i) => {
+      const da = a.datos || {};
+      if (da.lugar) out[`adjuntos.${i}.datos.lugar`] = 'localizacion';
+      [['vehiculo_a', false], ['vehiculo_b', true]].forEach(([k, tercero]) => PII_VEHICULO.forEach(([campo, tipo]) => {
+        if (da[k] && da[k][campo]) out[`adjuntos.${i}.datos.${k}.${campo}`] = tercero ? 'tercero' : tipo === 'nombre' || tipo === 'dni' ? 'identificativo' : 'indirecto';
+      }));
+    });
     if (entry.ramo === 'Salud' || d.lesionados) { out['datos_extraidos.tipo_siniestro'] = 'salud'; out['datos_extraidos.lesionados'] = 'salud'; out['datos_extraidos.observaciones'] = 'salud'; }
     return out;
   }
@@ -277,7 +284,7 @@
   const CLAVES_NORMA = {
     ramo: [N('ai-13')], criterios_ramo: [N('ai-13'), N('rgpd-15')], datos_extraidos: [N('rgpd-5c')],
     criterios: [N('ai-12'), N('rgpd-22')], evidencias: [N('ai-13'), N('rgpd-15')], decision: [N('rgpd-22'), N('ai-14')],
-    motivo: [N('rgpd-15'), N('ai-13')], confianza: [N('ai-15')],
+    motivo: [N('rgpd-15'), N('ai-13')], confianza: [N('ai-15')], adjuntos: [N('ai-13'), N('rgpd-5c')],
   };
 
   // ---------------------------------------------------------------------------
@@ -362,6 +369,42 @@
     };
   }
 
+  // Adjuntos: huella de cada archivo tal y como se recibió, datos personales que el modelo leyó en ellos y cómo llegaron
+  // al modelo. La seudonimización por marcadores solo se aplica al texto, así que los adjuntos van con los datos en claro.
+  const PII_VEHICULO = [['conductor', 'nombre'], ['dni', 'dni'], ['matricula', 'matricula'], ['poliza', 'poliza']];
+  function adjuntosGob(entry = {}) {
+    const lista = (entry.mensaje || {}).adjuntos || [];
+    if (!lista.length) return null;
+    const recibidos = entry.adjuntos_recibidos || [];
+    const hallazgos = [];
+    (entry.adjuntos || []).forEach((a) => {
+      const d = a.datos || {};
+      [['vehiculo_a', false], ['vehiculo_b', true]].forEach(([k, tercero]) => {
+        PII_VEHICULO.forEach(([campo, tipoBase]) => {
+          const v = d[k] && d[k][campo];
+          if (!v) return;
+          const tipo = tercero && tipoBase === 'nombre' ? 'nombre_tercero' : tipoBase;
+          const categoria = tercero ? 'tercero' : tipoBase === 'nombre' || tipoBase === 'dni' ? 'identificativo' : 'indirecto';
+          hallazgos.push({ adjunto: a.id, campo: `${k}.${campo}`, categoria, tipo, valor_en_traza: enmascarar({ cita: String(v), tipo }) });
+        });
+      });
+      if (d.firmado_ambos) hallazgos.push({ adjunto: a.id, campo: 'firmas', categoria: 'identificativo', tipo: 'firma', valor_en_traza: '[firma manuscrita: no se extrae]' });
+    });
+    const ia = /^IA/.test(entry.origen || '');
+    return {
+      recibidos: lista.length,
+      archivos: lista.map((a) => {
+        const h = recibidos.find((x) => x.id === a.id) || {};
+        return { id: a.id, archivo: a.archivo, mime: a.mime, bytes: h.bytes ?? null, hash: h.sha256 ? `sha256:${h.sha256}` : 'pendiente: se calcula al recibir el archivo' };
+      }),
+      datos_extraidos: !entry.adjuntos ? 'Ninguno: el motor local no lee los adjuntos' : entry.adjuntos_origen === 'guardado' ? 'Tomados de los resultados guardados: el modelo en vivo aún no recibe los adjuntos' : 'Por el modelo, en la misma llamada que el texto',
+      datos_personales: { total: hallazgos.length, terceros: hallazgos.filter((h) => h.categoria === 'tercero').length, hallazgos },
+      envio_al_modelo: !ia ? 'No aplica: motor local' : entry.adjuntos_origen === 'guardado' ? 'No se envían al modelo en vivo'
+        : 'Sin seudonimizar: la sustitución por marcadores solo se aplica al texto; el PDF y las fotos llegan con los datos personales que contengan',
+      normas: [N('ai-12'), N('rgpd-4-5'), N('rgpd-13')],
+    };
+  }
+
   function gobernanza(entry = {}, opts = {}) {
     const m = entry.mensaje || {};
     const texto = String(m.texto || '');
@@ -428,6 +471,7 @@
         envio_al_modelo: envioAlModelo(entry),
         normas: [N('rgpd-25'), N('rgpd-5c')],
       },
+      ...(adjuntosGob(entry) ? { adjuntos: adjuntosGob(entry) } : {}),
       explicabilidad: {
         ramo: entry.ramo || null,
         confianza: entry.confianza ?? null,
@@ -548,7 +592,7 @@
   // Pintado del JSON con metadatos (HTML como texto; lo usan las dos páginas)
   // ---------------------------------------------------------------------------
   const escHtml = (s) => String(s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
-  const SECCION = { trazabilidad: 'g-traz', retencion: 'g-ret', datos_personales: 'g-pii', explicabilidad: 'g-expl', supervision_humana: 'g-sup', clasificacion_ria: 'g-ria' };
+  const SECCION = { trazabilidad: 'g-traz', retencion: 'g-ret', datos_personales: 'g-pii', adjuntos: 'g-pii', explicabilidad: 'g-expl', supervision_humana: 'g-sup', clasificacion_ria: 'g-ria' };
   function jsonHtml(valor, { sensibles = {}, claves = {}, gob = false } = {}) {
     const sp = (n) => '  '.repeat(n);
     const prim = (v, ctx) => {

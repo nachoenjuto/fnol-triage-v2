@@ -140,6 +140,7 @@ Versión de bolsillo de [guion-demo.md](guion-demo.md): los mismos pasos y tiemp
 
 > - Arriba, la decisión, el ramo y la confianza del modelo.
 > - Cada evidencia es una cita literal que el sistema comprueba contra el mensaje: si el modelo la inventa, no aparece.
+> - Este aviso trae el parte amistoso y dos fotos: la pestaña Adjuntos los enseña junto a los datos leídos en cada uno, comparados con el email.
 > - Las pestañas muestran los datos extraídos, cada regla con su resultado y evidencia, y el razonamiento.
 
 **Valor**
@@ -147,7 +148,7 @@ Versión de bolsillo de [guion-demo.md](guion-demo.md): los mismos pasos y tiemp
 > - Los avisos sencillos y bien documentados se aprueban sin que nadie los toque.
 > - Si alguien pregunta por qué, la respuesta está aquí, regla por regla y con las palabras del cliente.
 
-**Clics:** ficha de MSG-A-01 (golpe en la M-30, 1.350 €): Mensaje, Datos extraídos, Reglas de negocio y Razonamiento.
+**Clics:** ficha de MSG-A-01 (golpe en la M-30, 1.350 €): Mensaje, Adjuntos (el parte y las dos fotos), Datos extraídos, Reglas de negocio y Razonamiento.
 
 ### Paso 4 · La ficha de un «A revisar»: MSG-A-08 (min 10-12)
 

@@ -650,7 +650,7 @@
   function setStatus(id, text, kind = '') { const el = $(id); el.textContent = text; el.className = `status ${kind}`; }
 
   // ---------------------------------------------------------------------------
-  // Ficha modal
+  // Ficha del mensaje (panel lateral)
   // ---------------------------------------------------------------------------
   // Las etiquetas son siempre literales de la propia app (o ya vienen escapadas/con iconos
   // Lucide por el llamante), nunca texto de usuario: no se re-escapan aquí.
@@ -698,9 +698,12 @@
     return etapas;
   }
 
-  const modalState = { lista: [], idx: 0, entry: null, tab: 'mensaje', raw: 'gobierno' };
-  const TABS = [['mensaje', 'messages-square', 'Mensaje'], ['datos', 'database', 'Datos extraídos'], ['reglas', 'list-checks', 'Reglas de negocio'], ['razonamiento', 'brain', 'Razonamiento'], ['json', 'braces', 'Respuesta cruda']];
+  const modalState = { lista: [], idx: 0, entry: null, tab: 'mensaje', raw: 'gobierno', adj: 0, zoom: 1 };
+  const TABS = [['mensaje', 'messages-square', 'Mensaje'], ['adjuntos', 'paperclip', 'Adjuntos'], ['datos', 'database', 'Datos extraídos'], ['reglas', 'list-checks', 'Reglas de negocio'], ['razonamiento', 'brain', 'Razonamiento'], ['json', 'braces', 'Respuesta cruda']];
+  // La pestaña «Adjuntos» solo existe en los mensajes que traen adjuntos
+  const tabsDe = (entry) => TABS.filter(([k]) => k !== 'adjuntos' || ((entry.mensaje || {}).adjuntos || []).length);
   function setTab(nombre) {
+    if (!document.querySelector(`#modal-tabs .ficha-tab[data-tab="${nombre}"]`)) nombre = 'mensaje';
     modalState.tab = nombre;
     document.querySelectorAll('#modal-tabs .ficha-tab').forEach((b) => b.setAttribute('aria-selected', String(b.dataset.tab === nombre)));
     document.querySelectorAll('#modal .ficha-panel').forEach((p) => { p.hidden = p.id !== `tab-${nombre}`; });
@@ -774,6 +777,86 @@
       <p class="small" style="margin-top:.5rem"><strong>Qué pasa ahora:</strong> ${escapeHtml(v.accion)}. El detalle, el escenario y la cola de la SIU están en el panel de gobierno, sección Fraude.</p>`;
   }
 
+  // Pestaña «Adjuntos»: miniaturas, visor (PDF del navegador o imagen con zoom) y datos extraídos de cada adjunto,
+  // contrastados con el texto del mensaje. El parte se genera con pdf-lib al abrirlo (adjuntos.js).
+  const ADJ_LABELS = {
+    fecha_hecho: 'Fecha', hora: 'Hora', lugar: 'Lugar', heridos: 'Heridos', danos_otros_bienes: 'Daños a otros bienes', testigos: 'Testigos',
+    vehiculo_a: 'Vehículo A', vehiculo_b: 'Vehículo B', circunstancias_a: 'Circunstancias A', circunstancias_b: 'Circunstancias B', firmado_ambos: 'Firmado por ambos',
+    conductor: 'Conductor', dni: 'DNI', vehiculo: 'Vehículo', matricula: 'Matrícula', aseguradora: 'Aseguradora', poliza: 'Póliza', punto_choque: 'Punto de choque', danos: 'Daños',
+    vista: 'Vista', zona_danada: 'Zona dañada', danos_visibles: 'Daños visibles', gravedad_aparente: 'Gravedad aparente', matricula_visible: 'Matrícula visible',
+  };
+  const CONTRASTE = { coincide: ['circle-check', 'ok', 'Coincide'], no_consta: ['circle-help', 'aviso', 'No consta en el mensaje'], discrepa: ['circle-x', 'ko', 'Discrepa'] };
+  const fmtKb = (b) => (b == null ? '' : `${(b / 1024).toLocaleString('es-ES', { maximumFractionDigits: 1 })} KB`);
+  function valorAdjunto(k, v) {
+    if (/^circunstancias_/.test(k)) {
+      const C = typeof Adjuntos !== 'undefined' ? Adjuntos.CIRCUNSTANCIAS : [];
+      return v && v.length ? v.map((n) => `${n} · ${escapeHtml(C[n - 1] || '')}`).join('<br>') : 'Ninguna';
+    }
+    if (k === 'fecha_hecho' && v) return escapeHtml(new Date(`${v}T12:00:00`).toLocaleDateString('es-ES'));
+    return fmtValue(v);
+  }
+  function datosAdjuntoHtml(datos) {
+    const planos = Object.entries(datos).filter(([, v]) => !v || typeof v !== 'object' || Array.isArray(v));
+    const grupos = Object.entries(datos).filter(([, v]) => v && typeof v === 'object' && !Array.isArray(v));
+    return `<dl class="kv">${kv(planos.map(([k, v]) => [ADJ_LABELS[k] || k, valorAdjunto(k, v)]))}</dl>`
+      + grupos.map(([k, g]) => `<h4>${escapeHtml(ADJ_LABELS[k] || k)}</h4><dl class="kv">${kv(Object.entries(g).map(([kk, v]) => [ADJ_LABELS[kk] || kk, valorAdjunto(kk, v)]))}</dl>`).join('');
+  }
+  function pintarAdjuntos(entry) {
+    const lista = (entry.mensaje || {}).adjuntos || [];
+    if (!lista.length) return;
+    const m = entry.mensaje;
+    const idx = Math.min(modalState.adj, lista.length - 1);
+    const a = lista[idx];
+    const huella = (entry.adjuntos_recibidos || []).find((h) => h.id === a.id) || {};
+    $('adj-lista').innerHTML = lista.map((x, i) => {
+      const h = (entry.adjuntos_recibidos || []).find((y) => y.id === x.id) || {};
+      const mini = x.mime === 'application/pdf' ? `<span class="adj-mini pdf">${lucide('file-text')}<b>PDF</b></span>` : `<img class="adj-mini" src="${escapeHtml(x.src)}" alt="" loading="lazy">`;
+      return `<li><button type="button" class="adj-item" data-adj="${i}" aria-pressed="${i === idx}">${mini}<span><strong>${escapeHtml(x.titulo)}</strong><small>${escapeHtml(x.archivo)}${h.bytes ? ` · ${fmtKb(h.bytes)}` : ''}</small></span></button></li>`;
+    }).join('');
+    const esImg = a.mime.startsWith('image/');
+    $('adj-barra').innerHTML = `<span class="adj-nombre">${lucide(esImg ? 'image' : 'file-text')} ${escapeHtml(a.archivo)}</span>
+      <span class="row">
+        ${esImg ? `<button class="btn btn-ghost btn-icon" type="button" data-zoom="-1" aria-label="Alejar" title="Alejar">${lucide('zoom-out')}</button><span class="adj-zoom" aria-live="polite">${Math.round(modalState.zoom * 100)} %</span><button class="btn btn-ghost btn-icon" type="button" data-zoom="1" aria-label="Acercar" title="Acercar">${lucide('zoom-in')}</button><button class="btn btn-sm btn-ghost" type="button" data-zoom="0">Ajustar</button>` : ''}
+        <a class="btn btn-sm btn-ghost" id="adj-abrir" target="_blank" rel="noopener" aria-disabled="true">${lucide('external-link')} Abrir</a>
+        <a class="btn btn-sm btn-ghost" id="adj-bajar" download="${escapeHtml(a.archivo)}" aria-disabled="true">${lucide('download')} Descargar</a>
+      </span>`;
+    const visor = $('adj-visor');
+    // Clave del adjunto visible: un PDF que termina de generarse tarde no pisa lo que se ha elegido después
+    const clave = `${entry.id}/${a.id}`; modalState.adjClave = clave;
+    visor.classList.toggle('es-img', esImg);
+    if (esImg) {
+      visor.innerHTML = `<img src="${escapeHtml(a.src)}" alt="${escapeHtml(a.titulo)}" draggable="false" style="width:${modalState.zoom * 100}%">`;
+      visor.classList.toggle('ampliada', modalState.zoom > 1);
+      ['adj-abrir', 'adj-bajar'].forEach((id) => { $(id).href = a.src; $(id).removeAttribute('aria-disabled'); });
+    } else {
+      visor.innerHTML = `<p class="muted center adj-cargando">${lucide('file-text')} Abriendo el PDF…</p>`;
+      Adjuntos.url(a, m).then((u) => {
+        if (modalState.adjClave !== clave) return;
+        visor.innerHTML = `<iframe src="${u}#view=FitH&navpanes=0" title="${escapeHtml(a.titulo)}"></iframe>`;
+        ['adj-abrir', 'adj-bajar'].forEach((id) => { $(id).href = u; $(id).removeAttribute('aria-disabled'); });
+      }).catch((e) => { if (modalState.adjClave === clave) visor.innerHTML = `<p class="muted center">No se pudo generar el PDF (${escapeHtml(e.message)}).</p>`; });
+    }
+
+    // Panel lateral: lo que extrajo el modelo de este adjunto y su contraste con el mensaje
+    const ext = (entry.adjuntos || []).find((x) => x.id === a.id);
+    const pie = huella.sha256 ? `<p class="small muted adj-huella" title="sha256:${escapeHtml(huella.sha256)}">${lucide('fingerprint')} sha256:${escapeHtml(huella.sha256.slice(0, 16))}… · ${fmtKb(huella.bytes)}</p>` : '';
+    if (!ext) {
+      $('adj-datos').innerHTML = `<h3>Datos extraídos</h3><p class="small muted">${/^IA/.test(entry.origen || '') ? 'El modelo no devolvió datos de este adjunto.' : 'Sin datos extraídos: el motor local no lee los adjuntos, solo el texto del mensaje.'}</p>${pie}`;
+      return;
+    }
+    const n = { coincide: 0, no_consta: 0, discrepa: 0 }; (ext.contraste || []).forEach((c) => { n[c.resultado] = (n[c.resultado] || 0) + 1; });
+    $('adj-datos').innerHTML = `<h3>Datos extraídos</h3>
+      ${entry.adjuntos_origen === 'guardado' ? `<p class="small adj-aviso">${lucide('info')} Tomados de los resultados guardados: el modelo en vivo todavía no recibe los adjuntos.</p>` : ''}
+      <p class="small">${escapeHtml(ext.resumen || '')}</p>
+      ${(ext.reglas || []).length ? `<p class="small adj-reglas">Refuerza ${ext.reglas.map((r) => `<span>${escapeHtml(r)}</span>`).join(' ')}</p>` : ''}
+      ${datosAdjuntoHtml(ext.datos || {})}
+      <h4>Contraste con el mensaje <small class="muted">${n.coincide} coinciden${n.no_consta ? ` · ${n.no_consta} no constan` : ''}${n.discrepa ? ` · ${n.discrepa} discrepan` : ''}</small></h4>
+      <ul class="adj-contraste">${(ext.contraste || []).map((c) => {
+        const [ico, cls, txt] = CONTRASTE[c.resultado] || CONTRASTE.no_consta;
+        return `<li class="${cls}"><span class="ci" title="${txt}">${lucide(ico)}</span><div><strong>${escapeHtml(ADJ_LABELS[c.campo] || c.campo)}</strong> ${escapeHtml(c.detalle || '')}${c.cita ? `<q>${escapeHtml(c.cita)}</q>` : ''}</div></li>`;
+      }).join('')}</ul>${pie}`;
+  }
+
   // Respuesta cruda: la salida del modelo tal cual y, debajo, el bloque añadido por la plataforma
   function pintarRaw(entry) {
     const gob = gobDe(entry);
@@ -815,13 +898,19 @@
       return;
     }
     const e = sd.enviado || {};
-    const texto = `Asunto: ${e.asunto}\nRemitente: ${e.remitente}\n\n${e.texto}`;
+    const adj = (entry.mensaje || {}).adjuntos || [];
+    const lineaAdj = (a) => { const h = (entry.adjuntos_recibidos || []).find((x) => x.id === a.id) || {}; return `· ${a.archivo} (${a.mime}${h.bytes ? `, ${fmtKb(h.bytes)}` : ''}${h.sha256 ? `, sha256:${h.sha256.slice(0, 16)}…` : ''})`; };
+    const bloqueAdj = !adj.length ? ''
+      : entry.adjuntos_origen === 'guardado' ? `\n\nAdjuntos: ${adj.length}, no se envían al modelo en vivo (sus datos salen de los resultados guardados)\n${adj.map(lineaAdj).join('\n')}`
+      : `\n\nAdjuntos enviados tal cual, sin seudonimizar: ${adj.length}\n${adj.map(lineaAdj).join('\n')}`;
+    const texto = `Asunto: ${e.asunto}\nRemitente: ${e.remitente}\n\n${e.texto}${bloqueAdj}`;
     $('modal-raw').innerHTML = escapeHtml(texto).replace(/\[[A-Z_]+_\d+\]/g, (t) => `<mark class="raw-tok">${t}</mark>`);
     modalState.rawTexto = texto;
     const NOMBRE_TIPO = { nombre: ['nombre', 'nombres'], nombre_tercero: ['nombre de tercero', 'nombres de terceros'], dni: ['DNI', 'DNI'], nie: ['NIE', 'NIE'], email: ['email', 'emails'], telefono: ['teléfono', 'teléfonos'], iban: ['IBAN', 'IBAN'], tarjeta_sanitaria: ['tarjeta sanitaria', 'tarjetas sanitarias'], poliza: ['póliza', 'pólizas'], matricula: ['matrícula', 'matrículas'], expediente: ['expediente', 'expedientes'], direccion: ['dirección', 'direcciones'] };
     const tipos = Object.entries(sd.por_tipo || {}).map(([k, n]) => `${n} ${(NOMBRE_TIPO[k] || [k, k])[n === 1 ? 0 : 1]}`).join(', ');
     $('raw-nota').textContent = `${sd.simulada ? 'Reproducción de una respuesta guardada: así habría llegado el mensaje al modelo. ' : ''}${sd.sustituidos} datos personales sustituidos por marcadores (${tipos || 'ninguno'}). `
-      + 'La tabla de correspondencias solo existe en memoria durante la llamada: la plataforma la usa para reconstruir la respuesta y no se guarda en la traza. Los datos de salud se mantienen porque hacen falta para decidir (RGPD art. 9.2.f).';
+      + 'La tabla de correspondencias solo existe en memoria durante la llamada: la plataforma la usa para reconstruir la respuesta y no se guarda en la traza. Los datos de salud se mantienen porque hacen falta para decidir (RGPD art. 9.2.f).'
+      + (adj.length && entry.adjuntos_origen !== 'guardado' ? ' La seudonimización solo se aplica al texto: el PDF y las fotos llegan al modelo con los datos personales que contengan.' : '');
   }
   const gob_envio = (entry) => (entry.gobernanza && entry.gobernanza.datos_personales.envio_al_modelo) || {};
 
@@ -871,10 +960,12 @@
     $('modal-prev').disabled = modalState.idx <= 0; $('modal-next').disabled = modalState.idx >= modalState.lista.length - 1;
     $('modal-prev').innerHTML = lucide('chevron-left'); $('modal-next').innerHTML = lucide('chevron-right');
     $('modal-copy-raw').innerHTML = `${lucide('copy')} Copiar JSON`;
-    $('modal-tabs').innerHTML = TABS.map(([k, icono, label]) => {
+    $('modal-tabs').innerHTML = tabsDe(entry).map(([k, icono, label]) => {
       const nInc = k === 'reglas' ? (entry.criterios || []).filter((c) => c.resultado === 'incumple').length : 0;
-      return `<button class="ficha-tab" type="button" role="tab" data-tab="${k}" aria-selected="false">${lucide(icono)} ${label}${k === 'reglas' ? ` <span class="n${nInc ? '' : ' vacio'}">${nInc || 0}</span>` : ''}</button>`;
+      const n = k === 'reglas' ? ` <span class="n${nInc ? '' : ' vacio'}">${nInc || 0}</span>` : k === 'adjuntos' ? ` <span class="n n-adj">${m.adjuntos.length}</span>` : '';
+      return `<button class="ficha-tab" type="button" role="tab" data-tab="${k}" aria-selected="false">${lucide(icono)} ${label}${n}</button>`;
     }).join('');
+    modalState.adj = 0; modalState.zoom = 1;
     setTab(conservarTab ? modalState.tab : 'mensaje');
     tituloEvidencia(null);
     pintarIndicadores(entry);
@@ -910,6 +1001,7 @@
     }));
     if (!(entry.criterios || []).length) $('modal-criterios').innerHTML = '<li class="muted">El resultado no incluye criterios.</li>';
     pintarFraude(entry);
+    pintarAdjuntos(entry);
 
     $('modal-resultado').innerHTML = kv([
       ['Decisión', entry.decision === DECISION.REVIEW ? 'A revisar (revisión humana)' : 'Aprobado automáticamente'],
@@ -922,8 +1014,20 @@
       ['Referencia demo', esperado.ramo ? `${esperado.revision ? 'A revisar (esperado)' : 'Aprobado (esperado)'}${esperado.nota ? ` — ${escapeHtml(esperado.nota)}` : ''}` : undefined],
     ]);
     pintarRaw(entry);
+    $('modal').classList.remove('cerrando');
     if (!$('modal').open) $('modal').showModal();
     $('modal').querySelector('.ficha-body').scrollTop = 0;
+  }
+
+  // Cierre del panel con su animación de salida; sin animación (prefers-reduced-motion) se cierra al momento
+  function cerrarFicha() {
+    const d = $('modal');
+    if (!d.open || d.classList.contains('cerrando')) return;
+    d.classList.add('cerrando');
+    if (getComputedStyle(d).animationName !== 'panel-sale') { d.close(); return; }
+    const fin = (ev) => { if (ev && (ev.target !== d || ev.animationName !== 'panel-sale')) return; d.removeEventListener('animationend', fin); clearTimeout(t); if (d.classList.contains('cerrando')) d.close(); };
+    const t = setTimeout(fin, 400);
+    d.addEventListener('animationend', fin);
   }
 
   function navegarModal(delta) {
@@ -968,6 +1072,7 @@
       return {
         ramo: e.ramo, criterios_ramo: e.criterios_ramo || [], datos_extraidos: e.datos_extraidos || {}, criterios: e.criterios || [],
         decision: e.decision, motivo: e.motivo, confianza: e.confianza ?? 0.5, evidencias: e.evidencias || [], raw: e.raw || null, usage: e.usage || null, pasos: e.pasos || null, seudonimizacion: e.seudonimizacion || null,
+        adjuntos: e.adjuntos || null, adjuntos_origen: e.adjuntos_origen || null,
         origen: `${e.origen || 'IA'} (archivo)`,
       };
     }
@@ -1019,8 +1124,13 @@
         if (state.cancelled) break;
         const msg = mensajes[i];
         const t0 = performance.now();
+        // Recepción: el agente multicanal registra tamaño y SHA-256 de cada adjunto
+        const recibidos = (msg.adjuntos || []).length && typeof Adjuntos !== 'undefined' ? await Adjuntos.huellas(msg) : null;
         const result = await triageOne(msg, cfg, (p) => setStatus('run-status', `${msg.id} (${i + 1}/${mensajes.length}): ${p}…`));
         if (state.cancelled || !result) break;
+        // Fase 1: el modelo en vivo aún no recibe los adjuntos; sus datos se toman de los resultados guardados
+        const adjGuardados = (msg.adjuntos || []).length && /^IA/.test(result.origen || '') && RESULTADOS_GUARDADOS[msg.id] && RESULTADOS_GUARDADOS[msg.id].adj;
+        const adjuntos = result.adjuntos || adjGuardados || null;
         const { __entrada, ...mensajeLimpio } = msg;
         state.log.unshift({
           id: msg.id,
@@ -1039,6 +1149,9 @@
           evidencias: result.evidencias || [],
           raw: result.raw || null,
           seudonimizacion: result.seudonimizacion || null,
+          adjuntos,
+          adjuntos_origen: result.adjuntos_origen || (result.adjuntos ? 'modelo' : adjuntos ? 'guardado' : null),
+          adjuntos_recibidos: recibidos || (msg.__entrada && msg.__entrada.adjuntos_recibidos) || null,
           usage: result.usage || null,
           duracion_ms: Math.round(performance.now() - t0),
           timestamp: new Date().toISOString(),
@@ -1100,7 +1213,7 @@
     URL.revokeObjectURL(url);
   }
   function exportJson() {
-    const data = state.log.map(({ mensaje, ...e }) => ({ ...e, mensaje: { id: mensaje.id, canal: mensaje.canal, asunto: mensaje.asunto, texto: mensaje.texto, remitente: mensaje.remitente } }));
+    const data = state.log.map(({ mensaje, ...e }) => ({ ...e, mensaje: { id: mensaje.id, canal: mensaje.canal, asunto: mensaje.asunto, texto: mensaje.texto, remitente: mensaje.remitente, ...(mensaje.adjuntos ? { adjuntos: mensaje.adjuntos } : {}) } }));
     download(`triage-registro-${isoDate(new Date())}.json`, JSON.stringify(data, null, 2), 'application/json');
   }
   function exportCsv() {
@@ -1238,7 +1351,10 @@
       const entry = tr && state.log.find((e) => e.id === tr.dataset.id);
       if (entry) openModal(entry);
     });
-    $('modal-close').addEventListener('click', () => $('modal').close());
+    $('modal-close').addEventListener('click', cerrarFicha);
+    // Esc cierra con animación (la leyenda abierta se cierra antes, en su propio manejador); 'close' limpia el estado si se cierra desde fuera
+    $('modal').addEventListener('cancel', (ev) => { ev.preventDefault(); cerrarFicha(); });
+    $('modal').addEventListener('close', () => $('modal').classList.remove('cerrando'));
     $('modal-prev').addEventListener('click', () => navegarModal(-1));
     $('modal-next').addEventListener('click', () => navegarModal(1));
     $('modal-tabs').addEventListener('click', (ev) => { const b = ev.target.closest('.ficha-tab'); if (b) setTab(b.dataset.tab); });
@@ -1287,7 +1403,51 @@
       const b = ev.target.closest('.seg-btn'); if (!b || !modalState.entry) return;
       modalState.raw = b.dataset.raw; pintarRaw(modalState.entry);
     });
-    $('modal').addEventListener('click', (ev) => { if (ev.target === $('modal')) $('modal').close(); });
+    // Adjuntos: elegir archivo, zoom de la imagen (botones, Ctrl + rueda, clic) y arrastrar para moverla
+    $('adj-lista').addEventListener('click', (ev) => {
+      const b = ev.target.closest('.adj-item'); if (!b || !modalState.entry) return;
+      modalState.adj = Number(b.dataset.adj); modalState.zoom = 1; pintarAdjuntos(modalState.entry);
+    });
+    const zoom = (z) => {
+      const nuevo = Math.min(4, Math.max(1, z));
+      if (nuevo === modalState.zoom || !modalState.entry) return;
+      const v = $('adj-visor'); const fx = (v.scrollLeft + v.clientWidth / 2) / v.scrollWidth; const fy = (v.scrollTop + v.clientHeight / 2) / v.scrollHeight;
+      modalState.zoom = nuevo; pintarAdjuntos(modalState.entry);
+      const img = v.querySelector('img');
+      const centrar = () => { v.scrollLeft = fx * v.scrollWidth - v.clientWidth / 2; v.scrollTop = fy * v.scrollHeight - v.clientHeight / 2; };
+      if (img && !img.complete) img.addEventListener('load', centrar, { once: true }); else centrar();
+    };
+    $('adj-barra').addEventListener('click', (ev) => {
+      const b = ev.target.closest('[data-zoom]'); if (!b) return;
+      const d = Number(b.dataset.zoom); zoom(d ? modalState.zoom + d * 0.5 : 1);
+    });
+    $('adj-visor').addEventListener('wheel', (ev) => {
+      if (!ev.ctrlKey || !ev.currentTarget.classList.contains('es-img')) return;
+      ev.preventDefault(); zoom(modalState.zoom + (ev.deltaY < 0 ? 0.25 : -0.25));
+    }, { passive: false });
+    let arrastre = null;
+    $('adj-visor').addEventListener('pointerdown', (ev) => {
+      const v = ev.currentTarget; if (!v.classList.contains('es-img')) return;
+      arrastre = { x: ev.clientX, y: ev.clientY, l: v.scrollLeft, t: v.scrollTop, movido: false };
+    });
+    $('adj-visor').addEventListener('pointermove', (ev) => {
+      if (!arrastre) return;
+      const v = ev.currentTarget; const dx = ev.clientX - arrastre.x; const dy = ev.clientY - arrastre.y;
+      if (Math.abs(dx) + Math.abs(dy) > 4) arrastre.movido = true;
+      v.scrollLeft = arrastre.l - dx; v.scrollTop = arrastre.t - dy;
+    });
+    const soltar = (ev) => {
+      if (!arrastre) return;
+      const clic = !arrastre.movido; arrastre = null;
+      if (clic && ev.type === 'pointerup' && ev.target.tagName === 'IMG') zoom(modalState.zoom > 1 ? 1 : 2);
+    };
+    ['pointerup', 'pointerleave'].forEach((t) => $('adj-visor').addEventListener(t, soltar));
+    // Clic fuera del panel (en el velo, que pertenece al propio <dialog>)
+    $('modal').addEventListener('click', (ev) => {
+      if (ev.target !== $('modal')) return;
+      const r = $('modal').getBoundingClientRect();
+      if (ev.clientX < r.left || ev.clientX > r.right || ev.clientY < r.top || ev.clientY > r.bottom) cerrarFicha();
+    });
   }
 
   // ---------------------------------------------------------------------------

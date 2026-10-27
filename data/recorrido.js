@@ -458,6 +458,7 @@ const RECORRIDO_DEMO = {
       "clics": [
         "Arriba de la ficha: las tres cifras (Decisión, Ramo, Confianza 95 %).",
         "Pestaña Mensaje: las evidencias resaltadas y numeradas en el texto. Pasar el ratón por una: el título «Evidencias» cambia a su tipo (por ejemplo «Fecha del hecho»). Abrir Leyenda.",
+        "Pestaña Adjuntos (3): el parte amistoso en el visor de PDF y, a la derecha, sus datos con el contraste contra el email (todo coincide; los datos del otro vehículo solo constan en el parte). Pasar a las dos fotos: clic en la imagen para ampliarla.",
         "Pestaña Datos extraídos: los 10 campos (cliente, póliza, tipo, fecha, 1.350 €, lugar, terceros sí, lesionados no, documentación: parte amistoso, presupuesto y fotos).",
         "Pestaña Reglas de negocio: A1 a A8, todas en «cumple» o «no aplica», cada una con su evidencia.",
         "Pestaña Razonamiento: ramo, decisión, siguiente paso recomendado y cronología."
@@ -473,6 +474,25 @@ const RECORRIDO_DEMO = {
         {
           "tipo": "que",
           "texto": "Cada evidencia es una cita literal del mensaje, y el sistema comprueba que existe en el texto original: si el modelo se la inventa, no aparece."
+        },
+        {
+          "tipo": "que",
+          "texto": "Este aviso trae además tres adjuntos: el parte amistoso escaneado y dos fotos de los daños. En la pestaña Adjuntos los vemos al lado de los datos que el agente ha leído en cada uno, comparados con lo que dice el email.",
+          "accion": [
+            "clic:#modal-tabs [data-tab=adjuntos]",
+            "clic:#adj-lista [data-adj=0]"
+          ]
+        },
+        {
+          "tipo": "que",
+          "texto": "El parte confirma la fecha, la hora y que no hubo heridos, y aporta la matrícula y la aseguradora del otro conductor, que no venían en el texto."
+        },
+        {
+          "tipo": "que",
+          "texto": "Las fotos muestran un daño leve en el paragolpes y el faro delanteros derechos, que es justo lo que presupuesta el taller.",
+          "accion": [
+            "clic:#adj-lista [data-adj=1]"
+          ]
         },
         {
           "tipo": "que",
@@ -494,6 +514,10 @@ const RECORRIDO_DEMO = {
           "accion": [
             "clic:#modal-tabs [data-tab=razonamiento]"
           ]
+        },
+        {
+          "tipo": "valor",
+          "texto": "Y ya no tiene que abrir el parte y las fotos para compararlos a ojo con el email: el cruce viene hecho, y solo tiene que mirar lo que no cuadra."
         }
       ]
     },

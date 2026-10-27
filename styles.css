@@ -233,9 +233,24 @@ tbody tr:focus { outline: 2px solid var(--primary); outline-offset: -2px; }
 .ramo-criterios { margin: .25rem 0 0; padding-left: 1.2rem; font-size: .85rem; display: grid; gap: .2rem; }
 
 /* ─── Ficha del mensaje (modal): indicadores, pestañas, mensaje con evidencias, siguiente paso y cronología ─── */
-/* Mismas dimensiones que el resto de ventanas modales (también las de gobierno.html) */
-.modal.ficha { display: none; flex-direction: column; }
+/* La ficha es un panel lateral: entra desde la derecha y llega hasta el borde del menú lateral
+   (248px desplegado, 60px plegado); por debajo de 760px el menú se apila arriba y el panel ocupa todo el ancho.
+   Sigue siendo un <dialog> abierto con showModal(): el resto de la página queda inerte y el foco dentro. */
+.modal.ficha { --panel-izq: 248px; display: none; flex-direction: column; position: fixed; inset: 0 0 0 var(--panel-izq); margin: 0; width: auto; height: auto; max-width: none; max-height: none; border: 0; border-left: 1px solid var(--border); border-radius: 0; box-shadow: -12px 0 32px rgba(10, 15, 30, .22); }
+:root:has(.shell.nav-collapsed) .modal.ficha { --panel-izq: 60px; }
+@media (max-width: 760px) { .modal.ficha, :root:has(.shell.nav-collapsed) .modal.ficha { --panel-izq: 0px; border-left: 0; } }
 .modal.ficha[open] { display: flex; }
+.modal.ficha::backdrop { background: rgba(10, 15, 30, .4); }
+@media (prefers-reduced-motion: no-preference) {
+  .modal.ficha[open] { animation: panel-entra .28s cubic-bezier(.2, .8, .2, 1); }
+  .modal.ficha[open]::backdrop { animation: velo-entra .28s ease-out; }
+  .modal.ficha.cerrando { animation: panel-sale .2s ease-in forwards; }
+  .modal.ficha.cerrando::backdrop { animation: velo-sale .2s ease-in forwards; }
+}
+@keyframes panel-entra { from { transform: translateX(100%); } }
+@keyframes panel-sale { to { transform: translateX(100%); } }
+@keyframes velo-entra { from { opacity: 0; } }
+@keyframes velo-sale { to { opacity: 0; } }
 .modal.ficha .modal-head { align-items: center; }
 .mh-title { display: flex; align-items: center; gap: .7rem; min-width: 0; }
 .mh-title h2 { margin: 0; font-size: 1.05rem; overflow-wrap: anywhere; }
@@ -275,6 +290,64 @@ tbody tr:focus { outline: 2px solid var(--primary); outline-offset: -2px; }
 /* Respuesta cruda: el texto ocupa todo el alto disponible de la ficha */
 #tab-json:not([hidden]) { flex: 1 1 auto; display: flex; flex-direction: column; min-height: 0; }
 #tab-json .raw { flex: 1 1 auto; max-height: none; min-height: 0; margin: .6rem 0 0; }
+/* Adjuntos: miniaturas · visor (PDF del navegador o imagen con zoom) · datos extraídos; el visor ocupa el alto de la ficha */
+.ficha-tab .n.n-adj { background: var(--bg); color: var(--muted); border: 1px solid var(--border); }
+#tab-adjuntos:not([hidden]) { flex: 1 1 auto; display: flex; flex-direction: column; min-height: 0; }
+.adj-layout { flex: 1 1 auto; min-height: 0; display: grid; grid-template-columns: 200px minmax(0, 1fr) minmax(260px, 340px); gap: 1rem; padding-top: .6rem; }
+.adj-lista { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: .5rem; overflow-y: auto; min-height: 0; }
+.adj-item { width: 100%; font: inherit; text-align: left; display: grid; gap: .35rem; padding: .45rem; border: 1px solid var(--border); border-radius: 5px; background: var(--surface); color: var(--text); cursor: pointer; }
+.adj-item:hover { background: var(--bg); }
+.adj-item[aria-pressed="true"] { border-color: var(--primary); box-shadow: inset 0 0 0 1px var(--primary); }
+.adj-item:focus-visible { outline: 2px solid var(--primary); outline-offset: 1px; }
+.adj-item strong { display: block; font-size: .8rem; line-height: 1.25; }
+.adj-item small { display: block; font-size: .7rem; color: var(--muted); overflow-wrap: anywhere; }
+.adj-mini { width: 100%; aspect-ratio: 16 / 9; object-fit: cover; border-radius: 3px; display: block; background: var(--bg); }
+.adj-mini.pdf { display: grid; place-items: center; align-content: center; gap: .1rem; font-size: 1.6rem; color: var(--error); }
+.adj-mini.pdf b { font-size: .68rem; letter-spacing: .08em; }
+.adj-centro { display: flex; flex-direction: column; min-height: 0; min-width: 0; border: 1px solid var(--border); border-radius: 5px; overflow: hidden; }
+.adj-barra { display: flex; align-items: center; justify-content: space-between; gap: .5rem; flex-wrap: wrap; padding: .3rem .5rem; border-bottom: 1px solid var(--border); background: var(--bg); font-size: .8rem; }
+.adj-barra .row { gap: .2rem; align-items: center; }
+.adj-barra a.btn { text-decoration: none; display: inline-flex; align-items: center; gap: .3rem; }
+.adj-barra a[aria-disabled="true"] { opacity: .45; pointer-events: none; }
+.adj-nombre { display: inline-flex; align-items: center; gap: .35rem; font-weight: 600; min-width: 0; overflow-wrap: anywhere; }
+.adj-zoom { min-width: 3.2em; text-align: center; font-variant-numeric: tabular-nums; color: var(--muted); }
+.adj-visor { flex: 1 1 auto; min-height: 320px; overflow: auto; background: #3a3f4a; display: grid; place-items: center; }
+.adj-visor iframe { width: 100%; height: 100%; min-height: 320px; border: 0; background: #fff; }
+.adj-visor.es-img { place-items: start center; cursor: zoom-in; user-select: none; touch-action: none; }
+.adj-visor.es-img.ampliada { place-items: start; cursor: grab; }
+.adj-visor.es-img.ampliada:active { cursor: grabbing; }
+.adj-visor img { display: block; max-width: none; height: auto; margin: auto; }
+.adj-visor:not(.ampliada) img { max-height: 100%; object-fit: contain; }
+.adj-cargando { color: #d5d9e2; display: inline-flex; align-items: center; gap: .4rem; }
+.adj-datos { overflow-y: auto; min-height: 0; font-size: .85rem; }
+.adj-datos h3 { margin-top: 0; }
+.adj-datos h4 { font-size: .8rem; margin: .9rem 0 .35rem; color: var(--muted); text-transform: uppercase; letter-spacing: .04em; }
+.adj-datos h4 small { text-transform: none; letter-spacing: 0; font-weight: 400; }
+.adj-datos .kv { font-size: .82rem; }
+.adj-reglas span { display: inline-block; font-size: .72rem; font-weight: 700; padding: .05rem .45rem; border-radius: 5px; background: var(--ok-bg); color: var(--ok); }
+.adj-aviso { background: var(--review-bg); color: var(--review); border-radius: 5px; padding: .4rem .55rem; display: flex; gap: .4rem; align-items: flex-start; }
+.adj-contraste { list-style: none; margin: 0; padding: 0; display: grid; gap: .35rem; }
+.adj-contraste li { display: flex; gap: .45rem; align-items: flex-start; padding: .4rem .5rem; border: 1px solid var(--border); border-radius: 5px; font-size: .8rem; }
+.adj-contraste .ci { flex: none; font-size: 1rem; line-height: 1.2; }
+.adj-contraste .ok .ci { color: var(--ok); }
+.adj-contraste .aviso .ci { color: var(--review); }
+.adj-contraste .ko .ci { color: var(--error); }
+.adj-contraste q { display: block; color: var(--muted); font-style: italic; margin-top: .15rem; }
+.adj-huella { margin-top: .8rem; display: flex; gap: .35rem; align-items: center; overflow-wrap: anywhere; }
+/* En pantallas estrechas el panel deja de ajustarse al alto de la ficha: el visor tiene alto propio y la ficha hace scroll */
+@media (max-width: 1100px) {
+  #tab-adjuntos:not([hidden]) { flex: none; }
+  .adj-layout { grid-template-columns: 170px minmax(0, 1fr); }
+  .adj-centro { height: 460px; }
+  .adj-datos { grid-column: 1 / -1; overflow: visible; }
+}
+@media (max-width: 760px) {
+  .adj-layout { grid-template-columns: 1fr; }
+  .adj-lista { flex-direction: row; overflow-x: auto; }
+  .adj-lista li { flex: 0 0 150px; }
+  .adj-centro { height: 380px; }
+  .adj-visor { min-height: 0; }
+}
 .modal.ficha .modal-head, .ficha-kpis, .ficha-tabs { flex: none; }
 .ficha-panel[hidden] { display: none; }
 .ficha-resumen { display: grid; grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr); gap: 1.5rem; }

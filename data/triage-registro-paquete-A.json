@@ -5490,12 +5490,176 @@
         "nota": "Fotos adjuntas"
       }
     ],
-    "raw": "{\n  \"ramo\": \"Auto\",\n  \"criterios_ramo\": [\n    \"Daño en un vehículo: Seat León 4521 KLM\",\n    \"Póliza con prefijo AU-483920\",\n    \"Colisión por alcance en la M-30 con parte amistoso\"\n  ],\n  \"datos_extraidos\": {\n    \"nombre_cliente\": \"Marta Gil Sanz\",\n    \"numero_poliza\": \"AU-483920\",\n    \"tipo_siniestro\": \"Colisión por alcance en retención\",\n    \"fecha_hecho\": \"2026-09-12\",\n    \"importe_estimado_eur\": 1350,\n    \"lugar\": \"M-30 a la altura del Puente de Segovia, Madrid\",\n    \"terceros_implicados\": true,\n    \"lesionados\": false,\n    \"documentacion_mencionada\": [\n      \"parte amistoso escaneado\",\n      \"presupuesto de taller\",\n      \"fotos de los daños\"\n    ],\n    \"observaciones\": \"Daños en paragolpes y faro derecho; la asegurada reconoce haber golpeado por detrás.\"\n  },\n  \"criterios\": [\n    {\n      \"regla\": \"A1\",\n      \"descripcion\": \"Póliza vigente y al corriente de pago en la fecha del hecho\",\n      \"resultado\": \"cumple\",\n      \"evidencia\": \"No hay mención de impago ni baja; póliza AU-483920 identificada\"\n    },\n    {\n      \"regla\": \"A2\",\n      \"descripcion\": \"Comunicación en plazo (7 días, art. 16 LCS)\",\n      \"resultado\": \"cumple\",\n      \"evidencia\": \"Hecho el 12/09, comunicado el 14/09 (2 días)\"\n    },\n    {\n      \"regla\": \"A3\",\n      \"descripcion\": \"Conductor declarado en la póliza\",\n      \"resultado\": \"cumple\",\n      \"evidencia\": \"Conducía la propia tomadora (\\\"iba por la M-30\\\")\"\n    },\n    {\n      \"regla\": \"A4\",\n      \"descripcion\": \"Sin alcohol, drogas, fuga ni uso no declarado\",\n      \"resultado\": \"cumple\",\n      \"evidencia\": \"Sin indicios de alcohol, drogas ni fuga\"\n    },\n    {\n      \"regla\": \"A5\",\n      \"descripcion\": \"Terceros documentados y sin lesionados\",\n      \"resultado\": \"cumple\",\n      \"evidencia\": \"Tercero implicado con parte amistoso firmado por ambos; \\\"No hubo heridos\\\"\"\n    },\n    {\n      \"regla\": \"A6\",\n      \"descripcion\": \"Importe inferior a 6.000 € y proporcionado\",\n      \"resultado\": \"cumple\",\n      \"evidencia\": \"1.350 € < 6.000 €\"\n    },\n    {\n      \"regla\": \"A7\",\n      \"descripcion\": \"Supuesto de despeje directo con documentación\",\n      \"resultado\": \"cumple\",\n      \"evidencia\": \"Colisión simple sin heridos, parte amistoso y presupuesto adjuntos\"\n    },\n    {\n      \"regla\": \"A8\",\n      \"descripcion\": \"Coherencia del relato y siniestralidad\",\n      \"resultado\": \"cumple\",\n      \"evidencia\": \"Relato coherente con los daños (paragolpes y faro)\"\n    }\n  ],\n  \"decision\": \"DESPEJADO\",\n  \"motivo\": \"Colisión leve con parte amistoso, sin heridos y presupuesto de 1.350 €: cumple todas las reglas del ramo Auto.\",\n  \"confianza\": 0.95,\n  \"evidencias\": [\n    {\n      \"ref\": \"numero_poliza\",\n      \"cita\": \"AU-483920\",\n      \"nota\": \"Póliza identificada\"\n    },\n    {\n      \"ref\": \"fecha_hecho\",\n      \"cita\": \"El sábado 12 de septiembre\",\n      \"nota\": \"Fecha del hecho\"\n    },\n    {\n      \"ref\": \"regla:A3\",\n      \"cita\": \"iba por la M-30\",\n      \"nota\": \"Conducía la propia tomadora\"\n    },\n    {\n      \"ref\": \"lugar\",\n      \"cita\": \"a la altura del Puente de Segovia\",\n      \"nota\": \"Lugar del hecho (M-30)\"\n    },\n    {\n      \"ref\": \"tipo_siniestro\",\n      \"cita\": \"le di un pequeño toque por detrás\",\n      \"nota\": \"Colisión por alcance en retención\"\n    },\n    {\n      \"ref\": \"regla:A5\",\n      \"cita\": \"No hubo heridos\",\n      \"nota\": \"Sin lesionados\"\n    },\n    {\n      \"ref\": \"documentacion_mencionada\",\n      \"cita\": \"Rellenamos el parte amistoso los dos en el momento\",\n      \"nota\": \"Parte amistoso firmado por ambos\"\n    },\n    {\n      \"ref\": \"terceros_implicados\",\n      \"cita\": \"el otro conductor es Raúl Méndez\",\n      \"nota\": \"Tercero identificado en el parte\"\n    },\n    {\n      \"ref\": \"ramo\",\n      \"cita\": \"Mi coche es el Seat León 4521 KLM\",\n      \"nota\": \"Vehículo asegurado: ramo Auto\"\n    },\n    {\n      \"ref\": \"importe_estimado_eur\",\n      \"cita\": \"1.350 €\",\n      \"nota\": \"Presupuesto del taller\"\n    },\n    {\n      \"ref\": \"documentacion_mencionada\",\n      \"cita\": \"fotos de los daños\",\n      \"nota\": \"Fotos adjuntas\"\n    }\n  ]\n}",
+    "raw": "{\n  \"ramo\": \"Auto\",\n  \"criterios_ramo\": [\n    \"Daño en un vehículo: Seat León 4521 KLM\",\n    \"Póliza con prefijo AU-483920\",\n    \"Colisión por alcance en la M-30 con parte amistoso\"\n  ],\n  \"datos_extraidos\": {\n    \"nombre_cliente\": \"Marta Gil Sanz\",\n    \"numero_poliza\": \"AU-483920\",\n    \"tipo_siniestro\": \"Colisión por alcance en retención\",\n    \"fecha_hecho\": \"2026-09-12\",\n    \"importe_estimado_eur\": 1350,\n    \"lugar\": \"M-30 a la altura del Puente de Segovia, Madrid\",\n    \"terceros_implicados\": true,\n    \"lesionados\": false,\n    \"documentacion_mencionada\": [\n      \"parte amistoso escaneado\",\n      \"presupuesto de taller\",\n      \"fotos de los daños\"\n    ],\n    \"observaciones\": \"Daños en paragolpes y faro derecho; la asegurada reconoce haber golpeado por detrás.\"\n  },\n  \"criterios\": [\n    {\n      \"regla\": \"A1\",\n      \"descripcion\": \"Póliza vigente y al corriente de pago en la fecha del hecho\",\n      \"resultado\": \"cumple\",\n      \"evidencia\": \"No hay mención de impago ni baja; póliza AU-483920 identificada\"\n    },\n    {\n      \"regla\": \"A2\",\n      \"descripcion\": \"Comunicación en plazo (7 días, art. 16 LCS)\",\n      \"resultado\": \"cumple\",\n      \"evidencia\": \"Hecho el 12/09, comunicado el 14/09 (2 días)\"\n    },\n    {\n      \"regla\": \"A3\",\n      \"descripcion\": \"Conductor declarado en la póliza\",\n      \"resultado\": \"cumple\",\n      \"evidencia\": \"Conducía la propia tomadora (\\\"iba por la M-30\\\")\"\n    },\n    {\n      \"regla\": \"A4\",\n      \"descripcion\": \"Sin alcohol, drogas, fuga ni uso no declarado\",\n      \"resultado\": \"cumple\",\n      \"evidencia\": \"Sin indicios de alcohol, drogas ni fuga\"\n    },\n    {\n      \"regla\": \"A5\",\n      \"descripcion\": \"Terceros documentados y sin lesionados\",\n      \"resultado\": \"cumple\",\n      \"evidencia\": \"Tercero implicado con parte amistoso firmado por ambos; \\\"No hubo heridos\\\"\"\n    },\n    {\n      \"regla\": \"A6\",\n      \"descripcion\": \"Importe inferior a 6.000 € y proporcionado\",\n      \"resultado\": \"cumple\",\n      \"evidencia\": \"1.350 € < 6.000 €\"\n    },\n    {\n      \"regla\": \"A7\",\n      \"descripcion\": \"Supuesto de despeje directo con documentación\",\n      \"resultado\": \"cumple\",\n      \"evidencia\": \"Colisión simple sin heridos, parte amistoso y presupuesto adjuntos\"\n    },\n    {\n      \"regla\": \"A8\",\n      \"descripcion\": \"Coherencia del relato y siniestralidad\",\n      \"resultado\": \"cumple\",\n      \"evidencia\": \"Relato coherente con los daños (paragolpes y faro)\"\n    }\n  ],\n  \"decision\": \"DESPEJADO\",\n  \"motivo\": \"Colisión leve con parte amistoso, sin heridos y presupuesto de 1.350 €: cumple todas las reglas del ramo Auto.\",\n  \"confianza\": 0.95,\n  \"evidencias\": [\n    {\n      \"ref\": \"numero_poliza\",\n      \"cita\": \"AU-483920\",\n      \"nota\": \"Póliza identificada\"\n    },\n    {\n      \"ref\": \"fecha_hecho\",\n      \"cita\": \"El sábado 12 de septiembre\",\n      \"nota\": \"Fecha del hecho\"\n    },\n    {\n      \"ref\": \"regla:A3\",\n      \"cita\": \"iba por la M-30\",\n      \"nota\": \"Conducía la propia tomadora\"\n    },\n    {\n      \"ref\": \"lugar\",\n      \"cita\": \"a la altura del Puente de Segovia\",\n      \"nota\": \"Lugar del hecho (M-30)\"\n    },\n    {\n      \"ref\": \"tipo_siniestro\",\n      \"cita\": \"le di un pequeño toque por detrás\",\n      \"nota\": \"Colisión por alcance en retención\"\n    },\n    {\n      \"ref\": \"regla:A5\",\n      \"cita\": \"No hubo heridos\",\n      \"nota\": \"Sin lesionados\"\n    },\n    {\n      \"ref\": \"documentacion_mencionada\",\n      \"cita\": \"Rellenamos el parte amistoso los dos en el momento\",\n      \"nota\": \"Parte amistoso firmado por ambos\"\n    },\n    {\n      \"ref\": \"terceros_implicados\",\n      \"cita\": \"el otro conductor es Raúl Méndez\",\n      \"nota\": \"Tercero identificado en el parte\"\n    },\n    {\n      \"ref\": \"ramo\",\n      \"cita\": \"Mi coche es el Seat León 4521 KLM\",\n      \"nota\": \"Vehículo asegurado: ramo Auto\"\n    },\n    {\n      \"ref\": \"importe_estimado_eur\",\n      \"cita\": \"1.350 €\",\n      \"nota\": \"Presupuesto del taller\"\n    },\n    {\n      \"ref\": \"documentacion_mencionada\",\n      \"cita\": \"fotos de los daños\",\n      \"nota\": \"Fotos adjuntas\"\n    }\n  ],\n  \"adjuntos\": [\n    {\n      \"id\": \"ADJ-1\",\n      \"archivo\": \"parte-amistoso.pdf\",\n      \"tipo\": \"declaracion_amistosa\",\n      \"datos\": {\n        \"fecha_hecho\": \"2026-09-12\",\n        \"hora\": \"18:30\",\n        \"lugar\": \"M-30 sentido A-5, a la altura del Puente de Segovia (Madrid)\",\n        \"heridos\": false,\n        \"danos_otros_bienes\": false,\n        \"testigos\": null,\n        \"vehiculo_a\": {\n          \"conductor\": \"Marta Gil Sanz\",\n          \"dni\": \"50123456-Q\",\n          \"vehiculo\": \"Seat León\",\n          \"matricula\": \"4521 KLM\",\n          \"aseguradora\": \"Seguros Demo FNOL\",\n          \"poliza\": \"AU-483920\",\n          \"punto_choque\": \"delantero\",\n          \"danos\": \"Paragolpes delantero y faro derecho\"\n        },\n        \"vehiculo_b\": {\n          \"conductor\": \"Raúl Méndez Torres\",\n          \"dni\": \"47258931-K\",\n          \"vehiculo\": \"Citroën C4\",\n          \"matricula\": \"7730 JZN\",\n          \"aseguradora\": \"Mutua Ejemplo\",\n          \"poliza\": \"ME-77120458\",\n          \"punto_choque\": \"trasero\",\n          \"danos\": \"Paragolpes trasero\"\n        },\n        \"circunstancias_a\": [\n          8\n        ],\n        \"circunstancias_b\": [],\n        \"firmado_ambos\": true\n      },\n      \"contraste\": [\n        {\n          \"campo\": \"fecha_hecho\",\n          \"resultado\": \"coincide\",\n          \"detalle\": \"Misma fecha y hora que el email\",\n          \"cita\": \"El sábado 12 de septiembre, sobre las 18:30\"\n        },\n        {\n          \"campo\": \"lugar\",\n          \"resultado\": \"coincide\",\n          \"detalle\": \"M-30 a la altura del Puente de Segovia\",\n          \"cita\": \"a la altura del Puente de Segovia\"\n        },\n        {\n          \"campo\": \"heridos\",\n          \"resultado\": \"coincide\",\n          \"detalle\": \"Casilla «Heridos: no»\",\n          \"cita\": \"No hubo heridos\"\n        },\n        {\n          \"campo\": \"vehiculo_a\",\n          \"resultado\": \"coincide\",\n          \"detalle\": \"Seat León 4521 KLM, póliza AU-483920, conducía la tomadora\",\n          \"cita\": \"Mi coche es el Seat León 4521 KLM\"\n        },\n        {\n          \"campo\": \"vehiculo_b\",\n          \"resultado\": \"no_consta\",\n          \"detalle\": \"La matrícula, la aseguradora y la póliza del tercero solo constan en el parte\",\n          \"cita\": \"el otro conductor es Raúl Méndez, con un Citroën C4\"\n        },\n        {\n          \"campo\": \"circunstancias\",\n          \"resultado\": \"coincide\",\n          \"detalle\": \"A marca la casilla 8 (alcance por detrás); B no marca ninguna\",\n          \"cita\": \"le di un pequeño toque por detrás\"\n        },\n        {\n          \"campo\": \"firmado_ambos\",\n          \"resultado\": \"coincide\",\n          \"detalle\": \"Firmas de los dos conductores\",\n          \"cita\": \"Rellenamos el parte amistoso los dos en el momento\"\n        }\n      ],\n      \"reglas\": [\n        \"A5\",\n        \"A7\"\n      ],\n      \"resumen\": \"Parte firmado por ambos conductores que confirma el alcance por detrás, sin heridos, y documenta al tercero.\"\n    },\n    {\n      \"id\": \"ADJ-2\",\n      \"archivo\": \"foto-danos-1.jpg\",\n      \"tipo\": \"foto_danos\",\n      \"datos\": {\n        \"vista\": \"Frontal en tres cuartos, lado derecho\",\n        \"zona_danada\": \"Paragolpes delantero derecho\",\n        \"danos_visibles\": [\n          \"Grieta en el paragolpes bajo el faro\",\n          \"Pintura levantada\"\n        ],\n        \"gravedad_aparente\": \"leve\",\n        \"vehiculo\": \"Seat León gris\",\n        \"matricula_visible\": \"no legible\"\n      },\n      \"contraste\": [\n        {\n          \"campo\": \"zona_danada\",\n          \"resultado\": \"coincide\",\n          \"detalle\": \"Daño frontal derecho, el que corresponde a un alcance por detrás\",\n          \"cita\": \"el paragolpes y el faro derecho\"\n        },\n        {\n          \"campo\": \"vehiculo\",\n          \"resultado\": \"coincide\",\n          \"detalle\": \"Seat León, como en el email y el parte\",\n          \"cita\": \"Seat León 4521 KLM\"\n        },\n        {\n          \"campo\": \"gravedad_aparente\",\n          \"resultado\": \"coincide\",\n          \"detalle\": \"Daño leve, coherente con un presupuesto de 1.350 €\",\n          \"cita\": \"1.350 €\"\n        }\n      ],\n      \"reglas\": [\n        \"A8\"\n      ],\n      \"resumen\": \"Daño leve en el paragolpes delantero derecho, compatible con el relato.\"\n    },\n    {\n      \"id\": \"ADJ-3\",\n      \"archivo\": \"foto-danos-2.jpg\",\n      \"tipo\": \"foto_danos\",\n      \"datos\": {\n        \"vista\": \"Detalle del lado delantero derecho\",\n        \"zona_danada\": \"Faro delantero derecho y paragolpes\",\n        \"danos_visibles\": [\n          \"Carcasa del faro rota en la esquina\",\n          \"Grieta vertical en el paragolpes\"\n        ],\n        \"gravedad_aparente\": \"leve\",\n        \"vehiculo\": \"Seat León gris\",\n        \"matricula_visible\": \"no aparece\"\n      },\n      \"contraste\": [\n        {\n          \"campo\": \"zona_danada\",\n          \"resultado\": \"coincide\",\n          \"detalle\": \"El faro derecho roto aparece en el presupuesto\",\n          \"cita\": \"el paragolpes y el faro derecho\"\n        },\n        {\n          \"campo\": \"danos_visibles\",\n          \"resultado\": \"coincide\",\n          \"detalle\": \"Misma grieta que en la otra foto: es el mismo daño\",\n          \"cita\": \"también os adjunto fotos de los daños\"\n        }\n      ],\n      \"reglas\": [\n        \"A8\"\n      ],\n      \"resumen\": \"Faro derecho roto y grieta en el paragolpes: confirma las dos partidas del presupuesto.\"\n    }\n  ]\n}",
     "usage": {
       "input": 1478,
       "output": 612,
       "reasoning": 214
     },
+    "adjuntos": [
+      {
+        "id": "ADJ-1",
+        "archivo": "parte-amistoso.pdf",
+        "tipo": "declaracion_amistosa",
+        "datos": {
+          "fecha_hecho": "2026-09-12",
+          "hora": "18:30",
+          "lugar": "M-30 sentido A-5, a la altura del Puente de Segovia (Madrid)",
+          "heridos": false,
+          "danos_otros_bienes": false,
+          "testigos": null,
+          "vehiculo_a": {
+            "conductor": "Marta Gil Sanz",
+            "dni": "50123456-Q",
+            "vehiculo": "Seat León",
+            "matricula": "4521 KLM",
+            "aseguradora": "Seguros Demo FNOL",
+            "poliza": "AU-483920",
+            "punto_choque": "delantero",
+            "danos": "Paragolpes delantero y faro derecho"
+          },
+          "vehiculo_b": {
+            "conductor": "Raúl Méndez Torres",
+            "dni": "47258931-K",
+            "vehiculo": "Citroën C4",
+            "matricula": "7730 JZN",
+            "aseguradora": "Mutua Ejemplo",
+            "poliza": "ME-77120458",
+            "punto_choque": "trasero",
+            "danos": "Paragolpes trasero"
+          },
+          "circunstancias_a": [
+            8
+          ],
+          "circunstancias_b": [],
+          "firmado_ambos": true
+        },
+        "contraste": [
+          {
+            "campo": "fecha_hecho",
+            "resultado": "coincide",
+            "detalle": "Misma fecha y hora que el email",
+            "cita": "El sábado 12 de septiembre, sobre las 18:30"
+          },
+          {
+            "campo": "lugar",
+            "resultado": "coincide",
+            "detalle": "M-30 a la altura del Puente de Segovia",
+            "cita": "a la altura del Puente de Segovia"
+          },
+          {
+            "campo": "heridos",
+            "resultado": "coincide",
+            "detalle": "Casilla «Heridos: no»",
+            "cita": "No hubo heridos"
+          },
+          {
+            "campo": "vehiculo_a",
+            "resultado": "coincide",
+            "detalle": "Seat León 4521 KLM, póliza AU-483920, conducía la tomadora",
+            "cita": "Mi coche es el Seat León 4521 KLM"
+          },
+          {
+            "campo": "vehiculo_b",
+            "resultado": "no_consta",
+            "detalle": "La matrícula, la aseguradora y la póliza del tercero solo constan en el parte",
+            "cita": "el otro conductor es Raúl Méndez, con un Citroën C4"
+          },
+          {
+            "campo": "circunstancias",
+            "resultado": "coincide",
+            "detalle": "A marca la casilla 8 (alcance por detrás); B no marca ninguna",
+            "cita": "le di un pequeño toque por detrás"
+          },
+          {
+            "campo": "firmado_ambos",
+            "resultado": "coincide",
+            "detalle": "Firmas de los dos conductores",
+            "cita": "Rellenamos el parte amistoso los dos en el momento"
+          }
+        ],
+        "reglas": [
+          "A5",
+          "A7"
+        ],
+        "resumen": "Parte firmado por ambos conductores que confirma el alcance por detrás, sin heridos, y documenta al tercero."
+      },
+      {
+        "id": "ADJ-2",
+        "archivo": "foto-danos-1.jpg",
+        "tipo": "foto_danos",
+        "datos": {
+          "vista": "Frontal en tres cuartos, lado derecho",
+          "zona_danada": "Paragolpes delantero derecho",
+          "danos_visibles": [
+            "Grieta en el paragolpes bajo el faro",
+            "Pintura levantada"
+          ],
+          "gravedad_aparente": "leve",
+          "vehiculo": "Seat León gris",
+          "matricula_visible": "no legible"
+        },
+        "contraste": [
+          {
+            "campo": "zona_danada",
+            "resultado": "coincide",
+            "detalle": "Daño frontal derecho, el que corresponde a un alcance por detrás",
+            "cita": "el paragolpes y el faro derecho"
+          },
+          {
+            "campo": "vehiculo",
+            "resultado": "coincide",
+            "detalle": "Seat León, como en el email y el parte",
+            "cita": "Seat León 4521 KLM"
+          },
+          {
+            "campo": "gravedad_aparente",
+            "resultado": "coincide",
+            "detalle": "Daño leve, coherente con un presupuesto de 1.350 €",
+            "cita": "1.350 €"
+          }
+        ],
+        "reglas": [
+          "A8"
+        ],
+        "resumen": "Daño leve en el paragolpes delantero derecho, compatible con el relato."
+      },
+      {
+        "id": "ADJ-3",
+        "archivo": "foto-danos-2.jpg",
+        "tipo": "foto_danos",
+        "datos": {
+          "vista": "Detalle del lado delantero derecho",
+          "zona_danada": "Faro delantero derecho y paragolpes",
+          "danos_visibles": [
+            "Carcasa del faro rota en la esquina",
+            "Grieta vertical en el paragolpes"
+          ],
+          "gravedad_aparente": "leve",
+          "vehiculo": "Seat León gris",
+          "matricula_visible": "no aparece"
+        },
+        "contraste": [
+          {
+            "campo": "zona_danada",
+            "resultado": "coincide",
+            "detalle": "El faro derecho roto aparece en el presupuesto",
+            "cita": "el paragolpes y el faro derecho"
+          },
+          {
+            "campo": "danos_visibles",
+            "resultado": "coincide",
+            "detalle": "Misma grieta que en la otra foto: es el mismo daño",
+            "cita": "también os adjunto fotos de los daños"
+          }
+        ],
+        "reglas": [
+          "A8"
+        ],
+        "resumen": "Faro derecho roto y grieta en el paragolpes: confirma las dos partidas del presupuesto."
+      }
+    ],
+    "adjuntos_origen": "modelo",
     "duracion_ms": 6350,
     "timestamp": "2026-09-17T07:02:17.350Z",
     "esperado": {
@@ -5510,7 +5674,76 @@
       "remitente": {
         "nombre": "Marta Gil Sanz",
         "contacto": "marta.gil@correo.es"
-      }
+      },
+      "adjuntos": [
+        {
+          "id": "ADJ-1",
+          "archivo": "parte-amistoso.pdf",
+          "tipo": "declaracion_amistosa",
+          "mime": "application/pdf",
+          "titulo": "Declaración amistosa de accidente",
+          "contenido": {
+            "fecha": "12/09/2026",
+            "hora": "18:30",
+            "localizacion": "M-30 sentido A-5, a la altura del Puente de Segovia (Madrid)",
+            "heridos": false,
+            "danos_otros": false,
+            "testigos": "Ninguno",
+            "a": {
+              "tomador": "Marta Gil Sanz",
+              "direccion": "C/ Toledo 88, 3.º B, 28005 Madrid",
+              "telefono": "619 554 210",
+              "marca": "Seat León",
+              "matricula": "4521 KLM",
+              "aseguradora": "Seguros Demo FNOL",
+              "poliza": "AU-483920",
+              "conductor": "Marta Gil Sanz",
+              "dni": "50123456-Q",
+              "permiso": "B",
+              "choque": "delantero",
+              "danos": "Paragolpes delantero y faro derecho",
+              "observaciones": "El vehículo B frenó en seco en la retención"
+            },
+            "b": {
+              "tomador": "Raúl Méndez Torres",
+              "direccion": "Av. de Portugal 41, 2.º A, 28011 Madrid",
+              "telefono": "655 870 214",
+              "marca": "Citroën C4",
+              "matricula": "7730 JZN",
+              "aseguradora": "Mutua Ejemplo",
+              "poliza": "ME-77120458",
+              "conductor": "Raúl Méndez Torres",
+              "dni": "47258931-K",
+              "permiso": "B",
+              "choque": "trasero",
+              "danos": "Paragolpes trasero",
+              "observaciones": "Conforme con lo declarado"
+            },
+            "circunstancias_a": [
+              8
+            ],
+            "circunstancias_b": [],
+            "croquis_via": "M-30 · calzada sentido A-5 · retención",
+            "croquis_sentido": "A-5"
+          }
+        },
+        {
+          "id": "ADJ-2",
+          "archivo": "foto-danos-1.jpg",
+          "tipo": "foto_danos",
+          "mime": "image/jpeg",
+          "titulo": "Foto: frontal del vehículo",
+          "src": "data/adjuntos/foto-danos-1.jpg"
+        },
+        {
+          "id": "ADJ-3",
+          "archivo": "foto-danos-2.jpg",
+          "tipo": "foto_danos",
+          "mime": "image/jpeg",
+          "titulo": "Foto: faro y paragolpes derechos",
+          "src": "data/adjuntos/foto-danos-2.jpg"
+        }
+      ]
     },
     "gob_opts": {
       "traza_id": "TRZ-4F2A",
@@ -5529,8 +5762,8 @@
         "prompt": "reglas v2.3",
         "origen": "IA",
         "hash_entrada": "sha256:dab24fbace5400cb0f1e86d542a68de9451957fa5054a7c550e61d9928a22efc",
-        "hash_salida": "sha256:d16ea13cb3725f9cebe45a10af31f17caf4bd426d51cd61cbd1752692087a4d7",
-        "hash_registro": "sha256:f83f31ff23a6e83bab85c32976efaa53c6a0d3c8524f88779af1afa3f332cc93",
+        "hash_salida": "sha256:8064a73261f4c5bc16aa0ee7c39d7e6a4163d5266ba969ffe608025f523ad681",
+        "hash_registro": "sha256:f67fde92367aab08e3844b8c574855d4f47b4fec5d74e0e94d54765c7043bcf8",
         "conocimiento": [
           {
             "kb": "KB-01",
@@ -5707,6 +5940,108 @@
         "normas": [
           "RGPD art. 25",
           "RGPD art. 5.1.c"
+        ]
+      },
+      "adjuntos": {
+        "recibidos": 3,
+        "archivos": [
+          {
+            "id": "ADJ-1",
+            "archivo": "parte-amistoso.pdf",
+            "mime": "application/pdf",
+            "bytes": null,
+            "hash": "pendiente: se calcula al recibir el archivo"
+          },
+          {
+            "id": "ADJ-2",
+            "archivo": "foto-danos-1.jpg",
+            "mime": "image/jpeg",
+            "bytes": null,
+            "hash": "pendiente: se calcula al recibir el archivo"
+          },
+          {
+            "id": "ADJ-3",
+            "archivo": "foto-danos-2.jpg",
+            "mime": "image/jpeg",
+            "bytes": null,
+            "hash": "pendiente: se calcula al recibir el archivo"
+          }
+        ],
+        "datos_extraidos": "Por el modelo, en la misma llamada que el texto",
+        "datos_personales": {
+          "total": 9,
+          "terceros": 4,
+          "hallazgos": [
+            {
+              "adjunto": "ADJ-1",
+              "campo": "vehiculo_a.conductor",
+              "categoria": "identificativo",
+              "tipo": "nombre",
+              "valor_en_traza": "PER-DA84"
+            },
+            {
+              "adjunto": "ADJ-1",
+              "campo": "vehiculo_a.dni",
+              "categoria": "identificativo",
+              "tipo": "dni",
+              "valor_en_traza": "•••••••6-Q"
+            },
+            {
+              "adjunto": "ADJ-1",
+              "campo": "vehiculo_a.matricula",
+              "categoria": "indirecto",
+              "tipo": "matricula",
+              "valor_en_traza": "MAT-89F0"
+            },
+            {
+              "adjunto": "ADJ-1",
+              "campo": "vehiculo_a.poliza",
+              "categoria": "indirecto",
+              "tipo": "poliza",
+              "valor_en_traza": "POL-3DB5"
+            },
+            {
+              "adjunto": "ADJ-1",
+              "campo": "vehiculo_b.conductor",
+              "categoria": "tercero",
+              "tipo": "nombre_tercero",
+              "valor_en_traza": "PER-4568"
+            },
+            {
+              "adjunto": "ADJ-1",
+              "campo": "vehiculo_b.dni",
+              "categoria": "tercero",
+              "tipo": "dni",
+              "valor_en_traza": "•••••••1-K"
+            },
+            {
+              "adjunto": "ADJ-1",
+              "campo": "vehiculo_b.matricula",
+              "categoria": "tercero",
+              "tipo": "matricula",
+              "valor_en_traza": "MAT-33EA"
+            },
+            {
+              "adjunto": "ADJ-1",
+              "campo": "vehiculo_b.poliza",
+              "categoria": "tercero",
+              "tipo": "poliza",
+              "valor_en_traza": "POL-9871"
+            },
+            {
+              "adjunto": "ADJ-1",
+              "campo": "firmas",
+              "categoria": "identificativo",
+              "tipo": "firma",
+              "valor_en_traza": "[firma manuscrita: no se extrae]"
+            }
+          ]
+        },
+        "envio_al_modelo": "Sin seudonimizar: la sustitución por marcadores solo se aplica al texto; el PDF y las fotos llegan con los datos personales que contengan",
+        "normas": [
+          "AI Act art. 12",
+          "RGPD art. 4.5",
+          "RGPD art. 13 y 14"
         ]
       },
       "explicabilidad": {

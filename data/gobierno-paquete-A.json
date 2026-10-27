@@ -3265,9 +3265,9 @@
     "TRZ-4F2A": [
       {
         "agente": "multicanal",
-        "entrada": "Email de marta.gil@correo.es · 784 caracteres · 1 adjunto (parte amistoso escaneado)",
+        "entrada": "Email de marta.gil@correo.es · 784 caracteres · 3 adjuntos (parte amistoso en PDF y 2 fotos de los daños)",
         "pasos": [
-          "Canal email: se conserva el asunto y se registra el adjunto como documentación",
+          "Canal email: se conserva el asunto y cada adjunto se registra con su tamaño y su huella SHA-256",
           "Fecha de recepción 14/09 09:12 · idioma es-ES"
         ],
         "salida": "Mensaje normalizado MSG-A-01"
@@ -3294,9 +3294,11 @@
           "Póliza AU-483920 · fecha \"sábado 12 de septiembre\" → 2026-09-12 · lugar M-30 a la altura del Puente de Segovia",
           "Importe 1.350 € (presupuesto de taller: paragolpes y faro derecho)",
           "Tercero implicado = sí (Raúl Méndez, parte amistoso firmado por ambos) · lesionados = no (\"No hubo heridos\")",
-          "Datos personales detectados: DNI y teléfono de la tomadora, nombre del tercero → se seudonimizan en la traza"
+          "Parte amistoso: fecha, hora, lugar y heridos coinciden con el email; aporta matrícula, aseguradora y póliza del tercero · casilla 8 en A (alcance por detrás)",
+          "Fotos: daño leve en el paragolpes y el faro delanteros derechos, coherente con el relato y el presupuesto",
+          "Datos personales detectados: DNI y teléfono de la tomadora, nombre del tercero (y en el parte, sus datos y las firmas) → se seudonimizan en la traza"
         ],
-        "salida": "10 campos · 0 inventados · 0 nulos"
+        "salida": "10 campos + 3 adjuntos · 0 inventados · 0 nulos"
       },
       {
         "agente": "reglas",

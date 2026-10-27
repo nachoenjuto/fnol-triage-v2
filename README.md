@@ -13,7 +13,7 @@ Llega un paquete de mensajes de clientes (emails, formularios web, chats, transc
 3. **Aplica el bloque de reglas** del ramo y decide: **Aprobado** (`DESPEJADO`, se tramita automáticamente) o **A revisar** (`REVISION`, revisión humana), con el motivo y cada criterio evaluado.
 4. **Registra la decisión.**
 
-La pantalla son tres contadores — **aprobados**, **a revisar**, **tiempo medio de ciclo** — más el registro. Al hacer clic en un mensaje se abre su ficha con cinco pestañas: el mensaje con sus **evidencias resaltadas**, los datos extraídos, las reglas de negocio evaluadas, el razonamiento y la **respuesta cruda** del modelo con su bloque de gobierno.
+La pantalla son tres contadores — **aprobados**, **a revisar**, **tiempo medio de ciclo** — más el registro. Al hacer clic en un mensaje se abre su ficha con cinco pestañas: el mensaje con sus **evidencias resaltadas**, los datos extraídos, las reglas de negocio evaluadas, el razonamiento y la **respuesta cruda** del modelo con su bloque de gobierno. Si el mensaje trae adjuntos, aparece una sexta pestaña, **Adjuntos** (ver «Adjuntos»).
 
 ## Paquetes de mensajes
 
@@ -30,6 +30,16 @@ Canales: email, formulario web, chat, teléfono y WhatsApp (tres mensajes por pa
 Los mensajes del **Paquete A** son más largos y llevan a propósito datos personales **ficticios** (DNI, teléfonos, direcciones, IBAN, datos de salud, menores y terceros) para que se vean la detección y el tratamiento de la capa de cumplimiento. Cada uno tiene entre 8 y 11 evidencias.
 
 Cuatro mensajes del Paquete A llevan **escenarios de fraude** (ver «Indicadores de fraude»): MSG-A-13 (robo sin fuerza en una póliza de tres semanas, joyas sin factura), MSG-A-09 y MSG-A-02 (piden el pago a la misma cuenta), MSG-A-11 (rayón repetido en el mismo parking) y MSG-A-04 (conductor joven, anulado porque la póliza lo tiene declarado). La decisión del triaje no cambia: 10 aprobados y 3 a revisar.
+
+### Adjuntos
+
+MSG-A-01 (email del golpe en la M-30) trae tres adjuntos: la **declaración amistosa de accidente** en PDF y **dos fotos** de los daños (paragolpes y faro delanteros derechos). Ningún otro mensaje lleva adjuntos.
+
+- **El parte** no es un PDF fijo: [`adjuntos.js`](adjuntos.js) lo genera en el navegador con [pdf-lib](https://pdf-lib.js.org) (copiado en `vendor/pdf-lib.min.js`, se carga solo al abrir el adjunto) a partir de `adjuntos[].contenido` de [`data/mensajes.js`](data/mensajes.js). Como `fechas.js` desplaza ese contenido igual que el mensaje, la fecha del parte siempre coincide con la del email. La generación es determinista: mismos datos, mismos bytes.
+- **Las fotos** están en `data/adjuntos/`. Se generaron con un modelo de imagen para la demo; la matrícula no es legible.
+- **Pestaña «Adjuntos»** de la ficha: miniaturas, visor (el PDF con el visor del navegador; las fotos con zoom por botones, clic o Ctrl + rueda, y arrastre) y un panel con los datos extraídos de cada adjunto y su **contraste** con el texto del mensaje (coincide, no consta o discrepa, con la cita del email).
+- **Respuesta cruda**: la salida del modelo lleva un campo `adjuntos` con esos datos (los del tercero, marcados como dato personal). Con «+ Gobierno», `_gobernanza.adjuntos` registra cada archivo con su tamaño y su SHA-256 (calculado al recibirlo), los datos personales leídos en el parte, ya enmascarados, y que la seudonimización **solo se aplica al texto**: los adjuntos llegan al modelo con los datos que contengan. «Enviado al modelo» lista los archivos.
+- **Motores**: con «Resultados guardados» los datos vienen de [`data/resultados.js`](data/resultados.js) (`adj`). Con un modelo en vivo todavía no se envían los adjuntos (fase 1): sus datos se toman de los resultados guardados y la ficha lo indica. El motor local no lee adjuntos.
 
 ### Fechas siempre al día
 
@@ -114,7 +124,10 @@ cumplimiento.js   capa de cumplimiento: datos personales, explicabilidad, SHA-25
 cumplimiento.css  JSON coloreado con metadatos de gobierno y marcas de datos personales (lo usan las dos páginas)
 fraude.js         motor de indicadores de fraude: score antifraude sin IA, con citas literales y cruces del lote y del histórico (lógica pura, probada con `make test`)
 fechas.js         fechas siempre al día: desplaza los datos de la demo hasta hoy (lógica pura, probada con `make test`)
-tests/            pruebas de evidencias.js, cumplimiento.js, fraude.js, fechas.js y del recorrido de la demo; medición con un modelo real (ia-real.js)
+adjuntos.js       adjuntos de los mensajes: genera el parte amistoso en PDF con pdf-lib, sirve los archivos al visor y calcula su SHA-256
+vendor/           pdf-lib 1.17.1 (MIT), cargado bajo demanda para generar el parte
+data/adjuntos/    fotos de los daños de MSG-A-01
+tests/            pruebas de evidencias.js, cumplimiento.js, fraude.js, fechas.js, adjuntos.js y del recorrido de la demo; medición con un modelo real (ia-real.js)
 scripts/          generar-datos.js: regenera los JSON de data/ (`make datos`) · capturas.mjs y componer-capturas.py: capturas de las slides con Chrome sin interfaz (`make capturas`)
 Makefile          `make run` (servidor local), `make test`, `make datos` y `make capturas`
 icons.js          iconos Lucide compartidos (lucide(name) + hidratación de [data-lucide])
@@ -126,7 +139,7 @@ gobierno.js       render del panel: fuentes de datos, trazas, replay, gráficos 
 gobierno.css      estilos del panel (mismos tokens que styles.css)
 data/mensajes.js  tres paquetes de mensajes
 data/resultados.js fichas de triaje guardadas para reproducción
-data/recorrido.js pasos del recorrido de la demo (24) con su acción, sus clics y 185 subtítulos por tipo; generado desde _docs/guion-demo.md con `make recorrido`
+data/recorrido.js pasos del recorrido de la demo (24) con su acción, sus clics y 189 subtítulos por tipo; generado desde _docs/guion-demo.md con `make recorrido`
 scripts/generar-recorrido.js genera data/recorrido.js a partir del guion
 scripts/generar-guion-docx.js genera los Word de los dos guiones (`make guion-docx`)
 data/gobierno.js  dataset de demostración del panel (Paquete A + 14 días, Knowledge Bases, rúbricas, controles declarados y medidas correctivas)
