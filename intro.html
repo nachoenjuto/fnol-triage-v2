@@ -4,10 +4,10 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>FNOL — Introducción</title>
-  <meta name="description" content="Introducción a la demo en cuatro partes: el problema (FNOL y gobierno de la IA), la solución, los actores y el recorrido de la demo.">
+  <meta name="description" content="Introducción a la demo en cinco partes: la idea (ver para controlar), el problema (FNOL y gobierno de la IA), la solución, los actores y el recorrido de la demo.">
   <link rel="stylesheet" href="styles.css?v=36">
   <link rel="stylesheet" href="header.css?v=43">
-  <link rel="stylesheet" href="intro.css?v=5">
+  <link rel="stylesheet" href="intro.css?v=7">
 </head>
 <body>
   <header class="topbar">
@@ -15,7 +15,7 @@
       <span class="brand-icon" aria-hidden="true"><svg class="lucide-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" focusable="false"><path d="M3 7V5a2 2 0 0 1 2-2h2" /><path d="M17 3h2a2 2 0 0 1 2 2v2" /><path d="M21 17v2a2 2 0 0 1-2 2h-2" /><path d="M7 21H5a2 2 0 0 1-2-2v-2" /><path d="M7 8h8" /><path d="M7 12h10" /><path d="M7 16h6" /></svg></span>
       <div>
         <h1>Triaje FNOL con agentes de IA gobernados</h1>
-        <p class="brand-sub" id="intro-sub">Introducción · 1 de 4 · El problema</p>
+        <p class="brand-sub" id="intro-sub">Introducción · 1 de 5 · Intro</p>
       </div>
     </div>
     <div class="row topbar-actions">
@@ -29,10 +29,11 @@
     <nav class="sidenav" aria-label="Introducción y demo">
       <div class="sidenav-body">
         <div class="nav-grupo">Introducción</div>
-        <a class="nav-item is-active" href="#problema" data-sec="problema" aria-current="page" title="1 · El problema"><span data-lucide="triangle-alert" aria-hidden="true"></span><span class="lbl">1 · El problema</span></a>
-        <a class="nav-item" href="#solucion" data-sec="solucion" title="2 · La solución"><span data-lucide="workflow" aria-hidden="true"></span><span class="lbl">2 · La solución</span></a>
-        <a class="nav-item" href="#actores" data-sec="actores" title="3 · Los actores"><span data-lucide="users" aria-hidden="true"></span><span class="lbl">3 · Los actores</span></a>
-        <a class="nav-item" href="#demo" data-sec="demo" title="4 · La demo"><span data-lucide="route" aria-hidden="true"></span><span class="lbl">4 · La demo</span></a>
+        <a class="nav-item is-active" href="#intro" data-sec="intro" aria-current="page" title="1 · Intro"><span data-lucide="eye" aria-hidden="true"></span><span class="lbl">1 · Intro</span></a>
+        <a class="nav-item" href="#problema" data-sec="problema" title="2 · El problema"><span data-lucide="triangle-alert" aria-hidden="true"></span><span class="lbl">2 · El problema</span></a>
+        <a class="nav-item" href="#solucion" data-sec="solucion" title="3 · La solución"><span data-lucide="workflow" aria-hidden="true"></span><span class="lbl">3 · La solución</span></a>
+        <a class="nav-item" href="#actores" data-sec="actores" title="4 · Los actores"><span data-lucide="users" aria-hidden="true"></span><span class="lbl">4 · Los actores</span></a>
+        <a class="nav-item" href="#demo" data-sec="demo" title="5 · La demo"><span data-lucide="route" aria-hidden="true"></span><span class="lbl">5 · La demo</span></a>
         <div class="nav-grupo">Demo</div>
         <a class="nav-item" href="index.html" title="Triaje FNOL"><span data-lucide="inbox" aria-hidden="true"></span><span class="lbl">Triaje FNOL</span></a>
         <a class="nav-item" href="gobierno.html" title="Gobierno de Agentes"><span data-lucide="shield-check" aria-hidden="true"></span><span class="lbl">Gobierno de Agentes</span></a>
@@ -43,11 +44,65 @@
     <div class="shell-main">
       <main class="intro">
 
-        <!-- 1 · El problema -->
-        <section class="intro-sec" id="sec-problema" data-sec="problema" data-titulo="El problema" aria-labelledby="t-problema">
+        <!-- 1 · Intro -->
+        <section class="intro-sec" id="sec-intro" data-sec="intro" data-titulo="Intro" aria-labelledby="t-intro">
+          <section class="card intro-hero apilado">
+            <div class="hero-titulo">
+              <h2 id="t-intro">Oservabilidad y Gobierno</h2>
+            </div>
+            <p class="lead">Si sabemos qué hace cada agente, podemos ponerle límites. Y con los agentes bajo control, ganan los clientes, la cuenta de resultados y la tranquilidad con el regulador.</p>
+          </section>
+
+          <section class="card" aria-label="De ver a controlar y a ganar">
+            <ol class="eje">
+              <li class="eje-paso">
+                <span class="eje-n">1</span>
+                <div class="eje-cuerpo">
+                  <h3 class="eje-t">Trazabilidad y Observabilidad</h3>
+                  <p>Sabemos todo lo que pasa, absolutamente todo lo que pasa, que es la base del control.</p>
+                </div>
+              </li>
+              <li class="eje-paso">
+                <span class="eje-n">2</span>
+                <div class="eje-cuerpo">
+                  <h3 class="eje-t">Gobierno y Control</h3>
+                  <p class="con-ico"><span data-lucide="scan-eye" aria-hidden="true"></span> Seguimiento, alertas, límites, guardarraíles, normas, etc..</p>
+                  <div class="eje-cols">
+                    <div class="eje-caja c-agentes"><b><span data-lucide="bot" aria-hidden="true"></span> Sobre la IA (agentes)</b><span>Cuánto deciden solos y si aciertan.</span></div>
+                    <div class="eje-caja c-dinero"><b><span data-lucide="wallet" aria-hidden="true"></span> Sobre los costes</b><span>Cuánto gasta la IA y quién lo gasta.</span></div>
+                    <div class="eje-caja c-normas"><b><span data-lucide="scale" aria-hidden="true"></span> Sobre la normativa</b><span>Si cumplimos RGPD, AI Act, DORA y EIOPA.</span></div>
+                  </div>
+                </div>
+              </li>
+              <li class="eje-paso">
+                <span class="eje-n">3</span>
+                <div class="eje-cuerpo">
+                  <h3 class="eje-t">Beneficios</h3>
+                  <p>Todos ganan.</p>
+                  <div class="eje-cols">
+                    <div class="eje-caja c-agentes"><b><span data-lucide="thumbs-up" aria-hidden="true"></span> Clientes contentos</b><span>Los agentes responden bien. El cliente queda contento y no se va.</span><span class="eje-chips"><span class="chip">satisfacción ↑</span><span class="chip">bajas ↓</span></span></div>
+                    <div class="eje-caja c-dinero"><b><span data-lucide="euro" aria-hidden="true"></span> Sin sustos en la factura</b><span>Si un agente se dispara, lo vemos y lo frenamos. Cada departamento sabe lo que gasta.</span><span class="eje-chips"><span class="chip">sin imprevistos</span><span class="chip">gasto por departamento</span></span></div>
+                    <div class="eje-caja c-normas"><b><span data-lucide="badge-check" aria-hidden="true"></span> Sin multas</b><span>Podemos enseñar cómo se decidió cada caso. Evitamos sanciones y el daño a nuestra imagen.</span><span class="eje-chips"><span class="chip">sin sanciones</span><span class="chip">sin mala prensa</span></span></div>
+                  </div>
+                </div>
+              </li>
+            </ol>
+          </section>
+
+          <nav class="intro-nav" aria-label="Navegación">
+            <span class="muted small">1 de 5</span>
+            <div class="derecha">
+              <a class="btn" href="index.html"><span data-lucide="play" aria-hidden="true"></span> Ir a la demo</a>
+              <a class="btn btn-primary" href="#problema">Siguiente: el problema <span data-lucide="arrow-right" aria-hidden="true"></span></a>
+            </div>
+          </nav>
+        </section>
+
+        <!-- 2 · El problema -->
+        <section class="intro-sec" id="sec-problema" data-sec="problema" data-titulo="El problema" aria-labelledby="t-problema" hidden>
           <section class="card intro-hero con-puntos">
             <div class="hero-titulo">
-              <span class="kicker"><span class="step-n">1</span> El problema</span>
+              <span class="kicker"><span class="step-n">2</span> El problema</span>
               <h2 id="t-problema">Un proceso crítico (FNOL), y un buen gobierno de la IA</h2>
             </div>
             <ul class="hero-puntos">
@@ -160,20 +215,20 @@
           </section>
 
           <nav class="intro-nav" aria-label="Navegación">
-            <span class="muted small">1 de 4</span>
+            <a class="btn" href="#intro"><span data-lucide="arrow-left" aria-hidden="true"></span> Anterior: intro</a>
             <div class="derecha">
-              <a class="btn" href="index.html"><span data-lucide="play" aria-hidden="true"></span> Ir a la demo</a>
+              <span class="muted small">2 de 5</span>
               <a class="btn btn-primary" href="#solucion">Siguiente: la solución <span data-lucide="arrow-right" aria-hidden="true"></span></a>
             </div>
           </nav>
         </section>
 
-        <!-- 2 · La solución -->
+        <!-- 3 · La solución -->
         <section class="intro-sec" id="sec-solucion" data-sec="solucion" data-titulo="La solución" aria-labelledby="t-solucion" hidden>
           <section class="card intro-hero con-puntos">
             <div class="hero-titulo">
-              <span class="kicker"><span class="step-n">2</span> La solución</span>
-              <h2 id="t-solucion">La solución: una plataforma multicanal integrada, orquestada por 4 agentes y con un buen gobierno de la IA</h2>
+              <span class="kicker"><span class="step-n">3</span> La solución</span>
+              <h2 id="t-solucion">La solución: una plataforma multicanal, orquestada por 4 agentes y con un buen gobierno de la IA</h2>
             </div>
             <ul class="hero-puntos">
               <li><b>Los beneficios de la IA.</b> Cuatro agentes reciben el aviso, deciden el ramo, extraen los datos y aplican las reglas de la aseguradora.</li>
@@ -282,17 +337,17 @@
           <nav class="intro-nav" aria-label="Navegación">
             <a class="btn" href="#problema"><span data-lucide="arrow-left" aria-hidden="true"></span> Anterior: el problema</a>
             <div class="derecha">
-              <span class="muted small">2 de 4</span>
+              <span class="muted small">3 de 5</span>
               <a class="btn btn-primary" href="#actores">Siguiente: los actores <span data-lucide="arrow-right" aria-hidden="true"></span></a>
             </div>
           </nav>
         </section>
 
-        <!-- 3 · Los actores -->
+        <!-- 4 · Los actores -->
         <section class="intro-sec" id="sec-actores" data-sec="actores" data-titulo="Los actores" aria-labelledby="t-actores" hidden>
           <section class="card intro-hero con-puntos">
             <div class="hero-titulo">
-              <span class="kicker"><span class="step-n">3</span> Los actores</span>
+              <span class="kicker"><span class="step-n">4</span> Los actores</span>
               <h2 id="t-actores">Los actores: el tramitador y los equipos de IT, Finanzas, Compliance, etc.</h2>
             </div>
             <ul class="hero-puntos">
@@ -335,17 +390,17 @@
           <nav class="intro-nav" aria-label="Navegación">
             <a class="btn" href="#solucion"><span data-lucide="arrow-left" aria-hidden="true"></span> Anterior: la solución</a>
             <div class="derecha">
-              <span class="muted small">3 de 4</span>
+              <span class="muted small">4 de 5</span>
               <a class="btn btn-primary" href="#demo">Siguiente: la demo <span data-lucide="arrow-right" aria-hidden="true"></span></a>
             </div>
           </nav>
         </section>
 
-        <!-- 4 · La demo -->
+        <!-- 5 · La demo -->
         <section class="intro-sec" id="sec-demo" data-sec="demo" data-titulo="La demo" aria-labelledby="t-demo" hidden>
           <section class="card intro-hero apilado">
             <div class="hero-titulo">
-              <span class="kicker"><span class="step-n">4</span> La demo</span>
+              <span class="kicker"><span class="step-n">5</span> La demo</span>
               <h2 id="t-demo">La demo: el viaje de un aviso</h2>
             </div>
             <div class="viaje" id="viaje">
@@ -434,6 +489,6 @@
   <script src="icons.js?v=40"></script>
   <script src="data/recorrido.js?v=45"></script>
   <script src="shell.js?v=51"></script>
-  <script src="intro.js?v=3"></script>
+  <script src="intro.js?v=4"></script>
 </body>
 </html>

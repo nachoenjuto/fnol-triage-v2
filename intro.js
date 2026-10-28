@@ -1,7 +1,7 @@
-// Introducción (intro.html): cuatro secciones en una sola página (el problema, la solución, los actores y la demo),
-// una visible cada vez y con su propio enlace (#problema, #solucion, #actores, #demo). Mismo marco que el triaje y el
-// gobierno (menú lateral de shell.js) y altura real de la cabecera para que el menú quede pegado debajo aunque el
-// título ocupe varias líneas.
+// Introducción (intro.html): cinco secciones en una sola página (la idea, el problema, la solución, los actores y la
+// demo), una visible cada vez y con su propio enlace (#intro, #problema, #solucion, #actores, #demo). Mismo marco que
+// el triaje y el gobierno (menú lateral de shell.js) y altura real de la cabecera para que el menú quede pegado debajo
+// aunque el título ocupe varias líneas.
 (function () {
   'use strict';
   const ajustar = () => {
@@ -36,7 +36,7 @@
   mostrar(location.hash.slice(1), { scroll: false });
 
   Shell.initShell();
-  // Recorrido de la demo (modo presentador): las cuatro secciones son los cuatro primeros pasos; «Ir» abre la sección
+  // Recorrido de la demo (modo presentador): las cuatro últimas secciones son los cuatro primeros pasos (#intro no tiene paso); «Ir» abre la sección
   Shell.Recorrido.init({
     inicio: () => { window.scrollTo({ top: 0 }); return ''; },
     sec: (id) => { mostrar(id); return ''; },

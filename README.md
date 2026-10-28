@@ -113,7 +113,7 @@ Compatibilidad: para modelos de razonamiento (`gpt-5*`, `o*`) no se envían `tem
 ## Estructura
 
 ```
-intro.html        introducción en cuatro secciones (#problema, #solucion, #actores, #demo): sustituye a las slides de contexto antes de la demo
+intro.html        introducción en cinco secciones (#intro, #problema, #solucion, #actores, #demo): sustituye a las slides de contexto antes de la demo
 intro-fnol.html / intro-sistema.html  redirigen a intro.html#problema y #solucion (enlaces antiguos)
 intro.css / intro.js estilos, cambio de sección y arranque de la introducción (mismo marco que el triaje)
 index.html        UI del triaje: conexión IA, menú lateral, contadores, registro, ficha modal
