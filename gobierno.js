@@ -2537,7 +2537,7 @@
         <div class="fr-esc-top"><span class="fr-esc-ico">${ic(s.icono)}</span><span class="mono small">${esc(s.id)}</span>${ramoPill(s.ramo)}${enLote.length ? `<span class="pill pill-warn">${ic('scan-eye')} en el lote</span>` : '<span class="pill pill-time">histórico</span>'}</div>
         <h4>${esc(s.nombre)}</h4>
         <p class="small">${esc(s.narrativa)}</p>
-        <div class="chips">${s.indicadores.map((i) => { const x = cat.find((c) => c.id === i) || { nombre: i }; return `<span class="fr-chip${disparados(i) ? ' on' : ''}" title="${esc(x.nombre)}">${esc(i)}</span>`; }).join('')}</div>
+        <div class="chips">${s.indicadores.map((i) => { const x = cat.find((c) => c.id === i) || { nombre: i }; return `<button type="button" class="fr-chip${disparados(i) ? ' on' : ''}" data-fr-indicador="${esc(i)}" title="${esc(x.nombre)} · ver detalle">${esc(i)}</button>`; }).join('')}</div>
         <dl class="fr-kv small"><dt>Umbral</dt><dd>score ≥ ${s.umbral} · ${s.umbral >= 70 ? 'SIU' : 'vigilancia'}</dd><dt>Acción</dt><dd>${conGuardrails(esc(s.accion))}</dd><dt>Falsos positivos</dt><dd>${esc(s.falsos_positivos)}</dd></dl>
         <div class="fr-esc-pie">${normas(...s.normas)}<span class="muted small">${s.casos_14d} casos en 14 días · ${s.confirmados_14d} confirmados</span></div>
         ${enLote.length ? `<div class="row">${enLote.map((e) => `<button class="btn btn-sm" type="button" data-fr-caso="${esc(e.id)}">${ic('scan-eye')} Ver ${esc(e.id)} · ${FR[e.id].score}</button>`).join('')}</div>` : ''}
@@ -2562,7 +2562,7 @@
     $('fr-cat').innerHTML = cat.map((i) => {
       const enLote = Object.values(FR).filter((v) => v.indicadores.some((x) => x.id === i.id && x.aplicado)).length;
       const cambiado = (i.nuevo ? ' <span class="pill pill-time">nuevo</span>' : '') + (frCfg[i.id] ? ' <span class="pill pill-time">cambiado</span>' : '');
-      return `<tr data-fr-fila="${esc(i.id)}" class="${i.activo ? '' : 'muted'}"><td><label class="switch${i.activo ? '' : ' off'}" data-fr-ind="${esc(i.id)}" role="switch" aria-checked="${i.activo}" tabindex="0" title="${i.activo ? 'Desactivar' : 'Activar'} ${esc(i.id)}"><i></i></label></td><td><b class="mono">${esc(i.id)}</b> ${ic(i.icono)} ${esc(i.nombre)}${cambiado}<br><small class="muted">${esc(i.no_es)}</small></td><td class="small">${esc(i.grupo)}</td><td class="small wrap">${esc(i.senal)}</td><td class="small">${esc(i.fuente)}</td><td><input class="fr-peso" type="number" min="0" max="60" step="5" value="${i.peso}" data-fr-peso="${esc(i.id)}" aria-label="Peso de ${esc(i.id)}"></td><td class="tnum">${num(i.disparos_14d)}</td><td><span class="meter" style="--c:${i.fp > 0.75 ? 'var(--warn)' : 'var(--primary)'}"><i style="width:${Math.round(i.fp * 100)}%"></i></span> <span class="tnum small">${Math.round(i.fp * 100)} %</span></td><td class="tnum">${enLote ? `<b>${enLote}</b>` : '<span class="muted">0</span>'}</td></tr>`;
+      return `<tr data-fr-fila="${esc(i.id)}" class="clickable${i.activo ? '' : ' muted'}" tabindex="0" title="Ver el detalle de ${esc(i.id)}"><td><label class="switch${i.activo ? '' : ' off'}" data-fr-ind="${esc(i.id)}" role="switch" aria-checked="${i.activo}" tabindex="0" title="${i.activo ? 'Desactivar' : 'Activar'} ${esc(i.id)}"><i></i></label></td><td><b class="mono">${esc(i.id)}</b> ${ic(i.icono)} ${esc(i.nombre)}${cambiado}<br><small class="muted">${esc(i.no_es)}</small></td><td class="small">${esc(i.grupo)}</td><td class="small wrap">${esc(i.senal)}</td><td class="small">${esc(i.fuente)}</td><td><input class="fr-peso" type="number" min="0" max="60" step="5" value="${i.peso}" data-fr-peso="${esc(i.id)}" aria-label="Peso de ${esc(i.id)}"></td><td class="tnum">${num(i.disparos_14d)}</td><td><span class="meter" style="--c:${i.fp > 0.75 ? 'var(--warn)' : 'var(--primary)'}"><i style="width:${Math.round(i.fp * 100)}%"></i></span> <span class="tnum small">${Math.round(i.fp * 100)} %</span></td><td class="tnum">${enLote ? `<b>${enLote}</b>` : '<span class="muted">0</span>'}</td></tr>`;
     }).join('');
 
     // Guardrails y caps antifraude
@@ -2659,7 +2659,7 @@
     cs.forEach((c) => { html += esc(texto.slice(pos, c.inicio)) + `<mark class="fr-cita${c.off ? ' off' : ''}" title="${esc(c.id)}">${esc(texto.slice(c.inicio, c.fin))}<sup>${esc(c.id)}</sup></mark>`; pos = c.fin; });
     html += esc(texto.slice(pos));
     const max = 100;
-    const filas = v.indicadores.map((x) => `<div class="fr-ind${x.aplicado ? '' : ' off'}"><span class="mono">${esc(x.id)}</span><span>${ic(x.icono || 'info')} ${esc(x.nombre)}${x.contraindicio ? ' <span class="pill pill-ok">contraindicio</span>' : !x.activo ? ' <span class="pill pill-time">inactivo</span>' : ''}<br><small class="muted">${esc(x.detalle || '')}${x.fuente ? ` · ${esc(x.fuente)}` : ''}</small></span><span class="fr-ind-bar"><i style="width:${(x.peso / max) * 100}%;${x.aplicado ? '' : 'opacity:.3'}"></i></span><b class="tnum">${x.aplicado ? `+${x.aplicado}` : `<s>+${x.peso}</s>`}</b></div>`).join('');
+    const filas = v.indicadores.map((x) => `<div class="fr-ind clickable${x.aplicado ? '' : ' off'}" data-fr-indicador="${esc(x.id)}" role="button" tabindex="0" title="Ver el detalle de ${esc(x.id)}"><span class="mono">${esc(x.id)}</span><span>${ic(x.icono || 'info')} ${esc(x.nombre)}${x.contraindicio ? ' <span class="pill pill-ok">contraindicio</span>' : !x.activo ? ' <span class="pill pill-time">inactivo</span>' : ''}<br><small class="muted">${esc(x.detalle || '')}${x.fuente ? ` · ${esc(x.fuente)}` : ''}</small></span><span class="fr-ind-bar"><i style="width:${(x.peso / max) * 100}%;${x.aplicado ? '' : 'opacity:.3'}"></i></span><b class="tnum">${x.aplicado ? `+${x.aplicado}` : `<s>+${x.peso}</s>`}</b></div>`).join('');
     const traza = e.traza && G.trazas.some((t) => t.id === e.traza);
     $('modal-fraude-title').innerHTML = `${ic('shield-alert')} <span class="mono">${esc(id)}</span> · ${esc(e.asunto || m.asunto || '')} ${nivelFrPill(v.nivel)}`;
     $('modal-fraude-body').innerHTML = `
@@ -2682,6 +2682,39 @@
           ${esc0 ? `<div style="margin-top:.5rem">${normas(...esc0.normas)}</div>` : ''}</div>
       </div>`;
     abrir('modal-fraude');
+  }
+  // Ficha de un indicador del catálogo: qué detecta, cómo pesa, en qué escenarios entra y dónde se activa en el lote
+  function abrirModalFrInd(id) {
+    const i = frCatalogo().find((x) => x.id === id); if (!i) return;
+    const base = FD().indicadores.find((x) => x.id === id);
+    const D = FD();
+    const hits = FRL.map((e) => ({ e, v: FR[e.id], x: FR[e.id] && FR[e.id].indicadores.find((y) => y.id === id) })).filter((h) => h.x)
+      .sort((a, b) => b.x.aplicado - a.x.aplicado || b.v.score - a.v.score);
+    const suma = hits.filter((h) => h.x.aplicado).length;
+    const escs = D.escenarios.filter((s) => s.indicadores.includes(id));
+    const estado = i.activo ? '<span class="pill pill-ok">activo</span>' : '<span class="pill pill-time">inactivo</span>';
+    const pesoSub = base && base.peso !== i.peso ? `cambiado en esta sesión (era ${base.peso})` : 'puntos sobre 100 del score';
+    $('modal-fr-ind-title').innerHTML = `${ic(i.icono || 'tag')} <span class="mono">${esc(i.id)}</span> · ${esc(i.nombre)} ${estado}`;
+    $('modal-fr-ind-body').innerHTML = `
+      <div class="kpi-mini">
+        <div class="box"><span class="muted small">${ic('gauge')} Peso</span><b>+${i.peso}</b><span class="muted small">${esc(pesoSub)}</span></div>
+        <div class="box"><span class="muted small">${ic('tag')} Grupo</span><b>${esc(i.grupo || '—')}</b><span class="muted small">${(i.ramos || []).map(esc).join(' · ') || 'todos los ramos'}</span></div>
+        <div class="box"><span class="muted small">${ic('activity')} Disparos 14 d</span><b>${num(i.disparos_14d || 0)}</b><span class="muted small">en todo el flujo de entrada</span></div>
+        <div class="box"><span class="muted small">${ic('circle-x')} Falsos positivos</span><b style="color:${i.fp > 0.75 ? 'var(--warn)' : 'inherit'}">${Math.round((i.fp || 0) * 100)} %</b><span class="muted small">casos que la SIU cerró como no fraude</span></div>
+        <div class="box"><span class="muted small">${ic('scan-eye')} En el lote</span><b>${suma}</b><span class="muted small">${hits.length > suma ? `${hits.length - suma} más sin sumar` : `de ${FRL.length} mensajes`}</span></div>
+      </div>
+      <div class="two">
+        <div><h3>Qué detecta</h3><p class="small">${esc(i.senal || '—')}</p>
+          <dl class="fr-kv small"><dt>Fuente</dt><dd>${esc(i.fuente || '—')}</dd>${Array.isArray(i.frases) && i.frases.length ? `<dt>Frases</dt><dd>${i.frases.map((f) => `«${esc(f)}»`).join(' ')}</dd>` : ''}</dl></div>
+        <div><h3>Qué no es un indicio</h3><p class="small">${esc(i.no_es || '—')}</p>
+          <p class="small muted" style="margin-top:.4rem">${ic('info')} Un indicador solo suma puntos al score: no cambia la decisión del triaje ni se comunica al cliente (${grRef('G-12')}).</p></div>
+      </div>
+      <h3>Escenarios en los que participa (${escs.length})</h3>
+      ${escs.length ? `<ul class="fr-act">${escs.map((s) => `<li><b class="mono">${esc(s.id)}</b> <span class="small">${ic(s.icono)} ${esc(s.nombre)}${s.clave === id ? ' <span class="pill pill-warn">indicador clave</span>' : ''}</span><span class="small muted">${s.indicadores.length} indicadores · umbral ${s.umbral}</span></li>`).join('')}</ul>` : '<p class="small muted">No forma parte de ningún escenario definido.</p>'}
+      <h3>Dónde se activa en el lote (${hits.length})</h3>
+      ${hits.length ? `<ul class="fr-act">${hits.map(({ e, v, x }) => `<li><button class="btn btn-sm" type="button" data-fr-caso="${esc(e.id)}">${ic('scan-eye')} ${esc(e.id)}</button> <span class="small">${esc(x.detalle || '')}${x.citas.length ? ` <span class="muted">· ${x.citas.map((c) => `«${esc(c.cita)}»`).join(' ')}</span>` : ''}</span><span class="small">${x.aplicado ? `<b>+${x.aplicado}</b>` : x.contraindicio ? '<span class="pill pill-ok">contraindicio</span>' : '<span class="pill pill-time">no suma</span>'} · ${nivelFrPill(v.nivel)} ${v.score}</span></li>`).join('')}</ul>` : '<p class="small muted">Ningún mensaje del lote lo activa.</p>'}
+      <div class="row" style="justify-content:flex-end;margin-top:.8rem"><button class="btn btn-sm" type="button" data-fr-ind="${esc(i.id)}">${ic('power')} ${i.activo ? 'Desactivar' : 'Activar'}</button></div>`;
+    abrir('modal-fr-ind');
   }
   // ---- Nuevo indicador de fraude -------------------------------------------
   const GRUPOS_FR = ['Relato', 'Económico', 'Temporal', 'Relacional', 'Historial', 'Conductor', 'Canal'];
@@ -3186,11 +3219,12 @@
       const go = e.target.closest('[data-goto]');
       if (go) { const dlg = go.closest('dialog'); if (dlg) dlg.close(); goto(go.dataset.goto, { replay: !!go.dataset.replay }); return; }
       const cl = e.target.closest('[data-close]'); if (cl) { $(cl.dataset.close).close(); return; }
-      const fsw = e.target.closest('[data-fr-ind]'); if (fsw) { e.preventDefault(); const i = frCatalogo().find((x) => x.id === fsw.dataset.frInd); frCfg[i.id] = { ...(frCfg[i.id] || {}), activo: !i.activo }; guardarFrCfg(); return; }
+      const fsw = e.target.closest('[data-fr-ind]'); if (fsw) { e.preventDefault(); const i = frCatalogo().find((x) => x.id === fsw.dataset.frInd); frCfg[i.id] = { ...(frCfg[i.id] || {}), activo: !i.activo }; guardarFrCfg(); if ($('modal-fr-ind').open) abrirModalFrInd(i.id); return; }
+      const fid = e.target.closest('[data-fr-indicador], #fr-cat tr[data-fr-fila]'); if (fid && !e.target.closest('input')) { abrirModalFrInd(fid.dataset.frIndicador || fid.dataset.frFila); return; }
       if (e.target.closest('#btn-fr-nuevo')) { abrirModalFrNuevo(); return; }
       if (e.target.closest('#btn-fr-reset')) { Object.keys(frCfg).forEach((k) => delete frCfg[k]); guardarFrCfg(); return; }
       const fgr = e.target.closest('[data-fr-gr]'); if (fgr) { abrirModalGr(fgr.dataset.frGr); return; }
-      const fca = e.target.closest('[data-fr-caso]'); if (fca && !e.target.closest('input')) { abrirModalFraude(fca.dataset.frCaso); return; }
+      const fca = e.target.closest('[data-fr-caso]'); if (fca && !e.target.closest('input')) { if (fca.closest('#modal-fr-ind')) cerrarTodos(); abrirModalFraude(fca.dataset.frCaso); return; }
       const sw = e.target.closest('[data-switch]'); if (sw) { e.preventDefault(); e.stopPropagation(); toggleAgente(sw.dataset.switch); return; }
       const gr = e.target.closest('[data-guardrail]'); if (gr) { e.preventDefault(); toggleGuardrail(gr.dataset.guardrail); if (gr.dataset.reabrir) abrirModalGr(gr.dataset.reabrir); return; }
       const cb = e.target.closest('[data-cambio]'); if (cb) { abrirModalCambio(Number(cb.dataset.cambio)); return; }
@@ -3246,6 +3280,7 @@
       else if (e.target.matches('#cambios tr[data-cambio]')) abrirModalCambio(Number(e.target.dataset.cambio));
       else if (e.target.matches('tr[data-fr-caso]')) abrirModalFraude(e.target.dataset.frCaso);
       else if (e.target.matches('[data-fr-ind]')) e.target.click();
+      else if (e.target.matches('#fr-cat tr[data-fr-fila], .fr-ind[data-fr-indicador]')) abrirModalFrInd(e.target.dataset.frFila || e.target.dataset.frIndicador);
       else if (e.target.matches('tr[data-fr-gr]')) abrirModalGr(e.target.dataset.frGr);
     });
     // Formularios de «Nuevo cap» y «Nuevo guardrail»
