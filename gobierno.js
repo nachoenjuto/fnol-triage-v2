@@ -3086,7 +3086,7 @@
   // Navegación entre los elementos de una lista desde su ventana emergente (‹ 3 de 13 ›), para todas las ventanas
   // que se abren desde una lista: recuerda la lista de origen y «pulsa» el elemento anterior o siguiente.
   // ---------------------------------------------------------------------------
-  const NAV_ATTR = ['data-fr-caso', 'data-id', 'data-gr', 'data-cap', 'data-cambio', 'data-kb', 'data-rub', 'data-cmp-item', 'data-cmp-ficha', 'data-kpi-fin', 'data-medida'];
+  const NAV_ATTR = ['data-fr-caso', 'data-fr-fila', 'data-fr-indicador', 'data-id', 'data-gr', 'data-cap', 'data-cambio', 'data-kb', 'data-rub', 'data-cmp-item', 'data-cmp-ficha', 'data-kpi-fin', 'data-medida'];
   let nav = null; // { dlg, attr, cont, valor }
   const itemsNav = () => (nav ? [...nav.cont.querySelectorAll(`:scope > [${nav.attr}]`)] : []);
   function pintarNav() {
@@ -3114,13 +3114,16 @@
   }
   function initNavModales() {
     document.addEventListener('click', (e) => {
-      if (e.target.closest('dialog')) return;
+      // Dentro de una ventana solo cuenta el indicador de fraude (desglose de un caso): se vuelve a la anterior al cerrarlo
+      if (e.target.closest('dialog') && !e.target.closest('[data-fr-indicador]')) return;
       let el = e.target; let attr = null;
       while (el && el.nodeType === 1 && !(attr = NAV_ATTR.find((x) => el.hasAttribute(x)))) el = el.parentElement;
       if (!attr) return;
       const antes = new Set(document.querySelectorAll('dialog[open]'));
       let cont = el.parentElement; let valor = el.getAttribute(attr);
       // La ficha de cumplimiento abierta desde Trazabilidad navega por la lista del Termómetro
+      // Un indicador de fraude, se abra desde un escenario o desde un caso, navega por el catálogo
+      if (attr === 'data-fr-indicador') { const tr = document.querySelector(`#fr-cat tr[data-fr-fila="${CSS.escape(valor)}"]`); if (!tr) return; attr = 'data-fr-fila'; cont = tr.parentElement; }
       if (attr === 'data-cmp-ficha') { const k = cmpItems.findIndex((x) => x.gob.trazabilidad.traza_id === valor); const li = document.querySelector(`[data-cmp-item="${k}"]`); if (!li) return; attr = 'data-cmp-item'; valor = String(k); cont = li.parentElement; }
       // Abierta desde un elemento sin hermanos (chip de una alerta, enlace en un texto): usa la lista más larga que lo contenga
       const hermanos = (c) => c.querySelectorAll(`:scope > [${attr}]`).length;
@@ -3132,7 +3135,9 @@
         const abiertos = [...document.querySelectorAll('dialog[open]')];
         const dlg = abiertos.find((d) => !antes.has(d)) || (nav && nav.cont === cont && abiertos.includes(nav.dlg) ? nav.dlg : null);
         if (!dlg) return;
-        nav = { dlg, attr, cont, valor }; pintarNav();
+        const prev = !nav ? null : nav.dlg === dlg ? nav.prev : nav.dlg.open ? nav : null;
+        nav = { dlg, attr, cont, valor, prev }; pintarNav();
+        if (prev) dlg.addEventListener('close', () => { if (nav && nav.dlg === dlg && prev.dlg.open) { nav = prev; pintarNav(); } }, { once: true });
       }, 0);
     }, true);
     document.addEventListener('click', (e) => { const b = e.target.closest('[data-nav]'); if (b && nav) { e.stopPropagation(); navegar(Number(b.dataset.nav)); } }, true);
