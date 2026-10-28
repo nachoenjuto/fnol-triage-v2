@@ -5,9 +5,9 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>FNOL — Primer Aviso de Siniestro</title>
   <meta name="description" content="Demo de triaje multicanal de mensajes de clientes de una aseguradora: clasificación por ramo, extracción de datos y aplicación de reglas con un proveedor de IA.">
-  <link rel="stylesheet" href="styles.css?v=46">
+  <link rel="stylesheet" href="styles.css?v=47">
   <link rel="stylesheet" href="header.css?v=43">
-  <link rel="stylesheet" href="cumplimiento.css?v=36">
+  <link rel="stylesheet" href="cumplimiento.css?v=37">
 </head>
 <body>
   <header class="topbar">
@@ -314,10 +314,16 @@
             <button id="modal-copy-raw" class="btn btn-sm" type="button"></button>
           </div>
         </div>
-        <ul class="raw-leyenda" id="raw-leyenda" aria-label="Leyenda de colores de la respuesta">
-          <li><i class="rl-pii"></i>Dato personal</li><li><i class="rl-art9"></i>Salud (RGPD art. 9)</li><li><i class="rl-tag"></i>Clave usada para trazabilidad (norma al pasar el ratón)</li>
-          <li class="rl-gob"><i class="rl-traz"></i>Trazabilidad</li><li class="rl-gob"><i class="rl-expl"></i>Explicabilidad</li><li class="rl-gob"><i class="rl-sup"></i>Supervisión humana</li><li class="rl-gob"><i class="rl-ret"></i>Retención</li><li class="rl-gob"><i class="rl-norma"></i>Norma</li>
-        </ul>
+        <div class="row between wrap raw-filtro" id="raw-filtro">
+          <ul class="raw-leyenda" id="raw-leyenda" aria-label="Ver solo una parte de la respuesta">
+            <li><button type="button" class="rl-btn" data-foco="pii" aria-pressed="false"><i class="rl-pii"></i>Dato personal</button></li><li><button type="button" class="rl-btn" data-foco="salud" aria-pressed="false"><i class="rl-art9"></i>Salud (RGPD art. 9)</button></li><li><button type="button" class="rl-btn" data-foco="tag" aria-pressed="false"><i class="rl-tag"></i>Clave usada para trazabilidad (norma al pasar el ratón)</button></li>
+            <li class="rl-gob"><button type="button" class="rl-btn" data-foco="traz" aria-pressed="false"><i class="rl-traz"></i>Trazabilidad</button></li><li class="rl-gob"><button type="button" class="rl-btn" data-foco="expl" aria-pressed="false"><i class="rl-expl"></i>Explicabilidad</button></li><li class="rl-gob"><button type="button" class="rl-btn" data-foco="sup" aria-pressed="false"><i class="rl-sup"></i>Supervisión humana</button></li><li class="rl-gob"><button type="button" class="rl-btn" data-foco="ret" aria-pressed="false"><i class="rl-ret"></i>Retención</button></li><li class="rl-gob"><button type="button" class="rl-btn" data-foco="norma" aria-pressed="false"><i class="rl-norma"></i>Norma</button></li>
+          </ul>
+          <div class="row raw-plegar">
+            <button type="button" class="btn btn-sm" data-plegar="todo">Plegar todo</button>
+            <button type="button" class="btn btn-sm" data-plegar="nada">Desplegar todo</button>
+          </div>
+        </div>
         <pre id="modal-raw" class="raw"></pre>
         <p class="small muted raw-nota" id="raw-nota"></p>
       </section>
@@ -334,9 +340,9 @@
   <script src="fechas.js?v=36"></script>
   <script src="prompts.js?v=36"></script>
   <script src="evidencias.js?v=36"></script>
-  <script src="cumplimiento.js?v=39"></script>
+  <script src="cumplimiento.js?v=40"></script>
   <script src="fraude.js?v=36"></script>
   <script src="adjuntos.js?v=1"></script>
-  <script src="app.js?v=49"></script>
+  <script src="app.js?v=50"></script>
 </body>
 </html>

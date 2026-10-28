@@ -875,12 +875,12 @@
     const conGob = vista === 'gobierno';
     document.querySelectorAll('#tab-json .seg-btn').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.raw === vista)));
     $('raw-leyenda').classList.toggle('sin-gob', !conGob);
-    $('raw-leyenda').style.display = vista === 'enviado' ? 'none' : '';
+    $('raw-filtro').style.display = vista === 'enviado' ? 'none' : '';
     $('modal-copy-raw').innerHTML = `${lucide('copy')} ${vista === 'enviado' ? 'Copiar texto' : 'Copiar JSON'}`;
     if (vista === 'enviado') { pintarEnviado(entry); return; }
     let modelo = null;
     try { const m = String(entry.raw || '').match(/^\s*\{[\s\S]*\}\s*$/); if (m) modelo = JSON.parse(m[0]); } catch { modelo = null; }
-    const opts = { sensibles: Cumplimiento.camposSensibles(entry), claves: Cumplimiento.CLAVES_NORMA };
+    const opts = { sensibles: Cumplimiento.camposSensibles(entry), claves: Cumplimiento.CLAVES_NORMA, plegable: true };
     let html; let texto;
     if (modelo) {
       const obj = conGob ? { ...modelo, _gobernanza: gob } : modelo;
@@ -892,10 +892,44 @@
     }
     $('modal-raw').innerHTML = html;
     modalState.rawTexto = texto;
+    // Cada botón de la leyenda se apaga si su color no aparece en esta respuesta
+    document.querySelectorAll('#raw-leyenda .rl-btn').forEach((b) => { b.disabled = !$('modal-raw').querySelector(FOCO_RAW[b.dataset.foco]); });
+    if (modalState.rawFoco && !$('modal-raw').querySelector(FOCO_RAW[modalState.rawFoco])) modalState.rawFoco = null;
+    enfocarRaw(modalState.rawFoco);
     const dp = gob.datos_personales;
     $('raw-nota').textContent = conGob
       ? `El bloque «_gobernanza» lo añade la plataforma, no el modelo. ${dp.total} datos personales detectados (${dp.categoria_especial_salud} de salud, ${dp.menores} de menores, ${dp.terceros} de terceros): esta ficha es la vista operativa del tramitador; la traza persistida guarda «valor_en_traza», nunca el dato en claro.`
       : 'Salida del modelo tal y como llegó, sin metadatos de gobierno.';
+  }
+
+  // Plegado del JSON. Un botón de la leyenda pliega todo y deja abierto solo el camino hasta lo que marca ese color
+  // (una sección de «_gobernanza» se abre entera); el resto de líneas queda atenuado.
+  const FOCO_RAW = { pii: '.j-pii:not(.j-pii-salud), .g-key.g-pii', salud: '.j-pii-salud, .g-art9', tag: '.j-tag', traz: '.g-key.g-traz', expl: '.g-key.g-expl', sup: '.g-key.g-sup', ret: '.g-key.g-ret', norma: '.j-norma' };
+  function plegarNodo(n, plegado) {
+    n.classList.toggle('plegado', plegado);
+    const b = n.querySelector('.j-tog');
+    b.setAttribute('aria-expanded', String(!plegado));
+    b.setAttribute('aria-label', b.getAttribute('aria-label').replace(/^(Plegar|Desplegar)/, plegado ? 'Desplegar' : 'Plegar'));
+  }
+  function enfocarRaw(foco) {
+    const pre = $('modal-raw');
+    modalState.rawFoco = foco || null;
+    document.querySelectorAll('#raw-leyenda .rl-btn').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.foco === modalState.rawFoco)));
+    pre.classList.toggle('enfoque', !!foco);
+    pre.querySelectorAll('.j-ver').forEach((l) => l.classList.remove('j-ver'));
+    pre.querySelectorAll('.j-nodo').forEach((n) => plegarNodo(n, !!foco));
+    if (!foco) return;
+    pre.querySelectorAll(FOCO_RAW[foco]).forEach((m) => {
+      const linea = m.closest('.j-l'); if (!linea) return;
+      for (let a = linea; a; a = a.parentElement.closest('.j-l')) { a.classList.add('j-ver'); if (a !== linea) plegarNodo(a, false); }
+      // Una sección o un valor que es un objeto entero se abre con todo su contenido
+      if (linea.classList.contains('j-nodo') && (m.classList.contains('g-key') || m.querySelector('.j-in'))) {
+        plegarNodo(linea, false);
+        linea.querySelectorAll('.j-nodo').forEach((n) => plegarNodo(n, false));
+        linea.querySelectorAll('.j-l').forEach((l) => l.classList.add('j-ver'));
+      }
+    });
+    const primera = pre.querySelector('.j-ver'); if (primera) pre.scrollTop = primera.offsetTop - pre.offsetTop - 8;
   }
 
   // Lo que recibió el modelo: el mensaje con los datos personales cambiados por marcadores
@@ -1498,6 +1532,19 @@
     $('tab-json').addEventListener('click', (ev) => {
       const b = ev.target.closest('.seg-btn'); if (!b || !modalState.entry) return;
       modalState.raw = b.dataset.raw; pintarRaw(modalState.entry);
+    });
+    // Plegar un nodo (flecha o «… N claves»), ver solo un color de la leyenda, o plegar y desplegar todo
+    $('modal-raw').addEventListener('click', (ev) => {
+      const t = ev.target.closest('.j-tog, .j-elip'); if (!t) return;
+      const n = t.closest('.j-nodo'); plegarNodo(n, !n.classList.contains('plegado'));
+    });
+    $('raw-filtro').addEventListener('click', (ev) => {
+      const f = ev.target.closest('.rl-btn');
+      if (f) { enfocarRaw(modalState.rawFoco === f.dataset.foco ? null : f.dataset.foco); return; }
+      const p = ev.target.closest('[data-plegar]'); if (!p) return;
+      enfocarRaw(null);
+      if (p.dataset.plegar === 'todo') $('modal-raw').querySelectorAll('.j-nodo').forEach((n) => plegarNodo(n, true));
+      $('modal-raw').scrollTop = 0;
     });
     // Adjuntos: elegir archivo, zoom de la imagen (botones, Ctrl + rueda, clic) y arrastrar para moverla
     $('adj-lista').addEventListener('click', (ev) => {

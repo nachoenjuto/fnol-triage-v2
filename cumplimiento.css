@@ -7,6 +7,24 @@
 .raw-leyenda li { display: inline-flex; align-items: center; gap: .35rem; }
 .raw-leyenda i { width: .8rem; height: .8rem; border-radius: 3px; display: inline-block; }
 .raw-leyenda.sin-gob .rl-gob { display: none; }
+/* La leyenda de la ficha es también un filtro: cada color deja a la vista solo su parte del JSON */
+.raw-filtro { gap: .4rem .8rem; align-items: flex-start; }
+.raw-filtro .raw-leyenda { flex: 1 1 24rem; gap: .25rem .3rem; }
+.raw-plegar { gap: .35rem; margin-top: .45rem; flex: none; }
+.rl-btn { font: inherit; color: inherit; display: inline-flex; align-items: center; gap: .35rem; padding: .15rem .45rem; border: 1px solid transparent; border-radius: 999px; background: none; cursor: pointer; text-align: left; }
+.rl-btn:hover:not(:disabled) { border-color: var(--border); color: var(--text); }
+.rl-btn:focus-visible { outline: 2px solid var(--primary); outline-offset: 1px; }
+.rl-btn[aria-pressed="true"] { border-color: var(--primary); background: color-mix(in srgb, var(--primary) 10%, transparent); color: var(--text); font-weight: 600; }
+.rl-btn:disabled { opacity: .45; cursor: default; }
+/* JSON plegable (jsonHtml con «plegable»): la flecha ocupa la sangría y no añade texto al JSON */
+.raw .j-tog { display: inline-block; width: 2ch; padding: 0; margin: 0; border: 0; background: none; color: var(--muted); font: inherit; line-height: inherit; cursor: pointer; text-align: left; vertical-align: baseline; }
+.raw .j-tog::before { content: '▾'; }
+.raw .j-tog:hover { color: var(--text); }
+.raw .j-tog:focus-visible { outline: 2px solid var(--primary); outline-offset: -1px; border-radius: 2px; }
+.raw .j-nodo.plegado .j-tog::before { content: '▸'; }
+.raw .j-nodo.plegado .j-in { display: none; }
+.raw .j-nodo.plegado .j-elip::after { content: ' … ' attr(data-n) ' '; color: var(--muted); font-style: italic; cursor: pointer; }
+.raw.enfoque .j-l:not(.j-ver) { opacity: .4; }
 .rl-pii { border-bottom: 2px dashed var(--g-pii); background: color-mix(in srgb, var(--g-pii) 14%, transparent); }
 .rl-art9 { background: var(--g-art9); }
 .rl-tag { background: var(--g-norma); border-radius: 50% !important; }

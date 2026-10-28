@@ -128,6 +128,8 @@ Debajo de la salida del modelo aparece el bloque **`_gobernanza`**, marcado como
 
 Al pasar el ratón por una norma aparece qué exige. «Copiar JSON» copia lo que se ve (con o sin el bloque).
 
+El JSON se pliega por nodos: cada objeto o lista lleva una flecha a la izquierda y, plegado, muestra cuántas claves o elementos tiene («… 12 claves»). **Plegar todo** y **Desplegar todo** actúan sobre la respuesta entera. Los colores de la leyenda también son botones: al pulsar uno, el JSON se pliega y solo queda abierto el camino hasta lo que marca ese color (una sección de `_gobernanza`, como Trazabilidad, se abre entera); el resto queda atenuado. Pulsar otra vez el mismo color lo deja todo desplegado. Si un color no aparece en la respuesta, su botón sale desactivado. Plegar no cambia lo que se copia.
+
 > Mensaje clave: **el modelo no se autocertifica**. Los metadatos de cumplimiento los pone la plataforma, se pueden recalcular en cualquier momento y, si alguien altera una traza, el hash deja de coincidir.
 
 ### 2.7 Seudonimización antes de enviar al modelo

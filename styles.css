@@ -320,7 +320,7 @@ tbody tr:focus { outline: 2px solid var(--primary); outline-offset: -2px; }
 .ficha-panel { flex: none; }
 /* Respuesta cruda: el texto ocupa todo el alto disponible de la ficha */
 #tab-json:not([hidden]) { flex: 1 1 auto; display: flex; flex-direction: column; min-height: 0; }
-#tab-json .raw { flex: 1 1 auto; max-height: none; min-height: 0; margin: .6rem 0 0; }
+#tab-json .raw { flex: 1 1 auto; max-height: none; min-height: min(16rem, 50vh); margin: .6rem 0 0; }
 /* Adjuntos: miniaturas · visor (PDF del navegador o imagen con zoom) · datos extraídos; el visor ocupa el alto de la ficha */
 .ficha-tab .n.n-adj { background: var(--bg); color: var(--muted); border: 1px solid var(--border); }
 #tab-adjuntos:not([hidden]) { flex: 1 1 auto; display: flex; flex-direction: column; min-height: 0; }

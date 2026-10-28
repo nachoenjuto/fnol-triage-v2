@@ -599,7 +599,9 @@
   // ---------------------------------------------------------------------------
   const escHtml = (s) => String(s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
   const SECCION = { trazabilidad: 'g-traz', retencion: 'g-ret', datos_personales: 'g-pii', adjuntos: 'g-pii', explicabilidad: 'g-expl', supervision_humana: 'g-sup', clasificacion_ria: 'g-ria' };
-  function jsonHtml(valor, { sensibles = {}, claves = {}, gob = false } = {}) {
+  // Con «plegable», cada objeto o lista lleva un botón para plegarlo (en la sangría, sin texto) y cada línea va en un
+  // .j-l: lo que se copia o se selecciona sigue siendo el mismo JSON.
+  function jsonHtml(valor, { sensibles = {}, claves = {}, gob = false, plegable = false } = {}) {
     const sp = (n) => '  '.repeat(n);
     const prim = (v, ctx) => {
       if (v === null) return '<span class="j-null">null</span>';
@@ -620,20 +622,24 @@
         const r = ruta ? `${ruta}.${k}` : String(k);
         const c2 = { ...ctx, norma: ctx.norma || k === 'normas', gob: ctx.gob || k === '_gobernanza' };
         let cuerpo = rec(x, nivel + 1, r, c2);
+        const nodo = plegable && /^[[{]<span class="j-in">/.test(cuerpo);
+        const sangria = nodo ? `${sp(nivel + 1).slice(2)}<button type="button" class="j-tog" aria-expanded="true" aria-label="Plegar ${escHtml(String(k))}"></button>` : sp(nivel + 1);
+        const envolver = (l) => (plegable ? `<span class="j-l${nodo ? ' j-nodo' : ''}">${l}</span>` : l);
         const cat = sensibles[r];
         if (cat) cuerpo = `<span class="j-pii j-pii-${cat}" title="${escHtml(`Dato personal · ${CATEGORIAS[cat].etiqueta} · ${CATEGORIAS[cat].tratamiento}`)}">${cuerpo}</span>`;
-        if (arr) return `${sp(nivel + 1)}${x && x.categoria === 'salud' ? `<span class="g-art9">${cuerpo}</span>` : cuerpo}`;
+        if (arr) return envolver(`${sangria}${x && x.categoria === 'salud' ? `<span class="g-art9">${cuerpo}</span>` : cuerpo}`);
         const tag = !ctx.gob && !ruta && claves[k] ? `<span class="j-tag" data-normas="${escHtml(claves[k].join(' · '))}" title="${escHtml(claves[k].map((e) => `${e}: ${NORMA_POR_ETIQUETA[e] || ''}`).join('\n'))}" aria-hidden="true"></span>` : '';
         // La marca de norma va al final de la primera línea del valor (tras «[», «{» o el valor simple)
-        if (tag) cuerpo = /^[[{]\n/.test(cuerpo) ? `${cuerpo[0]}${tag}${cuerpo.slice(1)}` : `${cuerpo}${tag}`;
+        if (tag) cuerpo = /^[[{](<span class="j-in">)?\n/.test(cuerpo) ? `${cuerpo[0]}${tag}${cuerpo.slice(1)}` : `${cuerpo}${tag}`;
         // Secciones del bloque de gobierno (en la raíz si se pinta solo, o bajo «_gobernanza»)
         const sec = SECCION[k] && ((gob && nivel === 0) || ruta === '_gobernanza') ? SECCION[k] : '';
         const clave = `<span class="j-key${sec ? ` g-key ${sec}` : ''}">${escHtml(JSON.stringify(String(k)))}</span>`;
-        const linea = `${sp(nivel + 1)}${clave}: ${sec ? `<span class="g-sec ${sec}">${cuerpo}</span>` : cuerpo}`;
+        const linea = envolver(`${sangria}${clave}: ${sec ? `<span class="g-sec ${sec}">${cuerpo}</span>` : cuerpo}`);
         if (k === '_gobernanza') return `<span class="g-bloque">${linea}</span>`;
         return linea;
       });
       const abre = arr ? '[' : '{'; const cierra = arr ? ']' : '}';
+      if (plegable) return `${abre}<span class="j-in">\n${lineas.join(',\n')}\n${sp(nivel)}</span><span class="j-elip" data-n="${items.length} ${arr ? (items.length === 1 ? 'elemento' : 'elementos') : (items.length === 1 ? 'clave' : 'claves')}"></span>${cierra}`;
       return `${abre}\n${lineas.join(',\n')}\n${sp(nivel)}${cierra}`;
     };
     return rec(valor, 0, '', { gob });

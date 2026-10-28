@@ -137,6 +137,16 @@ test('el JSON coloreado no altera el texto del JSON', () => {
   const texto = html.replace(/<[^>]+>/g, '').replace(/&quot;/g, '"').replace(/&amp;/g, '&').replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&#39;/g, "'");
   assert.deepStrictEqual(JSON.parse(texto), { _gobernanza: g });
 });
+test('el JSON plegable tampoco altera el texto y lleva un botón por objeto o lista', () => {
+  const g = items[0].gob;
+  const html = C.jsonHtml({ _gobernanza: g }, { gob: true, plegable: true });
+  const texto = html.replace(/<[^>]+>/g, '').replace(/&quot;/g, '"').replace(/&amp;/g, '&').replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&#39;/g, "'");
+  assert.deepStrictEqual(JSON.parse(texto), { _gobernanza: g });
+  const nodos = (html.match(/class="j-l j-nodo"/g) || []).length;
+  assert.strictEqual((html.match(/class="j-tog"/g) || []).length, nodos);
+  assert.strictEqual((html.match(/class="j-in"/g) || []).length, nodos + 1); // la raíz se pinta abierta, sin botón
+  assert.ok(nodos > 5);
+});
 
 console.log('conocimiento (Knowledge bases)');
 const GOB = cargar('data/gobierno.js', 'GOBIERNO_DEMO');
