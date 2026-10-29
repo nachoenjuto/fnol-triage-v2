@@ -17,6 +17,9 @@
 /* En las apiladas el titular ocupa lo mismo que la columna izquierda de con-puntos (1fr de 2,1fr menos el hueco):
    mismo ancho de titular en las cinco secciones */
 .intro-hero.apilado .hero-titulo { width: calc((100% - 2rem) / 2.1); }
+/* Titular que no debe partirse (La demo): ocupa todo el ancho de la tarjeta, misma posición que los demás */
+.intro-hero.apilado .hero-titulo:has(h2.entero) { width: auto; }
+.intro-hero h2.entero { max-width: none; }
 .intro-hero h2.largo { font-size: clamp(1.25rem, 2.2vw, 1.6rem); line-height: 1.25; max-width: none; }
 .hero-puntos { display: grid; gap: .65rem; margin: 0; padding: 0; list-style: none; }
 .hero-puntos li { position: relative; padding-left: 1.3rem; font-size: 1.02rem; color: var(--muted); }
