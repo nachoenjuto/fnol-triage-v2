@@ -51,7 +51,7 @@
   const CANAL = { email: ['mail', I18N.t('gob.email')], web: ['globe', I18N.t('gob.formulario_web')], chat: ['messages-square', I18N.t('gob.chat')], telefono: ['phone', I18N.t('gob.telefono')], whatsapp: ['message-circle', I18N.t('gob.whatsapp')] };
   const canalInfo = (c) => CANAL[c] || ['messages-square', c];
   const canal = (c) => { const [i, l] = canalInfo(c); return `<span title="${esc(l)}" style="display:inline-flex;align-items:center;gap:.3rem">${ic(i)}<span class="muted small">${esc(l)}</span></span>`; };
-  const ramoPill = (r) => `<span class="pill pill-${esc(String(r || 'indeterminado').toLowerCase())}">${esc(r)}</span>`;
+  const ramoPill = (r) => `<span class="pill pill-${esc(String(r || 'indeterminado').toLowerCase())}">${esc(I18N.etiqueta('ramo', r))}</span>`;
   const decPill = (d) => (d === 'REVISION' ? `<span class="pill pill-review">${ic('user-check')} ${I18N.t('gob.a_revisar')}</span>` : `<span class="pill pill-ok">${ic('circle-check')} ${I18N.t('gob.aprobado')}</span>`);
   const resPill = (t) => ({ auto: `<span class="pill pill-ok">${ic('zap')} ${I18N.t('gob.autonomo')}</span>`, humano: `<span class="pill pill-review">${ic('user-check')} ${I18N.t('gob.escalado')}</span>`, override: `<span class="pill pill-time">${ic('repeat')} ${I18N.t('gob.override')}</span>` }[t.resultado] || '');
   const lvlBadge = (n, title) => `<span class="lvl l${n}" title="${esc(title || (G.niveles[n] || {}).desc || '')}">${I18N.t('gob.l', { v: n })}</span>`;
@@ -520,7 +520,7 @@
 
   function renderReplays() {
     const delta = (v) => `<span class="delta ${v < -0.01 ? 'down' : v > 0.01 ? 'up' : 'same'}">${v > 0 ? '+' : ''}${Math.round(v * 100)} %</span>`;
-    $('replays').innerHTML = (G.replays || []).map((r) => `<tr><td class="mono">${esc(r.id)}</td><td class="tnum">${fechaHora(r.fecha)}</td><td class="mono">${esc(r.traza)}</td><td>${esc(r.modo)}</td><td>${esc(r.cambio)}</td><td><span class="delta same">${esc(r.ramo)}</span></td><td>${String(r.decision).startsWith('DISTINTA') ? `<span class="delta up">${esc(r.decision)}</span>` : `<span class="delta same">${esc(r.decision)}</span>`}</td><td>${delta(r.dcoste)}</td><td>${delta(r.dlat)}</td><td>${esc(r.usuario)}</td></tr>`).join('') || I18N.t('gob.sin_replays_registrados');
+    $('replays').innerHTML = (G.replays || []).map((r) => `<tr><td class="mono">${esc(r.id)}</td><td class="tnum">${fechaHora(r.fecha)}</td><td class="mono">${esc(r.traza)}</td><td>${esc(r.modo)}</td><td>${esc(r.cambio)}</td><td><span class="delta same">${esc(I18N.etiqueta('ramo', r.ramo))}</span></td><td>${String(r.decision).startsWith('DISTINTA') ? `<span class="delta up">${esc(r.decision)}</span>` : `<span class="delta same">${esc(r.decision)}</span>`}</td><td>${delta(r.dcoste)}</td><td>${delta(r.dlat)}</td><td>${esc(r.usuario)}</td></tr>`).join('') || I18N.t('gob.sin_replays_registrados');
   }
 
   // ---------------------------------------------------------------------------
@@ -716,7 +716,7 @@
         <div class="tw"><table><thead><tr><th>${I18N.t('gob.traza')}</th><th>${I18N.t('gob.mensaje')}</th><th>${I18N.t('gob.inicio_del_paso')}</th><th>${I18N.t('gob.duracion')}</th><th>${I18N.t('gob.modelo')}</th><th>${I18N.t('gob.tokens_2')}</th><th>${I18N.t('gob.coste')}</th><th>${I18N.t('gob.decision_final')}</th></tr></thead><tbody>${D.spans.slice(-6).reverse().map(({ t, s }) => `<tr class="clickable" data-traza="${esc(t.id)}" tabindex="0"><td class="mono">${esc(t.id)}</td><td>${esc(t.mensaje)}</td><td class="tnum">+${ms(s[1])}</td><td class="tnum">${ms(s[2])}</td><td class="mono">${esc(s[3])}</td><td class="tnum">${num(s[4])}↑ ${num(s[5])}↓${s[6] ? ` ${num(s[6])}⟳` : ''}</td><td class="tnum">${eur(spanCost(s), 4)}</td><td>${decPill(t.decision)}</td></tr>`).join('')}</tbody></table></div></div>
       <details class="card ag-contrato"><summary><h3>${ic('braces')} ${I18N.t('gob.contrato_de_entrada_y')} <span class="muted" style="font-weight:400;text-transform:none;letter-spacing:0">${I18N.t('gob.para_perfiles_tecnicos_que')}</span></h3></summary>
         <div class="two" style="margin-top:.8rem"><div><h3>${I18N.t('gob.recibe')}</h3>${tablaC(C.entrada)}</div><div><h3>${I18N.t('gob.devuelve')}</h3>${tablaC(C.salida)}</div></div>
-        ${ej ? `<div style="margin-top:1rem"><div class="row" style="margin-bottom:.5rem"><h3>${I18N.t('gob.ejemplo_real')}</h3><label class="f">${I18N.t('gob.traza')}<select id="ag-ejemplo">${cmpItems.map((x, i) => `<option value="${i}"${i === agEjemplo ? ' selected' : ''}>${esc(x.gob.trazabilidad.traza_id)} · ${esc(x.entry.id)} · ${esc(x.entry.ramo)}</option>`).join('')}</select></label></div>
+        ${ej ? `<div style="margin-top:1rem"><div class="row" style="margin-bottom:.5rem"><h3>${I18N.t('gob.ejemplo_real')}</h3><label class="f">${I18N.t('gob.traza')}<select id="ag-ejemplo">${cmpItems.map((x, i) => `<option value="${i}"${i === agEjemplo ? ' selected' : ''}>${esc(x.gob.trazabilidad.traza_id)} · ${esc(x.entry.id)} · ${esc(I18N.etiqueta('ramo', x.entry.ramo))}</option>`).join('')}</select></label></div>
           ${raz ? `<p class="small"><b>${I18N.t('gob.entrada_3')}</b> ${esc(raz.entrada)}</p><ul class="small" style="margin:.3rem 0 .5rem 1.1rem">${raz.pasos.map((p) => `<li>${conGuardrails(esc(p))}</li>`).join('')}</ul><p class="small"><b>${I18N.t('gob.salida_3')}</b> ${esc(raz.salida)}</p>` : ''}
           <pre class="raw-json" style="margin-top:.5rem">${Cumplimiento.jsonHtml(ejemploAgente(a, ej), { sensibles: Cumplimiento.camposSensibles(ej.entry) })}</pre></div>` : ''}
       </details>`;
@@ -1316,7 +1316,7 @@
     $('hitl-mec').innerHTML = mec.map(([v, i, t, txt, dest]) => `<article class="box alert-link" data-goto="${v}" role="button" tabindex="0" title="${I18N.t('gob.ir_a', { dest: esc(dest) })}"><b>${ic(i)} ${esc(t)}</b><span class="small">${esc(txt)}</span><span class="muted small">${esc(dest)} ${ic('arrow-right')}</span></article>`).join('');
     titulo('h-hitl-cola', 'inbox', I18N.t('gob.cola_de_revision', { cola: cola.length }));
     $('btn-hitl-trazas').innerHTML = I18N.t('gob.ver_en_trazabilidad', { route: ic('route') });
-    $('hitl-cola').innerHTML = cola.map(({ t, agente, estado, revisor, min }) => { const [cls, i, l] = EST_HITL[estado]; return `<tr class="clickable" data-id="${esc(t.id)}" tabindex="0"><td class="mono">${esc(t.id)}</td><td class="tnum">${fechaHora(t.inicio)}</td><td>${esc(t.mensaje)}<br><small class="muted">${esc(t.asunto || '')}</small></td><td>${esc(t.ramo)}</td><td>${agTag(agente)}</td><td class="wrap small">${conGuardrails(esc(t.guardrail || (t.override ? I18N.t('gob.aprobado_por_el_agente') : I18N.t('gob.confianza_baja'))))}</td><td><span class="pill ${cls}">${ic(i)} ${l}</span></td><td>${revisor ? esc(revisor) : '<span class="muted">—</span>'}</td><td class="tnum">${min != null ? `${min} min` : I18N.t('gob.en_cola')}</td></tr>`; }).join('') || I18N.t('gob.ninguna_traza_de_la');
+    $('hitl-cola').innerHTML = cola.map(({ t, agente, estado, revisor, min }) => { const [cls, i, l] = EST_HITL[estado]; return `<tr class="clickable" data-id="${esc(t.id)}" tabindex="0"><td class="mono">${esc(t.id)}</td><td class="tnum">${fechaHora(t.inicio)}</td><td>${esc(t.mensaje)}<br><small class="muted">${esc(t.asunto || '')}</small></td><td>${esc(I18N.etiqueta('ramo', t.ramo))}</td><td>${agTag(agente)}</td><td class="wrap small">${conGuardrails(esc(t.guardrail || (t.override ? I18N.t('gob.aprobado_por_el_agente') : I18N.t('gob.confianza_baja'))))}</td><td><span class="pill ${cls}">${ic(i)} ${l}</span></td><td>${revisor ? esc(revisor) : '<span class="muted">—</span>'}</td><td class="tnum">${min != null ? `${min} min` : I18N.t('gob.en_cola')}</td></tr>`; }).join('') || I18N.t('gob.ninguna_traza_de_la');
     $('hitl-escalados').innerHTML = hitlEscalados();
     $('hitl-overrides').innerHTML = hitlOverrides();
     $('hitl-calidad').innerHTML = hitlCalidad();
@@ -2703,14 +2703,14 @@
     $('modal-fr-ind-body').innerHTML = `
       <div class="kpi-mini">
         <div class="box"><span class="muted small">${ic('gauge')} ${I18N.t('gob.peso')}</span><b>+${i.peso}</b><span class="muted small">${esc(pesoSub)}</span></div>
-        <div class="box"><span class="muted small">${ic('tag')} ${I18N.t('gob.grupo')}</span><b>${esc(i.grupo || '—')}</b><span class="muted small">${(i.ramos || []).map(esc).join(' · ') || I18N.t('gob.todos_los_ramos')}</span></div>
+        <div class="box"><span class="muted small">${ic('tag')} ${I18N.t('gob.grupo')}</span><b>${esc(i.grupo || '—')}</b><span class="muted small">${(i.ramos || []).map((r) => esc(I18N.etiqueta('ramo', r))).join(' · ') || I18N.t('gob.todos_los_ramos')}</span></div>
         <div class="box"><span class="muted small">${ic('activity')} ${I18N.t('gob.disparos_14_d')}</span><b>${num(i.disparos_14d || 0)}</b><span class="muted small">${I18N.t('gob.en_todo_el_flujo')}</span></div>
         <div class="box"><span class="muted small">${ic('circle-x')} ${I18N.t('gob.falsos_positivos')}</span><b style="color:${i.fp > 0.75 ? 'var(--warn)' : 'inherit'}">${Math.round((i.fp || 0) * 100)} %</b><span class="muted small">${I18N.t('gob.casos_que_la_siu')}</span></div>
         <div class="box"><span class="muted small">${ic('scan-eye')} ${I18N.t('gob.en_el_lote_2')}</span><b>${suma}</b><span class="muted small">${hits.length > suma ? I18N.t('gob.mas_sin_sumar', { suma: hits.length - suma }) : I18N.t('gob.de_mensajes', { FRL: FRL.length })}</span></div>
       </div>
       <div class="two">
         <div><h3>${I18N.t('gob.que_detecta')}</h3><p class="small">${esc(i.senal || '—')}</p>
-          <dl class="fr-kv small"><dt>${I18N.t('gob.fuente')}</dt><dd>${esc(i.fuente || '—')}</dd>${Array.isArray(i.frases) && i.frases.length ? `<dt>${I18N.t('gob.frases')}</dt><dd>${i.frases.map((f) => `«${esc(f)}»`).join(' ')}</dd>` : ''}</dl></div>
+          <dl class="fr-kv small"><dt>${I18N.t('gob.fuente')}</dt><dd>${esc(I18N.dato(i.fuente) || '—')}</dd>${Array.isArray(i.frases) && i.frases.length ? `<dt>${I18N.t('gob.frases')}</dt><dd>${i.frases.map((f) => `«${esc(f)}»`).join(' ')}</dd>` : ''}</dl></div>
         <div><h3>${I18N.t('gob.que_no_es_un')}</h3><p class="small">${esc(i.no_es || '—')}</p>
           <p class="small muted" style="margin-top:.4rem">${ic('info')} ${I18N.t('gob.un_indicador_solo_suma', { G: grRef('G-12') })}</p></div>
       </div>
