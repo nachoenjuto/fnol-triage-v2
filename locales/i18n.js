@@ -15,7 +15,7 @@
   // Ficheros de textos de cada idioma (locales/<idioma>/…): los carga cargar.js y los compara scripts/i18n-check.js
   const FICHEROS = ['ui.js', 'ui-triaje.js', 'ui-gobierno.js', 'ui-intro.js'];
   // Tablas de traducción de los datos (solo en los idiomas que no son el base: ver traducirDatos)
-  const FICHEROS_DATOS = ['datos-mensajes.js', 'datos-resultados.js', 'datos-gobierno.js', 'datos-fraude.js', 'datos-prompts.js'];
+  const FICHEROS_DATOS = ['datos-mensajes.js', 'datos-resultados.js', 'datos-gobierno.js', 'datos-fraude.js', 'datos-prompts.js', 'datos-recorrido.js'];
   // Expresiones que leen el texto de los mensajes (motor local, fechas, evidencias, datos personales, fraude)
   const FICHEROS_MOTOR = ['motor.js'];
   const textos = {};          // { es: { clave: valor }, en: {...} }
@@ -67,6 +67,7 @@
     fecha: (d, o) => new Date(d).toLocaleDateString(locale(), o),
     hora: (d, o) => new Date(d).toLocaleTimeString(locale(), o),
     fechaHora: (d, o) => new Date(d).toLocaleString(locale(), o),
+    lista: (xs) => new Intl.ListFormat(locale(), { type: 'conjunction' }).format(xs.map(String)),   // «a, b y c»
   };
 
   // Rellena el HTML: data-i18n="clave" (texto), data-i18n-html="clave" (texto con etiquetas de formato: <b>, <code>,
@@ -97,21 +98,27 @@
     'prompt', 'modelo', 'generado', 'dni', 'matricula', 'iban', 'permiso', 'nivel', 'severidad', 'esfuerzo', 'estado', 'sev',
     'tipo', 'ambito', 'origen', 'agente', 'agentes', 'traza', 'mensaje', 'regla', 'resultado', 'dim', 'fuente', 'version']);
   const ES_CLAVE = /^[a-z0-9_.:-]+$/;   // 'aviso', 'gpt-5', 'v2.3', 'kb-02'…
+  // Campos que el código compara pero que también se ven («Coste diario», «Antifraude», «Fecha de recepción»): no se
+  // traducen en el sitio; se traducen al pintarlos con I18N.dato(texto), con las mismas tablas de datos.
+  const AL_MOSTRAR = new Set(['tipo', 'ambito', 'fuente', 'origen', 'estado', 'modelo']);
   // Un importe suelto («1.350 €») también se traduce: su formato cambia con el idioma
   const esTraducible = (s, campo) => typeof s === 'string' && !NO_TRADUCIR.has(campo) && (/\p{L}/u.test(s) || /\d\s?€|€\s?\d/.test(s)) && !ES_CLAVE.test(s)
     && !/^[A-Z]{1,5}-[\w-]+$/.test(s) && !/^\d{4}-\d\d-\d\d/.test(s)
     && !/^[A-Z]{1,3}\d{1,2}$/.test(s) && !/^regla:/.test(s)   // códigos de regla: A1, H9, regla:A3
-    && !/^[A-Z_]{4,}$/.test(s);   // valores en mayúsculas que compara el código: DESPEJADO, REVISION
+    && !/^[A-Z_]{4,}$/.test(s)   // valores en mayúsculas que compara el código: DESPEJADO, REVISION
+    && !/^(?:ver|clic):/.test(s) && !/^[a-z][a-z-]*(?::[\w.,-]+)+$/.test(s);   // acciones del recorrido (ver:SELECTOR~@clave, kb:KB-02:fuente)
 
   function registrarDatos(idioma, tabla) { tablasDatos[idioma] = Object.assign(tablasDatos[idioma] || {}, tabla); }
 
-  // Recorre un objeto de datos y llama a fn(texto, campo, poner) por cada texto traducible
-  function recorrerDatos(raiz, fn) {
+  // Recorre un objeto de datos y llama a fn(texto, campo, poner) por cada texto traducible. Con alMostrar también
+  // recorre los campos de AL_MOSTRAR (para listar lo que hay que traducir, no para traducir en el sitio).
+  function recorrerDatos(raiz, fn, alMostrar = false) {
+    const ok = (v, campo) => esTraducible(v, campo) || (alMostrar && AL_MOSTRAR.has(campo) && esTraducible(v, ''));
     const visitar = (o, campo) => {
-      if (Array.isArray(o)) { o.forEach((v, i) => (typeof v === 'string' ? (esTraducible(v, campo) && fn(v, campo, (x) => { o[i] = x; })) : visitar(v, campo))); return; }
+      if (Array.isArray(o)) { o.forEach((v, i) => (typeof v === 'string' ? (ok(v, campo) && fn(v, campo, (x) => { o[i] = x; })) : visitar(v, campo))); return; }
       if (!o || typeof o !== 'object') return;
       for (const [k, v] of Object.entries(o)) {
-        if (typeof v === 'string') { if (esTraducible(v, k)) fn(v, k, (x) => { o[k] = x; }); } else visitar(v, k);
+        if (typeof v === 'string') { if (ok(v, k)) fn(v, k, (x) => { o[k] = x; }); } else visitar(v, k);
       }
     };
     visitar(raiz, '');
@@ -130,6 +137,13 @@
     return r;
   }
 
+  // Un texto de los datos en el idioma activo (para los campos de AL_MOSTRAR): su traducción o el propio texto
+  function dato(s) {
+    if (activo === BASE || typeof s !== 'string') return s;
+    const v = (tablasDatos[activo] || {})[huella(s)];
+    return v == null ? s : valor(v);
+  }
+
   // ── Expresiones por idioma (locales/<idioma>/motor.js) ──
   // I18N.motor('local') devuelve las del idioma activo; lo que no define ese idioma se toma del idioma base.
   const motores = {};
@@ -139,8 +153,12 @@
     return activo === BASE ? base : { ...base, ...((motores[activo] || {})[modulo] || {}) };
   }
 
+  // Etiqueta visible de un valor interno que no se traduce (ramo, decisión…): clave comun.<tipo>.<valor> o, si no
+  // existe, el propio valor. I18N.etiqueta('ramo', 'Hogar') → 'Home' en inglés.
+  function etiqueta(tipo, v) { const k = `comun.${tipo}.${v}`; const r = t(k); return r === k ? v : r; }
+
   const I18N = {
-    IDIOMAS, BASE, FICHEROS, FICHEROS_DATOS, FICHEROS_MOTOR, registrarMotor, motor, huella, registrarDatos, recorrerDatos, traducirDatos, esTraducible,
+    IDIOMAS, etiqueta, dato, BASE, FICHEROS, FICHEROS_DATOS, FICHEROS_MOTOR, registrarMotor, motor, huella, registrarDatos, recorrerDatos, traducirDatos, esTraducible,
     tablaDatos: (idioma) => tablasDatos[idioma] || {}, registrar, usar, t, fmt, aplicar, valor,
     get idioma() { return activo; },
     get locale() { return locale(); },

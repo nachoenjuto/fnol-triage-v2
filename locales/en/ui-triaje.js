@@ -371,6 +371,7 @@ I18N.registrar('en', {
   "triaje.esperado_2": ["expected {ramo}","fa81dfed"],
   "triaje.reglas_de_negocio_del": ["Business rules for {ramo}","ca8b2963"],
   "triaje.motor_local": ["local engine","a3bd0f7d"],
+  "triaje.modelo": ["model","2071e56f"],
   "triaje.asignado_por_el": ["Assigned by the {motor_local}:","d8b530ce"],
   "triaje.sin_criterios_de_clasificacion": ["<li class=\"muted\">No classification criteria in the result.</li>","6836fbf6"],
   "triaje.el_resultado_no_incluye": ["<li class=\"muted\">The result includes no criteria.</li>","16a806f2"],
@@ -487,4 +488,8 @@ I18N.registrar('en', {
   "triaje.origen.archivo": ["{origen} (file)","99132cdc"],
   "triaje.origen.fallback": ["local rules (AI fallback: {error})","a65d0a8d"],
   "triaje.motor.incumple": ["Breaks {reglas}","9540795a"],
+  "triaje.paquete_completado": ["{nombre} completed: {aprobados}, {revisar}.","d9744933"],
+  "triaje.n_aprobados": [{"one":"{n} approved","other":"{n} approved"},"d2660efa"],
+  "triaje.n_a_revisar": [{"one":"{n} to review","other":"{n} to review"},"e4c1dbd7"],
+  "triaje.archivo_nombre": ["File {nombre}","82c954ae"],
 });

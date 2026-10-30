@@ -14,8 +14,11 @@
   // useGrouping 'always': en es-ES los números de cuatro cifras no llevan punto de miles por defecto (3180 en vez de 3.180)
   const eur = (n, d = 2) => Number(n || 0).toLocaleString(I18N.locale, { style: 'currency', currency: 'EUR', minimumFractionDigits: d, maximumFractionDigits: d, useGrouping: 'always' });
   const num = (n) => Number(n || 0).toLocaleString(I18N.locale, { useGrouping: 'always' });
+  // Número con `d` decimales fijos y la coma o el punto del idioma (sin separador de miles, como toFixed)
+  const numero = (n) => Number(n || 0).toLocaleString(I18N.locale, { maximumFractionDigits: 20, useGrouping: false });
+  const dec = (n, d = 2) => Number(n || 0).toLocaleString(I18N.locale, { minimumFractionDigits: d, maximumFractionDigits: d, useGrouping: false });
   const pct = (n) => `${Math.round(n * 100)} %`;
-  const ms = (v) => (v >= 1000 ? `${(v / 1000).toFixed(1).replace('.', ',')} s` : `${Math.round(v)} ms`);
+  const ms = (v) => (v >= 1000 ? `${dec(v / 1000, 1)} s` : `${Math.round(v)} ms`);
   const hora = (iso) => new Date(iso).toLocaleTimeString(I18N.locale, { hour: '2-digit', minute: '2-digit', second: '2-digit' });
   const fecha = (iso) => new Date(iso).toLocaleDateString(I18N.locale, { day: '2-digit', month: 'short' });
   const fechaHora = (iso) => new Date(iso).toLocaleString(I18N.locale, { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' });
@@ -55,7 +58,7 @@
   const SEV_ICON = { crit: 'triangle-alert', warn: 'circle-alert', info: 'info', ok: 'circle-check' };
 
   // Guardrails y caps: tooltip con la descripción en cualquier referencia (G-04, CAP-03)
-  const grTip = (id) => { const p = POL[id]; if (!p) return ''; return p.tipo ? I18N.t('gob.limite', { id, tipo: p.tipo, ambito: p.ambito, limite: p.limite, unidad: p.unidad, accion: p.accion }) : `${id} · ${p.condicion} → ${p.accion}${p.descripcion ? `. ${p.descripcion}` : ''}`; };
+  const grTip = (id) => { const p = POL[id]; if (!p) return ''; return p.tipo ? I18N.t('gob.limite', { id, tipo: I18N.dato(p.tipo), ambito: I18N.dato(p.ambito), limite: p.limite, unidad: p.unidad, accion: p.accion }) : `${id} · ${p.condicion} → ${p.accion}${p.descripcion ? `. ${p.descripcion}` : ''}`; };
   const grRef = (id) => (POL[id] ? `<span class="gr" data-tip="${esc(grTip(id))}">${esc(id)}</span>` : esc(id));
   // Aplica sobre texto YA escapado: envuelve los códigos de guardrail / cap
   const conGuardrails = (html) => String(html).replace(/\b(G-\d{2}|CAP-\d{2})\b/g, (m) => grRef(m));
@@ -113,7 +116,7 @@
       return {
         id, mensaje: e.id, asunto: e.asunto, canal: e.mensaje?.canal || 'chat',
         inicio, ramo: e.ramo, decision: e.decision, confianza: e.confianza ?? 0, motivo: e.motivo,
-        resultado: rev && rev.accion === 'override' ? 'override' : e.decision === 'REVISION' ? 'humano' : 'auto', guardrail: incumple.length ? `${incumple.join(', ')} incumple → escalado` : undefined,
+        resultado: rev && rev.accion === 'override' ? 'override' : e.decision === 'REVISION' ? 'humano' : 'auto', guardrail: incumple.length ? I18N.t('gob.guardrail_incumple', { reglas: incumple.join(', ') }) : undefined,
         incidencias: incidencias.length ? incidencias : undefined, spans, origen: e.origen,
         ...(rev ? accionHumanaDeSesion(rev) : accionHumanaDeDemo(id, inicio)),
       };
@@ -148,7 +151,7 @@
     const reglas = agentes.find((a) => a.id === 'reglas');
     const { solas: aprobadasSolas, overrides, tasa, proponerBajada, nivelPropuesto } = Cumplimiento.tasaOverride(trazas, reglas ? reglas.nivel : null, UMBRAL_OVERRIDE);
     const propuesta = proponerBajada
-      ? { fecha: new Date().toISOString(), agente: 'reglas', de: reglas.nivel, a: nivelPropuesto, motivo: I18N.t('gob.propuesta_tasa_de_override', { replace: tasa.toFixed(1).replace('.', ','), overrides, aprobadasSolas, UMBRAL_OVERRIDE }), usuario: I18N.t('gob.sistema_pendiente_de_aprobacion'), pendiente: true }
+      ? { fecha: new Date().toISOString(), agente: 'reglas', de: reglas.nivel, a: nivelPropuesto, motivo: I18N.t('gob.propuesta_tasa_de_override', { replace: dec(tasa, 1), overrides, aprobadasSolas, UMBRAL_OVERRIDE }), usuario: I18N.t('gob.sistema_pendiente_de_aprobacion'), pendiente: true }
       : null;
     return { eventos, overrides, aprobadasSolas, tasa, propuesta, altaConfianza: trazas.filter((t) => t.override && t.confianza >= 0.85).length };
   }
@@ -161,7 +164,7 @@
       const extra = [{ id: 'ia', nombre: I18N.t('gob.ia_clasificacion_extraccion_reglas'), icono: 'sparkles', modelo: '—', prompt: '—', nivel: 2, estado: 'activo' }, { id: 'local', nombre: I18N.t('gob.motor_local_sin_ia'), icono: 'workflow', modelo: 'reglas', prompt: '—', nivel: 3, estado: 'activo' }];
       const agentes = [...GOBIERNO_DEMO.agentes, ...extra];
       const ses = efectoSesion(trazas, agentes);
-      const alertas = ses.propuesta ? [{ sev: 'warn', titulo: I18N.t('gob.override_de_reglas_en', { replace: ses.tasa.toFixed(1).replace('.', ','), UMBRAL_OVERRIDE }), detalle: I18N.t('gob.se_propone_bajar_reglas', { de: ses.propuesta.de, propuesta: ses.propuesta.a }), cuando: 'sesión', origen: 'autonomia', goto: 'autonomia' }] : [];
+      const alertas = ses.propuesta ? [{ sev: 'warn', titulo: I18N.t('gob.override_de_reglas_en', { replace: dec(ses.tasa, 1), UMBRAL_OVERRIDE }), detalle: I18N.t('gob.se_propone_bajar_reglas', { de: ses.propuesta.de, propuesta: ses.propuesta.a }), cuando: 'sesión', origen: 'autonomia', goto: 'autonomia' }] : [];
       G = { ...GOBIERNO_DEMO, agentes, precios: { ...GOBIERNO_DEMO.precios, local: { in: 0, out: 0 } }, trazas, razonamiento: {},
         eventos: [...ses.eventos.sort((a, b) => b.fecha.localeCompare(a.fecha)), ...(GOBIERNO_DEMO.eventos || [])],
         cambios_autonomia: [...(ses.propuesta ? [ses.propuesta] : []), ...(GOBIERNO_DEMO.cambios_autonomia || [])],
@@ -207,9 +210,9 @@
       kpi({ cls: 'primary', icono: 'activity', etiqueta: I18N.t('gob.mensajes_procesados'), valor: num(totalMsgs), sub: I18N.t('gob.dia_dia_de_media', { dias: dias.length, dias2: dias.length > 1 ? 's' : '', dias3: num(Math.round(totalMsgs / dias.length)) }), id: 'res-msgs' }),
       kpi({ ...aut, id: 'res-aut' }), conGoto(kpi(esc1), 'hitl'), conGoto(kpi(ovr), 'hitl'),
       kpi({ cls: 'warn', icono: 'euro', etiqueta: I18N.t('gob.coste_del_periodo'), valor: eur(coste, coste < 10 ? 2 : 0), sub: I18N.t('gob.del_cap_mensual_por', { capMes: Math.round((coste / capMes) * 100), capMes2: eur(capMes, 0), totalMsgs: eur(totalMsgs ? coste / totalMsgs : 0, 4) }), medidor: (coste / capMes) * 100, id: 'res-coste' }),
-      (() => { const al = alertasTodas(); const c = al.filter((x) => x.sev === 'crit').length; return kpi({ ...alr, id: 'res-alertas', cls: c ? 'crit' : 'warn', valor: String(al.length), sub: `${c} ${c === 1 ? 'crítica' : 'críticas'} · ${al.length - c} avisos · ${origenesTexto(al)}` }); })(),
+      (() => { const al = alertasTodas(); const c = al.filter((x) => x.sev === 'crit').length; return kpi({ ...alr, id: 'res-alertas', cls: c ? 'crit' : 'warn', valor: String(al.length), sub: `${I18N.t('gob.n_criticas', { n: c })} · ${I18N.t('gob.n_avisos', { n: al.length - c })} · ${origenesTexto(al)}` }); })(),
       (() => { const { T } = estadoCumplimiento(); const p = T.marcos.reduce((a, m) => a + m.cuenta.ambar + m.cuenta.rojo, 0); return conGoto(kpi({ cls: T.global >= 90 ? 'ok' : 'warn', icono: 'thermometer', etiqueta: I18N.t('gob.cumplimiento'), valor: `${T.global} %`, sub: I18N.t('gob.cobertura_de_controles_parciales', { v: p }), medidor: T.global }), 'cumplimiento'); })(),
-      (() => { const E = estadoKB(); const ok = E.filter(({ s }) => s.estado === 'ok').length; const r = E.filter(({ s }) => s.estado === 'rojo').length; return conGoto(kpi({ cls: r ? 'crit' : ok < E.length ? 'warn' : 'ok', icono: 'book-open', etiqueta: I18N.t('gob.knowledge_bases'), valor: `${ok} / ${E.length}`, sub: `knowledge bases sanas · ${r} ${r === 1 ? 'crítica' : 'críticas'}` }), 'knowledge'); })(),
+      (() => { const E = estadoKB(); const ok = E.filter(({ s }) => s.estado === 'ok').length; const r = E.filter(({ s }) => s.estado === 'rojo').length; return conGoto(kpi({ cls: r ? 'crit' : ok < E.length ? 'warn' : 'ok', icono: 'book-open', etiqueta: I18N.t('gob.knowledge_bases'), valor: `${ok} / ${E.length}`, sub: `${I18N.t('gob.kb_sanas')} · ${I18N.t('gob.n_criticas', { n: r })}` }), 'knowledge'); })(),
     ].join('');
     $('agents').innerHTML = agentesPrincipales().map((a) => agentCard(a, false)).join('');
     $('alerts').innerHTML = alertasTodas().map(alertaHtml).join('') || I18N.t('gob.sin_alertas_activas');
@@ -243,7 +246,7 @@
       <div class="row ag-estado"><span class="pill ${pc}">${ic(pi)} ${pl}</span>${lvlBadge(a.nivel)}<span class="small muted">${esc(lvl.nombre)}</span></div>
       ${aut
         ? `<dl class="ag-det"><dt>${I18N.t('gob.umbral_confianza')}</dt><dd>${conGuardrails(esc(a.umbral || '—'))}</dd><dt>${I18N.t('gob.guardrails')}</dt><dd>${guardrails}</dd><dt>${I18N.t('gob.escalado_14_d')}</dt><dd>${esc(a.escalado_14d || '—')}</dd><dt>${I18N.t('gob.override_14_d')}</dt><dd>${esc(a.override_14d || '—')}</dd></dl>`
-        : `<dl class="ag-det"><dt>${I18N.t('gob.modelo')}</dt><dd class="mono">${esc(a.modelo)}</dd><dt>${I18N.t('gob.prompt')}</dt><dd class="mono">${esc(a.prompt)}</dd><dt>${I18N.t('gob.latencia_p95')}</dt><dd>${ms(a.p95_ms || 0)}</dd><dt>${I18N.t('gob.coste_hoy')}</dt><dd>${eur(a.coste_hoy)} / ${eur(a.cap_hoy, 0)} <span class="${uso >= 1 ? 'delta up' : 'muted'}">(${Math.round(uso * 100)} %)</span><div class="meter" style="--c:${uso >= 1 ? 'var(--crit)' : uso >= .8 ? 'var(--warn)' : 'var(--ok)'}"><i style="width:${Math.min(100, uso * 100)}%"></i></div></dd></dl>`}
+        : `<dl class="ag-det"><dt>${I18N.t('gob.modelo')}</dt><dd class="mono">${esc(I18N.dato(a.modelo))}</dd><dt>${I18N.t('gob.prompt')}</dt><dd class="mono">${esc(a.prompt)}</dd><dt>${I18N.t('gob.latencia_p95')}</dt><dd>${ms(a.p95_ms || 0)}</dd><dt>${I18N.t('gob.coste_hoy')}</dt><dd>${eur(a.coste_hoy)} / ${eur(a.cap_hoy, 0)} <span class="${uso >= 1 ? 'delta up' : 'muted'}">(${Math.round(uso * 100)} %)</span><div class="meter" style="--c:${uso >= 1 ? 'var(--crit)' : uso >= .8 ? 'var(--warn)' : 'var(--ok)'}"><i style="width:${Math.min(100, uso * 100)}%"></i></div></dd></dl>`}
     </article>`;
   }
 
@@ -296,7 +299,7 @@
     const conCmp = cmpItems.some((x) => x.gob.trazabilidad.traza_id === t.id);
     const botones = `<button class="btn btn-sm" type="button" data-goto="replay">${ic('brain')} ${I18N.t('gob.ver_razonamiento')}</button><button class="btn btn-sm" type="button" data-goto="replay" data-replay="1">${ic('repeat')} ${I18N.t('gob.replay')}</button>${conCmp ? `<button class="btn btn-sm" type="button" data-cmp-ficha="${esc(t.id)}">${ic('fingerprint')} ${I18N.t('gob.cumplimiento')}</button>` : ''}`;
     const pills = `${ramoPill(t.ramo)} ${decPill(t.decision)} ${resPill(t)}`;
-    const datos = `<dl class="kv"><dt>${I18N.t('gob.inicio')}</dt><dd>${new Date(t.inicio).toLocaleString(I18N.locale)}</dd><dt>${I18N.t('gob.canal')}</dt><dd>${canal(t.canal)}</dd><dt>${I18N.t('gob.confianza')}</dt><dd>${pct(t.confianza)}</dd><dt>${I18N.t('gob.guardrail')}</dt><dd>${t.guardrail ? `<span class="policy fail">${ic('shield-check')} ${conGuardrails(esc(t.guardrail))}</span>` : `<span class="policy pass">${ic('check')} ${I18N.t('gob.ninguno_disparado')}</span>`}</dd>${frTraza(t)}<dt>${I18N.t('gob.versiones')}</dt><dd class="mono">${esc(versiones)}</dd>${t.origen ? `<dt>${I18N.t('gob.origen')}</dt><dd>${esc(t.origen)}</dd>` : ''}<dt>${I18N.t('gob.ciclo_tokens_coste')}</dt><dd>${ms(m.dur)} · ${num(m.tokens)} · ${eur(m.coste, 4)}</dd><dt>${I18N.t('gob.incidencias')}</dt><dd>${(t.incidencias || []).map((i) => `<span class="pill pill-warn">${ic('circle-alert')} ${conGuardrails(esc(i))}</span>`).join(' ') || '<span class="muted">—</span>'}</dd></dl>`;
+    const datos = `<dl class="kv"><dt>${I18N.t('gob.inicio')}</dt><dd>${new Date(t.inicio).toLocaleString(I18N.locale)}</dd><dt>${I18N.t('gob.canal')}</dt><dd>${canal(t.canal)}</dd><dt>${I18N.t('gob.confianza')}</dt><dd>${pct(t.confianza)}</dd><dt>${I18N.t('gob.guardrail')}</dt><dd>${t.guardrail ? `<span class="policy fail">${ic('shield-check')} ${conGuardrails(esc(t.guardrail))}</span>` : `<span class="policy pass">${ic('check')} ${I18N.t('gob.ninguno_disparado')}</span>`}</dd>${frTraza(t)}<dt>${I18N.t('gob.versiones')}</dt><dd class="mono">${esc(versiones)}</dd>${t.origen ? `<dt>${I18N.t('gob.origen')}</dt><dd>${esc(I18N.dato(t.origen))}</dd>` : ''}<dt>${I18N.t('gob.ciclo_tokens_coste')}</dt><dd>${ms(m.dur)} · ${num(m.tokens)} · ${eur(m.coste, 4)}</dd><dt>${I18N.t('gob.incidencias')}</dt><dd>${(t.incidencias || []).map((i) => `<span class="pill pill-warn">${ic('circle-alert')} ${conGuardrails(esc(i))}</span>`).join(' ') || '<span class="muted">—</span>'}</dd></dl>`;
     const decTxt = (d) => (d === 'DESPEJADO' ? I18N.t('gob.aprobado_2') : I18N.t('gob.a_revisar_2'));
     // Override: una persona cambia una decisión que el agente tomó solo (cuenta para su autonomía).
     // Revisión: una persona resuelve un caso que el agente ya escaló (no es override).
@@ -399,7 +402,7 @@
 
   // Cadena de agentes con lo que pasa de uno a otro; el último nodo lleva el color de la decisión
   function rzCadena(t, steps, r) {
-    const conf = (s) => { const c = rzConfianzas(s); const top = Object.entries(c).sort((a, b) => b[1] - a[1])[0]; return top ? `${top[0]} · ${String(top[1].toFixed(2)).replace('.', ',')}` : s.salida; };
+    const conf = (s) => { const c = rzConfianzas(s); const top = Object.entries(c).sort((a, b) => b[1] - a[1])[0]; return top ? `${top[0]} · ${dec(top[1], 2)}` : s.salida; };
     const pasa = (s) => {
       if (s.agente === 'multicanal') { const m = String(s.entrada).match(/([\d.]+) caracteres/); return m ? `texto · ${m[1]} car.` : I18N.t('gob.texto_normalizado'); }
       if (s.agente === 'clasificacion') return conf(s);
@@ -455,7 +458,7 @@
     if (s.agente === 'reglas' && r && r.criterios) return rzReglas(r, t, sp);
     return '';
   }
-  const rzNum = (v) => String(Math.round(v * 100) / 100).replace('.', ',');
+  const rzNum = (v) => numero(Math.round(v * 100) / 100);
   const rzBarra = (lbl, v, umbral, umbralLbl, color) => `<div class="rz-barra"><span>${esc(lbl)}</span><div class="rz-track"><i style="width:${Math.max(0.5, v * 100)}%;background:${color}"></i>${umbral != null ? `<b style="left:${umbral * 100}%" data-tip="${esc(umbralLbl)}"></b>` : ''}</div><span class="mono">${rzNum(v)}</span></div>`;
 
   const CAMPO_LBL = { nombre_cliente: I18N.t('gob.cliente'), numero_poliza: I18N.t('gob.poliza'), tipo_siniestro: I18N.t('gob.tipo'), fecha_hecho: I18N.t('gob.fecha'), importe_estimado_eur: I18N.t('gob.importe'), lugar: I18N.t('gob.lugar'), terceros_implicados: I18N.t('gob.terceros'), lesionados: I18N.t('gob.lesionados'), documentacion_mencionada: I18N.t('gob.documentacion'), observaciones: I18N.t('gob.observaciones') };
@@ -671,7 +674,7 @@
             <div class="row" style="margin-top:.4rem"><span class="pill ${pc}">${ic(pi)} ${pl}</span>${lvlBadge(a.nivel)}<span class="small muted">${esc(lvl.nombre)} · ${esc(lvl.desc || '')}</span><span class="small muted">${I18N.t('gob.responsable_2', { responsable: esc((a.identidad || {}).responsable || '—') })}</span></div></div>
           <label class="switch${est === 'pausado' ? ' off' : ''}" title="${est === 'pausado' ? I18N.t('gob.reanudar_el_agente') : I18N.t('gob.pausar_el_agente_kill')}" data-switch="${esc(a.id)}"><i></i>${ic('power')} ${est === 'pausado' ? I18N.t('gob.pausado') : I18N.t('gob.kill_switch')}</label></div>
         <div class="kpi-mini">
-          ${caja(I18N.t('gob.modelo'), `<span class="mono">${esc(a.modelo)}</span>`)}${caja(I18N.t('gob.prompt'), `<span class="mono">${esc(a.prompt)}</span>`)}
+          ${caja(I18N.t('gob.modelo'), `<span class="mono">${esc(I18N.dato(a.modelo))}</span>`)}${caja(I18N.t('gob.prompt'), `<span class="mono">${esc(a.prompt)}</span>`)}
           ${caja(I18N.t('gob.trazas_del_periodo'), num(D.spans.length), `${num(D.tok[0] + D.tok[1] + D.tok[2])} tokens`)}
           ${caja(I18N.t('gob.latencia_p50_p95'), `${ms(D.p50)} / ${ms(D.p95)}`, `p95 declarado ${ms(a.p95_ms || 0)}`)}
           ${caja(I18N.t('gob.coste_hoy_cap'), `${eur(a.coste_hoy || 0)} / ${eur(a.cap_hoy || 0, 0)}`, `<span class="meter" style="--c:${uso >= 1 ? 'var(--crit)' : uso >= 0.8 ? 'var(--warn)' : 'var(--ok)'}"><i style="width:${Math.min(100, uso * 100)}%"></i></span>`)}
@@ -685,13 +688,13 @@
         <div class="card"><h3>${ic('sliders-horizontal')} ${I18N.t('gob.configuracion_y_variables')}</h3><div class="tw"><table><thead><tr><th>${I18N.t('gob.variable')}</th><th>${I18N.t('gob.valor')}</th><th>${I18N.t('gob.efecto')}</th></tr></thead><tbody>${(a.variables || []).map((v) => `<tr><td><b>${esc(v.nombre)}</b></td><td class="wrap">${conGuardrails(esc(v.valor))}</td><td class="wrap">${conGuardrails(esc(v.efecto))}</td></tr>`).join('') || I18N.t('gob.sin_variables_registradas')}</tbody></table></div>
           <h3 style="margin-top:1rem">${ic('shield-check')} ${I18N.t('gob.guardrails_y_caps_que')}</h3>
           <p class="small">${G.politicas.filter((p) => p.agente === a.id).map((p) => `${grRef(p.id)} <span class="muted">${I18N.t('gob.disparos', { disparos: num(p.disparos) })}</span>${politicaActiva(p) ? '' : I18N.t('gob.inactivo')}`).join(' · ') || I18N.t('gob.ningun_guardrail')}</p>
-          <p class="small" style="margin-top:.3rem">${caps.map((c) => `<a href="#" data-cap="${esc(c.id)}" class="mono">${esc(c.id)}</a> <span class="muted">${esc(c.tipo)}</span> <span class="pill ${capEstadoDe(c) === 'superado' ? 'pill-crit' : capEstadoDe(c) === 'aviso' ? 'pill-warn' : 'pill-ok'}">${capEstadoDe(c)}</span>`).join(' · ') || I18N.t('gob.sin_caps_propios_le')}</p></div>
+          <p class="small" style="margin-top:.3rem">${caps.map((c) => `<a href="#" data-cap="${esc(c.id)}" class="mono">${esc(c.id)}</a> <span class="muted">${esc(I18N.dato(c.tipo))}</span> <span class="pill ${capEstadoDe(c) === 'superado' ? 'pill-crit' : capEstadoDe(c) === 'aviso' ? 'pill-warn' : 'pill-ok'}">${capEstadoDe(c)}</span>`).join(' · ') || I18N.t('gob.sin_caps_propios_le')}</p></div>
       </div>
       <div class="two">
         <div class="card"><h3>${ic('activity')} ${I18N.t('gob.rendimiento_y_coste')}</h3>
           <div class="ag-serie"><span class="muted small">${I18N.t('gob.coste_diario_14_dias', { reduce: eur(D.serie.reduce((s, v) => s + v, 0)) })}</span>${sparkSvg(D.serie, 'var(--primary)')}</div>
           <div class="kpi-mini" style="margin-top:.6rem">${caja(I18N.t('gob.tokens_de_entrada'), num(D.tok[0]))}${caja(I18N.t('gob.tokens_de_salida'), num(D.tok[1]))}${caja(I18N.t('gob.razonamiento'), num(D.tok[2]))}</div>
-          <h3 style="margin-top:1rem">${I18N.t('gob.comportamiento_segun_el_modelo')}</h3><div class="tw tabla-compacta"><table><thead><tr><th>${I18N.t('gob.modelo')}</th><th>${I18N.t('gob.periodo')}</th><th>${I18N.t('gob.precision')}</th><th>${I18N.t('gob.escalado')}</th><th>${I18N.t('gob.override')}</th><th>${I18N.t('gob.coste_msg')}</th><th>${I18N.t('gob.p95')}</th></tr></thead><tbody>${(a.modelos || []).map((mo) => `<tr><td class="mono">${esc(mo.modelo)}</td><td>${esc(mo.periodo)}</td><td>${esc(mo.precision)}</td><td class="tnum">${esc(mo.escalado)}</td><td class="tnum">${esc(mo.override)}</td><td class="tnum">${esc(mo.coste_msg)}</td><td class="tnum">${ms(mo.p95_ms)}</td></tr>`).join('') || I18N.t('gob.sin_datos_por_modelo')}</tbody></table></div>
+          <h3 style="margin-top:1rem">${I18N.t('gob.comportamiento_segun_el_modelo')}</h3><div class="tw tabla-compacta"><table><thead><tr><th>${I18N.t('gob.modelo')}</th><th>${I18N.t('gob.periodo')}</th><th>${I18N.t('gob.precision')}</th><th>${I18N.t('gob.escalado')}</th><th>${I18N.t('gob.override')}</th><th>${I18N.t('gob.coste_msg')}</th><th>${I18N.t('gob.p95')}</th></tr></thead><tbody>${(a.modelos || []).map((mo) => `<tr><td class="mono">${esc(I18N.dato(mo.modelo))}</td><td>${esc(mo.periodo)}</td><td>${esc(mo.precision)}</td><td class="tnum">${esc(mo.escalado)}</td><td class="tnum">${esc(mo.override)}</td><td class="tnum">${esc(mo.coste_msg)}</td><td class="tnum">${ms(mo.p95_ms)}</td></tr>`).join('') || I18N.t('gob.sin_datos_por_modelo')}</tbody></table></div>
           ${recos.length ? `<div class="box" style="margin-top:.8rem">${ic('lightbulb')} <b>${I18N.t('gob.finops')}</b> ${recos.map((r) => `${esc(r.titulo)}. <span class="muted">${esc(r.detalle)}</span>`).join(' ')}</div>` : ''}</div>
         <div class="card"><h3>${ic('badge-check')} ${I18N.t('gob.calidad_paquete_a')}</h3>
           ${calidadIndice(Q)}
@@ -796,7 +799,7 @@
     const W = 640, rowH = 44, H = 14 + tot.length * rowH, pl = 210, pr = 60, max = Math.max(...tot.map((t) => t[1][0] + t[1][1] + t[1][2]));
     const xs = (v) => pl + (v / max) * (W - pl - pr);
     return `<svg class="chart" viewBox="0 0 ${W} ${H}" role="img" aria-label="${I18N.t('gob.tokens_del_lote_por')}">
-      ${tot.map(([a, vals], i) => { const y = 14 + i * rowH; let acc = 0; const segs = vals.map((v, k) => [k, v]).filter(([, v]) => v > 0); return `<text x="${pl - 10}" y="${y + 15}" text-anchor="end" style="fill:var(--text);font-weight:600">${esc(svgAg(a.id).length > 30 ? `${svgAg(a.id).slice(0, 28)}…` : svgAg(a.id))}</text>${segs.map(([k, v], j) => { const x0 = xs(acc); acc += v; const w = Math.max(0, xs(acc) - x0 - 2); return `<rect x="${x0}" y="${y}" width="${w}" height="22" rx="${j === segs.length - 1 ? 4 : 0}" fill="${TOK[k][2]}" data-tip="${I18N.t('gob.tokens_3', { id: esc(svgAg(a.id)), TOK: TOK[k][1], v: num(v) })}"/>`; }).join('')}<text x="${xs(acc) + 6}" y="${y + 15}" class="tnum">${I18N.t('gob.k', { replace: (acc / 1000).toFixed(1).replace('.', ',') })}</text>`; }).join('')}
+      ${tot.map(([a, vals], i) => { const y = 14 + i * rowH; let acc = 0; const segs = vals.map((v, k) => [k, v]).filter(([, v]) => v > 0); return `<text x="${pl - 10}" y="${y + 15}" text-anchor="end" style="fill:var(--text);font-weight:600">${esc(svgAg(a.id).length > 30 ? `${svgAg(a.id).slice(0, 28)}…` : svgAg(a.id))}</text>${segs.map(([k, v], j) => { const x0 = xs(acc); acc += v; const w = Math.max(0, xs(acc) - x0 - 2); return `<rect x="${x0}" y="${y}" width="${w}" height="22" rx="${j === segs.length - 1 ? 4 : 0}" fill="${TOK[k][2]}" data-tip="${I18N.t('gob.tokens_3', { id: esc(svgAg(a.id)), TOK: TOK[k][1], v: num(v) })}"/>`; }).join('')}<text x="${xs(acc) + 6}" y="${y + 15}" class="tnum">${I18N.t('gob.k', { replace: dec(acc / 1000, 1) })}</text>`; }).join('')}
     </svg>`;
   }
 
@@ -891,7 +894,7 @@
       const tipos = COSTE_TIPO.filter(([k]) => c.tipos[k] > 0);
       const segs = tipos.map(([k, l, color]) => { const v = c.tipos[k], share = v / suma, w = finModo === 'pct' ? share * 100 : (v / max) * 100; const lbl = w >= 11 ? (finModo === 'pct' ? `${Math.round(share * 100)} %` : eur(v, v < 10 ? 2 : 0)) : ''; return `<i class="bar-h" style="--i:${i};width:${w}%;background:${color}${k === 'otro' ? ';color:var(--muted)' : ''}" data-tip="${I18N.t('gob.de_su_coste', { id: esc(svgAg(a.id)), v: l, v2: eur(v), share: Math.round(share * 100), tokens: c.tokens[k] ? ` · ${num(c.tokens[k])} tokens` : '' })}">${lbl}</i>`; }).join('');
       const [k0, l0] = tipos.reduce((m, t) => (c.tipos[t[0]] > c.tipos[m[0]] ? t : m), tipos[0]);
-      const porque = I18N.t('gob.de_su_coste_2', { l0, suma: Math.round((c.tipos[k0] / suma) * 100), se_paga_por_minuto: c.tokens[k0] ? ` · ${(c.tokens[k0] / 1e6).toFixed(1).replace('.', ',')} M tokens` : k0 === 'voz' ? I18N.t('gob.se_paga_por_minuto') : '' });
+      const porque = I18N.t('gob.de_su_coste_2', { l0, suma: Math.round((c.tipos[k0] / suma) * 100), se_paga_por_minuto: c.tokens[k0] ? ` · ${dec(c.tokens[k0] / 1e6, 1)} M tokens` : k0 === 'voz' ? I18N.t('gob.se_paga_por_minuto') : '' });
       const palabra = a.nombre.split(' ')[0];
       const chips = recos.filter((r) => `${r.titulo} ${r.detalle}`.includes(palabra)).map((r) => `<button class="pill pill-time fp-reco" type="button" data-ir-reco="${esc(r.id)}" title="${esc(r.titulo)}">${ic('lightbulb')} ${esc(r.id)}</button>`).join('');
       return `<div class="fp-fila">
@@ -914,12 +917,12 @@
   // FinOps: KPI, caps, modelos, recomendaciones
   // ---------------------------------------------------------------------------
   const CAP_ESTADO = { ok: ['pill-ok', 'check', I18N.t('gob.dentro')], aviso: ['pill-warn', 'circle-alert', I18N.t('gob.aviso_80')], superado: ['pill-crit', 'triangle-alert', I18N.t('gob.superado')] };
-  const capRow = (c) => { const u = c.consumo / c.limite; const [pc, pi, pl] = CAP_ESTADO[c.estado] || CAP_ESTADO.ok; const f = (v) => (c.unidad === '€' ? eur(v, v < 1 ? 3 : 2) : `${num(v)} ${esc(c.unidad)}`); return `<tr class="clickable" data-cap="${esc(c.id)}" tabindex="0" title="${I18N.t('gob.ver_el_detalle_de', { id: esc(c.id) })}"><td class="mono"><b>${esc(c.id)}</b>${c.nuevo ? I18N.t('gob.nuevo') : ''}</td><td>${ambitoHtml(c)}</td><td>${esc(c.tipo)}</td><td class="tnum">${f(c.limite)}</td><td class="tnum">${f(c.consumo)}</td><td><div class="meter" style="--c:${u >= 1 ? 'var(--crit)' : u >= .8 ? 'var(--warn)' : 'var(--ok)'};margin:0"><i style="width:${Math.min(100, u * 100)}%"></i></div><span class="small muted tnum">${Math.round(u * 100)} %</span></td><td class="wrap">${conGuardrails(esc(c.accion))}</td><td>${((n) => (n ? `<button class="pill pill-warn cap-chip" type="button" data-ir-alerta="${esc(c.id)}" title="${I18N.t('gob.ver_la_alerta_de', { id: esc(c.id) })}">${ic('bell')} ${n}</button>` : '<span class="muted">—</span>'))(alertasDeCap(c.id).length)}</td><td><span class="pill ${pc}">${ic(pi)} ${pl}</span></td></tr>`; };
+  const capRow = (c) => { const u = c.consumo / c.limite; const [pc, pi, pl] = CAP_ESTADO[c.estado] || CAP_ESTADO.ok; const f = (v) => (c.unidad === '€' ? eur(v, v < 1 ? 3 : 2) : `${num(v)} ${esc(c.unidad)}`); return `<tr class="clickable" data-cap="${esc(c.id)}" tabindex="0" title="${I18N.t('gob.ver_el_detalle_de', { id: esc(c.id) })}"><td class="mono"><b>${esc(c.id)}</b>${c.nuevo ? I18N.t('gob.nuevo') : ''}</td><td>${ambitoHtml(c)}</td><td>${esc(I18N.dato(c.tipo))}</td><td class="tnum">${f(c.limite)}</td><td class="tnum">${f(c.consumo)}</td><td><div class="meter" style="--c:${u >= 1 ? 'var(--crit)' : u >= .8 ? 'var(--warn)' : 'var(--ok)'};margin:0"><i style="width:${Math.min(100, u * 100)}%"></i></div><span class="small muted tnum">${Math.round(u * 100)} %</span></td><td class="wrap">${conGuardrails(esc(c.accion))}</td><td>${((n) => (n ? `<button class="pill pill-warn cap-chip" type="button" data-ir-alerta="${esc(c.id)}" title="${I18N.t('gob.ver_la_alerta_de', { id: esc(c.id) })}">${ic('bell')} ${n}</button>` : '<span class="muted">—</span>'))(alertasDeCap(c.id).length)}</td><td><span class="pill ${pc}">${ic(pi)} ${pl}</span></td></tr>`; };
   // Escenario de ahorro (ahorro.js): hipótesis del dataset (`kpis.negocio`), editables en la ficha sin guardarse
   let ahorroEdit = {};
   const ahorroParams = () => ({ ...((G.kpis && G.kpis.negocio) || {}), ...ahorroEdit });
   const ahorroDe = (dias, p = ahorroParams()) => Ahorro.calcular({ mensajes: dias.reduce((a, d) => a + d[1], 0), autonomia: datosResumen().pAut, costeIA: dias.reduce((a, d) => a + costeDia(d), 0), dias: dias.length }, p);
-  const meur = (v) => (Math.abs(v) >= 1e6 ? `${(v / 1e6).toFixed(2).replace('.', ',')} M€` : eur(v, 0));
+  const meur = (v) => (Math.abs(v) >= 1e6 ? `${dec(v / 1e6, 2)} M€` : eur(v, 0));
   function renderFinops() {
     const dias = diarioVisible(), hoy = G.diario[G.diario.length - 1], cap = capDiario();
     const totalMsgs = dias.reduce((a, d) => a + d[1], 0), coste = dias.reduce((a, d) => a + costeDia(d), 0);
@@ -937,7 +940,7 @@
     renderCorrectivas();
     renderFinGraf();
     const totalModelos = (G.modelos || []).reduce((a, mo) => a + (mo.coste || 0), 0);
-    $('modelos').innerHTML = (G.modelos || []).map((mo) => { const p = G.precios[mo.id]; const share = totalModelos ? mo.coste / totalModelos : 0; return `<tr><td class="mono"><b>${esc(mo.id)}</b></td><td>${esc(mo.proveedor)}</td><td class="tnum">${p ? I18N.t('gob.por_m', { in: eur(p.in), out: eur(p.out) }) : '—'}</td><td>${(mo.agentes || []).map(agTag).join('<br>')}</td><td class="tnum">${num(mo.llamadas)}</td><td class="tnum">${I18N.t('gob.m_m_m', { replace: (mo.tokens.in / 1e6).toFixed(1).replace('.', ','), replace2: (mo.tokens.out / 1e6).toFixed(1).replace('.', ','), replace3: (mo.tokens.reasoning / 1e6).toFixed(1).replace('.', ',') })}</td><td class="tnum"><b>${eur(mo.coste)}</b></td><td><div class="meter" style="--c:var(--primary);margin:0"><i style="width:${share * 100}%"></i></div><span class="small muted tnum">${Math.round(share * 100)} %</span></td><td class="tnum">${ms(mo.p95_ms)}</td><td class="tnum">${esc(mo.exito.json_valido)}</td><td class="tnum">${esc(mo.exito.sin_reintento)}</td><td class="tnum">${esc(mo.exito.estable_replay)}</td><td>${esc(mo.exito.precision)}</td></tr>`; }).join('') || I18N.t('gob.sin_modelos_en_el');
+    $('modelos').innerHTML = (G.modelos || []).map((mo) => { const p = G.precios[mo.id]; const share = totalModelos ? mo.coste / totalModelos : 0; return `<tr><td class="mono"><b>${esc(mo.id)}</b></td><td>${esc(mo.proveedor)}</td><td class="tnum">${p ? I18N.t('gob.por_m', { in: eur(p.in), out: eur(p.out) }) : '—'}</td><td>${(mo.agentes || []).map(agTag).join('<br>')}</td><td class="tnum">${num(mo.llamadas)}</td><td class="tnum">${I18N.t('gob.m_m_m', { replace: dec(mo.tokens.in / 1e6, 1), replace2: dec(mo.tokens.out / 1e6, 1), replace3: dec(mo.tokens.reasoning / 1e6, 1) })}</td><td class="tnum"><b>${eur(mo.coste)}</b></td><td><div class="meter" style="--c:var(--primary);margin:0"><i style="width:${share * 100}%"></i></div><span class="small muted tnum">${Math.round(share * 100)} %</span></td><td class="tnum">${ms(mo.p95_ms)}</td><td class="tnum">${esc(mo.exito.json_valido)}</td><td class="tnum">${esc(mo.exito.sin_reintento)}</td><td class="tnum">${esc(mo.exito.estable_replay)}</td><td>${esc(mo.exito.precision)}</td></tr>`; }).join('') || I18N.t('gob.sin_modelos_en_el');
     renderCharts();
     $('recos').innerHTML = (G.recomendaciones || []).map((r) => `<div class="alert ${r.sev}" data-reco="${esc(r.id)}"><span class="ico">${ic(r.sev === 'info' ? 'lightbulb' : SEV_ICON[r.sev])}</span><div><b>${esc(r.id)} · ${conGuardrails(esc(r.titulo))}</b><small>${conGuardrails(esc(r.detalle))}</small></div><button class="btn btn-sm" type="button" data-goto="replay" data-replay="1">${ic('play')} ${I18N.t('gob.simular_con_replay')}</button></div>`).join('');
   }
@@ -990,7 +993,7 @@
     const max = Math.max(100, ...caps.map((c) => (c.consumo / c.limite) * 100));
     const xs = (v) => pl + (v / max) * (W - pl - pr);
     return `<svg class="chart" data-orient="h" viewBox="0 0 ${W} ${H}" role="img" aria-label="${I18N.t('gob.porcentaje_de_consumo_de')}">
-      ${caps.map((c, i) => { const y = 14 + i * rowH; const u = Math.round((c.consumo / c.limite) * 100); const w = Math.max(0, xs(Math.min(max, u)) - pl); return `<text x="${pl - 10}" y="${y + 15}" text-anchor="end" style="fill:var(--text);font-weight:600" class="mono">${esc(c.id)}</text><rect x="${pl}" y="${y}" width="${w}" height="20" rx="4" fill="${COLOR[c.estado] || COLOR.ok}" data-tip="${I18N.t('gob.del_limite', { id: esc(c.id), ambito: esc(c.ambito), v: u })}"/><text x="${pl + w + 6}" y="${y + 15}" class="tnum">${u} %</text>`; }).join('')}
+      ${caps.map((c, i) => { const y = 14 + i * rowH; const u = Math.round((c.consumo / c.limite) * 100); const w = Math.max(0, xs(Math.min(max, u)) - pl); return `<text x="${pl - 10}" y="${y + 15}" text-anchor="end" style="fill:var(--text);font-weight:600" class="mono">${esc(c.id)}</text><rect x="${pl}" y="${y}" width="${w}" height="20" rx="4" fill="${COLOR[c.estado] || COLOR.ok}" data-tip="${I18N.t('gob.del_limite', { id: esc(c.id), ambito: esc(I18N.dato(c.ambito)), v: u })}"/><text x="${pl + w + 6}" y="${y + 15}" class="tnum">${u} %</text>`; }).join('')}
       <line x1="${xs(100)}" x2="${xs(100)}" y1="6" y2="${H - 6}" stroke="var(--border)" stroke-dasharray="4 3"/>
     </svg>`;
   }
@@ -1087,8 +1090,8 @@
   // Resumen: fichas modales animadas de los 6 KPI y del gráfico «Coste diario frente al cap»
   // ---------------------------------------------------------------------------
   const FMT_CONT = {
-    int: (v) => num(Math.round(v)), dec1: (v) => v.toFixed(1).replace('.', ','), pct0: (v) => `${Math.round(v)} %`,
-    pct1: (v) => `${v.toFixed(1).replace('.', ',')} %`, eur0: (v) => eur(v, 0), eur2: (v) => eur(v, 2), eur4: (v) => eur(v, 4),
+    int: (v) => num(Math.round(v)), dec1: (v) => dec(v, 1), pct0: (v) => `${Math.round(v)} %`,
+    pct1: (v) => `${dec(v, 1)} %`, eur0: (v) => eur(v, 0), eur2: (v) => eur(v, 2), eur4: (v) => eur(v, 4),
   };
   // Cifra que se anima de 0 al valor final (el texto final ya está escrito: sin JS o con movimiento reducido se ve igual)
   const cnt = (v, kind = 'int') => `<span data-to="${v}" data-kind="${kind}">${FMT_CONT[kind](v)}</span>`;
@@ -1100,7 +1103,7 @@
 
   // Prepara las animaciones de una ficha: barras que crecen, líneas que se dibujan, anillos y cifras que cuentan
   function animar(root) {
-    const reducir = window.matchMedia && matchMedia(I18N.t('gob.prefers_reduced_motion_reduce')).matches;
+    const reducir = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
     root.querySelectorAll('svg.chart').forEach((svg) => {
       const h = svg.dataset.orient === 'h'; let i = 0;
       svg.querySelectorAll('rect[data-tip]').forEach((r) => { r.classList.add(h ? 'bar-h' : 'bar-v'); r.style.setProperty('--i', i++); });
@@ -1151,7 +1154,7 @@
       ${fechas.map((d, i) => (n > 8 && i % 2 ? '' : `<text x="${xs(i)}" y="${H - 8}" text-anchor="middle">${fecha(d)}</text>`)).join('')}
     </svg>`;
   }
-  const pct1v = (v) => `${v.toFixed(1).replace('.', ',')} %`;
+  const pct1v = (v) => `${dec(v, 1)} %`;
   // Barras apiladas por día: series = [{ label, color, vals }]
   function chartApilada(series, fechas, o = {}) {
     const n = fechas.length, W = 640, H = o.H || 220, pl = 46, pr = 16, pt = 16, pb = 28;
@@ -1210,7 +1213,7 @@
       const d = datosResumen(); const base = serieAround('aut-dia', d.n, d.pAut, 1.6, d.pAut); if (d.n > 3) { base[d.n - 3] = d.pAut - 2.4; base[d.n - 2] = d.pAut - 3.1; }
       const porNivel = G.agentes.filter((a) => a.cap_hoy != null);
       return `<p class="small muted">${I18N.t('gob.porcentaje_de_decisiones_que')} <b>${I18N.t('gob.sin_intervencion_humana')}</b>${I18N.t('gob.ni_escalado_por_un')}</p>
-        <div class="kpi-mini">${kmini('zap', I18N.t('gob.autonomia_efectiva'), cnt(d.pAut, 'pct0'))}${kmini('circle-check', I18N.t('gob.decisiones_autonomas'), cnt(d.nAut))}${kmini('user-check', I18N.t('gob.pasaron_por_una_persona'), cnt(d.nEsc))}${kmini('gauge', I18N.t('gob.margen_sobre_el_objetivo'), `<span style="color:var(--${d.pAut >= 80 ? 'ok' : 'crit'})">${I18N.t('gob.pp', { pAut: d.pAut >= 80 ? '+' : '', replace: (d.pAut - 80).toFixed(1).replace('.', ',') })}</span>`, I18N.t('gob.objetivo_80'))}</div>
+        <div class="kpi-mini">${kmini('zap', I18N.t('gob.autonomia_efectiva'), cnt(d.pAut, 'pct0'))}${kmini('circle-check', I18N.t('gob.decisiones_autonomas'), cnt(d.nAut))}${kmini('user-check', I18N.t('gob.pasaron_por_una_persona'), cnt(d.nEsc))}${kmini('gauge', I18N.t('gob.margen_sobre_el_objetivo'), `<span style="color:var(--${d.pAut >= 80 ? 'ok' : 'crit'})">${I18N.t('gob.pp', { pAut: d.pAut >= 80 ? '+' : '', replace: dec(d.pAut - 80, 1) })}</span>`, I18N.t('gob.objetivo_80'))}</div>
         <div class="two"><div><h3>${I18N.t('gob.reparto_de_decisiones')}</h3>${anilloConLeyenda([[I18N.t('gob.autonomas'), d.nAut, 'var(--ok)'], [I18N.t('gob.escaladas_a_una_persona'), d.nEsc, 'var(--review)']], `${Math.round(d.pAut)} %`, 'autónomas')}</div>
         <div><h3>${I18N.t('gob.autonomia_por_agente')}</h3><ul class="rel-list lvl-list">${porNivel.map((a) => `<li>${agTag(a.id)}${lvlBadge(a.nivel)}<span class="small muted">${esc((G.niveles[a.nivel] || {}).nombre || '')}</span><span class="meter" style="--c:var(--lc-${a.nivel})"><i style="width:${(a.nivel + 1) * 25}%"></i></span></li>`).join('')}</ul><p class="muted small" style="margin-top:.4rem">${I18N.t('gob.una_barra_mas_llena')}</p></div></div>
         <div><h3>${I18N.t('gob.autonomia_efectiva_por_dia')}</h3>${chartTendencia(base, d.fechas, { min: Math.floor(Math.min(...base) - 3), max: 100, ref: { v: 80, label: I18N.t('gob.objetivo_80_2') }, aria: I18N.t('gob.autonomia_efectiva_por_dia'), puntoDe: (v) => (v >= 80 ? 'var(--ok)' : 'var(--warn)'), color: 'var(--ok)' })}<p class="muted small">${I18N.t('gob.la_caida_de_los')}</p></div>`;
@@ -1244,10 +1247,10 @@
     const recientes = (G.eventos || []).filter((e) => e.tipo === 'override').slice(0, 3);
     return `<div class="card-head"><h2>${ic('repeat')} ${I18N.t('gob.overrides_decisiones_que_cambia')}</h2><button class="btn btn-sm" type="button" data-goto="autonomia">${I18N.t('gob.abrir_autonomia')}</button></div>
       <p class="small muted">${I18N.t('gob.un')} <b>${I18N.t('gob.override_2')}</b> ${I18N.t('gob.es_una_decision_que')}</p>
-      ${G.sesion ? `<p class="small">${ic('user-check')} <b>${I18N.t('gob.sesion_actual')}</b> ${I18N.t('gob.sobre_aprobaciones_automaticas', { overrides: G.sesion.overrides, overrides2: G.sesion.overrides === 1 ? 'override' : 'overrides', aprobadasSolas: G.sesion.aprobadasSolas, replace: G.sesion.tasa.toFixed(1).replace('.', ','), span: G.sesion.propuesta ? ` · <span style="color:var(--crit)">${I18N.t('gob.por_encima_del_3', { propuesta: G.sesion.propuesta.a })}</span>` : '' })}</p>` : ''}
+      ${G.sesion ? `<p class="small">${ic('user-check')} <b>${I18N.t('gob.sesion_actual')}</b> ${I18N.t('gob.sobre_aprobaciones_automaticas', { overrides: G.sesion.overrides, overrides2: I18N.t('gob.palabra_override', { n: G.sesion.overrides }), aprobadasSolas: G.sesion.aprobadasSolas, replace: dec(G.sesion.tasa, 1), span: G.sesion.propuesta ? ` · <span style="color:var(--crit)">${I18N.t('gob.por_encima_del_3', { propuesta: G.sesion.propuesta.a })}</span>` : '' })}</p>` : ''}
       <div class="kpi-mini">${kmini('repeat', I18N.t('gob.tasa_de_override'), cnt(d.pOvr, 'pct1'))}${kmini('user-check', I18N.t('gob.decisiones_cambiadas'), cnt(cambiadas))}${kmini('gauge', I18N.t('gob.objetivo'), '≤ 3 %', `<span style="color:var(--${d.pOvr <= 3 ? 'ok' : 'crit'})">${d.pOvr <= 3 ? I18N.t('gob.dentro_del_objetivo') : I18N.t('gob.por_encima')}</span>`)}${kmini('triangle-alert', I18N.t('gob.pico_del_periodo'), cnt(Math.max(...serie), 'pct1'), I18N.t('gob.semana_del_15_09'))}</div>
       <div><h3>${I18N.t('gob.tasa_de_override_por')}</h3>${chartTendencia(serie, d.fechas, { min: 0, max: 5, ref: { v: 3, label: I18N.t('gob.umbral_de_bajada_de'), color: 'var(--crit)' }, aria: I18N.t('gob.tasa_de_override_por'), color: 'var(--time)', puntoDe: (v) => (v > 3 ? 'var(--crit)' : 'var(--time)') })}</div>
-      <div class="two"><div><h3>${I18N.t('gob.override_por_agente_14')}</h3>${hbars(porAgente.map(([l, v, c]) => [l, v, c]), { pl: 190, fmt: (v) => `${String(v).replace('.', ',')} %`, total: 100, aria: I18N.t('gob.override_por_agente') })}</div>
+      <div class="two"><div><h3>${I18N.t('gob.override_por_agente_14')}</h3>${hbars(porAgente.map(([l, v, c]) => [l, v, c]), { pl: 190, fmt: (v) => `${numero(v)} %`, total: 100, aria: I18N.t('gob.override_por_agente') })}</div>
       <div><h3>${I18N.t('gob.por_que_cambia_una')}</h3>${anilloConLeyenda(motivos.map(([l, v, c]) => [l, v, c]), `${cambiadas}`, 'overrides')}</div></div>
       ${recientes.length ? `<div><h3>${I18N.t('gob.overrides_recientes')}</h3><ul class="mini-tl">${recientes.map((e) => `<li><span class="t">${fechaHora(e.fecha)}</span><span class="ico" style="--c:var(--review)">${ic('user-check')}</span><div><b>${conGuardrails(esc(e.titulo))}</b><small>${conGuardrails(esc(e.detalle))} · ${esc(e.usuario)}</small></div></li>`).join('')}</ul></div>` : ''}`;
   }
@@ -1286,7 +1289,7 @@
       <p class="small muted">${I18N.t('gob.que_una_persona_vea')}</p>
       <div class="kpi-mini">${kmini('timer', I18N.t('gob.revision_mediana'), `${cnt(14)} min`, I18N.t('gob.desde_que_llega_a_2'))}${kmini('zap', I18N.t('gob.revisiones_expres_30_s'), cnt(expres, 'pct1'), `<span style="color:var(--${expres <= EXPRES_MAX ? 'ok' : 'crit'})">${I18N.t('gob.del_maximo', { por_encima: expres <= EXPRES_MAX ? 'dentro' : I18N.t('gob.por_encima'), EXPRES_MAX })}</span>`)}${kmini('circle-check', I18N.t('gob.confirman_la_decision_del'), cnt(confirman, 'pct1'), I18N.t('gob.el_resto_la_cambian'))}${kmini('graduation-cap', I18N.t('gob.tramitadores_formados_en_ia'), I18N.t('gob.de_4', { formados, TRAMITADORES: TRAMITADORES.length }), 'AI Act art. 4 · ver M-10')}</div>
       <div class="two"><div><h3>${I18N.t('gob.tiempo_que_tarda_una')}</h3>${hbars(TRAMOS_REV.map(([l], i) => [l, porTramo[i], i === 0 ? 'var(--crit)' : i === 1 ? 'var(--warn)' : 'var(--ok)']), { pl: 110, aria: I18N.t('gob.revisiones_por_tiempo_de') })}<p class="muted small">${I18N.t('gob.en_rojo_las_aprobaciones')}</p></div>
-      <div><h3>${I18N.t('gob.por_tramitador_14_dias')}</h3><div class="tw"><table><thead><tr><th>${I18N.t('gob.tramitador')}</th><th>${I18N.t('gob.revisiones')}</th><th>${I18N.t('gob.mediana')}</th><th>${I18N.t('gob.expres')}</th><th>${I18N.t('gob.override')}</th><th>${I18N.t('gob.formacion_ia')}</th></tr></thead><tbody>${TRAMITADORES.map(([n, , ex, med, nuevo], i) => `<tr><td>${esc(n)}</td><td class="tnum">${num(porTram[i])}</td><td class="tnum">${I18N.t('gob.min', { med })}</td><td class="tnum"><span style="color:var(--${ex > EXPRES_MAX ? 'crit' : 'text'})">${ex} %</span></td><td class="tnum">${(1.2 + rng(`ovr-${n}`)() * 2.6).toFixed(1).replace('.', ',')} %</td><td>${nuevo ? `<span class="pill pill-warn" data-medida="M-10" role="button" tabindex="0" title="${I18N.t('gob.abrir_la_medida_m')}">${ic('circle-alert')} ${I18N.t('gob.pendiente')}</span>` : `<span class="pill pill-ok">${ic('circle-check')} ${I18N.t('gob.si_2')}</span>`}</td></tr>`).join('')}</tbody></table></div></div></div>`;
+      <div><h3>${I18N.t('gob.por_tramitador_14_dias')}</h3><div class="tw"><table><thead><tr><th>${I18N.t('gob.tramitador')}</th><th>${I18N.t('gob.revisiones')}</th><th>${I18N.t('gob.mediana')}</th><th>${I18N.t('gob.expres')}</th><th>${I18N.t('gob.override')}</th><th>${I18N.t('gob.formacion_ia')}</th></tr></thead><tbody>${TRAMITADORES.map(([n, , ex, med, nuevo], i) => `<tr><td>${esc(n)}</td><td class="tnum">${num(porTram[i])}</td><td class="tnum">${I18N.t('gob.min', { med })}</td><td class="tnum"><span style="color:var(--${ex > EXPRES_MAX ? 'crit' : 'text'})">${ex} %</span></td><td class="tnum">${dec(1.2 + rng(`ovr-${n}`)() * 2.6, 1)} %</td><td>${nuevo ? `<span class="pill pill-warn" data-medida="M-10" role="button" tabindex="0" title="${I18N.t('gob.abrir_la_medida_m')}">${ic('circle-alert')} ${I18N.t('gob.pendiente')}</span>` : `<span class="pill pill-ok">${ic('circle-check')} ${I18N.t('gob.si_2')}</span>`}</td></tr>`).join('')}</tbody></table></div></div></div>`;
   }
 
   function renderHitl() {
@@ -1298,9 +1301,9 @@
     const grHumano = G.politicas.filter((p) => p.severidad === 'humano'); const grInact = grHumano.filter((p) => !politicaActiva(p)).length;
     $('kpis-hitl').innerHTML = [
       kpi({ cls: 'review', icono: 'user-check', etiqueta: I18N.t('gob.escalados_a_una_persona'), valor: num(d.nEsc), sub: I18N.t('gob.de_los_mensajes_del', { pEsc: String(Math.round(d.pEsc)) }) }),
-      kpi({ cls: d.pOvr <= 3 ? 'time' : 'crit', icono: 'repeat', etiqueta: I18N.t('gob.tasa_de_override'), valor: `${d.pOvr.toFixed(1).replace('.', ',')} %`, sub: I18N.t('gob.decisiones_que_cambia_un'), medidor: (d.pOvr / 5) * 100 }),
+      kpi({ cls: d.pOvr <= 3 ? 'time' : 'crit', icono: 'repeat', etiqueta: I18N.t('gob.tasa_de_override'), valor: `${dec(d.pOvr, 1)} %`, sub: I18N.t('gob.decisiones_que_cambia_un'), medidor: (d.pOvr / 5) * 100 }),
       kpi({ cls: pend ? 'warn' : 'ok', icono: 'inbox', etiqueta: I18N.t('gob.pendientes_de_revision'), valor: String(pend), sub: I18N.t('gob.de_trazas_con_intervencion', { cola: cola.length }) }),
-      kpi({ cls: expres <= EXPRES_MAX ? 'ok' : 'crit', icono: 'zap', etiqueta: I18N.t('gob.revisiones_expres'), valor: `${expres.toFixed(1).replace('.', ',')} %`, sub: I18N.t('gob.aprobadas_en_menos_de', { EXPRES_MAX }), medidor: (expres / (EXPRES_MAX * 2)) * 100 }),
+      kpi({ cls: expres <= EXPRES_MAX ? 'ok' : 'crit', icono: 'zap', etiqueta: I18N.t('gob.revisiones_expres'), valor: `${dec(expres, 1)} %`, sub: I18N.t('gob.aprobadas_en_menos_de', { EXPRES_MAX }), medidor: (expres / (EXPRES_MAX * 2)) * 100 }),
       ctl ? conGoto(kpi({ cls: ctl.estado === 'ok' ? 'ok' : 'warn', icono: 'scale', etiqueta: I18N.t('gob.supervision_humana_efectiva'), valor: ctl.estado === 'ok' ? I18N.t('gob.cubierto') : I18N.t('gob.parcial'), sub: 'AI Act art. 14 · RGPD art. 22 · en el Termómetro' }), 'cumplimiento') : '',
     ].join('');
     titulo('h-hitl-mec', 'shield-check', I18N.t('gob.mecanismos_de_supervision'));
@@ -1332,7 +1335,7 @@
       const pm = d.total ? d.coste / d.total : 0; const proy = (G.kpis.finops && G.kpis.finops[0] && /proyecci[oó]n[^\d]*([\d.,]+)/i.exec(G.kpis.finops[0].sub || '')) ? numDe(/proyecci[oó]n[^\d]*([\d.,]+)/i.exec(G.kpis.finops[0].sub)[1], null) : null;
       return `<p class="small muted">${I18N.t('gob.gasto_en_llamadas_a')}</p>
         <div class="kpi-mini">${kmini('euro', I18N.t('gob.coste_del_periodo'), cnt(d.coste, d.coste < 10 ? 'eur2' : 'eur0'))}${kmini('gauge', I18N.t('gob.del_cap_mensual'), cnt((d.coste / d.capMes) * 100, 'pct0'), I18N.t('gob.de_5', { capMes: eur(d.capMes, 0) }))}${kmini('coins', I18N.t('gob.coste_por_mensaje'), cnt(pm, 'eur4'))}${proy != null ? kmini('chart-column', I18N.t('gob.proyeccion_de_cierre_de'), cnt(proy, 'eur0')) : kmini('activity', I18N.t('gob.coste_medio_diario'), cnt(d.coste / d.n, 'eur2'))}</div>
-        <div><h3>${I18N.t('gob.coste_diario_apilado_por')}</h3>${chartApilada(series, d.fechas, { fmt: (v) => `${v.toFixed(v < 10 ? 1 : 0).replace('.', ',')} €`, ref: { v: capDiario(), label: `cap diario ${eur(capDiario(), 0)}` }, aria: I18N.t('gob.coste_diario_por_agente') })}${leyenda([...series.map((s) => [s.label, s.color]), [I18N.t('gob.cap_diario_2'), 'var(--crit)']])}</div>
+        <div><h3>${I18N.t('gob.coste_diario_apilado_por')}</h3>${chartApilada(series, d.fechas, { fmt: (v) => `${dec(v, v < 10 ? 1 : 0)} €`, ref: { v: capDiario(), label: `cap diario ${eur(capDiario(), 0)}` }, aria: I18N.t('gob.coste_diario_por_agente') })}${leyenda([...series.map((s) => [s.label, s.color]), [I18N.t('gob.cap_diario_2'), 'var(--crit)']])}</div>
         <div class="two"><div><h3>${I18N.t('gob.reparto_del_coste')}</h3>${anilloConLeyenda(porAg.map(([id, v]) => [svgAg(id), Math.round(v * 100) / 100, agColor(id)]), eur(d.coste, 0), 'periodo')}</div>
         <div><h3>${I18N.t('gob.coste_acumulado_frente_al')}</h3>${chartCosteAcumulado(G.diario, d.capMes)}</div></div>`;
     },
@@ -1373,7 +1376,7 @@
       return `<p class="small muted">${I18N.t('gob.coste_total_de_los', { CAP: grRef('CAP-01') })}</p>
         <div class="kpi-mini">${kmini('euro', I18N.t('gob.coste_hoy_parcial'), cnt(hoy, 'eur2'))}${kmini('gauge', I18N.t('gob.del_cap_diario'), cnt((hoy / cap) * 100, 'pct0'), `cap ${eur(cap, 0)}`)}${kmini('triangle-alert', I18N.t('gob.dias_sobre_el_cap'), `<span style="color:var(--${nCap ? 'crit' : 'ok'})">${cnt(nCap)}</span>`, I18N.t('gob.de_6', { v: d.n }))}${kmini('circle-alert', I18N.t('gob.dias_en_aviso_80'), `<span style="color:var(--warn)">${cnt(nAviso)}</span>`)}${kmini('chart-column', I18N.t('gob.dia_mas_caro'), cnt(Math.max(...vals), 'eur2'), fecha(d.fechas[vals.indexOf(Math.max(...vals))]))}</div>
         <div><h3>${I18N.t('gob.coste_total_por_dia')}</h3>${chartCoste()}${leyenda([[I18N.t('gob.coste_total_dia'), 'var(--primary)'], [I18N.t('gob.dia_80_del_cap'), 'var(--warn)'], [I18N.t('gob.cap_diario_global'), 'var(--crit)']])}</div>
-        <div><h3>${I18N.t('gob.de_que_agente_viene')}</h3>${chartApilada(series, d.fechas, { fmt: (v) => `${v.toFixed(v < 10 ? 1 : 0).replace('.', ',')} €`, ref: { v: cap, label: `cap ${eur(cap, 0)}` }, aria: I18N.t('gob.coste_diario_por_agente') })}${leyenda(series.map((s) => [s.label, s.color]))}</div>
+        <div><h3>${I18N.t('gob.de_que_agente_viene')}</h3>${chartApilada(series, d.fechas, { fmt: (v) => `${dec(v, v < 10 ? 1 : 0)} €`, ref: { v: cap, label: `cap ${eur(cap, 0)}` }, aria: I18N.t('gob.coste_diario_por_agente') })}${leyenda(series.map((s) => [s.label, s.color]))}</div>
         ${sobre.length ? `<div><h3>${I18N.t('gob.dias_cerca_del_cap')}</h3><div class="tw tabla-compacta"><table><thead><tr><th>${I18N.t('gob.dia')}</th><th>${I18N.t('gob.coste')}</th><th style="min-width:180px">${I18N.t('gob.uso_del_cap')}</th><th>${I18N.t('gob.estado')}</th></tr></thead><tbody>${sobre.map(([f, v, u]) => `<tr><td class="tnum">${fecha(f)}</td><td class="tnum"><b>${eur(v)}</b></td><td><div class="meter" style="--c:var(--${u >= 1 ? 'crit' : 'warn'});margin:0"><i style="width:${Math.min(100, u * 100)}%"></i></div><span class="small muted tnum">${Math.round(u * 100)} %</span></td><td><span class="pill ${u >= 1 ? 'pill-crit' : 'pill-warn'}">${u >= 1 ? I18N.t('gob.superado') : I18N.t('gob.aviso_80')}</span></td></tr>`).join('')}</tbody></table></div></div>` : ''}`;
     },
   };
@@ -1381,7 +1384,7 @@
   // FinOps · ficha del ahorro estimado: escenario, hipótesis editables, cálculo paso a paso y ahorro por día
   function ahorroResultado() {
     const d = datosResumen(), p = { ...Ahorro.DEFECTO, ...ahorroParams() }, a = ahorroDe(d.dias, p);
-    const pct = (v) => `${num(Math.round(v * 100))} %`, dec = (v, k = 2) => v.toFixed(k).replace('.', ',');
+    const pct = (v) => `${num(Math.round(v * 100))} %`;
     const origen = (m) => `<span class="pill ${m ? 'pill-ok' : 'pill-time'}">${m ? I18N.t('gob.medido') : I18N.t('gob.hipotesis')}</span>`;
     const pasos = [
       [I18N.t('gob.mensajes_procesados'), true, I18N.t('gob.todos_los_canales_en'), num(a.mensajes)],
@@ -1521,7 +1524,7 @@
   const capFmt = (c, v) => (c.unidad === '€' ? eur(v, v < 1 ? 3 : 2) : `${num(Math.round(v * 10) / 10)} ${esc(c.unidad)}`);
   const capEstadoDe = (c) => (c.consumo >= c.limite ? 'superado' : c.consumo >= c.limite * ((c.aviso_pct || 80) / 100) ? 'aviso' : 'ok');
   const agenteDeAmbito = (ambito) => G.agentes.find((a) => a.nombre === ambito);
-  const ambitoHtml = (c) => { const a = agenteDeAmbito(c.ambito); return a ? agTag(a.id) : esc(c.ambito); };
+  const ambitoHtml = (c) => { const a = agenteDeAmbito(c.ambito); return a ? agTag(a.id) : esc(I18N.dato(c.ambito)); };
   const fechasSerie = () => G.diario.slice(-14).map((d) => d[0]);
 
   // Serie de 14 días del cap (en los caps mensuales, el acumulado del mes)
@@ -1664,9 +1667,9 @@
     const porAgente = {}; sup.filter((s) => s.nivel === 'superado').forEach((s) => { porAgente[s.agente] = (porAgente[s.agente] || 0) + 1; });
     const barrasSup = Object.entries(porAgente).sort((a, b) => b[1] - a[1]).map(([aid, v]) => [svgAg(aid), v, agColor(aid)]);
     const lista = capCorrectivas(c);
-    $('modal-cap-title').innerHTML = `${ic('scale')} <span class="mono">${esc(c.id)}</span> · ${esc(c.tipo)} · ${ambitoHtml(c)} <span class="pill ${pc}">${ic(pi)} ${pl}</span>${c.nuevo ? ` <span class="pill pill-time">${ic('plus')} ${I18N.t('gob.creado_en_esta_sesion')}</span>` : ''}`;
+    $('modal-cap-title').innerHTML = `${ic('scale')} <span class="mono">${esc(c.id)}</span> · ${esc(I18N.dato(c.tipo))} · ${ambitoHtml(c)} <span class="pill ${pc}">${ic(pi)} ${pl}</span>${c.nuevo ? ` <span class="pill pill-time">${ic('plus')} ${I18N.t('gob.creado_en_esta_sesion')}</span>` : ''}`;
     $('modal-cap-body').innerHTML = `
-      <p class="small muted">${I18N.t('gob.al_superarse', { ambito: esc(c.descripcion || I18N.t('gob.limite_de_para', { toLowerCase: String(c.tipo).toLowerCase(), ambito: c.ambito })) })} <b>${conGuardrails(esc(c.accion))}</b>.</p>
+      <p class="small muted">${I18N.t('gob.al_superarse', { ambito: esc(c.descripcion || I18N.t('gob.limite_de_para', { toLowerCase: String(I18N.dato(c.tipo)).toLowerCase(), ambito: I18N.dato(c.ambito) })) })} <b>${conGuardrails(esc(c.accion))}</b>.</p>
       <div class="kpi-mini">
         <div class="box"><span class="muted small">${ic('scale')} ${I18N.t('gob.limite_2')}</span><b>${capFmt(c, c.limite)}</b></div>
         <div class="box"><span class="muted small">${ic('coins')} ${I18N.t('gob.consumo_actual')}</span><b>${capFmt(c, c.consumo)}</b></div>
@@ -1690,7 +1693,7 @@
       </div>
       <div><h3>${I18N.t('gob.historico_de_superaciones_y', { cap_nuevo_sin_historico: c.nuevo ? I18N.t('gob.cap_nuevo_sin_historico') : '' })}</h3>
         ${sup.length ? `<div class="sup-grid"><div>${barrasSup.length ? `<span class="muted small">${I18N.t('gob.superaciones_por_agente')}</span>${hbars(barrasSup, { pl: 170, aria: I18N.t('gob.superaciones_por_agente') })}` : I18N.t('gob.solo_ha_habido_avisos')}</div>
-        <div class="tw tabla-compacta"><table><thead><tr><th>${I18N.t('gob.fecha')}</th><th>${I18N.t('gob.agente')}</th><th>${I18N.t('gob.valor')}</th><th>${I18N.t('gob.accion_automatica')}</th><th>${I18N.t('gob.duracion')}</th><th>${I18N.t('gob.estado')}</th></tr></thead><tbody>${sup.map((s) => `<tr><td class="tnum">${fechaHora(s.fecha)}</td><td>${agTag(s.agente)}</td><td class="tnum"><b>${capFmt(c, s.valor)}</b> <span class="muted small">${Math.round((s.valor / c.limite) * 100)} %</span></td><td class="wrap">${conGuardrails(esc(s.accion))}${s.traza && G.trazas.some((t) => t.id === s.traza) ? ` <button class="btn btn-sm" type="button" data-traza="${esc(s.traza)}">${ic('route')} ${esc(s.traza)}</button>` : ''}</td><td>${esc(s.duracion)}</td><td><span class="pill ${s.estado === 'resuelto' ? 'pill-ok' : 'pill-warn'}">${esc(s.estado)}</span></td></tr>`).join('')}</tbody></table></div></div>` : I18N.t('gob.este_cap_no_se')}
+        <div class="tw tabla-compacta"><table><thead><tr><th>${I18N.t('gob.fecha')}</th><th>${I18N.t('gob.agente')}</th><th>${I18N.t('gob.valor')}</th><th>${I18N.t('gob.accion_automatica')}</th><th>${I18N.t('gob.duracion')}</th><th>${I18N.t('gob.estado')}</th></tr></thead><tbody>${sup.map((s) => `<tr><td class="tnum">${fechaHora(s.fecha)}</td><td>${agTag(s.agente)}</td><td class="tnum"><b>${capFmt(c, s.valor)}</b> <span class="muted small">${Math.round((s.valor / c.limite) * 100)} %</span></td><td class="wrap">${conGuardrails(esc(s.accion))}${s.traza && G.trazas.some((t) => t.id === s.traza) ? ` <button class="btn btn-sm" type="button" data-traza="${esc(s.traza)}">${ic('route')} ${esc(s.traza)}</button>` : ''}</td><td>${esc(s.duracion)}</td><td><span class="pill ${s.estado === 'resuelto' ? 'pill-ok' : 'pill-warn'}">${esc(I18N.dato(s.estado))}</span></td></tr>`).join('')}</tbody></table></div></div>` : I18N.t('gob.este_cap_no_se')}
       </div>
       <div><h3>${c.estado === 'ok' ? I18N.t('gob.recomendaciones_preventivas') : I18N.t('gob.accion_correctiva_sugerida')}</h3><ul class="corr-list">${lista.map((x, k) => correctivaItem(c, k, x)).join('')}</ul></div>
       ${evs.length ? `<div><h3>${I18N.t('gob.actividad_relacionada_en_el')}</h3><ul class="mini-tl">${evs.map((e) => `<li><span class="t">${fechaHora(e.fecha)}</span><span class="ico" style="--c:${(TIPOS[e.tipo] || [])[2] || 'var(--muted)'}">${ic((TIPOS[e.tipo] || ['info'])[0])}</span><div><b>${conGuardrails(esc(e.titulo))}</b><small>${conGuardrails(esc(e.detalle))} · ${esc(e.usuario)}</small></div></li>`).join('')}</ul></div>` : ''}`;
@@ -1803,7 +1806,7 @@
       <g class="grid">${[0, 0.5, 1].map((f) => `<line x1="${pl}" x2="${W - pr}" y1="${ys(ymax * f)}" y2="${ys(ymax * f)}"/><text x="${pl - 6}" y="${ys(ymax * f) + 4}" text-anchor="end">${Math.round(ymax * f)}</text>`).join('')}</g>
       ${D.map((v, i) => `<rect x="${xs(i) - bw / 2}" y="${ys(v)}" width="${bw}" height="${Math.max(0, ys(0) - ys(v))}" rx="3" fill="${c}" opacity="${i === n - 1 ? 1 : 0.7}" data-tip="${I18N.t('gob.disparo', { fechas: fecha(fechas[i]), v, v2: v === 1 ? '' : 's', pico_del_periodo_2: i === pico && max > 0 ? I18N.t('gob.pico_del_periodo_2') : '' })}"/><text x="${xs(i)}" y="${ys(v) - 5}" text-anchor="middle" style="fill:var(--text);font-weight:${i === pico && max > 0 ? 800 : 500}">${v}</text>`).join('')}
       <line x1="${pl}" x2="${W - pr}" y1="${ys(media)}" y2="${ys(media)}" stroke="var(--time)" stroke-width="1.4" stroke-dasharray="5 4"/>
-      <text x="${pl + 4}" y="${ys(media) - 5}" style="fill:var(--time);font-weight:700">${I18N.t('gob.media_dia', { replace: media.toFixed(1).replace('.', ',') })}</text>
+      <text x="${pl + 4}" y="${ys(media) - 5}" style="fill:var(--time);font-weight:700">${I18N.t('gob.media_dia', { replace: dec(media, 1) })}</text>
       ${fechas.map((d, i) => `<text x="${xs(i)}" y="${H - 8}" text-anchor="middle">${fecha(d)}</text>`).join('')}
     </svg>`;
   }
@@ -1823,7 +1826,7 @@
     const media = D.length ? total / D.length : 0; const max = Math.max(0, ...D);
     const totalEscalados = G.politicas.filter((x) => x.severidad === 'humano').reduce((a, x) => a + (x.disparos || 0), 0);
     const compartido = p.severidad === 'humano' && totalEscalados ? Math.round((total / totalEscalados) * 100) : null;
-    const override = total ? (1.5 + r() * 7).toFixed(1).replace('.', ',') : null; const resolucion = p.severidad === 'humano' && total ? Math.round(4 + r() * 18) : null;
+    const override = total ? dec(1.5 + r() * 7, 1) : null; const resolucion = p.severidad === 'humano' && total ? Math.round(4 + r() * 18) : null;
     const canalPesos = p.id === 'G-09' ? [0, 0, 0, 1, 0] : [0.3, 0.2, 0.2, 0.1, 0.2];
     const canales = total ? distribuir(total, canalPesos.map((v) => v || 0.0001), `${p.id}c`).map((v, i) => [canalInfo(CANALES_ORDEN[i])[1], p.id === 'G-09' && i !== 3 ? 0 : v, 'var(--primary)']) : [];
     const ramoPesos = p.id === 'G-04' ? [0.55, 0.15, 0.3] : p.id === 'G-02' ? [0.4, 0.4, 0.2] : [0.4, 0.33, 0.27];
@@ -1838,7 +1841,7 @@
       <p class="small muted">${conGuardrails(esc(p.descripcion || I18N.t('gob.sin_descripcion')))}</p>
       <div class="kpi-mini">
         <div class="box"><span class="muted small">${ic('bell')} ${I18N.t('gob.disparos_en_14_dias')}</span><b>${num(total)}</b></div>
-        <div class="box"><span class="muted small">${ic('chart-column')} ${I18N.t('gob.media_por_dia')}</span><b>${media.toFixed(1).replace('.', ',')}</b></div>
+        <div class="box"><span class="muted small">${ic('chart-column')} ${I18N.t('gob.media_por_dia')}</span><b>${dec(media, 1)}</b></div>
         <div class="box"><span class="muted small">${ic('gauge')} ${I18N.t('gob.pico_diario')}</span><b>${max}</b>${max ? `<span class="muted small">${fecha(fechas[D.indexOf(max)])}</span>` : ''}</div>
         ${compartido != null ? `<div class="box"><span class="muted small">${ic('user-check')} ${I18N.t('gob.parte_de_los_escalados')}</span><b>${compartido} %</b></div>` : ''}
         ${override ? `<div class="box"><span class="muted small">${ic('repeat')} ${I18N.t('gob.override_humano_tras_el')}</span><b>${override} %</b></div>` : ''}
@@ -1857,11 +1860,11 @@
 
   // ---- Nuevo guardrail -----------------------------------------------------
   const PLANTILLAS_GR = [
-    { id: 'conf', label: I18N.t('gob.confianza_de_la_decision'), unidad: '', def: 0.85, paso: 0.01, cond: (v) => I18N.t('gob.confianza_de_la_decision_2', { replace: String(v).replace('.', ',') }), tasa: (v) => 0.0004 + (v - 0.7) * 0.016 },
+    { id: 'conf', label: I18N.t('gob.confianza_de_la_decision'), unidad: '', def: 0.85, paso: 0.01, cond: (v) => I18N.t('gob.confianza_de_la_decision_2', { replace: numero(v) }), tasa: (v) => 0.0004 + (v - 0.7) * 0.016 },
     { id: 'imp', label: I18N.t('gob.importe_estimado_superior_a'), unidad: '€', def: 6000, paso: 500, cond: (v) => `Importe > ${num(v)} €`, tasa: (v) => 0.0065 * (6000 / Math.max(v, 100)) ** 0.8 },
     { id: 'raz', label: I18N.t('gob.tokens_de_razonamiento_por_2'), unidad: 'tok', def: 2000, paso: 100, cond: (v) => I18N.t('gob.tokens_de_razonamiento', { v: num(v) }), tasa: (v) => 0.0025 * (2000 / Math.max(v, 100)) ** 1.2 },
-    { id: 'coste', label: I18N.t('gob.coste_de_la_traza'), unidad: '€', def: 0.05, paso: 0.005, cond: (v) => I18N.t('gob.coste_de_la_traza_2', { replace: String(v).replace('.', ',') }), tasa: (v) => 0.003 * (0.05 / Math.max(v, 0.005)) ** 1.1 },
-    { id: 'stt', label: I18N.t('gob.confianza_de_la_transcripcion'), unidad: '', def: 0.7, paso: 0.05, cond: (v) => I18N.t('gob.transcripcion_telefonica_con_confianza', { replace: String(v).replace('.', ',') }), tasa: (v) => 0.0005 + (v - 0.5) * 0.004 },
+    { id: 'coste', label: I18N.t('gob.coste_de_la_traza'), unidad: '€', def: 0.05, paso: 0.005, cond: (v) => I18N.t('gob.coste_de_la_traza_2', { replace: numero(v) }), tasa: (v) => 0.003 * (0.05 / Math.max(v, 0.005)) ** 1.1 },
+    { id: 'stt', label: I18N.t('gob.confianza_de_la_transcripcion'), unidad: '', def: 0.7, paso: 0.05, cond: (v) => I18N.t('gob.transcripcion_telefonica_con_confianza', { replace: numero(v) }), tasa: (v) => 0.0005 + (v - 0.5) * 0.004 },
     { id: 'les', label: I18N.t('gob.hay_lesionados'), fijo: I18N.t('gob.lesionados_si'), tasa: () => 0.0038 },
     { id: 'ind', label: I18N.t('gob.ramo_indeterminado'), fijo: I18N.t('gob.ramo_indeterminado_2'), tasa: () => 0.0013 },
     { id: 'dat', label: I18N.t('gob.faltan_datos_clave_poliza'), fijo: I18N.t('gob.no_de_poliza_y'), tasa: () => 0.0052 },
@@ -1916,7 +1919,7 @@
     $('ng-preview').innerHTML = `<h3>${I18N.t('gob.asi_quedara_en_la')}</h3>
       <div class="box" style="background:var(--surface)"><div class="row" style="justify-content:space-between"><b class="mono">${esc(siguienteId('G', G.politicas))}</b><span class="sev sev-${accion.sev}">${SEV[accion.sev]}</span></div><div style="margin:.4rem 0">${agTag(agente)}</div><div><b>${condicion ? esc(condicion) : I18N.t('gob.escribe_la_condicion')}</b></div><div class="small muted" style="margin-top:.2rem">→ ${esc(accion.v)}</div></div>
       <h3 style="margin-top:.8rem">${I18N.t('gob.impacto_estimado')}</h3>
-      ${valido ? `<div class="kpi-mini"><div class="box"><span class="muted small">${I18N.t('gob.disparos_en_14_dias')}</span><b>≈ ${num(n)}</b></div><div class="box"><span class="muted small">${I18N.t('gob.mensajes_afectados')}</span><b>${pctMsgs.toFixed(pctMsgs < 1 ? 2 : 1).replace('.', ',')} %</b></div></div>
+      ${valido ? `<div class="kpi-mini"><div class="box"><span class="muted small">${I18N.t('gob.disparos_en_14_dias')}</span><b>≈ ${num(n)}</b></div><div class="box"><span class="muted small">${I18N.t('gob.mensajes_afectados')}</span><b>${dec(pctMsgs, pctMsgs < 1 ? 2 : 1)} %</b></div></div>
         <p class="small muted" style="margin-top:.5rem">${I18N.t('gob.estimacion_orientativa_sobre_mensajes', { msgs: num(msgs), los_casos_disparados_se_: accion.sev === 'humano' ? I18N.t('gob.cada_disparo_envia_el', { v: num(n) }) : accion.sev === 'degradar' ? I18N.t('gob.los_casos_disparados_se') : I18N.t('gob.los_casos_disparados_se_2') })}</p>` : I18N.t('gob.completa_la_condicion_para')}`;
   }
   function guardarGrNuevo() {
@@ -2367,7 +2370,7 @@
     const AH = ahorroMedidas();
     $('med-termo').innerHTML = `<div class="med-termo" style="--c:${colorPct(T.global)}" data-goto="cumplimiento" role="button" tabindex="0" title="${I18N.t('gob.termometro_de_cumplimiento_cambia')}"><span class="v">${T.global}<small>%</small></span><span class="l">${I18N.t('gob.cumplimiento_2')}</span></div>`;
     $('kpis-med').innerHTML = [
-      { cls: ab.some((m) => m.sev === 'crit') ? 'crit' : 'warn', icono: 'wrench', etiqueta: I18N.t('gob.medidas_abiertas'), valor: String(ab.length), sub: I18N.t('gob.en_total', { crit: ((n) => `${n} ${n === 1 ? 'crítica' : 'críticas'}`)(ab.filter((m) => m.sev === 'crit').length), M: M.length }) },
+      { cls: ab.some((m) => m.sev === 'crit') ? 'crit' : 'warn', icono: 'wrench', etiqueta: I18N.t('gob.medidas_abiertas'), valor: String(ab.length), sub: I18N.t('gob.en_total', { crit: I18N.t('gob.n_criticas', { n: ab.filter((m) => m.sev === 'crit').length }), M: M.length }) },
       { cls: 'ok', icono: 'euro', etiqueta: I18N.t('gob.ahorro_conseguido'), valor: `${num(AH.conseguido)} €/mes`, sub: I18N.t('gob.de_mes_posibles_aplica', { total: num(AH.total), pendiente: AH.pendiente ? I18N.t('gob.pendientes_de_aprobacion', { pendiente: num(AH.pendiente) }) : '' }), medidor: AH.total ? (AH.conseguido / AH.total) * 100 : 0, id: null },
       { cls: 'warn', icono: 'scale', etiqueta: I18N.t('gob.riesgos_normativos'), valor: String(ab.filter((m) => (m.controles || []).length).length), sub: I18N.t('gob.controles_del_termometro_por') },
       { cls: 'review', icono: 'book-open', etiqueta: I18N.t('gob.kb_por_sanear'), valor: String(ab.filter((m) => m.kb).length), sub: I18N.t('gob.knowledge_bases_con_medida') },
@@ -2432,8 +2435,8 @@
     (G.caps || []).filter((c) => c.ambito === 'Antifraude' && c.id !== 'CAP-11' && c.estado !== 'ok').forEach((c) => out.push({ sev: c.estado === 'superado' ? 'crit' : 'warn', titulo: `${c.id} ${c.estado === 'superado' ? 'superado' : I18N.t('gob.en_aviso')} · ${c.tipo}: ${num(c.consumo)} / ${num(c.limite)} ${c.unidad}`, detalle: I18N.t('gob.accion_configurada', { accion: c.accion }), cuando: 'fraude', origen: 'fraude', goto: 'fraude' }));
     return out;
   }
-  const alertaHtml = (a) => `<div class="alert ${a.sev} alert-link" ${a.frCaso ? `data-fr-caso="${esc(a.frCaso)}"` : `data-goto="${esc(a.goto)}"`} role="button" tabindex="0" title="${a.frCaso ? I18N.t('gob.abrir_el_caso', { frCaso: esc(a.frCaso) }) : I18N.t('gob.ir_a', { dest: esc(tituloOrigen(a.origen)) })}"><span class="ico">${ic(SEV_ICON[a.sev] || 'info')}</span><div><b>${conGuardrails(esc(a.titulo))}</b><small>${conGuardrails(esc(a.detalle))}</small></div><span class="muted small alert-meta"><span class="pill pill-muted">${esc(a.origen)}</span>${a.cuando && !['conocimiento', 'cumplimiento', 'fraude'].includes(a.cuando) ? `<br>${esc(a.cuando)}` : ''}</span></div>`;
-  const conGoto = (html, vista) => html.replace(I18N.t('gob.article_class_card_kpi'), `<article data-goto="${vista}" role="button" tabindex="0" class="card kpi kpi-goto`);
+  const alertaHtml = (a) => `<div class="alert ${a.sev} alert-link" ${a.frCaso ? `data-fr-caso="${esc(a.frCaso)}"` : `data-goto="${esc(a.goto)}"`} role="button" tabindex="0" title="${a.frCaso ? I18N.t('gob.abrir_el_caso', { frCaso: esc(a.frCaso) }) : I18N.t('gob.ir_a', { dest: esc(tituloOrigen(a.origen)) })}"><span class="ico">${ic(SEV_ICON[a.sev] || 'info')}</span><div><b>${conGuardrails(esc(a.titulo))}</b><small>${conGuardrails(esc(a.detalle))}</small></div><span class="muted small alert-meta"><span class="pill pill-muted">${esc(I18N.dato(a.origen))}</span>${a.cuando && !['conocimiento', 'cumplimiento', 'fraude'].includes(a.cuando) ? `<br>${esc(a.cuando)}` : ''}</span></div>`;
+  const conGoto = (html, vista) => html.replace('<article class="card kpi', `<article data-goto="${vista}" role="button" tabindex="0" class="card kpi kpi-goto`);
 
   // Bloques de cumplimiento y conocimiento del Resumen
   function resumenCumplimiento() {
@@ -2564,7 +2567,7 @@
     $('fr-cat').innerHTML = cat.map((i) => {
       const enLote = Object.values(FR).filter((v) => v.indicadores.some((x) => x.id === i.id && x.aplicado)).length;
       const cambiado = (i.nuevo ? I18N.t('gob.nuevo') : '') + (frCfg[i.id] ? I18N.t('gob.cambiado') : '');
-      return `<tr data-fr-fila="${esc(i.id)}" class="clickable${i.activo ? '' : ' muted'}" tabindex="0" title="${I18N.t('gob.ver_el_detalle_de', { id: esc(i.id) })}"><td><label class="switch${i.activo ? '' : ' off'}" data-fr-ind="${esc(i.id)}" role="switch" aria-checked="${i.activo}" tabindex="0" title="${i.activo ? I18N.t('gob.desactivar') : I18N.t('gob.activar')} ${esc(i.id)}"><i></i></label></td><td><b class="mono">${esc(i.id)}</b> ${ic(i.icono)} ${esc(i.nombre)}${cambiado}<br><small class="muted">${esc(i.no_es)}</small></td><td class="small">${esc(i.grupo)}</td><td class="small wrap">${esc(i.senal)}</td><td class="small">${esc(i.fuente)}</td><td><input class="fr-peso" type="number" min="0" max="60" step="5" value="${i.peso}" data-fr-peso="${esc(i.id)}" aria-label="${I18N.t('gob.peso_de', { id: esc(i.id) })}"></td><td class="tnum">${num(i.disparos_14d)}</td><td><span class="meter" style="--c:${i.fp > 0.75 ? 'var(--warn)' : 'var(--primary)'}"><i style="width:${Math.round(i.fp * 100)}%"></i></span> <span class="tnum small">${Math.round(i.fp * 100)} %</span></td><td class="tnum">${enLote ? `<b>${enLote}</b>` : I18N.t('gob.0_2')}</td></tr>`;
+      return `<tr data-fr-fila="${esc(i.id)}" class="clickable${i.activo ? '' : ' muted'}" tabindex="0" title="${I18N.t('gob.ver_el_detalle_de', { id: esc(i.id) })}"><td><label class="switch${i.activo ? '' : ' off'}" data-fr-ind="${esc(i.id)}" role="switch" aria-checked="${i.activo}" tabindex="0" title="${i.activo ? I18N.t('gob.desactivar') : I18N.t('gob.activar')} ${esc(i.id)}"><i></i></label></td><td><b class="mono">${esc(i.id)}</b> ${ic(i.icono)} ${esc(i.nombre)}${cambiado}<br><small class="muted">${esc(i.no_es)}</small></td><td class="small">${esc(i.grupo)}</td><td class="small wrap">${esc(i.senal)}</td><td class="small">${esc(I18N.dato(i.fuente))}</td><td><input class="fr-peso" type="number" min="0" max="60" step="5" value="${i.peso}" data-fr-peso="${esc(i.id)}" aria-label="${I18N.t('gob.peso_de', { id: esc(i.id) })}"></td><td class="tnum">${num(i.disparos_14d)}</td><td><span class="meter" style="--c:${i.fp > 0.75 ? 'var(--warn)' : 'var(--primary)'}"><i style="width:${Math.round(i.fp * 100)}%"></i></span> <span class="tnum small">${Math.round(i.fp * 100)} %</span></td><td class="tnum">${enLote ? `<b>${enLote}</b>` : I18N.t('gob.0_2')}</td></tr>`;
     }).join('');
 
     // Guardrails y caps antifraude
@@ -2572,7 +2575,7 @@
     const grs = (G.politicas || []).filter((p) => ['G-10', 'G-11', 'G-12'].includes(p.id));
     const caps = (G.caps || []).filter((c) => c.ambito === 'Antifraude');
     $('fr-limites').innerHTML = grs.map((p) => `<tr class="clickable" data-fr-gr="${esc(p.id)}" tabindex="0"><td>${grRef(p.id)}</td><td class="small wrap">${esc(p.condicion)}</td><td class="small muted">${I18N.t('gob.guardrail_2', { inactivo: politicaActiva(p) ? 'activo' : 'inactivo' })}</td><td class="tnum">${I18N.t('gob.hoy_en_14_d', { disparos_dia: (p.disparos_dia || [])[13] ?? 0, disparos: num(p.disparos) })}</td><td class="small wrap">${esc(p.accion)}</td></tr>`).join('')
-      + caps.map((c) => { const [pc, pi, pl] = CAP_ESTADO[capEstadoDe(c)] || CAP_ESTADO.ok; return `<tr class="clickable" data-cap="${esc(c.id)}" tabindex="0"><td>${grRef(c.id)}</td><td class="small wrap">${esc(c.tipo)}</td><td class="tnum small">${I18N.t('gob.limite_3', { limite: capFmt(c, c.limite) })}</td><td><span class="tnum">${capFmt(c, c.consumo)}</span> <span class="pill ${pc}">${ic(pi)} ${pl}</span></td><td class="small wrap">${esc(c.accion)}</td></tr>`; }).join('');
+      + caps.map((c) => { const [pc, pi, pl] = CAP_ESTADO[capEstadoDe(c)] || CAP_ESTADO.ok; return `<tr class="clickable" data-cap="${esc(c.id)}" tabindex="0"><td>${grRef(c.id)}</td><td class="small wrap">${esc(I18N.dato(c.tipo))}</td><td class="tnum small">${I18N.t('gob.limite_3', { limite: capFmt(c, c.limite) })}</td><td><span class="tnum">${capFmt(c, c.consumo)}</span> <span class="pill ${pc}">${ic(pi)} ${pl}</span></td><td class="small wrap">${esc(c.accion)}</td></tr>`; }).join('');
 
     titulo('h-fr-evol', 'chart-column', I18N.t('gob.evolucion_en_14_dias'));
     $('fr-evol').innerHTML = chartFraude(dias);
@@ -2593,8 +2596,8 @@
     const resto = C.filter((c) => c !== peor); const media = resto.reduce((s, c) => s + c.alertas, 0) / (resto.length || 1);
     titulo('h-fr-canales', 'users', I18N.t('gob.equidad_por_canal'));
     const maxA = Math.max(...C.map((c) => c.alertas), 1);
-    $('fr-canales').innerHTML = `<div class="fr-canales">${C.map((c) => { const [ci, cl] = canalInfo(c.canal); const alta = c.alertas > media * 1.4; return `<div class="fr-canal"><span>${ic(ci)} ${esc(cl)}</span><span class="meter" style="--c:${alta ? 'var(--warn)' : 'var(--primary)'}"><i style="width:${(c.alertas / maxA) * 100}%"></i></span><b class="tnum" style="${alta ? 'color:var(--warn)' : ''}">${c.alertas.toFixed(1).replace('.', ',')}</b><span class="small muted tnum">${I18N.t('gob.confirma', { confirmadas: Math.round(c.confirmadas * 100) })}</span></div>`; }).join('')}</div>
-      ${peor && peor.nota ? `<div class="alert warn" style="margin-top:.8rem"><span class="ico">${ic('circle-alert')}</span><div><b>${I18N.t('gob.alertas_por_cada_100', { canal: esc(canalInfo(peor.canal)[1]), replace: String(peor.alertas).replace('.', ','), replace2: media.toFixed(1).replace('.', ',') })}</b><small>${esc(peor.nota)}</small></div><button class="btn btn-sm" type="button" data-medida="M-18">${ic('wrench')} ${I18N.t('gob.ver_m_18')}</button></div>` : ''}`;
+    $('fr-canales').innerHTML = `<div class="fr-canales">${C.map((c) => { const [ci, cl] = canalInfo(c.canal); const alta = c.alertas > media * 1.4; return `<div class="fr-canal"><span>${ic(ci)} ${esc(cl)}</span><span class="meter" style="--c:${alta ? 'var(--warn)' : 'var(--primary)'}"><i style="width:${(c.alertas / maxA) * 100}%"></i></span><b class="tnum" style="${alta ? 'color:var(--warn)' : ''}">${dec(c.alertas, 1)}</b><span class="small muted tnum">${I18N.t('gob.confirma', { confirmadas: Math.round(c.confirmadas * 100) })}</span></div>`; }).join('')}</div>
+      ${peor && peor.nota ? `<div class="alert warn" style="margin-top:.8rem"><span class="ico">${ic('circle-alert')}</span><div><b>${I18N.t('gob.alertas_por_cada_100', { canal: esc(canalInfo(peor.canal)[1]), replace: numero(peor.alertas), replace2: dec(media, 1) })}</b><small>${esc(peor.nota)}</small></div><button class="btn btn-sm" type="button" data-medida="M-18">${ic('wrench')} ${I18N.t('gob.ver_m_18')}</button></div>` : ''}`;
   }
 
   // Grafo en tres columnas: casos del lote → lo que los une (cuenta, proveedor, póliza) → expedientes del histórico
@@ -2661,7 +2664,7 @@
     cs.forEach((c) => { html += esc(texto.slice(pos, c.inicio)) + `<mark class="fr-cita${c.off ? ' off' : ''}" title="${esc(c.id)}">${esc(texto.slice(c.inicio, c.fin))}<sup>${esc(c.id)}</sup></mark>`; pos = c.fin; });
     html += esc(texto.slice(pos));
     const max = 100;
-    const filas = v.indicadores.map((x) => `<div class="fr-ind clickable${x.aplicado ? '' : ' off'}" data-fr-indicador="${esc(x.id)}" role="button" tabindex="0" title="${I18N.t('gob.ver_el_detalle_de', { id: esc(x.id) })}"><span class="mono">${esc(x.id)}</span><span>${ic(x.icono || 'info')} ${esc(x.nombre)}${x.contraindicio ? I18N.t('gob.contraindicio_2') : !x.activo ? I18N.t('gob.inactivo_3') : ''}<br><small class="muted">${esc(x.detalle || '')}${x.fuente ? ` · ${esc(x.fuente)}` : ''}</small></span><span class="fr-ind-bar"><i style="width:${(x.peso / max) * 100}%;${x.aplicado ? '' : 'opacity:.3'}"></i></span><b class="tnum">${x.aplicado ? `+${x.aplicado}` : `<s>+${x.peso}</s>`}</b></div>`).join('');
+    const filas = v.indicadores.map((x) => `<div class="fr-ind clickable${x.aplicado ? '' : ' off'}" data-fr-indicador="${esc(x.id)}" role="button" tabindex="0" title="${I18N.t('gob.ver_el_detalle_de', { id: esc(x.id) })}"><span class="mono">${esc(x.id)}</span><span>${ic(x.icono || 'info')} ${esc(x.nombre)}${x.contraindicio ? I18N.t('gob.contraindicio_2') : !x.activo ? I18N.t('gob.inactivo_3') : ''}<br><small class="muted">${esc(x.detalle || '')}${x.fuente ? ` · ${esc(I18N.dato(x.fuente))}` : ''}</small></span><span class="fr-ind-bar"><i style="width:${(x.peso / max) * 100}%;${x.aplicado ? '' : 'opacity:.3'}"></i></span><b class="tnum">${x.aplicado ? `+${x.aplicado}` : `<s>+${x.peso}</s>`}</b></div>`).join('');
     const traza = e.traza && G.trazas.some((t) => t.id === e.traza);
     $('modal-fraude-title').innerHTML = `${ic('shield-alert')} <span class="mono">${esc(id)}</span> · ${esc(e.asunto || m.asunto || '')} ${nivelFrPill(v.nivel)}`;
     $('modal-fraude-body').innerHTML = `
@@ -2770,7 +2773,7 @@
     err.hidden = true;
     if (!n.senal) n.senal = I18N.t('gob.el_mensaje_contiene', { frases: n.frases.map((f) => `«${f}»`).join(', ') });
     frNuevos.push(n); ssSet('gobierno.fraude_nuevos', frNuevos);
-    G.eventos.unshift({ fecha: new Date().toISOString(), tipo: 'politica', sev: 'info', agente: 'reglas', titulo: I18N.t('gob.nuevo_indicador_de_fraude_2', { id: n.id, nombre: n.nombre }), detalle: `Peso ${n.peso} · ${n.frases.length} ${n.frases.length === 1 ? 'frase' : 'frases'} · ${n.activo ? 'activo' : 'inactivo'}.`, usuario: I18N.t('gob.operador_esta_sesion') });
+    G.eventos.unshift({ fecha: new Date().toISOString(), tipo: 'politica', sev: 'info', agente: 'reglas', titulo: I18N.t('gob.nuevo_indicador_de_fraude_2', { id: n.id, nombre: n.nombre }), detalle: I18N.t('gob.indicador_nuevo_detalle', { peso: n.peso, frases: I18N.t('gob.n_frases', { n: n.frases.length }), estado: I18N.t(n.activo ? 'gob.estado_activo' : 'gob.estado_inactivo') }), usuario: I18N.t('gob.operador_esta_sesion') });
     $('modal-fr-nuevo').close();
     renderAll();
     const fila = document.querySelector(`#fr-cat tr[data-fr-fila="${n.id}"]`);
@@ -2792,7 +2795,7 @@
     const repl = G.replays || []; const cambios = repl.filter((r) => String(r.decision).startsWith('DISTINTA')).length;
     const ev = G.eventos || [];
     // Por sección: [pregunta, cifra grande, texto bajo la cifra, estado, normas]
-    const nCritAl = `${crit} ${crit === 1 ? 'crítica' : 'críticas'}`;
+    const nCritAl = I18N.t('gob.n_criticas', { n: crit });
     const F = {
       resumen: [I18N.t('gob.va_bien_el_sistema'), String(alertas.length), `alertas activas · ${nCritAl}`, crit ? 'crit' : avisos ? 'warn' : 'ok', ['ai-14', 'eiopa']],
       agentes: [I18N.t('gob.quien_es_que_hace'), I18N.t('gob.de_7', { noActivos: ags.length - noActivos.length, ags: ags.length }), `agentes activos${noActivos.length ? ` · ${noActivos.map((a) => `${a.nombre}: ${(ESTADO[estadoAgente(a)] || ESTADO.activo)[2].replace(/ \(.*\)/, '').toLowerCase()}`).join(', ')}` : ''}`, noActivos.length ? 'warn' : 'ok', ['dora-9', 'ai-14']],
@@ -2800,7 +2803,7 @@
       replay: [I18N.t('gob.por_que_decidio_eso'), String(repl.length), I18N.t('gob.replays_de_decision', { cambios, cambios2: cambios === 1 ? 'cambio' : 'cambios' }), cambios ? 'warn' : 'ok', ['rgpd-15', 'ai-15']],
       autonomia: [I18N.t('gob.cuanta_libertad_tiene_cada'), G.kpis.resumen[0].valor, I18N.t('gob.autonomia_efectiva_2', { niveles: niveles || '—' }), 'ok', ['ai-14', 'rgpd-22']],
       guardrails: [I18N.t('gob.que_limites_frenan_a'), I18N.t('gob.de_8', { activos, pol: pol.length }), I18N.t('gob.activos_disparos_en_14', { disparos: num(pol.reduce((a, p) => a + (p.disparos || 0), 0)) }), activos < pol.length ? 'warn' : 'ok', ['ai-9', 'ai-14']],
-      hitl: (() => { const d = datosResumen(); const pend = colaHitl().filter((c) => c.estado === 'pendiente').length; return [I18N.t('gob.que_hacen_las_personas'), String(pend), I18N.t('gob.de_revision_override', { pendientes: pend === 1 ? 'pendiente' : 'pendientes', replace: d.pOvr.toFixed(1).replace('.', ',') }), d.pOvr > 3 ? 'crit' : pend ? 'warn' : 'ok', ['ai-14', 'rgpd-22']]; })(),
+      hitl: (() => { const d = datosResumen(); const pend = colaHitl().filter((c) => c.estado === 'pendiente').length; return [I18N.t('gob.que_hacen_las_personas'), String(pend), I18N.t('gob.de_revision_override', { pendientes: pend === 1 ? 'pendiente' : 'pendientes', replace: dec(d.pOvr, 1) }), d.pOvr > 3 ? 'crit' : pend ? 'warn' : 'ok', ['ai-14', 'rgpd-22']]; })(),
       knowledge: [I18N.t('gob.con_que_conocimiento_deciden'), I18N.t('gob.de_9', { kbOk, E: E.length }), I18N.t('gob.sanas_2', { ninguna_critica: kbCrit.length ? `${kbCrit.map(({ k }) => k.id).join(', ')} ${kbCrit.length === 1 ? 'crítica' : 'críticas'}` : I18N.t('gob.ninguna_critica') }), kbCrit.length ? 'crit' : kbOk < E.length ? 'warn' : 'ok', ['ai-10', 'rgpd-17']],
       cumplimiento: [I18N.t('gob.podemos_demostrar_que_cumplimos'), `${T.global} %`, I18N.t('gob.cobertura_de_controles_parciales_2', { rojo: T.marcos.reduce((a, m) => a + m.cuenta.ambar + m.cuenta.rojo, 0) }), T.global >= 90 ? 'ok' : 'warn', ['ai-12', 'rgpd-5']],
       finops: [I18N.t('gob.cuanto_cuesta_y_estamos'), eur(coste, 0), I18N.t('gob.en_el_periodo_2', { capsSup, caps_superados_2: capsSup === 1 ? I18N.t('gob.cap_superado') : I18N.t('gob.caps_superados_2') }), capsSup ? 'crit' : 'ok', ['sii-41']],
@@ -2934,7 +2937,7 @@
       const [cls, icono, txt] = ESTADO_CMP[c.estado];
       const tz = (c.trazas || []);
       return `<tr><td><span class="pill ${cls}">${ic(icono)} ${txt}</span></td>
-        <td><span class="normas" style="margin:0">${c.normas.map((e) => `<span class="norma" data-tip="${esc(Cumplimiento.NORMA_POR_ETIQUETA[e] || e)}">${ic('scale')} ${esc(e)}</span>`).join('')}</span></td>
+        <td><span class="normas" style="margin:0">${c.normas.map((e) => `<span class="norma" data-tip="${esc(Cumplimiento.NORMA_POR_ETIQUETA[e] || e)}">${ic('scale')} ${esc(Cumplimiento.normaVisible(e))}</span>`).join('')}</span></td>
         <td class="wrap">${esc(c.exige)}</td><td class="wrap">${esc(c.como)}</td><td class="wrap"><b>${esc(c.medida)}</b></td>
         <td>${c.fuente === 'medido' ? `<span class="pill pill-time">${ic('activity')} ${I18N.t('gob.medido')}</span>` : `<span class="pill pill-muted">${ic('file-text')} ${I18N.t('gob.declarado')}</span>`}</td>
         <td class="wrap">${tz.length ? `${tz.slice(0, 3).map((id) => `<a href="#" class="mono" data-cmp-traza="${esc(id)}">${esc(id)}</a>`).join(' ')}${tz.length > 3 ? ` <span class="muted small">+${tz.length - 3}</span>` : ''}` : '<span class="muted">—</span>'}</td></tr>`;
@@ -2951,7 +2954,7 @@
       ['archive', I18N.t('gob.retencion'), I18N.t('gob.traza_seudonimizada_6_meses'), ['AI Act art. 19 y 26.6', 'LCS art. 23'], I18N.t('gob.6_meses_2_5')],
       ['lock', I18N.t('gob.bloqueo_y_supresion'), I18N.t('gob.bloqueo_durante_la_prescripcion'), ['LOPDGDD art. 32', 'RGPD art. 5.1.e'], I18N.t('gob.al_prescribir')],
     ];
-    $('cmp-ciclo').innerHTML = PASOS.map(([i, t, d, ns, cuando], k) => `<div class="ciclo-paso"><span class="ciclo-n">${k + 1}</span><span class="ciclo-ico">${ic(i)}</span><b>${esc(t)}</b><span class="small">${esc(d)}</span><span class="ciclo-cuando">${ic('timer')} ${esc(cuando)}</span><span class="normas" style="margin:0">${ns.map((e) => `<span class="norma" data-tip="${esc(Cumplimiento.NORMA_POR_ETIQUETA[e] || e)}">${esc(e)}</span>`).join('')}</span></div>`).join('');
+    $('cmp-ciclo').innerHTML = PASOS.map(([i, t, d, ns, cuando], k) => `<div class="ciclo-paso"><span class="ciclo-n">${k + 1}</span><span class="ciclo-ico">${ic(i)}</span><b>${esc(t)}</b><span class="small">${esc(d)}</span><span class="ciclo-cuando">${ic('timer')} ${esc(cuando)}</span><span class="normas" style="margin:0">${ns.map((e) => `<span class="norma" data-tip="${esc(Cumplimiento.NORMA_POR_ETIQUETA[e] || e)}">${esc(Cumplimiento.normaVisible(e))}</span>`).join('')}</span></div>`).join('');
 
     titulo('h-cmp-inv', 'fingerprint', I18N.t('gob.inventario_de_datos_personales', { datos_personales: T.resumen.datos_personales, trazas: T.resumen.trazas }));
     $('cmp-inv').innerHTML = cmpItems.map((x, i) => {
@@ -3112,7 +3115,7 @@
       const raices = new Set(muts.map((m) => m.target.closest('.modal-body')).filter(Boolean));
       raices.forEach((r) => { if (r.closest('dialog').open) animar(r); });
     });
-    document.querySelectorAll(I18N.t('gob.dialog_modal_body')).forEach((b) => obs.observe(b, { childList: true }));
+    document.querySelectorAll('dialog .modal-body').forEach((b) => obs.observe(b, { childList: true }));
   }
   function initNavModales() {
     document.addEventListener('click', (e) => {
@@ -3253,7 +3256,7 @@
       const mo = e.target.closest('[data-med-orden]'); if (mo) { medOrden = mo.dataset.medOrden; renderMedidas(); return; }
       if (e.target.closest('[data-med-rapidas]')) { medRapidas = !medRapidas; renderMedidas(); return; }
       if (e.target.closest('[data-med-ocultar]')) { medOcultar = !medOcultar; renderMedidas(); return; }
-      const mc = e.target.closest('[data-medida]'); if (mc && !e.target.closest(I18N.t('gob.a_button'))) { abrirModalMed(mc.dataset.medida); return; }
+      const mc = e.target.closest('[data-medida]'); if (mc && !e.target.closest('a, button')) { abrirModalMed(mc.dataset.medida); return; }
       const re = e.target.closest('[data-rub-editar]'); if (re) { e.stopPropagation(); abrirModalRub(re.dataset.rubEditar); return; }
       const ra = e.target.closest('[data-rub-add]'); if (ra) { const cont = ra.dataset.rubAdd === 'crit' ? $('rub-crits') : $('rub-pregs'); cont.insertAdjacentHTML('beforeend', ra.dataset.rubAdd === 'crit' ? $('modal-rub').dataset.plantillaCrit : $('modal-rub').dataset.plantillaPreg); sumaRub(); return; }
       const rq = e.target.closest('[data-rub-quitar]'); if (rq) { rq.closest('.rub-fila').remove(); sumaRub(); return; }

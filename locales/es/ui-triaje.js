@@ -373,6 +373,7 @@ I18N.registrar('es', {
   'triaje.esperado_2': 'esperado {ramo}',
   'triaje.reglas_de_negocio_del': 'Reglas de negocio del ramo {ramo}',
   'triaje.motor_local': 'motor local',
+  'triaje.modelo': 'modelo',
   'triaje.asignado_por_el': 'Asignado por el {motor_local}:',
   'triaje.sin_criterios_de_clasificacion': '<li class="muted">Sin criterios de clasificación en el resultado.</li>',
   'triaje.el_resultado_no_incluye': '<li class="muted">El resultado no incluye criterios.</li>',
@@ -490,4 +491,8 @@ I18N.registrar('es', {
   'triaje.origen.archivo': '{origen} (archivo)',
   'triaje.origen.fallback': 'reglas locales (fallback IA: {error})',
   'triaje.motor.incumple': 'Incumple {reglas}',
+  'triaje.paquete_completado': '{nombre} completado: {aprobados}, {revisar}.',
+  'triaje.n_aprobados': { one: '{n} aprobado', other: '{n} aprobados' },
+  'triaje.n_a_revisar': { one: '{n} a revisar', other: '{n} a revisar' },
+  'triaje.archivo_nombre': 'Archivo {nombre}',
 });

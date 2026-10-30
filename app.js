@@ -315,7 +315,7 @@
     const parsed = parseTriage(p2.text);
     if (!parsed) throw new Error(I18N.t('triaje.respuesta_del_modelo_no'));
 
-    const discrepancia = parsed.ramo !== ramoInfo.ramo ? I18N.t('triaje.paso_2_propone_frente', { ramo: parsed.ramo, ramo2: ramoInfo.ramo }) : null;
+    const discrepancia = parsed.ramo !== ramoInfo.ramo ? I18N.t('triaje.paso_2_propone_frente', { ramo: I18N.etiqueta('ramo', parsed.ramo), ramo2: I18N.etiqueta('ramo', ramoInfo.ramo) }) : null;
     return {
       ...parsed,
       ramo: ramoInfo.ramo,
@@ -502,7 +502,7 @@
     }
     const porRamo = {};
     entries.forEach((e) => { porRamo[e.ramo] = (porRamo[e.ramo] || 0) + 1; });
-    $('ramo-chips').replaceChildren(...Object.entries(porRamo).map(([r, n]) => Object.assign(document.createElement('span'), { className: `chip chip-${r.toLowerCase()}`, textContent: `${r} ${n}` })));
+    $('ramo-chips').replaceChildren(...Object.entries(porRamo).map(([r, n]) => Object.assign(document.createElement('span'), { className: `chip chip-${r.toLowerCase()}`, textContent: `${I18N.etiqueta('ramo', r)} ${n}` })));
   }
 
   function sortedFilteredLog() {
@@ -543,10 +543,10 @@
       tr.className = e.decision === DECISION.REVIEW ? 'row-review' : 'row-ok';
       tr.dataset.id = e.id;
       tr.tabIndex = 0;
-      const ramoMark = e.esperado?.ramo ? (e.esperado.ramo === e.ramo ? `<span class="mark ok" title="${I18N.t('triaje.coincide_con_el_ramo')}">${lucide('check')}</span>` : `<span class="mark ko" title="${I18N.t('triaje.esperado', { ramo: escapeHtml(e.esperado.ramo) })}">${lucide('x')}</span>`) : '';
+      const ramoMark = e.esperado?.ramo ? (e.esperado.ramo === e.ramo ? `<span class="mark ok" title="${I18N.t('triaje.coincide_con_el_ramo')}">${lucide('check')}</span>` : `<span class="mark ko" title="${I18N.t('triaje.esperado', { ramo: escapeHtml(I18N.etiqueta('ramo', e.esperado.ramo)) })}">${lucide('x')}</span>`) : '';
       tr.innerHTML = [
         `<td><strong>${escapeHtml(e.id)}</strong><br><span class="muted small">${escapeHtml(e.asunto)}</span></td>`,
-        `<td><span class="pill pill-ramo-${e.ramo.toLowerCase()}">${escapeHtml(e.ramo)}</span> ${ramoMark}</td>`,
+        `<td><span class="pill pill-ramo-${e.ramo.toLowerCase()}">${escapeHtml(I18N.etiqueta('ramo', e.ramo))}</span> ${ramoMark}</td>`,
         `<td>${fmtEur(e.importe)}</td>`,
         `<td>${pillDecision(e)}${chipFraude(FRv[e.id])}</td>`,
         `<td class="motivo">${escapeHtml(e.motivo)}</td>`,
@@ -951,7 +951,7 @@
     const esperado = entry.esperado || {};
     $('modal-kpis').innerHTML = `
       ${tarjetaDecision(entry, inc)}
-      <div class="kpi-tile ico" style="--tc:${ramoColor}"><span class="kpi-ico">${lucide(ramoIcon)}</span><div class="txt"><span class="l">${I18N.t('triaje.ramo')}</span><span class="v">${escapeHtml(entry.ramo)}</span><span class="s">${esperado.ramo ? (esperado.ramo === entry.ramo ? I18N.t('triaje.coincide_con_el_esperado') : `esperado ${escapeHtml(esperado.ramo)}`) : escapeHtml(entry.origen.startsWith('IA') ? I18N.t('triaje.asignado_por_el_modelo') : I18N.t('triaje.asignado_por_reglas_locales'))}</span></div></div>
+      <div class="kpi-tile ico" style="--tc:${ramoColor}"><span class="kpi-ico">${lucide(ramoIcon)}</span><div class="txt"><span class="l">${I18N.t('triaje.ramo')}</span><span class="v">${escapeHtml(I18N.etiqueta('ramo', entry.ramo))}</span><span class="s">${esperado.ramo ? (esperado.ramo === entry.ramo ? I18N.t('triaje.coincide_con_el_esperado') : `esperado ${escapeHtml(esperado.ramo)}`) : escapeHtml(entry.origen.startsWith('IA') ? I18N.t('triaje.asignado_por_el_modelo') : I18N.t('triaje.asignado_por_reglas_locales'))}</span></div></div>
       <div class="kpi-tile ico conf" style="--tc:${entry.confianza >= 0.85 ? 'var(--ok)' : entry.confianza >= 0.7 ? 'var(--review)' : 'var(--error)'}"><span class="kpi-ico">${lucide('gauge')}</span><div class="txt"><span class="l">${I18N.t('triaje.confianza')}</span><span class="v" style="color:var(--tc)">${entry.confianza >= 0.85 ? I18N.t('triaje.alta') : entry.confianza >= 0.7 ? I18N.t('triaje.media') : I18N.t('triaje.baja')}</span><span class="s">${I18N.t('triaje.del_modelo_en_su')}</span></div><svg class="ring" viewBox="0 0 64 64" role="img" aria-label="${I18N.t('triaje.confianza_por_ciento', { confianza: Math.round(entry.confianza * 100) })}"><circle class="pista" cx="32" cy="32" r="26"/><circle class="valor" cx="32" cy="32" r="26" stroke-dasharray="${(entry.confianza * 163.36).toFixed(1)} 999"/><text x="32" y="37" text-anchor="middle">${Math.round(entry.confianza * 100)}%</text></svg></div>`;
     pintarFormRevision(entry);
   }
@@ -996,11 +996,11 @@
     const keys = [...Object.keys(DATOS_LABELS), ...Object.keys(datos).filter((k) => !DATOS_LABELS[k])];
     $('modal-datos').innerHTML = kv(keys.filter((k) => k in datos).map((k) => [DATOS_LABELS[k] || k, k === 'importe_estimado_eur' ? fmtEur(datos[k]) : fmtValue(datos[k])]));
 
-    const ramoOk = esperado.ramo ? (esperado.ramo === entry.ramo ? `<span class="mark ok">${lucide('check')} ${I18N.t('triaje.coincide_2')}</span>` : `<span class="mark ko">${lucide('x')} ${I18N.t('triaje.esperado_2', { ramo: escapeHtml(esperado.ramo) })}</span>`) : '';
+    const ramoOk = esperado.ramo ? (esperado.ramo === entry.ramo ? `<span class="mark ok">${lucide('check')} ${I18N.t('triaje.coincide_2')}</span>` : `<span class="mark ko">${lucide('x')} ${I18N.t('triaje.esperado_2', { ramo: escapeHtml(I18N.etiqueta('ramo', esperado.ramo)) })}</span>`) : '';
     const colorRamo = { Auto: 'var(--auto)', Hogar: 'var(--hogar)', Salud: 'var(--salud)' }[entry.ramo] || 'var(--muted)';
     const hReglas = $('modal-reglas-h');
-    hReglas.textContent = I18N.t('triaje.reglas_de_negocio_del', { ramo: entry.ramo }); hReglas.style.color = colorRamo; hReglas.style.borderLeftColor = colorRamo;
-    $('modal-ramo').innerHTML = `${I18N.t('triaje.asignado_por_el', { motor_local: entry.origen.startsWith('IA') ? 'modelo' : I18N.t('triaje.motor_local') })} <strong>${escapeHtml(entry.ramo)}</strong> ${ramoOk}`;
+    hReglas.textContent = I18N.t('triaje.reglas_de_negocio_del', { ramo: I18N.etiqueta('ramo', entry.ramo) }); hReglas.style.color = colorRamo; hReglas.style.borderLeftColor = colorRamo;
+    $('modal-ramo').innerHTML = `${I18N.t('triaje.asignado_por_el', { motor_local: entry.origen.startsWith('IA') ? I18N.t('triaje.modelo') : I18N.t('triaje.motor_local') })} <strong>${escapeHtml(I18N.etiqueta('ramo', entry.ramo))}</strong> ${ramoOk}`;
     $('modal-ramo-criterios').replaceChildren(...(entry.criterios_ramo || []).map((c) => Object.assign(document.createElement('li'), { textContent: c })));
     if (!(entry.criterios_ramo || []).length) $('modal-ramo-criterios').innerHTML = I18N.t('triaje.sin_criterios_de_clasificacion');
     $('modal-criterios').replaceChildren(...(entry.criterios || []).map((c) => {
@@ -1184,9 +1184,9 @@
       }
       if (!state.cancelled) {
         const lote = state.motor === 'archivo' ? 'archivo' : paquete.id;
-        const nombre = state.motor === 'archivo' ? `Archivo ${state.archivo.nombre}` : paquete.nombre;
+        const nombre = state.motor === 'archivo' ? I18N.t('triaje.archivo_nombre', { nombre: state.archivo.nombre }) : paquete.nombre;
         const review = state.log.filter((e) => e.paquete === lote && e.decision === DECISION.REVIEW).length;
-        setStatus('run-status', `${nombre} completado: ${mensajes.length - review} aprobados, ${review} a revisar.`, 'ok');
+        setStatus('run-status', I18N.t('triaje.paquete_completado', { nombre, aprobados: I18N.t('triaje.n_aprobados', { n: mensajes.length - review }), revisar: I18N.t('triaje.n_a_revisar', { n: review }) }), 'ok');
       }
     } catch (err) {
       setStatus('run-status', `Lote interrumpido: ${err.message}`, 'error');

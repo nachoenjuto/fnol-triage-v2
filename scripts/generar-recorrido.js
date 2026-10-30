@@ -17,7 +17,8 @@ const MAX_TXT = 400;     // límite de shell.js por subtítulo
 // «momentos»: lo que se ve en cada subpaso. Cada uno es [frase, acciones]: se engancha al primer subtítulo del paso
 // que contiene la frase, que tiene que ser única en el paso (así sobrevive a cambios de redacción y de troceo) y ejecuta sus acciones en orden al llegar
 // a él, por tiempo o con los botones de subtítulo. Acciones comunes (shell.js): ver:SELECTOR[~texto] (scroll y
-// resaltado), clic:SELECTOR[~texto], cerrar (ventanas), arriba, espera:ms. El resto son acciones de cada página.
+// resaltado), clic:SELECTOR[~texto], cerrar (ventanas), arriba, espera:ms. «~@clave» busca el texto de esa clave en el
+// idioma de la página (así el recorrido sirve en todos los idiomas): no se escribe texto visible en las acciones. El resto son acciones de cada página.
 // Las acciones que cambian el estado de la demo (kill switch, guardrails, medidas, alteración, replay, comparativa)
 // son idempotentes («deja X en tal estado»), así que repetirlas al volver atrás no duplica nada.
 const MAPA = [
@@ -29,11 +30,11 @@ const MAPA = [
   ['## 2. La solución', { pagina: 'intro', accion: 'sec:solucion', titulo: 'La solución: plataforma integrada y gobernada', min: '1–3', momentos: [
     ['Antes de entrar en el detalle', 'arriba | ver:#logicalis'], ['Y así se ve el panel de gobierno', 'ver:#kpis-resumen'], ['cuatro especialistas', 'ver:#agentes'],
     ['La base de todo es la trazabilidad', 'ver:#base'],
-    ['nivel de autonomía, que va de L0', 'ver:.pilar~Autonomía'], ['El gasto lo controlamos', 'ver:.pilar~Gasto'], ['Para el fraude', 'ver:.pilar~Fraude'],
-    ['El RGPD, DORA', 'ver:.pilar~Cumplimiento'],
+    ['nivel de autonomía, que va de L0', 'ver:.pilar~@intro.trazabilidad.autonomia'], ['El gasto lo controlamos', 'ver:.pilar~@intro.trazabilidad.gasto'], ['Para el fraude', 'ver:.pilar~@intro.trazabilidad.fraude'],
+    ['El RGPD, DORA', 'ver:.pilar~@intro.logicalis.cumplimiento'],
   ] }],
   ['## 3. Los actores', { pagina: 'intro', accion: 'sec:actores', titulo: 'Los actores: el tramitador y quien gobierna la IA', min: '3–4', momentos: [
-    ['dos tipos de usuario', 'arriba | ver:#usuarios .usuario-card~El tramitador'], ['los equipos que gobiernan la IA', 'ver:#usuarios .usuario-card~IT, Finanzas'],
+    ['dos tipos de usuario', 'arriba | ver:#usuarios .usuario-card~@intro.usuarios.el_tramitador'], ['los equipos que gobiernan la IA', 'ver:#usuarios .usuario-card~@intro.usuarios.it_finanzas_compliance'],
   ] }],
   ['## 4. La demo', { pagina: 'intro', accion: 'sec:demo', titulo: 'La demo: un viaje de principio a fin', min: '4–5', momentos: [
     ['La demo es un viaje', 'arriba | ver:#viaje'], ['termina en el panel de gobierno', 'ver:#preguntas-panel'], ['Vamos a verlo', 'ver:#empezar-demo'],
@@ -69,8 +70,8 @@ const MAPA = [
     ['Ahora mismo tenemos un 81', 'ver:#kpis'], ['lo paramos al momento', 'ver:#agents | agente:extraccion:pausado | espera:3500 | agente:extraccion:activo'],
   ] }],
   ['### Paso 7 ', { pagina: 'gobierno', accion: 'agentes', requiere: 'lote', momentos: [
-    ['La sección de Agentes', 'ver:#ag-tabs'], ['identidad propia', 'ver:#ag-ficha h3~Identidad'], ['En la ficha vemos su configuración', 'ver:#ag-ficha h3~Configuración'],
-    ['índice de calidad', 'ver:#ag-ficha h3~Calidad'], ['decidimos con números', 'ver:#ag-ficha h3~Rendimiento'],
+    ['La sección de Agentes', 'ver:#ag-tabs'], ['identidad propia', 'ver:#ag-ficha h3~@gob.identidad_y_permisos'], ['En la ficha vemos su configuración', 'ver:#ag-ficha h3~@gob.configuracion_y_variables'],
+    ['índice de calidad', 'ver:#ag-ficha h3~@gob.calidad_paquete_a'], ['decidimos con números', 'ver:#ag-ficha h3~@gob.rendimiento_y_coste'],
   ] }],
   ['### Paso 8 ', { pagina: 'gobierno', accion: 'goto:trazas', requiere: 'lote', momentos: [
     ['Cada mensaje genera una traza', 'sel:MSG-A-08 | ver:#traza-detalle'], ['como un error del proveedor', 'sel:MSG-A-10 | ver:#traza-detalle'], ['la lista se puede filtrar', 'ver:#t-res'],

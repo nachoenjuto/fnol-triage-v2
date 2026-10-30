@@ -3,6 +3,10 @@
 I18N.registrar('es', {
   'comun.idioma': 'Idioma',
   'comun.idioma.cambiar': 'Ver la demo en {nombre}',
+  'comun.ramo.Auto': 'Auto',
+  'comun.ramo.Hogar': 'Hogar',
+  'comun.ramo.Salud': 'Salud',
+  'comun.ramo.Indeterminado': 'Indeterminado',
   // ── shell.js ──
   'shell.responsable_de_siniestros': 'Responsable de Siniestros',
   'shell.sesion_simulada': '{nombre} · {rol} (sesión simulada)',
@@ -119,6 +123,10 @@ I18N.registrar('es', {
   'shell.en_pausa_porque_has': 'En pausa porque has tocado la pantalla. Pulsa ▶ para seguir.',
   // ── cumplimiento.js ──
   'cumpl.exigible_a_sistemas_de': 'Exigible a sistemas de alto riesgo desde el 02/12/2027 (Digital Omnibus); el triaje de siniestros no lo es, aquí se aplica como buena práctica.',
+  'cumpl.norma.rgpd': 'RGPD',
+  'cumpl.norma.solvencia': 'Solvencia II',
+  'cumpl.norma.y': 'y',
+  'cumpl.norma.cons': 'cons.',
   'cumpl.alfabetizacion_en_ia_el': 'Alfabetización en IA: el personal que usa el sistema debe tener formación suficiente. Aplicable desde el 02/02/2025.',
   'cumpl.clasificacion_de_sistemas_de': 'Clasificación de sistemas de alto riesgo. El Anexo III 5.c solo incluye la evaluación de riesgos y la tarificación en seguros de vida y salud: el triaje de siniestros no es alto riesgo.',
   'cumpl.sistema_de_gestion_de': 'Sistema de gestión de riesgos durante todo el ciclo de vida. {ALTO_RIESGO}',
@@ -446,4 +454,6 @@ I18N.registrar('es', {
   'prompt.canal': 'Canal: {canal}',
   'prompt.remitente': 'Remitente: {nombre} ({contacto})',
   'prompt.asunto': 'Asunto: {asunto}',
+  'cumpl.n_elementos': { one: '{n} elemento', other: '{n} elementos' },
+  'cumpl.n_claves': { one: '{n} clave', other: '{n} claves' },
 });

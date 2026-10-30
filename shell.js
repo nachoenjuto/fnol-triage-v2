@@ -178,7 +178,9 @@
     let els; try { els = [...document.querySelectorAll(sel)]; } catch { return null; }
     const vis = els.filter((e) => e.getClientRects().length);
     const pool = vis.length ? vis : els;
-    return (txt ? pool.find((e) => e.textContent.includes(txt)) : pool[0]) || null;
+    // «~@clave»: el texto de esa clave en el idioma de la página
+    const buscado = txt && txt.startsWith('@') ? I18N.t(txt.slice(1)) : txt;
+    return (buscado ? pool.find((e) => e.textContent.includes(buscado)) : pool[0]) || null;
   };
   const esperarEl = async (sel, txt, ms = 4000) => { const t0 = Date.now(); for (;;) { const el = buscarEl(sel, txt); if (el || Date.now() - t0 > ms) return el; await dormir(150); } };
   // Scroll animado a mano (el suave del navegador lo corta cualquier repintado del panel): centra el elemento en su

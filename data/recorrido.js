@@ -194,7 +194,7 @@ const RECORRIDO_DEMO = {
           "etiqueta": "Autonomía y madurez de los agentes",
           "texto": "Cada agente tiene un nivel de autonomía, que va de L0, donde solo sugiere, a L3, donde decide y ejecuta. Esa autonomía se gana con datos y se pierde con datos.",
           "accion": [
-            "ver:.pilar~Autonomía"
+            "ver:.pilar~@intro.trazabilidad.autonomia"
           ]
         },
         {
@@ -212,7 +212,7 @@ const RECORRIDO_DEMO = {
           "etiqueta": "Gasto bajo control",
           "texto": "El gasto lo controlamos al segundo y en base a acciones.",
           "accion": [
-            "ver:.pilar~Gasto"
+            "ver:.pilar~@intro.trazabilidad.gasto"
           ]
         },
         {
@@ -235,7 +235,7 @@ const RECORRIDO_DEMO = {
           "etiqueta": "Fraude",
           "texto": "Para el fraude, la plataforma combina lo que entiende la IA del relato del cliente con el histórico de pólizas y siniestros y con reglas deterministas.",
           "accion": [
-            "ver:.pilar~Fraude"
+            "ver:.pilar~@intro.trazabilidad.fraude"
           ]
         },
         {
@@ -253,7 +253,7 @@ const RECORRIDO_DEMO = {
           "etiqueta": "Cumplimiento demostrable",
           "texto": "El RGPD, DORA y la opinión de EIOPA sobre IA ya están en vigor. El Reglamento de IA llega después, y el triaje no se considera de alto riesgo, pero aplicamos sus artículos como buena práctica.",
           "accion": [
-            "ver:.pilar~Cumplimiento"
+            "ver:.pilar~@intro.logicalis.cumplimiento"
           ]
         },
         {
@@ -277,7 +277,7 @@ const RECORRIDO_DEMO = {
           "texto": "En la demo vamos a ver dos tipos de usuario. Por un lado está el tramitador de FNOL, que trabaja en la pantalla de triaje.",
           "accion": [
             "arriba",
-            "ver:#usuarios .usuario-card~El tramitador"
+            "ver:#usuarios .usuario-card~@intro.usuarios.el_tramitador"
           ]
         },
         {
@@ -292,7 +292,7 @@ const RECORRIDO_DEMO = {
           "tipo": "intro",
           "texto": "Por otro lado están los equipos que gobiernan la IA: IT, Finanzas, Compliance, Riesgos, Auditoría o el DPO, que trabajan en el panel de gobierno.",
           "accion": [
-            "ver:#usuarios .usuario-card~IT, Finanzas"
+            "ver:#usuarios .usuario-card~@intro.usuarios.it_finanzas_compliance"
           ]
         },
         {
@@ -813,28 +813,28 @@ const RECORRIDO_DEMO = {
           "tipo": "que",
           "texto": "Cada agente tiene una identidad propia, igual que un empleado, con un responsable y unos permisos mínimos: está definido qué puede hacer y qué no puede hacer.",
           "accion": [
-            "ver:#ag-ficha h3~Identidad"
+            "ver:#ag-ficha h3~@gob.identidad_y_permisos"
           ]
         },
         {
           "tipo": "que",
           "texto": "En la ficha vemos su configuración y sus umbrales, los guardrails y los topes que lo limitan, su coste y sus tokens de los últimos días, y una tabla con su comportamiento según el modelo que ha ido usando: precisión, escalados, correcciones, coste por mensaje y latencia.",
           "accion": [
-            "ver:#ag-ficha h3~Configuración"
+            "ver:#ag-ficha h3~@gob.configuracion_y_variables"
           ]
         },
         {
           "tipo": "que",
           "texto": "También vemos un índice de calidad, las bases de conocimiento que consume y, para los perfiles más técnicos, su contrato de entrada y salida.",
           "accion": [
-            "ver:#ag-ficha h3~Calidad"
+            "ver:#ag-ficha h3~@gob.calidad_paquete_a"
           ]
         },
         {
           "tipo": "valor",
           "texto": "Con esta ficha decidimos con números qué modelo usar en cada agente. Hoy, por ejemplo, el agente de Reglas concentra el 80 % del gasto y tiene dos bases de conocimiento con problemas. Ahí es donde tenemos que poner el foco.",
           "accion": [
-            "ver:#ag-ficha h3~Rendimiento"
+            "ver:#ag-ficha h3~@gob.rendimiento_y_coste"
           ]
         }
       ]

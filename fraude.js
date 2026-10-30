@@ -88,20 +88,20 @@
       Object.entries(porIban).forEach(([iban, refs]) => {
         if (!refs.some((r) => r.id === e.id) || polizasDistintas(refs) < 2) return;
         const otros = refs.filter((r) => r.id !== e.id);
-        add('IF-03', { citas: refs.filter((r) => r.id === e.id).map((r) => r.cita), detalle: I18N.t('fraude.la_cuenta_aparece_tambien', { iban: iban.slice(-4), id: otros.map((r) => (r.historico ? `${r.id} (${r.titular}, ${fmtDia(r.fecha)})` : r.id)).join(' y ') }), enlaces: otros.map((r) => r.id) });
+        add('IF-03', { citas: refs.filter((r) => r.id === e.id).map((r) => r.cita), detalle: I18N.t('fraude.la_cuenta_aparece_tambien', { iban: iban.slice(-4), id: I18N.fmt.lista(otros.map((r) => (r.historico ? `${r.id} (${r.titular}, ${fmtDia(r.fecha)})` : r.id))) }), enlaces: otros.map((r) => r.id) });
       });
       // IF-04: teléfono repetido en pólizas distintas
       Object.entries(porTel).forEach(([tel, refs]) => {
         if (!refs.some((r) => r.id === e.id) || polizasDistintas(refs) < 2) return;
         const otros = refs.filter((r) => r.id !== e.id);
-        add('IF-04', { detalle: I18N.t('fraude.el_telefono_aparece_tambien', { tel: tel.slice(-3), id: otros.map((r) => r.id).join(' y ') }), enlaces: otros.map((r) => r.id) });
+        add('IF-04', { detalle: I18N.t('fraude.el_telefono_aparece_tambien', { tel: tel.slice(-3), id: I18N.fmt.lista(otros.map((r) => r.id)) }), enlaces: otros.map((r) => r.id) });
       });
       // IF-05: proveedor con 3 o más casos marcados
       prov.forEach((pr) => { const i = e.texto.indexOf(pr.nombre); if (i >= 0) add('IF-05', { citas: [{ cita: pr.nombre, inicio: i, fin: i + pr.nombre.length }], detalle: pr.nota || I18N.t('fraude.casos_marcados_en_90', { casos_marcados: pr.casos_marcados }) }); });
       // IF-06: siniestro previo sobre el mismo bien en 12 meses (histórico) o mención en el texto
       const previos = sin.filter((s) => s.poliza && s.poliza === e.poliza && e.recepcion && diasEntre(s.fecha, e.recepcion) > 0 && diasEntre(s.fecha, e.recepcion) <= 365);
       const cs06 = citas(e.texto, RELATO['IF-06']);
-      if (previos.length) add('IF-06', { citas: cs06, detalle: previos.map((s) => `${s.id} · ${fmtDia(s.fecha)} · ${s.tipo}${s.lugar ? I18N.t('fraude.en', { lugar: s.lugar }) : ''}${s.conductor ? I18N.t('fraude.conducia', { conductor: s.conductor }) : ''}`).join(' · '), enlaces: previos.map((s) => s.id) });
+      if (previos.length) add('IF-06', { citas: cs06, detalle: previos.map((s) => `${s.id} · ${fmtDia(s.fecha)} · ${I18N.dato(s.tipo)}${s.lugar ? I18N.t('fraude.en', { lugar: s.lugar }) : ''}${s.conductor ? I18N.t('fraude.conducia', { conductor: s.conductor }) : ''}`).join(' · '), enlaces: previos.map((s) => s.id) });
       else if (cs06.length) add('IF-06', { citas: cs06, detalle: I18N.t('fraude.el_cliente_menciona_un') });
       // IF-11: conductor joven que el tomador no sabe si está declarado; se anula si la póliza lo tiene declarado
       const cj = e.texto.match(P().conductorJoven);
@@ -117,7 +117,7 @@
       // Indicadores creados por el usuario: se activan con frases literales del mensaje (palabras completas, sin distinguir mayúsculas)
       (opts.indicadores || []).filter((i) => Array.isArray(i.frases) && i.frases.length && (!e.ramo || !i.ramos || !i.ramos.length || i.ramos.includes(e.ramo))).forEach((i) => {
         const cs = i.frases.filter((f) => String(f).trim()).flatMap((f) => citas(e.texto, new RegExp(`(?<![\\p{L}\\d])${escRe(String(f).trim())}(?![\\p{L}\\d])`, 'giu')));
-        if (cs.length) add(i.id, { citas: cs, detalle: I18N.t('fraude.del_mensaje', { cs: cs.length, frases: cs.length === 1 ? 'frase' : 'frases' }) });
+        if (cs.length) add(i.id, { citas: cs, detalle: I18N.t('fraude.del_mensaje', { n: cs.length }) });
       });
       ind.forEach((x) => { x.aplicado = x.activo && !x.contraindicio ? x.peso : 0; });
       ind.sort((a, b) => b.aplicado - a.aplicado || a.id.localeCompare(b.id));

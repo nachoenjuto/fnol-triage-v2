@@ -41,6 +41,7 @@ const FUENTES_DATOS = {
   'datos-gobierno.js': [['data/gobierno.js', 'GOBIERNO_DEMO']],
   'datos-fraude.js': [['data/fraude.js', 'FRAUDE_DEMO']],
   'datos-prompts.js': [['prompts.js', 'PROMPT_BLOQUES']],
+  'datos-recorrido.js': [['data/recorrido.js', 'RECORRIDO_DEMO']],
 };
 function textosDatos() {
   const out = {};
@@ -48,7 +49,7 @@ function textosDatos() {
     const m = new Map();
     for (const [f, exportar] of fuentes) {
       const obj = new Function(`${fs.readFileSync(path.join(raiz, f), 'utf8')}\nreturn ${exportar};`)();
-      I18N.recorrerDatos(obj, (texto) => m.set(I18N.huella(texto), texto));
+      I18N.recorrerDatos(obj, (texto) => m.set(I18N.huella(texto), texto), true);
     }
     out[fichero] = m;
   }

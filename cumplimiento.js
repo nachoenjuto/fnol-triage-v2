@@ -54,9 +54,13 @@
     'eiopa': ['EIOPA', I18N.t('cumpl.opinion_sobre_gobierno_y')],
     'sii-41': ['Solvencia II art. 41', I18N.t('cumpl.sistema_de_gobernanza_eficaz')],
   };
-  const N = (k) => NORMAS[k][0];
-  // Búsqueda inversa por etiqueta (para pintar tooltips sobre las normas citadas en el JSON)
-  const NORMA_POR_ETIQUETA = Object.fromEntries(Object.values(NORMAS).map(([e, t]) => [e, t]));
+  // Etiqueta de una norma en el idioma activo: cambian las siglas y los conectores (RGPD → GDPR), no los números.
+  // Las de data/*.js están en español y se pasan por aquí al pintarlas.
+  const normaVisible = (e) => String(e).replace(/^RGPD\b/, I18N.t('cumpl.norma.rgpd')).replace(/^Solvencia II\b/, I18N.t('cumpl.norma.solvencia'))
+    .replace(/ y /g, ` ${I18N.t('cumpl.norma.y')} `).replace(/\bcons\./g, I18N.t('cumpl.norma.cons'));
+  const N = (k) => normaVisible(NORMAS[k][0]);
+  // Búsqueda inversa por etiqueta, en español o en el idioma activo (para pintar tooltips sobre las normas citadas)
+  const NORMA_POR_ETIQUETA = Object.fromEntries(Object.values(NORMAS).flatMap(([e, t]) => [[e, t], [normaVisible(e), t]]));
 
   // ---------------------------------------------------------------------------
   // SHA-256 síncrono (mismo resultado en el navegador y en Node; comprobado contra crypto en los tests)
@@ -298,8 +302,8 @@
       // Si el propio criterio del modelo menciona el ramo alternativo, esa es la explicación más fiel
       const cr = (entry.criterios_ramo || []).find((c) => new RegExp(`\\b${r}\\b`).test(c));
       const motivo = cr || (ind.length
-        ? I18N.t('cumpl.hay_indicios_de_pero', { v: r, ind: ind.slice(0, 3).join(', '), ramo: entry.ramo })
-        : I18N.t('cumpl.sin_indicios_de_en', { v: r }));
+        ? I18N.t('cumpl.hay_indicios_de_pero', { v: I18N.etiqueta('ramo', r), ind: ind.slice(0, 3).join(', '), ramo: I18N.etiqueta('ramo', entry.ramo) })
+        : I18N.t('cumpl.sin_indicios_de_en', { v: I18N.etiqueta('ramo', r) }));
       return { ramo: r, indicios: ind.slice(0, 4), motivo };
     });
   }
@@ -631,7 +635,7 @@
         return linea;
       });
       const abre = arr ? '[' : '{'; const cierra = arr ? ']' : '}';
-      if (plegable) return `${abre}<span class="j-in">\n${lineas.join(',\n')}\n${sp(nivel)}</span><span class="j-elip" data-n="${items.length} ${arr ? (items.length === 1 ? 'elemento' : 'elementos') : (items.length === 1 ? 'clave' : 'claves')}"></span>${cierra}`;
+      if (plegable) return `${abre}<span class="j-in">\n${lineas.join(',\n')}\n${sp(nivel)}</span><span class="j-elip" data-n="${I18N.t(arr ? 'cumpl.n_elementos' : 'cumpl.n_claves', { n: items.length })}"></span>${cierra}`;
       return `${abre}\n${lineas.join(',\n')}\n${sp(nivel)}${cierra}`;
     };
     return rec(valor, 0, '', { gob });
@@ -648,7 +652,7 @@
     return { solas, overrides, tasa, proponerBajada, nivelPropuesto: proponerBajada ? nivel - 1 : null };
   }
 
-  const API = { tasaOverride, seudonimizarMensaje, rehidratar, seudonimizarTexto, resumenSeudonimizacion, ESQUEMA, NORMAS, CONOCIMIENTO, conocimientoDe, NORMA_POR_ETIQUETA, CATEGORIAS, CLAVES_NORMA, sha256, corto, detectar, enmascarar, camposSensibles, descartados, gobernanza, hallazgosConCita, encadenar, verificarCadena, termometro, jsonHtml };
+  const API = { normaVisible, tasaOverride, seudonimizarMensaje, rehidratar, seudonimizarTexto, resumenSeudonimizacion, ESQUEMA, NORMAS, CONOCIMIENTO, conocimientoDe, NORMA_POR_ETIQUETA, CATEGORIAS, CLAVES_NORMA, sha256, corto, detectar, enmascarar, camposSensibles, descartados, gobernanza, hallazgosConCita, encadenar, verificarCadena, termometro, jsonHtml };
   if (typeof module !== 'undefined' && module.exports) module.exports = API;
   root.Cumplimiento = API;
 })(typeof window !== 'undefined' ? window : globalThis);

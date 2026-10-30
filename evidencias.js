@@ -182,7 +182,7 @@
       const hallada = citas[0] || (c.resultado === 'incumple' && origenLocal && pat ? buscar(pat instanceof RegExp ? new RegExp(pat.source, pat.flags.replace('g', '')) : pat) : null);
       if (hallada) add(`regla:${c.regla}`, hallada, c.evidencia || c.descripcion);
     }
-    palabrasRamo.forEach((w) => add('ramo', w, I18N.t('evid.indicio_de', { ramo: entry.ramo })));
+    palabrasRamo.forEach((w) => add('ramo', w, I18N.t('evid.indicio_de', { ramo: I18N.etiqueta('ramo', entry.ramo) })));
     return out;
   }
 

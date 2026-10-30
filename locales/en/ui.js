@@ -3,6 +3,10 @@
 I18N.registrar('en', {
   "comun.idioma": ["Language","012fad36"],
   "comun.idioma.cambiar": ["View the demo in {nombre}","b93e361e"],
+  "comun.ramo.Auto": ["Motor","126befb6"],
+  "comun.ramo.Hogar": ["Home","a3965312"],
+  "comun.ramo.Salud": ["Health","1bfa75de"],
+  "comun.ramo.Indeterminado": ["Undetermined","c0e99f76"],
   "shell.responsable_de_siniestros": ["Head of Claims","a0e34757"],
   "shell.sesion_simulada": ["{nombre} · {rol} (simulated session)","90229dfa"],
   "shell.sesion_simulada_2": ["{rol} · simulated session","935465a2"],
@@ -117,6 +121,10 @@ I18N.registrar('en', {
   "shell.todos_los_textos_restaurados": ["All texts restored.","536c04f2"],
   "shell.en_pausa_porque_has": ["Paused because you touched the screen. Press ▶ to continue.","b3fe63d2"],
   "cumpl.exigible_a_sistemas_de": ["Required for high-risk systems from 02/12/2027 (Digital Omnibus); claims triage is not high-risk, so here it is applied as good practice.","9f2920db"],
+  "cumpl.norma.rgpd": ["GDPR","c3d4b9a2"],
+  "cumpl.norma.solvencia": ["Solvency II","38180881"],
+  "cumpl.norma.y": ["and","fc0c4ef4"],
+  "cumpl.norma.cons": ["recital","104f4a72"],
   "cumpl.alfabetizacion_en_ia_el": ["AI literacy: staff using the system must have sufficient training. Applicable since 02/02/2025.","d69fb2c9"],
   "cumpl.clasificacion_de_sistemas_de": ["Classification of high-risk systems. Annex III 5.c only covers risk assessment and pricing in life and health insurance: claims triage is not high-risk.","99082637"],
   "cumpl.sistema_de_gestion_de": ["Risk management system throughout the whole life cycle. {ALTO_RIESGO}","2d7edd01"],
@@ -439,4 +447,6 @@ I18N.registrar('en', {
   "prompt.canal": ["Channel: {canal}","071f2c65"],
   "prompt.remitente": ["Sender: {nombre} ({contacto})","d7e35f93"],
   "prompt.asunto": ["Subject: {asunto}","0d61596b"],
+  "cumpl.n_elementos": [{"one":"{n} item","other":"{n} items"},"3a63b0d0"],
+  "cumpl.n_claves": [{"one":"{n} key","other":"{n} keys"},"dce85302"],
 });
