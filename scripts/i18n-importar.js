@@ -20,10 +20,11 @@ let sinSitio = [];
 for (const [k, v] of Object.entries(nuevas)) {
   const f = FICHEROS.find((x) => k in bases[x]);
   if (f) { (porFichero[f] = porFichero[f] || {})[k] = [v, I18N.huella(bases[f][k])]; continue; }
-  const t = Object.keys(datosBase).find((x) => datosBase[x].has(k));
-  if (t) {
-    if (cifras(v) !== cifras(datosBase[t].get(k))) console.warn(`  cifras distintas en ${k}: ${q(datosBase[t].get(k).slice(0, 80))}`);
-    (porTabla[t] = porTabla[t] || {})[k] = v; continue;
+  // un mismo texto (un nombre, un lugar) puede estar en varias tablas: va a todas
+  const tablas = Object.keys(datosBase).filter((x) => datosBase[x].has(k));
+  if (tablas.length) {
+    if (cifras(v) !== cifras(datosBase[tablas[0]].get(k))) console.warn(`  cifras distintas en ${k}: ${q(datosBase[tablas[0]].get(k).slice(0, 80))}`);
+    tablas.forEach((t) => { (porTabla[t] = porTabla[t] || {})[k] = v; }); continue;
   }
   sinSitio.push(k);
 }
