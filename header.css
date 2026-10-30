@@ -17,6 +17,14 @@
 .btn-topbar:hover, .btn-white:hover { background: #e2e6ee; color: #1b2a4a; }
 .btn-topbar:focus-visible, .btn-white:focus-visible { outline: none; box-shadow: 0 0 0 2px #ffd166; }
 
+/* Selector de idioma (shell.js · initIdiomas): botones ES | EN | DE al final de la cabecera */
+.idiomas { display: inline-flex; flex: none; border: 1px solid rgba(255,255,255,.45); border-radius: 6px; overflow: hidden; }
+.idiomas button { font: 600 12px/1 inherit; font-family: inherit; letter-spacing: .04em; padding: .5rem .6rem; min-width: 36px; background: transparent; color: #fff; border: 0; cursor: pointer; }
+.idiomas button + button { border-left: 1px solid rgba(255,255,255,.3); }
+.idiomas button:hover { background: rgba(255,255,255,.14); }
+.idiomas button[aria-pressed="true"] { background: #fff; color: var(--header); cursor: default; }
+.idiomas button:focus-visible { outline: none; box-shadow: inset 0 0 0 2px #ffd166; }
+
 /* font-size fijo: index.html (body 16px) y gobierno.html (body 14px) parten de bases distintas;
    se fija aquí para que el texto y los iconos del menú horizontal midan igual en las dos páginas. */
 .submenu { display: flex; align-items: center; gap: .25rem; padding: .6rem 1.25rem 0; background: var(--surface); border-bottom: 1px solid var(--border); box-shadow: 0 2px 4px rgba(15, 23, 42, .06); overflow-x: auto; position: sticky; top: var(--top-h, 63px); z-index: 4; font-size: 14px; }

@@ -1,10 +1,12 @@
 # Flujos de trabajo habituales (la demo es estática: no hay build)
-.PHONY: run test test-ia datos recorrido guion-docx capturas
+.PHONY: run test test-ia datos recorrido guion-docx capturas i18n-check i18n-estado i18n-marcar
 
 run: ## Sirve la demo en http://localhost:8792
 	python3 -m http.server 8792
 
-test: ## Pruebas de evidencias.js, cumplimiento.js, fraude.js, fechas.js, ahorro.js, adjuntos.js y del recorrido de la demo (sin dependencias, requiere Node)
+test: ## Pruebas de evidencias.js, cumplimiento.js, fraude.js, fechas.js, ahorro.js, adjuntos.js, del recorrido y de los idiomas (sin dependencias, requiere Node)
+	node tests/i18n.test.js
+	node scripts/i18n-check.js
 	node tests/evidencias.test.js
 	node tests/cumplimiento.test.js
 	node tests/fraude.test.js
@@ -12,6 +14,15 @@ test: ## Pruebas de evidencias.js, cumplimiento.js, fraude.js, fechas.js, ahorro
 	node tests/ahorro.test.js
 	node tests/adjuntos.test.js
 	node tests/recorrido.test.js
+
+i18n-check: ## Valida los idiomas: estricto con el español y lo común, aviso con el resto (IDIOMA=en o IDIOMA=en,de los pasa a estricto)
+	IDIOMA=$(IDIOMA) node scripts/i18n-check.js
+
+i18n-estado: ## Qué falta para poner al día cada idioma (IDIOMA=en para uno solo), con el texto base y la huella
+	IDIOMA=$(IDIOMA) node scripts/i18n-estado.js
+
+i18n-marcar: ## Tras poner al día un idioma: lo valida en estricto y guarda el commit actual en locales/<idioma>/estado.json (IDIOMA obligatorio)
+	IDIOMA=$(IDIOMA) node scripts/i18n-estado.js --marcar
 
 test-ia: ## Mide las evidencias con un modelo real (variables TRIAGE_*, ver tests/ia-real.js)
 	N=$(N) node tests/ia-real.js

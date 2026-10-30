@@ -12,7 +12,25 @@
   const leer = () => { try { return localStorage.getItem(CLAVE) !== '0'; } catch { return true; } };
   const guardar = (abierto) => { try { localStorage.setItem(CLAVE, abierto ? '1' : '0'); } catch { /* sin almacenamiento */ } };
 
+  // Selector de idioma al final de la cabecera, generado desde locales/idiomas.js (un idioma nuevo aparece solo).
+  // Cambiar recarga la página en el idioma elegido (I18N.cambiar, locales/cargar.js).
+  function initIdiomas() {
+    const destino = document.querySelector('.topbar .topbar-actions, .topbar .right');
+    if (!destino || typeof I18N === 'undefined' || destino.querySelector('.idiomas')) return;
+    const grupo = document.createElement('div');
+    grupo.className = 'idiomas';
+    grupo.setAttribute('role', 'group');
+    grupo.setAttribute('aria-label', I18N.t('comun.idioma'));
+    grupo.innerHTML = Object.entries(I18N.IDIOMAS).map(([cod, i]) => {
+      const txt = I18N.t('comun.idioma.cambiar', { nombre: i.nombre });
+      return `<button type="button" lang="${cod}" data-idioma="${cod}" aria-pressed="${cod === I18N.idioma}" title="${txt}" aria-label="${txt}">${i.corto}</button>`;
+    }).join('');
+    grupo.addEventListener('click', (ev) => { const b = ev.target.closest('[data-idioma]'); if (b) I18N.cambiar(b.dataset.idioma); });
+    destino.appendChild(grupo);
+  }
+
   function initShell({ onChange } = {}) {
+    initIdiomas();
     const shell = document.querySelector('.shell');
     if (!shell) return null;
     const pie = shell.querySelector('.sidenav-foot');
