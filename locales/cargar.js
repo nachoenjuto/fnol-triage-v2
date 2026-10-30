@@ -30,6 +30,7 @@
   const v = (document.currentScript && new URL(document.currentScript.src).searchParams.get('v')) || '1';
   const idiomas = idioma === BASE ? [BASE] : [BASE, idioma];   // el base siempre, para lo que falte por traducir
   idiomas.forEach((i) => I18N.FICHEROS.forEach((f) => document.write(`<script src="locales/${i}/${f}?v=${v}"><\/script>`)));
+  idiomas.forEach((i) => I18N.FICHEROS_MOTOR.forEach((f) => document.write(`<script src="locales/${i}/${f}?v=${v}"><\/script>`)));
   if (idioma !== BASE) I18N.FICHEROS_DATOS.forEach((f) => document.write(`<script src="locales/${idioma}/${f}?v=${v}"><\/script>`));
 
   // Los scripts van al final del <body>: el HTML ya está leído. Se rellena en cuanto llegan los textos y antes de

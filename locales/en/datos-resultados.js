@@ -25,7 +25,7 @@ I18N.registrarDatos('en', {
   "81488588": "Pedro Almagro Ruiz",
   "83906529": "Home occupied",
   "84355209": "Blood and urine test prescribed",
-  "87791661": "We only took out the insurance three weeks ago",
+  "87791661": "We took out the insurance only three weeks ago",
   "92453987": "Grey Seat León",
   "99289990": "Sports injury: not a road or workplace accident",
   "ae1b28a9": "Policy identified",

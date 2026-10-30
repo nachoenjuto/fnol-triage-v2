@@ -486,4 +486,5 @@ I18N.registrar('en', {
   "triaje.origen.sin_ficha": ["local rules (no saved record)","7bc10985"],
   "triaje.origen.archivo": ["{origen} (file)","99132cdc"],
   "triaje.origen.fallback": ["local rules (AI fallback: {error})","a65d0a8d"],
+  "triaje.motor.incumple": ["Breaks {reglas}","9540795a"],
 });

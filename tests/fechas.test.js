@@ -26,6 +26,8 @@ test('dd/mm, rangos y mm/aaaa', () => {
   assert.strictEqual(T('tormentas del 1–3/09;', 36), 'tormentas del 7–9/10;');
   assert.strictEqual(T('EIPD en 03/2026', 36), 'EIPD en 04/2026');
 });
+test('el día de la semana delante de dd/mm se recalcula y el mes cambia', () => assert.strictEqual(T('Hecho el jueves 10/09, comunicado', 43), 'Hecho el viernes 23/10, comunicado'));
+test('«el día 6 o 7 del plazo» no es una fecha', () => assert.strictEqual(T('Se comunica el día 6 o 7 del plazo', 36), 'Se comunica el día 6 o 7 del plazo'));
 test('día de la semana recalculado y mayúscula inicial respetada', () => {
   assert.strictEqual(T('El sábado 12 de septiembre', 36), 'El domingo 18 de octubre');
   assert.strictEqual(T('Sábado 12 de septiembre', 1), 'Domingo 13 de septiembre');

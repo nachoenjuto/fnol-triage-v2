@@ -9,7 +9,7 @@ const I18N = require('./i18n.js');
 module.exports = function cargarIdioma(idioma = I18N.BASE) {
   const idiomas = idioma === I18N.BASE ? [I18N.BASE] : [I18N.BASE, idioma];
   for (const i of idiomas) {
-    for (const f of I18N.FICHEROS) {
+    for (const f of [...I18N.FICHEROS, ...I18N.FICHEROS_MOTOR]) {
       const ruta = path.join(__dirname, i, f);
       if (fs.existsSync(ruta)) new Function('I18N', fs.readFileSync(ruta, 'utf8'))(I18N);
     }

@@ -1,7 +1,8 @@
 // Fechas siempre al día. Los datos de la demo están escritos con «hoy» = ANCLA (17/09/2026). Al cargar la página se
 // desplazan Δ días (hoy − ANCLA) todas las fechas de mensajes, resultados guardados y panel de gobierno:
-//   ISO (2026-09-14T09:12:00), dd/mm (13/09), mm/aaaa (03/2026), «12 de septiembre», «sábado 12 de septiembre»,
+//   ISO (2026-09-14T09:12:00), dd/mm (13/09, «jueves 10/09»), mm/aaaa (03/2026), «12 de septiembre», «sábado 12 de septiembre»,
 //   «el jueves 10», «el pasado día 8», «1–3/09» y «julio de 2026». El día de la semana se recalcula, la hora no cambia.
+// Las formas con nombres de días y meses dependen del idioma de los datos: I18N.motor('fechas'), en locales/<idioma>/motor.js.
 // Los desfases entre hecho, recepción y procesado se conservan (A2/H2 dan lo mismo) y las citas de las evidencias se
 // transforman igual que el mensaje, así que siguen siendo literales.
 // Antes de CORTE el «hoy» del dataset es ayer: las trazas del lote son de las 09:02 a las 09:41.
@@ -12,8 +13,6 @@
   const DIA = 864e5;
   // Fechas normativas que no se mueven (AI Act art. 50 aplicable desde el 02/08/2026)
   const FIJAS = ['02/08/2026'];
-  const DIAS = ['domingo', 'lunes', 'martes', 'miércoles', 'jueves', 'viernes', 'sábado'];
-  const MESES = ['enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio', 'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre'];
   const p2 = (n) => String(n).padStart(2, '0');
   const utc = (a, m, d) => Date.UTC(a, m - 1, d);
   const partes = (ms) => { const f = new Date(ms); return { a: f.getUTCFullYear(), m: f.getUTCMonth() + 1, d: f.getUTCDate(), s: f.getUTCDay() }; };
@@ -31,39 +30,47 @@
     return hhmm < CORTE ? d - 1 : d;
   }
 
-  const SEM = DIAS.join('|');
-  const MES = MESES.join('|');
-  const RE = new RegExp([
-    /(?<![\d-])(\d{4})-(\d{2})-(\d{2})(?!\d)/.source, // 1-3 ISO
-    `(?:(${SEM})\\s+)?(\\d{1,2}) de (${MES})(?: de (\\d{4}))?`, // 4-7 [día de la semana] d de mes [de aaaa]
-    `(${SEM})\\s+(\\d{1,2})(?!\\d| de )`, // 8-9 jueves 10
-    /\b(día) (\d{1,2})(?!\d| de )/.source, // 10-11 el pasado día 8
-    /(?<![\d/])(\d{1,2})[–-](\d{1,2})\/(0[5-9])(?![\d/])/.source, // 12-14 1–3/09
-    /(?<![\d/])(\d{1,2})\/(0[5-9])(?:\/(\d{4}))?(?![\d/])/.source, // 15-17 dd/mm[/aaaa]
-    /(?<![\d/])(0[1-9]|1[0-2])\/(20\d\d)(?![\d/])/.source, // 18-19 mm/aaaa
-    `\\b(${MES}) de (20\\d\\d)`, // 20-21 julio de 2026
-  ].join('|'), 'gi');
+  // Una expresión por idioma, con los grupos en el mismo orden en todos
+  const I18N = raiz.I18N || require('./locales/node.js')();
+  const cache = {};
+  function formas() {
+    if (cache[I18N.idioma]) return cache[I18N.idioma];
+    const P = I18N.motor('fechas');
+    const SEM = P.dias.join('|');
+    const MES = P.meses.join('|');
+    const re = new RegExp([
+      /(?<![\d-])(\d{4})-(\d{2})-(\d{2})(?!\d)/.source, // 1-3 ISO
+      P.diaMes(SEM, MES), // 4-7 [día de la semana] d de mes [de aaaa]
+      P.semanaDia(SEM, MES), // 8-9 jueves 10
+      P.diaSuelto(SEM, MES), // 10-11 el pasado día 8
+      /(?<![\d/])(\d{1,2})[–-](\d{1,2})\/(0[5-9])(?![\d/])/.source, // 12-14 1–3/09
+      `(?:(${SEM})\\s+)?${/(?<![\d/])(\d{1,2})\/(0[5-9])(?:\/(\d{4}))?(?![\d/])/.source}`, // 15-18 [día de la semana] dd/mm[/aaaa]
+      /(?<![\d/])(0[1-9]|1[0-2])\/(20\d\d)(?![\d/])/.source, // 19-20 mm/aaaa
+      P.mesAnio(SEM, MES), // 21-22 julio de 2026
+    ].join('|'), 'gi');
+    const mes = (nombre) => P.meses.findIndex((x) => x.toLowerCase() === nombre.toLowerCase()) + 1;
+    return (cache[I18N.idioma] = { P, re, mes });
+  }
+  const iso = (f) => `${f.a}-${p2(f.m)}-${p2(f.d)}`;
 
-  function desplazarTexto(s, dd) {
+  // `vistas` (opcional) recoge cada fecha ya desplazada en ISO: las pruebas comparan así los idiomas
+  function desplazarTexto(s, dd, vistas) {
     if (!dd || typeof s !== 'string') return s;
-    const mv = (ms) => partes(ms + dd * DIA);
-    return s.replace(RE, (m, ia, im, id, sem, d1, mes1, a1, sem2, d2, dia, d3, r1, r2, rm, d4, m4, a4, m5, a5, mes6, a6) => {
-      if (ia) { const f = mv(utc(+ia, +im, +id)); return `${f.a}-${p2(f.m)}-${p2(f.d)}`; }
-      if (d1) {
-        const f = mv(utc(a1 ? +a1 : 2026, MESES.indexOf(mes1.toLowerCase()) + 1, +d1));
-        const txt = `${sem ? `${DIAS[f.s]} ` : ''}${f.d} de ${MESES[f.m - 1]}${a1 ? ` de ${f.a}` : ''}`;
-        return mayus(m, txt);
-      }
-      if (sem2) { const f = mv(sinMes(+d2)); return mayus(m, `${DIAS[f.s]} ${f.d}`); }
-      if (dia) return `${dia} ${mv(sinMes(+d3)).d}`;
+    const { P, re, mes } = formas();
+    const mv = (ms) => { const f = partes(ms + dd * DIA); if (vistas) vistas.push(iso(f)); return f; };
+    return s.replace(re, (m, ia, im, id, sem, d1, mes1, a1, sem2, d2, dia, d3, r1, r2, rm, sem4, d4, m4, a4, m5, a5, mes6, a6) => {
+      if (ia) return iso(mv(utc(+ia, +im, +id)));
+      if (d1) return mayus(m, P.fmtDiaMes(mv(utc(a1 ? +a1 : 2026, mes(mes1), +d1)), !!sem, !!a1));
+      if (sem2) return mayus(m, P.fmtSemanaDia(mv(sinMes(+d2)), m));
+      if (dia) return P.fmtDiaSuelto(mv(sinMes(+d3)), dia, m);
       if (r1) { const f1 = mv(utc(2026, +rm, +r1)), f2 = mv(utc(2026, +rm, +r2)); return f1.m === f2.m ? `${f1.d}–${f2.d}/${p2(f2.m)}` : `${f1.d}/${p2(f1.m)}–${f2.d}/${p2(f2.m)}`; }
       if (d4) {
         if (FIJAS.includes(m)) return m;
         const f = mv(utc(a4 ? +a4 : 2026, +m4, +d4));
-        return `${d4.length === 1 ? f.d : p2(f.d)}/${p2(f.m)}${a4 ? `/${f.a}` : ''}`;
+        return mayus(m, `${sem4 ? `${P.dias[f.s]} ` : ''}${d4.length === 1 ? f.d : p2(f.d)}/${p2(f.m)}${a4 ? `/${f.a}` : ''}`);
       }
       if (m5) { const f = mv(utc(+a5, +m5, 15)); return `${p2(f.m)}/${f.a}`; }
-      if (mes6) { const f = mv(utc(+a6, MESES.indexOf(mes6.toLowerCase()) + 1, 15)); return mayus(m, `${MESES[f.m - 1]} de ${f.a}`); }
+      if (mes6) return mayus(m, P.fmtMesAnio(mv(utc(+a6, mes(mes6), 15))));
       return m;
     });
   }
@@ -93,7 +100,7 @@
   try { fijada = new URLSearchParams(location.search).get('fecha'); } catch { fijada = null; }
   const dd = delta(new Date(), fijada);
   api.dias = dd;
-  api.hoy = (() => { const f = partes(anclaMs + dd * DIA); return `${f.a}-${p2(f.m)}-${p2(f.d)}`; })();
+  api.hoy = iso(partes(anclaMs + dd * DIA));
   // Para «Cargar JSON» y «Reproducir desde archivo»: solo se desplazan los archivos generados en la fecha ancla
   api.alDia = (datos) => {
     if (!dd || !datos) return datos;

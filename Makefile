@@ -14,6 +14,7 @@ test: ## Pruebas de evidencias.js, cumplimiento.js, fraude.js, fechas.js, ahorro
 	node tests/ahorro.test.js
 	node tests/adjuntos.test.js
 	node tests/recorrido.test.js
+	node tests/motores-idioma.test.js
 
 i18n-check: ## Valida los idiomas: estricto con el español y lo común, aviso con el resto (IDIOMA=en o IDIOMA=en,de los pasa a estricto)
 	IDIOMA=$(IDIOMA) node scripts/i18n-check.js

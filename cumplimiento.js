@@ -107,9 +107,10 @@
     tercero: { etiqueta: I18N.t('cumpl.tercero_no_remitente'), tratamiento: I18N.t('cumpl.seudonimizado_informar_al_interesado'), normas: [N('rgpd-13'), N('rgpd-4-5')] },
   };
 
-  const NOMBRE = '[A-ZÁÉÍÓÚÑ][a-záéíóúñ]+(?:\\s[A-ZÁÉÍÓÚÑ][a-záéíóúñ]+){0,2}';
-  // [tipo, categoría, expresión, grupo con el dato (opcional)]
-  const DETECTORES = [
+  // [tipo, categoría, expresión, grupo con el dato (opcional), filtro (opcional)]. Los formatos (IBAN, DNI, teléfono,
+  // póliza, matrícula…) valen para todos los idiomas; direcciones, terceros, menores y salud se escriben distinto en
+  // cada uno y están en locales/<idioma>/motor.js (I18N.motor('cumplimiento')).
+  const FORMATOS = [
     ['iban', 'financiero', /\bES\d{2}(?:\s?\d{4}){5}\b/g],
     ['email', 'contacto', /\b[\w.+-]+@[\w-]+(?:\.[\w-]+)+\b/g],
     ['dni', 'identificativo', /\b\d{8}-?[A-HJ-NP-TV-Z]\b/g],
@@ -119,25 +120,19 @@
     ['poliza', 'indirecto', /\b(?:AU|HO|SA)-\d{6}\b/g],
     ['matricula', 'indirecto', /\b\d{4}\s?[BCDFGHJKLMNPRSTVWXYZ]{3}\b/g],
     ['expediente', 'indirecto', /\b\d{4}-\d{6}-[A-Z]{2}\b|\b\d{5}\/\d{2}\b/g],
-    ['direccion', 'localizacion', /\b(?:C\/|[Cc]alle|[Aa]venida|[Pp]laza)\s[A-ZÁÉÍÓÚ][\wÁÉÍÓÚáéíóúñ ]{1,30}?\s\d{1,3}(?:,\s*\d{1,2}\.º\s?[A-Z])?(?:,?\s*\d{5})?(?:,?\s+Madrid)?/g],
-    ['direccion', 'localizacion', /\bn\.º\s\d{1,3}\sde\sla\scalle\s[A-ZÁÉÍÓÚ][\wáéíóúñ]+(?:\s[A-ZÁÉÍÓÚ][\wáéíóúñ]+)*/g],
-    ['nombre_tercero', 'tercero', new RegExp(`\\b(?:mi (?:hijo|hija|marido|mujer|esposa?|padre|madre)|[Ee]l vecino|el otro conductor es|\\bDra?\\.)(?:,)?\\s(${NOMBRE})`, 'g'), 1],
-    ['menor', 'menor', /\b[Ll]os niños del vecino\b/g],
-    ['menor', 'menor', /\((\d{1,2}) años\)/g, 0, (m) => Number(m[1]) < 18],
   ];
-  const SALUD = [
-    /\bfractura de [a-záéíóúñ]+(?: y (?:dos |tres )?[a-záéíóúñ]+)?/gi,
-    /\besguince(?: de grado [IV]+)?/gi,
-    /\bcrisis de asma\b/gi, /\basmátic[oa] desde [a-záéíóúñ]+\b/gi, /\bes diabétic[oa]\b/gi,
-    /\bdolor lumbar\b/gi, /\bdolor de oído\b/gi, /\botitis\b/gi,
-    /\bradiografía(?: de (?:columna )?[a-záéíóúñ]+(?: lumbar)?| del [a-záéíóúñ]+)?/gi,
-    /\b(?:analítica completa|gasometría|nebulizaciones|corticoides(?: orales)?|ibuprofeno|antiinflamatorio|inhalador|férula)\b/gi,
-    /\ble tienen que operar(?: la [a-záéíóúñ]+)?/gi,
-    /\bingresad[oa]\b/gi,
-    /\burgencias(?: pediátricas)?\b/gi,
-    /\bme he torcido el tobillo(?: derecho| izquierdo)?/gi,
-    /\bse ha hecho daño en el brazo(?: izquierdo| derecho)?/gi,
-  ];
+  const NOMBRE = '[A-ZÁÉÍÓÚÑ][a-záéíóúñ]+(?:\\s[A-ZÁÉÍÓÚÑ][a-záéíóúñ]+){0,2}';
+  const detectores = {};
+  function DETECTORES() {
+    if (detectores[I18N.idioma]) return detectores[I18N.idioma];
+    const P = I18N.motor('cumplimiento');
+    return (detectores[I18N.idioma] = [
+      ...FORMATOS,
+      ...P.direccion.map((re) => ['direccion', 'localizacion', re]),
+      ['nombre_tercero', 'tercero', P.nombreTercero(NOMBRE), 1],
+      ...P.menor.map(([re, filtro]) => ['menor', 'menor', re, 0, filtro]),
+    ]);
+  }
 
   const limpiarNombre = (s) => String(s || '').replace(/\s*\(.*$/, '').trim();
 
@@ -159,7 +154,7 @@
       let i = t.indexOf(nom);
       while (i >= 0) { add(tipo, cat, i, i + nom.length); i = t.indexOf(nom, i + nom.length); }
     });
-    for (const [tipo, cat, re, grupo, filtro] of DETECTORES) {
+    for (const [tipo, cat, re, grupo, filtro] of DETECTORES()) {
       re.lastIndex = 0;
       for (const m of t.matchAll(re)) {
         if (filtro && !filtro(m)) continue;
@@ -169,7 +164,7 @@
         add(tipo, cat, ini, ini + dato.length);
       }
     }
-    for (const re of SALUD) { re.lastIndex = 0; for (const m of t.matchAll(re)) add('salud', 'salud', m.index, m.index + m[0].length); }
+    for (const re of I18N.motor('cumplimiento').salud) { re.lastIndex = 0; for (const m of t.matchAll(re)) add('salud', 'salud', m.index, m.index + m[0].length); }
     return out.sort((a, b) => a.inicio - b.inicio || b.fin - a.fin);
   }
 
@@ -291,14 +286,11 @@
   // Explicabilidad: por qué este ramo y por qué no los otros
   // ---------------------------------------------------------------------------
   const RAMOS = ['Auto', 'Hogar', 'Salud'];
-  const INDICIOS = {
-    Auto: /\b(?:coche|moto|veh[ií]culo|matr[ií]cula|parking|taller|parte amistoso|parabrisas|conductor|rotonda|autov[ií]a|AU-\d{6})\b/gi,
-    Hogar: /\b(?:casa|vivienda|cocina|sal[oó]n|ventana|cristal|tarima|fregadero|televisor|urbanizaci[oó]n|cajones|HO-\d{6})\b/gi,
-    Salud: /\b(?:urgencias|hospital|m[eé]dico|radiograf[ií]a|traumat[oó]log[oa]|cuadro m[eé]dico|pediatra|fractura|asma|SA-\d{6})\b/gi,
-  };
+  // Palabras que apuntan a cada ramo: I18N.motor('cumplimiento').indicios
   function indicios(texto, ramo) {
-    INDICIOS[ramo].lastIndex = 0;
-    return [...new Set([...String(texto).matchAll(INDICIOS[ramo])].map((m) => m[0].toLowerCase()))];
+    const re = I18N.motor('cumplimiento').indicios[ramo];
+    re.lastIndex = 0;
+    return [...new Set([...String(texto).matchAll(re)].map((m) => m[0].toLowerCase()))];
   }
   function descartados(texto, entry) {
     return RAMOS.filter((r) => r !== entry.ramo).map((r) => {

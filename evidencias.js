@@ -118,45 +118,13 @@
   // ---------------------------------------------------------------------------
   // Respaldo sin IA: reconstruye evidencias desde lo que ya hay (datos extraídos, criterios y citas entre comillas)
   // ---------------------------------------------------------------------------
-  const MESES = 'enero|febrero|marzo|abril|mayo|junio|julio|agosto|septiembre|octubre|noviembre|diciembre';
-  const DIAS = 'lunes|martes|mi[eé]rcoles|jueves|viernes|s[aá]bado|domingo';
-  const PATRON_FECHA = [
-    new RegExp(`\\b(?:(?:${DIAS})\\s+)?\\d{1,2}\\s+de\\s+(?:${MESES})(?:\\s+de\\s+\\d{4})?\\b`, 'i'),
-    new RegExp(`\\b(?:el\\s+)?(?:${DIAS})\\s+\\d{1,2}\\b`, 'i'),
-    /\b(?:ayer|anoche|hoy)\s+\d{1,2}\/\d{1,2}\b/i,
-    /\b\d{1,2}\/\d{1,2}(?:\/\d{2,4})?\b/,
-    /\b(?:ayer|anoche|hoy|este\s+finde|el\s+pasado\s+d[ií]a\s+\d{1,2}|esta\s+(?:ma[ñn]ana|tarde|noche)|ahora\s+mismo|hace\s+\w+\s+(?:d[ií]as?|semanas?))\b/i,
-  ];
-  const PATRON_IMPORTE = /(\d{1,3}(?:\.\d{3})+|\d+(?:,\d+)?)\s?(?:€|euros?)/gi;
-  const PATRON_HORA = /\b(?:sobre|hacia|a)\s+las\s+\d{1,2}(?::\d{2})?\s*(?:h\b)?/i;
+  // Lo que depende del idioma del mensaje (fechas, importes, horas, lesiones, documentos y patrones por regla) está
+  // en locales/<idioma>/motor.js: I18N.motor('evidencias'). Vehículo con matrícula y centro sanitario son nombres
+  // propios y valen para todos.
+  const P = () => I18N.motor('evidencias');
   // Vehículo con su matrícula (así no se confunde con el del tercero, que no suele llevarla)
   const PATRON_VEHICULO = /\b(?:Seat|Peugeot|Toyota|Renault|Opel|Volkswagen|Kia|Nissan|Skoda|Citro[eë]n|Ford|Honda|BMW|Audi|Mercedes|Hyundai|Dacia|Fiat)\s+[\wÀ-ÿ-]+(?:\s+[\wÀ-ÿ-]+)?\s+\d{4}\s?[A-Z]{3}\b/;
   const PATRON_CENTRO = /\b(?:Hospital|Cl[ií]nica|Centro M[eé]dico)\s+[A-ZÁÉÍÓÚ][\wÁÉÍÓÚáéíóúñÑ-]*(?:\s+(?:[A-ZÁÉÍÓÚ][\wÁÉÍÓÚáéíóúñÑ-]*|de|del|la))*[A-Za-zÁÉÍÓÚáéíóúñÑ]/;
-  const PATRON_LESION = /\b(?:fractura de [a-záéíóúñ]+(?: y [^,.;]{1,20})?|esguince(?: de grado [IV]+)?|herid[oa]s? (?:leve|grave)s?|ingresad[oa]\b|contusi[oó]n[^,.;]{0,20}|\d+ puntos)/i;
-  const PATRON_SIN_LESION = /\b(?:no hubo heridos|nadie (?:se ha hecho|ha resultado) (?:da[ñn]o|herido)|sin heridos|nadie herido)\b/i;
-  const PATRON_DOCS = /\b(parte amistoso|atestado|denuncia|facturas?|presupuesto|informe(?: de [a-záéíóúñ]+)?|fotos?|tarjeta(?: sanitaria)?(?: [\d ]{9,})?|prescripci[oó]n|volante)\b/gi;
-
-  // Patrones por regla (solo para el motor local: no hay modelo que cite)
-  const PATRON_REGLA = {
-    A3: /mi\s+(?:hijo|hija|sobrin\w+|amig\w+|novi\w+|cu[ñn]ad\w+)[^.]{0,60}?\b(?:cogi[oó]|conduc\w+|llevaba)\b/i,
-    A4: /\b(?:cervez\w+|alcohol|copas|drog\w+|sin carn[eé]|sin permiso)\b/i,
-    A5: /\b(?:herid\w+|lesion\w+|fractura[^,.;]*|ingresad\w+|ambulancia)\b/i,
-    A6: PATRON_IMPORTE,
-    H2: /\b(?:desde hace [^.,]*|hace (?:unos|varios|un par de) (?:meses|semanas))\b/i,
-    H3: /\b(?:humedad\w*|filtraci\w+|condensaci\w+|silicona|junta)\b/i,
-    H4: /\b(?:se han llevado[^.,;]*|rob\w+|sustra\w+|han entrado en casa)\b/i,
-    H5: /\b(?:cristal\w*|mampara|vitrocer[aá]mica|sobretensi[oó]n|subida de tensi[oó]n)\b/i,
-    H9: PATRON_IMPORTE,
-    S2: /\b(?:oper\w+|cirug[ií]a|hospitaliz\w+|ingres\w+)\b/i,
-    S3: /\b(?:arrastraba|ya ten[ií]a|desde hace (?:a[ñn]os|un par de a[ñn]os))\b/i,
-    S4: /\b(?:me operaron|ya me han operado|adjunto la factura|\d+\s+sesiones)\b/i,
-    S5: /\b(?:fuera del cuadro|no est[aá] en (?:vuestro|el) cuadro|cl[ií]nica privada|cuadro m[eé]dico)\b/i,
-    S7: /\breembols\w+/i,
-    S8: /\b(?:laboral|en el trabajo|mutua|accidente de tr[aá]fico)\b/i,
-  };
-
-  const fmtMiles = (n) => String(Math.round(n)).replace(/\B(?=(\d{3})+(?!\d))/g, '.');
-  const fmtEuros = (n) => `${fmtMiles(n)} €`;
 
   // Fragmentos entre comillas de un criterio («...», "...", “...”) y el trozo tras los dos puntos
   function citasDeTexto(s) {
@@ -169,49 +137,52 @@
   function respaldo(texto, entry = {}) {
     const t = String(texto ?? '');
     const datos = entry.datos_extraidos || {};
+    const p = P();
     const out = [];
     const add = (ref, cita, nota) => { if (cita) out.push({ ref, cita, nota }); };
     const buscar = (re) => { re.lastIndex = 0; const m = re.exec(t); return m ? m[0] : null; };
 
-    // Ramo: citas entre comillas de criterios_ramo o, en el motor local, las palabras clave del ramo asignado
+    // Ramo: citas entre comillas de criterios_ramo o, en el motor local, las palabras clave del ramo asignado. Las
+    // palabras clave van al final (si se solapan con un dato o una regla, gana la regla), sin el número de póliza
+    // y solo las que están en el texto (el ramo también se decide con el asunto).
+    const palabrasRamo = [];
     for (const c of entry.criterios_ramo || []) {
       const citas = citasDeTexto(c);
       const resto = String(c).replace(/["“«][^"”»]*["”»]\s*:?\s*/, '').trim();
       if (citas.length) { citas.forEach((q) => add('ramo', q, resto || I18N.t('evid.indicio_del_ramo'))); continue; }
-      const local = String(c).match(/^(Auto|Hogar|Salud): (.+) \(\d+\)$/);
-      if (local && local[1] === entry.ramo && !/sin indicios/.test(local[2])) local[2].split(', ').slice(0, 3).forEach((w) => add('ramo', w, I18N.t('evid.indicio_de', { ramo: entry.ramo })));
+      const local = String(c).match(/^(Auto|Hogar|Salud): (.+) \((\d+)\)$/);
+      if (local && local[1] === entry.ramo && +local[3] > 0) palabrasRamo.push(...local[2].split(', ').filter((w) => w.toLowerCase() !== String(datos.numero_poliza || '').toLowerCase() && localizar(t, w)).slice(0, 3));
     }
 
     if (datos.numero_poliza) add('numero_poliza', String(datos.numero_poliza), I18N.t('evid.poliza_identificada'));
-    if (datos.fecha_hecho) { for (const re of PATRON_FECHA) { const f = buscar(re); if (f) { add('fecha_hecho', f, I18N.t('evid.fecha_del_hecho')); break; } } }
+    if (datos.fecha_hecho) { for (const re of p.fecha) { const f = buscar(re); if (f) { add('fecha_hecho', f, I18N.t('evid.fecha_del_hecho')); break; } } }
     if (datos.importe_estimado_eur != null) {
-      PATRON_IMPORTE.lastIndex = 0;
       let n = 0;
-      for (const m of t.matchAll(PATRON_IMPORTE)) { if (n++ >= 3) break; add('importe_estimado_eur', m[0], `Importe mencionado (total estimado ${fmtEuros(datos.importe_estimado_eur)})`); }
+      for (const m of t.matchAll(p.importe)) { if (n++ >= 3) break; add('importe_estimado_eur', m[0], I18N.t('evid.importe_mencionado', { total: I18N.fmt.eur(datos.importe_estimado_eur) })); }
     }
     if (datos.lugar) {
-      const l = String(datos.lugar); const partes = [l, l.split(',')[0], l.replace(/^.*?\b(?:de|del|en)\s+(?=[A-ZÁÉÍÓÚ])/, '')];
+      const l = String(datos.lugar); const partes = [l, l.split(',')[0], l.replace(p.antesDelLugar, '')];
       const hallada = partes.find((p) => p && localizar(t, p));
       if (hallada) add('lugar', hallada, I18N.t('evid.lugar_del_hecho'));
     }
     // Hora, vehículo, centro sanitario y lesiones: suman evidencias cuando el modelo cita poco
-    const hora = buscar(PATRON_HORA); if (hora && datos.fecha_hecho) add('fecha_hecho', hora, I18N.t('evid.hora_del_hecho'));
+    const hora = buscar(p.hora); if (hora && datos.fecha_hecho) add('fecha_hecho', hora, I18N.t('evid.hora_del_hecho'));
     if (entry.ramo === 'Auto') { const v = buscar(PATRON_VEHICULO); if (v) add('ramo', v, I18N.t('evid.vehiculo_asegurado')); }
     if (entry.ramo === 'Salud') { const h = buscar(PATRON_CENTRO); if (h) add('lugar', h, I18N.t('evid.centro_sanitario')); }
-    if (datos.lesionados) { const l = buscar(PATRON_LESION); if (l) add('lesionados', l, I18N.t('evid.lesion_mencionada')); }
-    else { const l = buscar(PATRON_SIN_LESION); if (l) add('lesionados', l, I18N.t('evid.sin_lesionados')); }
-    PATRON_DOCS.lastIndex = 0;
+    if (datos.lesionados) { const l = buscar(p.lesion); if (l) add('lesionados', l, I18N.t('evid.lesion_mencionada')); }
+    else { const l = buscar(p.sinLesion); if (l) add('lesionados', l, I18N.t('evid.sin_lesionados')); }
     const vistos = new Set();
-    for (const m of t.matchAll(PATRON_DOCS)) { const k = m[0].toLowerCase(); if (vistos.has(k) || vistos.size >= 3) continue; vistos.add(k); add('documentacion_mencionada', m[0].trim(), I18N.t('evid.documentacion_mencionada')); }
+    for (const m of t.matchAll(p.docs)) { const k = m[0].toLowerCase(); if (vistos.has(k) || vistos.size >= 3) continue; vistos.add(k); add('documentacion_mencionada', m[0].trim(), I18N.t('evid.documentacion_mencionada')); }
 
     for (const c of entry.criterios || []) {
       if (c.resultado === 'no_aplica') continue;
       const citas = citasDeTexto(c.evidencia);
       const origenLocal = /^reglas locales/.test(entry.origen || '') || !citas.length;
-      const pat = PATRON_REGLA[c.regla];
+      const pat = p.reglas[c.regla];
       const hallada = citas[0] || (c.resultado === 'incumple' && origenLocal && pat ? buscar(pat instanceof RegExp ? new RegExp(pat.source, pat.flags.replace('g', '')) : pat) : null);
       if (hallada) add(`regla:${c.regla}`, hallada, c.evidencia || c.descripcion);
     }
+    palabrasRamo.forEach((w) => add('ramo', w, I18N.t('evid.indicio_de', { ramo: entry.ramo })));
     return out;
   }
 

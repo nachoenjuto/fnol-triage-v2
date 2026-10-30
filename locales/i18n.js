@@ -16,6 +16,8 @@
   const FICHEROS = ['ui.js', 'ui-triaje.js', 'ui-gobierno.js', 'ui-intro.js'];
   // Tablas de traducción de los datos (solo en los idiomas que no son el base: ver traducirDatos)
   const FICHEROS_DATOS = ['datos-mensajes.js', 'datos-resultados.js', 'datos-gobierno.js', 'datos-fraude.js', 'datos-prompts.js'];
+  // Expresiones que leen el texto de los mensajes (motor local, fechas, evidencias, datos personales, fraude)
+  const FICHEROS_MOTOR = ['motor.js'];
   const textos = {};          // { es: { clave: valor }, en: {...} }
   const avisadas = new Set(); // claves que faltan, avisadas una sola vez en consola
   let activo = BASE;
@@ -128,8 +130,17 @@
     return r;
   }
 
+  // ── Expresiones por idioma (locales/<idioma>/motor.js) ──
+  // I18N.motor('local') devuelve las del idioma activo; lo que no define ese idioma se toma del idioma base.
+  const motores = {};
+  function registrarMotor(idioma, packs) { motores[idioma] = Object.assign(motores[idioma] || {}, packs); }
+  function motor(modulo) {
+    const base = (motores[BASE] || {})[modulo] || {};
+    return activo === BASE ? base : { ...base, ...((motores[activo] || {})[modulo] || {}) };
+  }
+
   const I18N = {
-    IDIOMAS, BASE, FICHEROS, FICHEROS_DATOS, huella, registrarDatos, recorrerDatos, traducirDatos, esTraducible,
+    IDIOMAS, BASE, FICHEROS, FICHEROS_DATOS, FICHEROS_MOTOR, registrarMotor, motor, huella, registrarDatos, recorrerDatos, traducirDatos, esTraducible,
     tablaDatos: (idioma) => tablasDatos[idioma] || {}, registrar, usar, t, fmt, aplicar, valor,
     get idioma() { return activo; },
     get locale() { return locale(); },
