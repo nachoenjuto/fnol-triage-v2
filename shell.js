@@ -6,7 +6,7 @@
   'use strict';
 
   // Usuario de la demo: no hay autenticación, se simula una sesión iniciada
-  const USUARIO = { nombre: 'Ignacio Sánchez', rol: 'Responsable de Siniestros', iniciales: 'IS' };
+  const USUARIO = { nombre: 'Ignacio Sánchez', rol: I18N.t('shell.responsable_de_siniestros'), iniciales: 'IS' };
   const CLAVE = 'shell.nav';
 
   const leer = () => { try { return localStorage.getItem(CLAVE) !== '0'; } catch { return true; } };
@@ -34,9 +34,9 @@
     const shell = document.querySelector('.shell');
     if (!shell) return null;
     const pie = shell.querySelector('.sidenav-foot');
-    pie.innerHTML = `<div class="usuario" title="${USUARIO.nombre} · ${USUARIO.rol} (sesión simulada)">
+    pie.innerHTML = `<div class="usuario" title="${I18N.t('shell.sesion_simulada', { nombre: USUARIO.nombre, rol: USUARIO.rol })}">
         <span class="avatar" aria-hidden="true">${USUARIO.iniciales}</span>
-        <span class="lbl"><b>${USUARIO.nombre}</b><small>${USUARIO.rol} · sesión simulada</small></span>
+        <span class="lbl"><b>${USUARIO.nombre}</b><small>${I18N.t('shell.sesion_simulada_2', { rol: USUARIO.rol })}</small></span>
       </div>
       <button type="button" class="sidenav-toggle nav-item" aria-expanded="true"></button>`;
     const boton = pie.querySelector('.sidenav-toggle');
@@ -44,7 +44,7 @@
     const set = (abierto, { guardarEstado = true } = {}) => {
       shell.classList.toggle('nav-collapsed', !abierto);
       boton.setAttribute('aria-expanded', String(abierto));
-      const txt = abierto ? 'Plegar menú' : 'Desplegar menú';
+      const txt = abierto ? I18N.t('shell.plegar_menu') : I18N.t('shell.desplegar_menu');
       boton.innerHTML = `${lucide(abierto ? 'panel-left-close' : 'panel-left-open')}<span class="lbl">${txt}</span>`;
       boton.title = txt; boton.setAttribute('aria-label', txt);
       if (guardarEstado) guardar(abierto);
@@ -73,9 +73,9 @@
   // Con una ventana modal abierta, el panel y los subtítulos se mueven dentro de ella para seguir visibles y usables.
   // ---------------------------------------------------------------------------
   const PAGINA_URL = { intro: 'intro.html', triaje: 'index.html', gobierno: 'gobierno.html' };
-  const PAGINA_LBL = { intro: 'Introducción', triaje: 'Triaje', gobierno: 'Gobierno' };
+  const PAGINA_LBL = { intro: I18N.t('shell.introduccion'), triaje: I18N.t('shell.triaje'), gobierno: I18N.t('shell.gobierno') };
   // Tipos de subtítulo (data/recorrido.js, generado desde _docs/guion-demo.md): cada uno se puede mostrar u ocultar
-  const TIPOS = { intro: ['message-circle', 'Introducción'], para: ['lightbulb', 'Para qué sirve'], que: ['cpu', 'Qué es y qué hace'], valor: ['shield-check', 'Valor'] };
+  const TIPOS = { intro: ['message-circle', I18N.t('shell.introduccion')], para: ['lightbulb', I18N.t('shell.para_que_sirve')], que: ['cpu', I18N.t('shell.que_es_y_que')], valor: ['shield-check', I18N.t('shell.valor')] };
   const CPS = 15; const CUE_MIN = 4000;   // velocidad de lectura (caracteres por segundo) y tiempo mínimo por subtítulo
   const PASOS = (typeof RECORRIDO_DEMO !== 'undefined' ? RECORRIDO_DEMO : root.RECORRIDO_DEMO || { pasos: [] }).pasos;
   const CLAVE_PRES = 'demo.presentador';        // sessionStorage: modo presentador desbloqueado en esta pestaña
@@ -203,7 +203,7 @@
   const ACC_ESTADO = ['agente', 'guardrail', 'medida', 'alteracion', 'kb-aplicar', 'replay'];
   const ACC_VISTA = ['ver', 'arriba', 'sel', 'paquete', 'cerrar', 'espera'];
   const tipoAcc = (lista) => { const n = (lista || []).map((a) => a.split(':')[0]); return n.some((x) => ACC_ESTADO.includes(x)) ? 'estado' : n.some((x) => !ACC_VISTA.includes(x)) ? 'ventana' : n.length ? 'vista' : ''; };
-  const ICONO_ACC = { estado: ['mouse-pointer-click', 'Cambia el estado de la demo'], ventana: ['app-window', 'Abre una ventana o una pestaña'], vista: ['scan-eye', 'Lleva la vista a un bloque'] };
+  const ICONO_ACC = { estado: ['mouse-pointer-click', I18N.t('shell.cambia_el_estado_de')], ventana: ['app-window', I18N.t('shell.abre_una_ventana_o')], vista: ['scan-eye', I18N.t('shell.lleva_la_vista_a')] };
   // Con una ventana modal abierta todo lo de fuera queda inerte y debajo: el panel y los subtítulos se mudan a ella
   const anclar = () => {
     if (typeof document === 'undefined') return;
@@ -232,15 +232,15 @@
           ev.preventDefault();
           const inp = d.querySelector('input');
           if ((await sha256Hex(inp.value)) === HASH_CLAVE) { d.close(); this.activarPresentador(); return; }
-          d.querySelector('.rec-clave-err').textContent = 'Contraseña incorrecta.';
+          d.querySelector('.rec-clave-err').textContent = I18N.t('shell.contrasena_incorrecta');
           inp.value = ''; inp.focus(); d.classList.remove('mal'); void d.offsetWidth; d.classList.add('mal');
         });
         d.addEventListener('click', (ev) => { if (ev.target.closest('[data-clave-cancelar]')) d.close(); });
       }
-      d.innerHTML = `<form method="dialog"><div class="rec-clave-cab">${lucide('lock')}<h2 id="rec-clave-t">Activar el modo presentador</h2></div>
-        <p>Da acceso al recorrido de la demo y a su reproducción automática.</p>
-        <label>Contraseña<input type="password" autocomplete="off" required></label><p class="rec-clave-err" role="alert"></p>
-        <div class="rec-fila"><button type="button" class="btn btn-sm" data-clave-cancelar>Cancelar</button><button type="submit" class="btn btn-sm btn-primary">${lucide('check')} Activar</button></div></form>`;
+      d.innerHTML = `<form method="dialog"><div class="rec-clave-cab">${lucide('lock')}<h2 id="rec-clave-t">${I18N.t('shell.activar_el_modo_presentador')}</h2></div>
+        <p>${I18N.t('shell.da_acceso_al_recorrido')}</p>
+        <label>${I18N.t('shell.contrasena')}<input type="password" autocomplete="off" required></label><p class="rec-clave-err" role="alert"></p>
+        <div class="rec-fila"><button type="button" class="btn btn-sm" data-clave-cancelar>${I18N.t('shell.cancelar')}</button><button type="submit" class="btn btn-sm btn-primary">${lucide('check')} ${I18N.t('shell.activar')}</button></div></form>`;
       d.showModal(); d.querySelector('input').focus();
     },
     empezar() { const r = leerRec(); r.activo = true; r.min = false; guardarRec(r); this.pintar(); },
@@ -258,12 +258,12 @@
       // Fuera del clic en curso: así un popover que abra el paso no lo cierra el propio clic al terminar.
       // La acción devuelve un aviso (texto) o { aviso, listo }: con «listo», la cuenta del paso espera a que se cumpla.
       setTimeout(() => {
-        let res; try { res = fn ? fn(...args) : ''; } catch (e) { res = `No se pudo ejecutar el paso: ${e.message}`; }
+        let res; try { res = fn ? fn(...args) : ''; } catch (e) { res = I18N.t('shell.no_se_pudo_ejecutar', { message: e.message }); }
         const o = res && typeof res === 'object' ? res : { aviso: res };
         this.aviso = typeof o.aviso === 'string' ? o.aviso : '';
         // Paso que necesita el Paquete A procesado: si falta, se avisa y se ofrece ir al paso que lo procesa
         const l = p.requiere === 'lote' && this.acciones.lote ? this.acciones.lote() : null;
-        if (l && !l.procesando && l.hechos < l.total) { this.aviso = `Falta procesar el Paquete A (${l.hechos}/${l.total}). Ve al paso «Procesar el Paquete A» y espera a que termine.`; this.avisoIr = PASOS.findIndex((x) => x.accion === 'procesar'); }
+        if (l && !l.procesando && l.hechos < l.total) { this.aviso = I18N.t('shell.falta_procesar_el_paquete', { hechos: l.hechos, total: l.total }); this.avisoIr = PASOS.findIndex((x) => x.accion === 'procesar'); }
         this.arrancar(typeof o.listo === 'function' ? o.listo : null);
         this.pintar();
       }, 0);
@@ -277,7 +277,7 @@
       const r = leerRec(); const conf = leerConf();
       if (r.paso < PASOS.length - 1) return this.ir(r.paso + 1);
       if (conf.alTerminar === 'repetir') { r.vistos = []; guardarRec(r); return this.ir(0); }
-      r.reproduciendo = false; guardarRec(r); this.aviso = 'Fin del recorrido.'; this.pintar();
+      r.reproduciendo = false; guardarRec(r); this.aviso = I18N.t('shell.fin_del_recorrido'); this.pintar();
     },
     reproducir() {
       const r = leerRec(); r.reproduciendo = true; guardarRec(r); this.aviso = '';
@@ -324,14 +324,14 @@
         el.querySelectorAll('.rec-prog').forEach((b) => {
           b.querySelector('i').style.width = `${pct}%`; b.querySelector('.rec-tirador').style.left = `${pct}%`;
           b.classList.toggle('activo', activo); b.setAttribute('aria-valuenow', String(Math.round(pct)));
-          b.setAttribute('aria-valuetext', activo ? `${mmss(t)} de ${mmss(D)}` : 'Sin paso en curso');
+          b.setAttribute('aria-valuetext', activo ? I18N.t('shell.de', { mmss: mmss(t), D: mmss(D) }) : I18N.t('shell.sin_paso_en_curso'));
         });
         const l = reloj.fase === 'esperando' && this.acciones.lote ? this.acciones.lote() : null;
         const txt = {
-          esperando: l && l.procesando ? `Esperando a que termine el lote (${l.hechos}/${l.total})…` : 'Esperando a que termine el paso…',
-          contando: r.reproduciendo ? `${ultimo && conf.alTerminar === 'parar' ? 'Fin' : 'Siguiente pantalla'} en ${mmss(D - t)}` : `Paso en curso · ${mmss(t)} de ${mmss(D)}`,
-          pausado: `En pausa · quedan ${mmss(D - t)}`,
-          fin: r.reproduciendo ? '' : 'Paso completado',
+          esperando: l && l.procesando ? I18N.t('shell.esperando_a_que_termine', { hechos: l.hechos, total: l.total }) : I18N.t('shell.esperando_a_que_termine_2'),
+          contando: r.reproduciendo ? I18N.t('shell.en', { siguiente_pantalla: ultimo && conf.alTerminar === 'parar' ? I18N.t('shell.fin') : I18N.t('shell.siguiente_pantalla'), D: mmss(D - t) }) : I18N.t('shell.paso_en_curso_de', { mmss: mmss(t), D: mmss(D) }),
+          pausado: I18N.t('shell.en_pausa_quedan', { D: mmss(D - t) }),
+          fin: r.reproduciendo ? '' : I18N.t('shell.paso_completado'),
         }[reloj.fase] || '';
         el.querySelectorAll('.rec-estado').forEach((x) => { if (x.textContent !== txt) x.textContent = txt; });
         el.querySelectorAll('.rec-cuenta').forEach((x) => { const c = reloj.fase === 'contando' || reloj.fase === 'pausado' ? mmss(D - t) : reloj.fase === 'esperando' ? (l && l.procesando ? `${l.hechos}/${l.total}` : '…') : ''; if (x.textContent !== c) x.textContent = c; });
@@ -405,7 +405,7 @@
     },
     avisoEspera() {
       const l = this.acciones.lote ? this.acciones.lote() : null;
-      this.aviso = `Espera: el lote se está procesando${l && l.procesando ? ` (${l.hechos}/${l.total})` : ''}. Podrás avanzar cuando termine.`; this.avisoTipo = 'espera'; this.pintar();
+      this.aviso = I18N.t('shell.espera_el_lote_se', { total: l && l.procesando ? ` (${l.hechos}/${l.total})` : '' }); this.avisoTipo = 'espera'; this.pintar();
     },
     // Subtítulo siguiente / anterior: dentro del paso; en el último pasa al primero del paso siguiente y en el primero,
     // al último del anterior. Con el paso sin arrancar, lo arranca.
@@ -442,7 +442,7 @@
       if (k === reloj.cue && s.dataset.paso === String(r.paso)) return;
       reloj.cue = k; s.dataset.paso = String(r.paso);
       const u = subs[k]; const [ico, lbl] = TIPOS[u.tipo] || TIPOS.intro;
-      s.innerHTML = `<div class="rs-cab">Paso ${r.paso + 1} · ${escR(p.titulo)}${subs.length > 1 ? ` · ${k + 1}/${subs.length}` : ''}</div>
+      s.innerHTML = `<div class="rs-cab">${I18N.t('shell.paso', { paso: r.paso + 1, titulo: escR(p.titulo), subs: subs.length > 1 ? ` · ${k + 1}/${subs.length}` : '' })}</div>
         <p class="rs-tipo rs-${escR(u.tipo)}">${lucide(ico)}<span>${escR(u.etiqueta || lbl)}</span></p><p class="rs-txt">${escR(u.texto)}</p>`;
       s.classList.remove('entra'); void s.offsetWidth; s.classList.add('entra');
     },
@@ -460,25 +460,25 @@
       let el = byId('recorrido');
       const r = leerRec(); const conf = leerConf();
       if (!presentador() || !r.activo) { if (el) el.remove(); const s = byId('rec-subs'); if (s) s.remove(); return; }
-      if (!el) { el = Object.assign(document.createElement('aside'), { id: 'recorrido', className: 'recorrido' }); el.setAttribute('aria-label', 'Recorrido de la demo'); document.body.appendChild(el); }
+      if (!el) { el = Object.assign(document.createElement('aside'), { id: 'recorrido', className: 'recorrido' }); el.setAttribute('aria-label', I18N.t('shell.recorrido_de_la_demo')); document.body.appendChild(el); }
       const scroll = (el.querySelector('.rec-cuerpo') || {}).scrollTop || 0;
       const cfg = this.vista === 'config' && !r.min;
       el.classList.toggle('min', !!r.min); el.classList.toggle('cfg', cfg);
       const p = pasoDe(r.paso, conf); const N = PASOS.length;
       const marcas = this.marcasHtml(conf, r);
-      const play = conf.auto ? `<button type="button" class="rec-btn rec-play" data-rec="${r.reproduciendo ? 'pausa' : 'play'}" title="${r.reproduciendo ? 'Pausar la demo' : 'Reproducir la demo automática'}" aria-label="${r.reproduciendo ? 'Pausar' : 'Reproducir'}">${lucide(r.reproduciendo ? 'pause' : 'play')}</button>` : '';
+      const play = conf.auto ? `<button type="button" class="rec-btn rec-play" data-rec="${r.reproduciendo ? 'pausa' : 'play'}" title="${r.reproduciendo ? I18N.t('shell.pausar_la_demo') : I18N.t('shell.reproducir_la_demo_automatica')}" aria-label="${r.reproduciendo ? I18N.t('shell.pausar') : I18N.t('shell.reproducir')}">${lucide(r.reproduciendo ? 'pause' : 'play')}</button>` : '';
       if (r.min) {
-        el.innerHTML = `<div class="rec-prog" role="slider" tabindex="0" aria-label="Posición dentro del paso" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" title="Arrastra o pulsa para ir hacia atrás o hacia delante dentro del paso"><i></i>${marcas}<b class="rec-tirador"></b></div><div class="rec-cab rec-cab-min">
-            <button type="button" class="rec-min-txt" data-rec="restaurar" title="Desplegar el recorrido">${lucide('route')}<span class="rec-min-pos">${r.paso + 1}/${N}</span><span class="rec-min-t">${escR(p.titulo)}</span></button>
-            ${this.avisoTipo === 'espera' || reloj.fase === 'esperando' ? `<span class="rec-min-espera" title="${escR(this.aviso || 'Esperando a que termine el lote')}">${lucide('hourglass')}</span>` : this.aviso ? `<span class="rec-min-aviso" title="${escR(this.aviso)}" role="img" aria-label="${escR(this.aviso)}">${lucide('circle-alert')}</span>` : ''}<span class="rec-cuenta"></span><span class="rec-subpos" title="Subtítulo del paso"></span><button type="button" class="rec-btn rec-sub" data-rec="sub-ant" title="Subtítulo anterior (Re Pág)" aria-label="Subtítulo anterior">${lucide('rewind', 'lucide-svg rec-solid')}</button><button type="button" class="rec-btn" data-rec="ant" title="Paso anterior (Mayús + Re Pág)" aria-label="Paso anterior" ${r.paso ? '' : 'disabled'}>${lucide('chevron-left')}</button>${play}<button type="button" class="rec-btn" data-rec="sig" title="Paso siguiente (Mayús + Av Pág)" aria-label="Paso siguiente" ${r.paso < N - 1 ? '' : 'disabled'}>${lucide('chevron-right')}</button><button type="button" class="rec-btn rec-sub" data-rec="sub-sig" title="Subtítulo siguiente (Av Pág): al final del paso pasa al siguiente" aria-label="Subtítulo siguiente">${lucide('fast-forward', 'lucide-svg rec-solid')}</button>
-            <button type="button" class="rec-btn" data-rec="restaurar" title="Desplegar" aria-label="Desplegar">${lucide('chevron-up')}</button>
-            <button type="button" class="rec-btn" data-rec="cerrar" title="Cerrar el recorrido" aria-label="Cerrar el recorrido">${lucide('x')}</button></div>`;
+        el.innerHTML = `<div class="rec-prog" role="slider" tabindex="0" aria-label="${I18N.t('shell.posicion_dentro_del_paso')}" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" title="${I18N.t('shell.arrastra_o_pulsa_para')}"><i></i>${marcas}<b class="rec-tirador"></b></div><div class="rec-cab rec-cab-min">
+            <button type="button" class="rec-min-txt" data-rec="restaurar" title="${I18N.t('shell.desplegar_el_recorrido')}">${lucide('route')}<span class="rec-min-pos">${r.paso + 1}/${N}</span><span class="rec-min-t">${escR(p.titulo)}</span></button>
+            ${this.avisoTipo === 'espera' || reloj.fase === 'esperando' ? `<span class="rec-min-espera" title="${escR(this.aviso || I18N.t('shell.esperando_a_que_termine_3'))}">${lucide('hourglass')}</span>` : this.aviso ? `<span class="rec-min-aviso" title="${escR(this.aviso)}" role="img" aria-label="${escR(this.aviso)}">${lucide('circle-alert')}</span>` : ''}<span class="rec-cuenta"></span><span class="rec-subpos" title="${I18N.t('shell.subtitulo_del_paso')}"></span><button type="button" class="rec-btn rec-sub" data-rec="sub-ant" title="${I18N.t('shell.subtitulo_anterior_re_pag')}" aria-label="${I18N.t('shell.subtitulo_anterior')}">${lucide('rewind', 'lucide-svg rec-solid')}</button><button type="button" class="rec-btn" data-rec="ant" title="${I18N.t('shell.paso_anterior_mayus_re')}" aria-label="${I18N.t('shell.paso_anterior')}" ${r.paso ? '' : 'disabled'}>${lucide('chevron-left')}</button>${play}<button type="button" class="rec-btn" data-rec="sig" title="${I18N.t('shell.paso_siguiente_mayus_av')}" aria-label="${I18N.t('shell.paso_siguiente')}" ${r.paso < N - 1 ? '' : 'disabled'}>${lucide('chevron-right')}</button><button type="button" class="rec-btn rec-sub" data-rec="sub-sig" title="${I18N.t('shell.subtitulo_siguiente_av_pag')}" aria-label="${I18N.t('shell.subtitulo_siguiente')}">${lucide('fast-forward', 'lucide-svg rec-solid')}</button>
+            <button type="button" class="rec-btn" data-rec="restaurar" title="${I18N.t('shell.desplegar')}" aria-label="${I18N.t('shell.desplegar')}">${lucide('chevron-up')}</button>
+            <button type="button" class="rec-btn" data-rec="cerrar" title="${I18N.t('shell.cerrar_el_recorrido')}" aria-label="${I18N.t('shell.cerrar_el_recorrido')}">${lucide('x')}</button></div>`;
       } else {
-        el.innerHTML = `<div class="rec-cab" title="Arrastra para mover · doble clic para devolverlo a su sitio"><b>${lucide('route')} Recorrido de la demo</b><span class="rec-pos" title="Paso ${r.paso + 1} de ${N}">${r.paso + 1} / ${N}</span><span class="rec-subpos" title="Subtítulo del paso"></span>${play}
-            <button type="button" class="rec-btn" data-rec="config" title="Configuración" aria-label="Configuración" aria-pressed="${cfg}">${lucide('settings')}</button>
-            <button type="button" class="rec-btn" data-rec="minimizar" title="Minimizar al pie" aria-label="Minimizar">${lucide('minus')}</button>
-            <button type="button" class="rec-btn" data-rec="cerrar" title="Cerrar el recorrido" aria-label="Cerrar el recorrido">${lucide('x')}</button></div>
-          <div class="rec-prog" role="slider" tabindex="0" aria-label="Posición dentro del paso" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" title="Arrastra o pulsa para ir hacia atrás o hacia delante dentro del paso"><i></i>${marcas}<b class="rec-tirador"></b></div><div class="rec-estado" aria-live="off"></div>
+        el.innerHTML = `<div class="rec-cab" title="${I18N.t('shell.arrastra_para_mover_doble')}"><b>${lucide('route')} ${I18N.t('shell.recorrido_de_la_demo')}</b><span class="rec-pos" title="${I18N.t('shell.paso_de', { paso: r.paso + 1, N })}">${r.paso + 1} / ${N}</span><span class="rec-subpos" title="${I18N.t('shell.subtitulo_del_paso')}"></span>${play}
+            <button type="button" class="rec-btn" data-rec="config" title="${I18N.t('shell.configuracion')}" aria-label="${I18N.t('shell.configuracion')}" aria-pressed="${cfg}">${lucide('settings')}</button>
+            <button type="button" class="rec-btn" data-rec="minimizar" title="${I18N.t('shell.minimizar_al_pie')}" aria-label="${I18N.t('shell.minimizar')}">${lucide('minus')}</button>
+            <button type="button" class="rec-btn" data-rec="cerrar" title="${I18N.t('shell.cerrar_el_recorrido')}" aria-label="${I18N.t('shell.cerrar_el_recorrido')}">${lucide('x')}</button></div>
+          <div class="rec-prog" role="slider" tabindex="0" aria-label="${I18N.t('shell.posicion_dentro_del_paso')}" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" title="${I18N.t('shell.arrastra_o_pulsa_para')}"><i></i>${marcas}<b class="rec-tirador"></b></div><div class="rec-estado" aria-live="off"></div>
           <div class="rec-cuerpo">${cfg ? this.htmlConfig(conf) : this.htmlPasos(conf, r, p)}</div>`;
         el.querySelector('.rec-cuerpo').scrollTop = scroll;
       }
@@ -487,11 +487,11 @@
     htmlPasos(conf, r, p) {
       const N = PASOS.length;
       const clics = p.clics || [];
-      return `<div class="rec-actual"><span class="rec-min">${escR(p.min)} min · ${PAGINA_LBL[p.pagina] || ''}</span><b>${escR(p.titulo)}</b><p>${escR(p.que)}</p><p class="rec-frase">«${escR(p.frase)}»</p>${clics.length ? `<details class="rec-clics"><summary>${lucide('list-ordered')} Clics (${clics.length})</summary><ol>${clics.map((c) => `<li>${escR(c)}</li>`).join('')}</ol></details>` : ''}${this.aviso ? `<p class="rec-aviso${this.avisoTipo === 'espera' ? ' espera' : ''}">${lucide(this.avisoTipo === 'espera' ? 'hourglass' : 'circle-alert')} ${escR(this.aviso)}${this.avisoIr != null && this.avisoIr >= 0 ? ` <button type="button" class="btn btn-sm" data-rec-ir="${this.avisoIr}">Ir al paso ${this.avisoIr + 1}</button>` : ''}</p>` : ''}
-          <div class="rec-nav"><button type="button" class="rec-btn rec-sub" data-rec="sub-ant" title="Subtítulo anterior (Re Pág)" aria-label="Subtítulo anterior">${lucide('rewind', 'lucide-svg rec-solid')}</button><button type="button" class="btn btn-sm" data-rec="ant" ${r.paso ? '' : 'disabled'}>${lucide('chevron-left')} Anterior</button><button type="button" class="btn btn-sm btn-primary" data-rec-ir="${r.paso}">${lucide('play')} Ir</button><button type="button" class="btn btn-sm" data-rec="sig" ${r.paso < N - 1 ? '' : 'disabled'}>Siguiente ${lucide('chevron-right')}</button><button type="button" class="rec-btn rec-sub" data-rec="sub-sig" title="Subtítulo siguiente (Av Pág): al final del paso pasa al siguiente" aria-label="Subtítulo siguiente">${lucide('fast-forward', 'lucide-svg rec-solid')}</button></div>
+      return `<div class="rec-actual"><span class="rec-min">${I18N.t('shell.min', { min: escR(p.min), pagina: PAGINA_LBL[p.pagina] || '' })}</span><b>${escR(p.titulo)}</b><p>${escR(p.que)}</p><p class="rec-frase">«${escR(p.frase)}»</p>${clics.length ? `<details class="rec-clics"><summary>${lucide('list-ordered')} ${I18N.t('shell.clics', { clics: clics.length })}</summary><ol>${clics.map((c) => `<li>${escR(c)}</li>`).join('')}</ol></details>` : ''}${this.aviso ? `<p class="rec-aviso${this.avisoTipo === 'espera' ? ' espera' : ''}">${lucide(this.avisoTipo === 'espera' ? 'hourglass' : 'circle-alert')} ${escR(this.aviso)}${this.avisoIr != null && this.avisoIr >= 0 ? ` <button type="button" class="btn btn-sm" data-rec-ir="${this.avisoIr}">${I18N.t('shell.ir_al_paso', { avisoIr: this.avisoIr + 1 })}</button>` : ''}</p>` : ''}
+          <div class="rec-nav"><button type="button" class="rec-btn rec-sub" data-rec="sub-ant" title="${I18N.t('shell.subtitulo_anterior_re_pag')}" aria-label="${I18N.t('shell.subtitulo_anterior')}">${lucide('rewind', 'lucide-svg rec-solid')}</button><button type="button" class="btn btn-sm" data-rec="ant" ${r.paso ? '' : 'disabled'}>${lucide('chevron-left')} ${I18N.t('shell.anterior')}</button><button type="button" class="btn btn-sm btn-primary" data-rec-ir="${r.paso}">${lucide('play')} ${I18N.t('shell.ir')}</button><button type="button" class="btn btn-sm" data-rec="sig" ${r.paso < N - 1 ? '' : 'disabled'}>${I18N.t('shell.siguiente')} ${lucide('chevron-right')}</button><button type="button" class="rec-btn rec-sub" data-rec="sub-sig" title="${I18N.t('shell.subtitulo_siguiente_av_pag')}" aria-label="${I18N.t('shell.subtitulo_siguiente')}">${lucide('fast-forward', 'lucide-svg rec-solid')}</button></div>
           ${this.subpasosHtml(conf, r)}</div>
         <ol class="rec-lista">${PASOS.map((x, i) => `<li class="${i === r.paso ? 'is-actual' : ''}${r.vistos.includes(i) ? ' is-visto' : ''}"><button type="button" data-rec-ir="${i}"><span class="rec-check">${r.vistos.includes(i) ? lucide('check') : i + 1}</span><span class="rec-t">${escR(x.titulo)}</span><span class="rec-m">${escR(x.min)}</span></button></li>`).join('')}</ol>
-        <button type="button" class="rec-reset" data-rec="reiniciar">${lucide('rotate-ccw')} Empezar de nuevo</button>`;
+        <button type="button" class="rec-reset" data-rec="reiniciar">${lucide('rotate-ccw')} ${I18N.t('shell.empezar_de_nuevo')}</button>`;
     },
     // Marcas de los subpasos en la línea de progreso: una al principio de cada subtítulo (salvo el primero), en su
     // posición real dentro del paso; con su número, tipo y principio del texto al pasar el ratón, y clic para ir a él
@@ -502,13 +502,13 @@
         const x = (acc / total) * 100; acc += pesoCue(u); if (!k) return '';
         const lado = x > 70 ? ' der' : x < 30 ? ' izq' : '';
         const txt = u.texto.length > 70 ? `${u.texto.slice(0, 68)}…` : u.texto;
-        return `<span class="rec-marca${lado}" data-rec-cue="${k}" style="left:${x.toFixed(2)}%" aria-label="Ir al subtítulo ${k + 1}"><span class="rec-marca-tip">${k + 1}/${subs.length} · ${escR((TIPOS[u.tipo] || TIPOS.intro)[1])} · ${escR(txt)}</span></span>`;
+        return `<span class="rec-marca${lado}" data-rec-cue="${k}" style="left:${x.toFixed(2)}%" aria-label="${I18N.t('shell.ir_al_subtitulo', { v: k + 1 })}"><span class="rec-marca-tip">${k + 1}/${subs.length} · ${escR((TIPOS[u.tipo] || TIPOS.intro)[1])} · ${escR(txt)}</span></span>`;
       }).join('');
     },
     // Lista de subpasos del paso: los subtítulos visibles, con un icono si abren una ventana, llevan la vista o cambian el estado
     subpasosHtml(conf, r) {
       const subs = subsVisibles(pasoDe(r.paso, conf), conf); if (!subs.length) return '';
-      return `<details class="rec-subpasos" open><summary>${lucide('list-ordered')} Subpasos (${subs.length})</summary><ol>${subs.map((u, k) => {
+      return `<details class="rec-subpasos" open><summary>${lucide('list-ordered')} ${I18N.t('shell.subpasos', { subs: subs.length })}</summary><ol>${subs.map((u, k) => {
         const t = tipoAcc(u.accion); const [ico, tit] = ICONO_ACC[t] || [];
         return `<li><button type="button" data-rec-cue="${k}" title="${escR(u.texto)}"><span class="rec-sp-n">${k + 1}</span><span class="rec-sp-t">${escR(u.texto)}</span>${ico ? `<span class="rec-sp-i" title="${tit}">${lucide(ico)}</span>` : ''}</button></li>`;
       }).join('')}</ol></details>`;
@@ -518,29 +518,29 @@
       const opt = (v, l, cur) => `<option value="${escR(v)}"${String(v) === String(cur) ? ' selected' : ''}>${escR(l)}</option>`;
       const chk = (k, l, sub) => `<label class="rec-chk"><input type="checkbox" data-conf="${k}"${conf[k] ? ' checked' : ''}><span>${l}</span>${sub ? `<small>${sub}</small>` : ''}</label>`;
       return `<div class="rec-conf">
-        <div class="rec-conf-cab"><button type="button" class="rec-volver" data-rec="pasos">${lucide('chevron-left')} Pasos</button><b>Configuración</b></div>
-        <fieldset><legend>Reproducción</legend>
-          ${chk('auto', 'Demo automática', 'Añade ▶ / ⏸ a la cabecera y pasa sola de una pantalla a la siguiente')}
-          <label class="rec-campo">Tiempo mínimo por pantalla <span><input type="number" min="${SEG.min}" max="${SEG.max}" step="5" value="${conf.segundos}" data-conf="segundos"> s</span></label>
-          <small>De ${SEG.min} a ${SEG.max} s. Con subtítulos, cada pantalla dura al menos lo que se tarda en leer los suyos. «Procesar el Paquete A» empieza a contar cuando termina el lote.</small>
-          <label class="rec-campo">Al terminar <select data-conf="alTerminar">${opt('parar', 'Parar', conf.alTerminar)}${opt('repetir', 'Volver a empezar', conf.alTerminar)}</select></label>
-          ${chk('pausarAlTocar', 'Pausar si toco la pantalla', 'Un clic o una tecla fuera del recorrido pausa la demo')}
+        <div class="rec-conf-cab"><button type="button" class="rec-volver" data-rec="pasos">${lucide('chevron-left')} ${I18N.t('shell.pasos')}</button><b>${I18N.t('shell.configuracion')}</b></div>
+        <fieldset><legend>${I18N.t('shell.reproduccion')}</legend>
+          ${chk('auto', I18N.t('shell.demo_automatica'), I18N.t('shell.anade_a_la_cabecera'))}
+          <label class="rec-campo">${I18N.t('shell.tiempo_minimo_por_pantalla')} <span><input type="number" min="${SEG.min}" max="${SEG.max}" step="5" value="${conf.segundos}" data-conf="segundos"> ${I18N.t('shell.s')}</span></label>
+          <small>${I18N.t('shell.de_a_s_con', { min: SEG.min, max: SEG.max })}</small>
+          <label class="rec-campo">${I18N.t('shell.al_terminar')} <select data-conf="alTerminar">${opt('parar', I18N.t('shell.parar'), conf.alTerminar)}${opt('repetir', I18N.t('shell.volver_a_empezar'), conf.alTerminar)}</select></label>
+          ${chk('pausarAlTocar', I18N.t('shell.pausar_si_toco_la'), I18N.t('shell.un_clic_o_una'))}
         </fieldset>
-        <fieldset><legend>Subtítulos</legend>
-          ${chk('subtitulos', 'Mostrar subtítulos', 'El texto del guion para decir, troceado en frases')}
-          <div class="rec-tipos"><span>Qué subtítulos se muestran</span>${Object.entries(TIPOS).map(([k, [ico, lbl]]) => `<label class="rec-chk"><input type="checkbox" data-conf-tipo="${k}"${conf.subTipos[k] !== false ? ' checked' : ''}${conf.subtitulos ? '' : ' disabled'}><span>${lucide(ico)} ${lbl}</span><small>${PASOS.reduce((a, x) => a + (x.subtitulos || []).filter((u) => u.tipo === k).length, 0)}</small></label>`).join('')}</div>
-          <label class="rec-campo">Posición <select data-conf="subPos">${opt('pie', 'Pie de pantalla', conf.subPos)}${opt('arriba', 'Parte superior', conf.subPos)}</select></label>
-          <label class="rec-campo">Tamaño <select data-conf="subTam">${opt('normal', 'Normal', conf.subTam)}${opt('grande', 'Grande', conf.subTam)}</select></label>
+        <fieldset><legend>${I18N.t('shell.subtitulos')}</legend>
+          ${chk('subtitulos', I18N.t('shell.mostrar_subtitulos'), I18N.t('shell.el_texto_del_guion'))}
+          <div class="rec-tipos"><span>${I18N.t('shell.que_subtitulos_se_muestran')}</span>${Object.entries(TIPOS).map(([k, [ico, lbl]]) => `<label class="rec-chk"><input type="checkbox" data-conf-tipo="${k}"${conf.subTipos[k] !== false ? ' checked' : ''}${conf.subtitulos ? '' : ' disabled'}><span>${lucide(ico)} ${lbl}</span><small>${PASOS.reduce((a, x) => a + (x.subtitulos || []).filter((u) => u.tipo === k).length, 0)}</small></label>`).join('')}</div>
+          <label class="rec-campo">${I18N.t('shell.posicion')} <select data-conf="subPos">${opt('pie', I18N.t('shell.pie_de_pantalla'), conf.subPos)}${opt('arriba', I18N.t('shell.parte_superior'), conf.subPos)}</select></label>
+          <label class="rec-campo">${I18N.t('shell.tamano')} <select data-conf="subTam">${opt('normal', I18N.t('shell.normal'), conf.subTam)}${opt('grande', I18N.t('shell.grande'), conf.subTam)}</select></label>
         </fieldset>
-        <fieldset><legend>Textos del guion</legend>
-          <small>${lucide('lock')} Solo los ves tú: se guardan en este navegador.</small>
-          <label class="rec-campo">Paso <select data-ed-paso>${PASOS.map((x, i) => opt(i, `${i + 1}. ${x.titulo}${conf.textos[i] ? ' · editado' : ''}`, n)).join('')}</select></label>
-          <label class="rec-campo rec-col">Frase clave<input type="text" maxlength="${MAX_TXT}" data-ed="frase" value="${escR(p.frase)}"></label>
-          ${p.subtitulos.map((u, k) => `<div class="rec-cue"><div class="rec-cue-cab"><b>Subtítulo ${k + 1}</b><select data-ed-cue="${k}" data-campo="tipo" aria-label="Tipo del subtítulo ${k + 1}">${Object.entries(TIPOS).map(([t, [, l]]) => opt(t, l, u.tipo)).join('')}</select><button type="button" class="rec-btn" data-rec="quitar-cue" data-k="${k}" title="Quitar este subtítulo" aria-label="Quitar el subtítulo ${k + 1}">${lucide('trash-2')}</button></div>
-            <textarea rows="3" maxlength="${MAX_TXT}" data-ed-cue="${k}" data-campo="texto" aria-label="Texto del subtítulo ${k + 1}">${escR(u.texto)}</textarea></div>`).join('')}
-          ${p.subtitulos.length < MAX_SUBS ? `<button type="button" class="btn btn-sm" data-rec="add-cue">${lucide('plus')} Añadir subtítulo</button>` : ''}
-          <div class="rec-fila"><button type="button" class="btn btn-sm" data-rec="restaurar-paso" ${conf.textos[n] ? '' : 'disabled'}>${lucide('rotate-ccw')} Restaurar este paso</button><button type="button" class="btn btn-sm" data-rec="restaurar-todo" ${Object.keys(conf.textos).length ? '' : 'disabled'}>Restaurar todos</button></div>
-          <div class="rec-fila"><button type="button" class="btn btn-sm" data-rec="exportar">${lucide('download')} Exportar JSON</button><label class="btn btn-sm">${lucide('upload')} Importar JSON<input type="file" accept="application/json,.json" data-rec-importar hidden></label></div>
+        <fieldset><legend>${I18N.t('shell.textos_del_guion')}</legend>
+          <small>${lucide('lock')} ${I18N.t('shell.solo_los_ves_tu')}</small>
+          <label class="rec-campo">${I18N.t('shell.paso_2')} <select data-ed-paso>${PASOS.map((x, i) => opt(i, `${i + 1}. ${x.titulo}${conf.textos[i] ? I18N.t('shell.editado') : ''}`, n)).join('')}</select></label>
+          <label class="rec-campo rec-col">${I18N.t('shell.frase_clave')}<input type="text" maxlength="${MAX_TXT}" data-ed="frase" value="${escR(p.frase)}"></label>
+          ${p.subtitulos.map((u, k) => `<div class="rec-cue"><div class="rec-cue-cab"><b>${I18N.t('shell.subtitulo', { v: k + 1 })}</b><select data-ed-cue="${k}" data-campo="tipo" aria-label="${I18N.t('shell.tipo_del_subtitulo', { v: k + 1 })}">${Object.entries(TIPOS).map(([t, [, l]]) => opt(t, l, u.tipo)).join('')}</select><button type="button" class="rec-btn" data-rec="quitar-cue" data-k="${k}" title="${I18N.t('shell.quitar_este_subtitulo')}" aria-label="${I18N.t('shell.quitar_el_subtitulo', { v: k + 1 })}">${lucide('trash-2')}</button></div>
+            <textarea rows="3" maxlength="${MAX_TXT}" data-ed-cue="${k}" data-campo="texto" aria-label="${I18N.t('shell.texto_del_subtitulo', { v: k + 1 })}">${escR(u.texto)}</textarea></div>`).join('')}
+          ${p.subtitulos.length < MAX_SUBS ? `<button type="button" class="btn btn-sm" data-rec="add-cue">${lucide('plus')} ${I18N.t('shell.anadir_subtitulo')}</button>` : ''}
+          <div class="rec-fila"><button type="button" class="btn btn-sm" data-rec="restaurar-paso" ${conf.textos[n] ? '' : 'disabled'}>${lucide('rotate-ccw')} ${I18N.t('shell.restaurar_este_paso')}</button><button type="button" class="btn btn-sm" data-rec="restaurar-todo" ${Object.keys(conf.textos).length ? '' : 'disabled'}>${I18N.t('shell.restaurar_todos')}</button></div>
+          <div class="rec-fila"><button type="button" class="btn btn-sm" data-rec="exportar">${lucide('download')} ${I18N.t('shell.exportar_json')}</button><label class="btn btn-sm">${lucide('upload')} ${I18N.t('shell.importar_json')}<input type="file" accept="application/json,.json" data-rec-importar hidden></label></div>
           <p class="rec-conf-msg" role="status"></p>
         </fieldset></div>`;
     },
@@ -563,10 +563,10 @@
     },
     importar(file) {
       file.text().then((txt) => {
-        const o = JSON.parse(txt); if (!o || typeof o !== 'object') throw new Error('no es un objeto');
+        const o = JSON.parse(txt); if (!o || typeof o !== 'object') throw new Error(I18N.t('shell.no_es_un_objeto'));
         guardarConf({ ...leerConf(), ...o }); reloj.cue = -1; this.pintar();
-        this.mensajeConf('Configuración y textos importados.');
-      }).catch((e) => this.mensajeConf(`No se pudo importar: ${e.message}`));
+        this.mensajeConf(I18N.t('shell.configuracion_y_textos_importados'));
+      }).catch((e) => this.mensajeConf(I18N.t('shell.no_se_pudo_importar', { message: e.message })));
     },
     init(acciones = {}) {
       this.acciones = acciones;
@@ -600,8 +600,8 @@
           if (a === 'add-cue') t.subtitulos.push({ tipo: 'que', texto: '' }); else t.subtitulos.splice(Number(b.dataset.k), 1);
           c.textos[this.edPaso] = t; guardarConf(c); reloj.cue = -1; return this.pintar();
         }
-        if (a === 'restaurar-paso') { delete conf.textos[this.edPaso]; guardarConf(conf); reloj.cue = -1; this.pintar(); return this.mensajeConf('Paso restaurado con los textos del guion.'); }
-        if (a === 'restaurar-todo') { if (!confirm('¿Restaurar todos los textos del guion? Se pierden tus cambios.')) return; conf.textos = {}; guardarConf(conf); reloj.cue = -1; this.pintar(); return this.mensajeConf('Todos los textos restaurados.'); }
+        if (a === 'restaurar-paso') { delete conf.textos[this.edPaso]; guardarConf(conf); reloj.cue = -1; this.pintar(); return this.mensajeConf(I18N.t('shell.paso_restaurado_con_los')); }
+        if (a === 'restaurar-todo') { if (!confirm(I18N.t('shell.restaurar_todos_los_textos'))) return; conf.textos = {}; guardarConf(conf); reloj.cue = -1; this.pintar(); return this.mensajeConf(I18N.t('shell.todos_los_textos_restaurados')); }
         if (a === 'exportar') return this.exportar();
       });
       document.addEventListener('input', (ev) => { if (ev.target.closest && ev.target.closest('#recorrido [data-ed], #recorrido [data-ed-cue]')) this.guardarTextos(); });
@@ -659,7 +659,7 @@
         if (!ev.isTrusted || !leerRec().reproduciendo || !leerConf().pausarAlTocar) return;
         if (ev.key === 'PageDown' || ev.key === 'PageUp') return;
         if (ev.target && ev.target.closest && ev.target.closest('#recorrido, #rec-subs, #rec-clave')) return;
-        this.pausar('En pausa porque has tocado la pantalla. Pulsa ▶ para seguir.');
+        this.pausar(I18N.t('shell.en_pausa_porque_has'));
       };
       document.addEventListener('pointerdown', tocar, true); document.addEventListener('keydown', tocar, true);
       // Ventanas modales que se abren o se cierran: el panel y los subtítulos van con la de encima

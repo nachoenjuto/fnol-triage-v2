@@ -1,5 +1,6 @@
 // Pruebas de evidencias.js sin dependencias: `node tests/evidencias.test.js` (o `make test`).
 // Incluye respuestas del modelo simuladas, también defectuosas (parafraseo, acentos, JSON raro, citas inventadas).
+require('../locales/node.js')();
 const assert = require('assert');
 const fs = require('fs');
 const path = require('path');

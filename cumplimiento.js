@@ -14,45 +14,45 @@
   // ---------------------------------------------------------------------------
   // Catálogo de normas: etiqueta corta (la que se ve en las fichas) y explicación (tooltip)
   // ---------------------------------------------------------------------------
-  const ALTO_RIESGO = 'Exigible a sistemas de alto riesgo desde el 02/12/2027 (Digital Omnibus); el triaje de siniestros no lo es, aquí se aplica como buena práctica.';
+  const ALTO_RIESGO = I18N.t('cumpl.exigible_a_sistemas_de');
   const NORMAS = {
-    'ai-4': ['AI Act art. 4', 'Alfabetización en IA: el personal que usa el sistema debe tener formación suficiente. Aplicable desde el 02/02/2025.'],
-    'ai-6': ['AI Act art. 6', 'Clasificación de sistemas de alto riesgo. El Anexo III 5.c solo incluye la evaluación de riesgos y la tarificación en seguros de vida y salud: el triaje de siniestros no es alto riesgo.'],
-    'ai-9': ['AI Act art. 9', `Sistema de gestión de riesgos durante todo el ciclo de vida. ${ALTO_RIESGO}`],
-    'ai-10': ['AI Act art. 10', `Gobernanza de los datos y del conocimiento que usa el sistema (versionado, calidad, sesgos). ${ALTO_RIESGO}`],
-    'ai-12': ['AI Act art. 12', `Registro automático de eventos para trazar el funcionamiento del sistema. ${ALTO_RIESGO}`],
-    'ai-13': ['AI Act art. 13', `Transparencia: el usuario del sistema debe poder interpretar sus resultados. ${ALTO_RIESGO}`],
-    'ai-14': ['AI Act art. 14', `Supervisión humana efectiva, incluida la capacidad de interrumpir el sistema. ${ALTO_RIESGO}`],
-    'ai-15': ['AI Act art. 15', `Precisión, solidez y ciberseguridad mantenidas a lo largo del tiempo. ${ALTO_RIESGO}`],
-    'ai-19': ['AI Act art. 19 y 26.6', `Conservación de los registros generados automáticamente durante al menos 6 meses. ${ALTO_RIESGO}`],
-    'ai-50': ['AI Act art. 50', 'Transparencia ante las personas: informar de que interactúan con un sistema de IA o de que un contenido lo ha generado una IA. Aplicable desde el 02/08/2026.'],
-    'rgpd-4': ['RGPD art. 4.1', 'Dato personal: cualquier información sobre una persona física identificada o identificable (nombre, DNI, teléfono, matrícula, póliza…). En vigor.'],
-    'rgpd-4-5': ['RGPD art. 4.5', 'Seudonimización: el dato ya no puede atribuirse a una persona sin información adicional guardada por separado. Sigue siendo dato personal (a diferencia de la anonimización, considerando 26).'],
-    'rgpd-5': ['RGPD art. 5.2', 'Responsabilidad proactiva: el responsable debe poder demostrar que cumple. En vigor.'],
-    'rgpd-5c': ['RGPD art. 5.1.c', 'Minimización: solo los datos adecuados, pertinentes y limitados a lo necesario para la finalidad. En vigor.'],
-    'rgpd-5e': ['RGPD art. 5.1.e', 'Limitación del plazo de conservación: identificables solo el tiempo necesario. En vigor.'],
-    'rgpd-8': ['RGPD art. 8 y cons. 38', 'Los menores merecen una protección específica de sus datos personales. En vigor.'],
-    'rgpd-9': ['RGPD art. 9', 'Categorías especiales: los datos de salud solo pueden tratarse con una de las excepciones del art. 9.2. En seguros, art. 9.2 junto con el art. 99 de la LOSSEAR (a validar por el DPO).'],
-    'rgpd-13': ['RGPD art. 13 y 14', 'Información al interesado, también cuando sus datos no los aporta él mismo (art. 14: terceros mencionados en el mensaje). En vigor.'],
-    'rgpd-15': ['RGPD art. 15', 'Derecho de acceso a información significativa sobre la lógica aplicada (TJUE, Dun & Bradstreet C-203/22). En vigor.'],
-    'rgpd-17': ['RGPD art. 17', 'Derecho de supresión: alcanza también a las copias y a los índices derivados, incluidos los índices vectoriales de las bases de conocimiento. En vigor.'],
-    'rgpd-22': ['RGPD art. 22', 'Derecho a no ser objeto de decisiones solo automatizadas con efectos jurídicos. Firmar sin revisar no cuenta como intervención humana (TJUE, SCHUFA C-634/21). En vigor.'],
-    'rgpd-25': ['RGPD art. 25', 'Protección de datos desde el diseño y por defecto. En vigor.'],
-    'rgpd-28': ['RGPD art. 28', 'Encargado del tratamiento: contrato (DPA) con el proveedor de IA y garantías de ubicación de los datos. En vigor.'],
-    'rgpd-30': ['RGPD art. 30', 'Registro de actividades de tratamiento (RAT). En vigor.'],
-    'rgpd-32': ['RGPD art. 32', 'Seguridad del tratamiento: cifrado, seudonimización, control de acceso. En vigor.'],
-    'rgpd-35': ['RGPD art. 35', 'Evaluación de impacto (EIPD): obligatoria para tratamientos a gran escala de datos de salud o con nuevas tecnologías. En vigor.'],
-    'lopdgdd-32': ['LOPDGDD art. 32', 'Bloqueo: al terminar la finalidad, los datos se bloquean (solo a disposición de jueces y autoridades) durante el plazo de prescripción y después se suprimen.'],
-    'lcs-23': ['LCS art. 23', 'Prescripción de las acciones del contrato de seguro: 2 años en seguros de daños y 5 años en seguros de personas.'],
-    'lossear-99': ['LOSSEAR art. 99', 'Ley 20/2015: tratamiento por las aseguradoras de los datos necesarios para el contrato, incluidos los de salud.'],
-    'lossear-99-7': ['LOSSEAR art. 99.7', 'Ficheros comunes del sector asegurador para prevenir el fraude: se pueden consultar sin consentimiento, informando al interesado y solo para esa finalidad. A validar por el DPO.'],
-    'rgpd-c47': ['RGPD cons. 47', 'El tratamiento estrictamente necesario para prevenir el fraude constituye un interés legítimo del responsable. Exige ponderar los derechos del interesado: a validar por el DPO.'],
-    'dora-9': ['DORA art. 9', 'Protección y prevención: gestión de identidades, accesos y privilegios mínimos. En vigor desde 01/2025.'],
-    'dora-11': ['DORA art. 11', 'Respuesta y recuperación: continuidad del servicio cuando falla un componente TIC. En vigor desde 01/2025.'],
-    'dora-19': ['DORA art. 19', 'Notificación de incidentes graves relacionados con las TIC. En vigor desde 01/2025.'],
-    'dora-28': ['DORA art. 28', 'Riesgo de terceros TIC: los proveedores de modelos de IA entran en el registro de información y en el análisis de concentración. En vigor desde 01/2025.'],
-    'eiopa': ['EIOPA', 'Opinión sobre gobierno y gestión del riesgo de la IA (08/2025): gobierno proporcional, rendición de cuentas y documentación para todo uso de IA en seguros.'],
-    'sii-41': ['Solvencia II art. 41', 'Sistema de gobernanza eficaz que garantice una gestión sana y prudente de la actividad, incluido el control del gasto en IA.'],
+    'ai-4': ['AI Act art. 4', I18N.t('cumpl.alfabetizacion_en_ia_el')],
+    'ai-6': ['AI Act art. 6', I18N.t('cumpl.clasificacion_de_sistemas_de')],
+    'ai-9': ['AI Act art. 9', I18N.t('cumpl.sistema_de_gestion_de', { ALTO_RIESGO })],
+    'ai-10': ['AI Act art. 10', I18N.t('cumpl.gobernanza_de_los_datos', { ALTO_RIESGO })],
+    'ai-12': ['AI Act art. 12', I18N.t('cumpl.registro_automatico_de_eventos', { ALTO_RIESGO })],
+    'ai-13': ['AI Act art. 13', I18N.t('cumpl.transparencia_el_usuario_del', { ALTO_RIESGO })],
+    'ai-14': ['AI Act art. 14', I18N.t('cumpl.supervision_humana_efectiva_incluida', { ALTO_RIESGO })],
+    'ai-15': ['AI Act art. 15', I18N.t('cumpl.precision_solidez_y_ciberseguridad', { ALTO_RIESGO })],
+    'ai-19': ['AI Act art. 19 y 26.6', I18N.t('cumpl.conservacion_de_los_registros', { ALTO_RIESGO })],
+    'ai-50': ['AI Act art. 50', I18N.t('cumpl.transparencia_ante_las_personas')],
+    'rgpd-4': ['RGPD art. 4.1', I18N.t('cumpl.dato_personal_cualquier_informacion')],
+    'rgpd-4-5': ['RGPD art. 4.5', I18N.t('cumpl.seudonimizacion_el_dato_ya')],
+    'rgpd-5': ['RGPD art. 5.2', I18N.t('cumpl.responsabilidad_proactiva_el_responsable')],
+    'rgpd-5c': ['RGPD art. 5.1.c', I18N.t('cumpl.minimizacion_solo_los_datos')],
+    'rgpd-5e': ['RGPD art. 5.1.e', I18N.t('cumpl.limitacion_del_plazo_de')],
+    'rgpd-8': ['RGPD art. 8 y cons. 38', I18N.t('cumpl.los_menores_merecen_una')],
+    'rgpd-9': ['RGPD art. 9', I18N.t('cumpl.categorias_especiales_los_datos')],
+    'rgpd-13': ['RGPD art. 13 y 14', I18N.t('cumpl.informacion_al_interesado_tambien')],
+    'rgpd-15': ['RGPD art. 15', I18N.t('cumpl.derecho_de_acceso_a')],
+    'rgpd-17': ['RGPD art. 17', I18N.t('cumpl.derecho_de_supresion_alcanza')],
+    'rgpd-22': ['RGPD art. 22', I18N.t('cumpl.derecho_a_no_ser')],
+    'rgpd-25': ['RGPD art. 25', I18N.t('cumpl.proteccion_de_datos_desde')],
+    'rgpd-28': ['RGPD art. 28', I18N.t('cumpl.encargado_del_tratamiento_contrato')],
+    'rgpd-30': ['RGPD art. 30', I18N.t('cumpl.registro_de_actividades_de')],
+    'rgpd-32': ['RGPD art. 32', I18N.t('cumpl.seguridad_del_tratamiento_cifrado')],
+    'rgpd-35': ['RGPD art. 35', I18N.t('cumpl.evaluacion_de_impacto_eipd')],
+    'lopdgdd-32': ['LOPDGDD art. 32', I18N.t('cumpl.bloqueo_al_terminar_la')],
+    'lcs-23': ['LCS art. 23', I18N.t('cumpl.prescripcion_de_las_acciones')],
+    'lossear-99': ['LOSSEAR art. 99', I18N.t('cumpl.ley_20_2015_tratamiento')],
+    'lossear-99-7': ['LOSSEAR art. 99.7', I18N.t('cumpl.ficheros_comunes_del_sector')],
+    'rgpd-c47': ['RGPD cons. 47', I18N.t('cumpl.el_tratamiento_estrictamente_necesario')],
+    'dora-9': ['DORA art. 9', I18N.t('cumpl.proteccion_y_prevencion_gestion')],
+    'dora-11': ['DORA art. 11', I18N.t('cumpl.respuesta_y_recuperacion_continuidad')],
+    'dora-19': ['DORA art. 19', I18N.t('cumpl.notificacion_de_incidentes_graves')],
+    'dora-28': ['DORA art. 28', I18N.t('cumpl.riesgo_de_terceros_tic')],
+    'eiopa': ['EIOPA', I18N.t('cumpl.opinion_sobre_gobierno_y')],
+    'sii-41': ['Solvencia II art. 41', I18N.t('cumpl.sistema_de_gobernanza_eficaz')],
   };
   const N = (k) => NORMAS[k][0];
   // Búsqueda inversa por etiqueta (para pintar tooltips sobre las normas citadas en el JSON)
@@ -97,14 +97,14 @@
   // Detección de datos personales (expresiones y diccionarios en español)
   // ---------------------------------------------------------------------------
   const CATEGORIAS = {
-    identificativo: { etiqueta: 'Identificativo', tratamiento: 'Seudonimizado en la traza', normas: [N('rgpd-4'), N('rgpd-4-5')] },
-    contacto: { etiqueta: 'Contacto', tratamiento: 'Enmascarado en la traza', normas: [N('rgpd-4'), N('rgpd-32')] },
-    indirecto: { etiqueta: 'Identificador indirecto', tratamiento: 'Seudonimizado en la traza', normas: [N('rgpd-4'), N('rgpd-4-5')] },
-    localizacion: { etiqueta: 'Localización', tratamiento: 'Generalizado al municipio en la traza', normas: [N('rgpd-4'), N('rgpd-5c')] },
-    financiero: { etiqueta: 'Financiero', tratamiento: 'Enmascarado; excluido del contexto de decisión', normas: [N('rgpd-32'), N('rgpd-5c')] },
-    salud: { etiqueta: 'Salud (categoría especial)', tratamiento: 'Cifrado de campo; acceso solo para el rol Salud', normas: [N('rgpd-9'), N('lossear-99')] },
-    menor: { etiqueta: 'Menor de edad', tratamiento: 'Protección reforzada; sin uso para perfilado', normas: [N('rgpd-8')] },
-    tercero: { etiqueta: 'Tercero no remitente', tratamiento: 'Seudonimizado; informar al interesado (art. 14)', normas: [N('rgpd-13'), N('rgpd-4-5')] },
+    identificativo: { etiqueta: I18N.t('cumpl.identificativo'), tratamiento: I18N.t('cumpl.seudonimizado_en_la_traza'), normas: [N('rgpd-4'), N('rgpd-4-5')] },
+    contacto: { etiqueta: I18N.t('cumpl.contacto'), tratamiento: I18N.t('cumpl.enmascarado_en_la_traza'), normas: [N('rgpd-4'), N('rgpd-32')] },
+    indirecto: { etiqueta: I18N.t('cumpl.identificador_indirecto'), tratamiento: I18N.t('cumpl.seudonimizado_en_la_traza'), normas: [N('rgpd-4'), N('rgpd-4-5')] },
+    localizacion: { etiqueta: I18N.t('cumpl.localizacion'), tratamiento: I18N.t('cumpl.generalizado_al_municipio_en'), normas: [N('rgpd-4'), N('rgpd-5c')] },
+    financiero: { etiqueta: I18N.t('cumpl.financiero'), tratamiento: I18N.t('cumpl.enmascarado_excluido_del_contexto'), normas: [N('rgpd-32'), N('rgpd-5c')] },
+    salud: { etiqueta: I18N.t('cumpl.salud_categoria_especial'), tratamiento: I18N.t('cumpl.cifrado_de_campo_acceso'), normas: [N('rgpd-9'), N('lossear-99')] },
+    menor: { etiqueta: I18N.t('cumpl.menor_de_edad'), tratamiento: I18N.t('cumpl.proteccion_reforzada_sin_uso'), normas: [N('rgpd-8')] },
+    tercero: { etiqueta: I18N.t('cumpl.tercero_no_remitente'), tratamiento: I18N.t('cumpl.seudonimizado_informar_al_interesado'), normas: [N('rgpd-13'), N('rgpd-4-5')] },
   };
 
   const NOMBRE = '[A-ZÁÉÍÓÚÑ][a-záéíóúñ]+(?:\\s[A-ZÁÉÍÓÚÑ][a-záéíóúñ]+){0,2}';
@@ -186,7 +186,7 @@
       case 'matricula': return tok('MAT');
       case 'tarjeta_sanitaria': return tok('TSI');
       case 'expediente': return tok('EXP');
-      case 'direccion': return /Madrid/.test(c) ? 'Madrid (municipio)' : 'Municipio (generalizado)';
+      case 'direccion': return /Madrid/.test(c) ? I18N.t('cumpl.madrid_municipio') : I18N.t('cumpl.municipio_generalizado');
       case 'menor': return '[menor de edad]';
       case 'salud': return '[dato de salud cifrado]';
       default: return '•••';
@@ -203,7 +203,7 @@
     nombre: 'PERSONA', nombre_tercero: 'PERSONA', dni: 'DNI', nie: 'NIE', email: 'EMAIL', telefono: 'TELEFONO', iban: 'IBAN',
     tarjeta_sanitaria: 'TARJETA_SANITARIA', poliza: 'POLIZA', matricula: 'MATRICULA', expediente: 'EXPEDIENTE', direccion: 'DIRECCION',
   };
-  const SE_MANTIENEN = 'Datos de salud y edad de los menores: hacen falta para decidir (RGPD art. 9.2.f y art. 8)';
+  const SE_MANTIENEN = I18N.t('cumpl.datos_de_salud_y');
 
   function seudonimizarMensaje(msg = {}) {
     const mapa = []; const porValor = new Map(); const cuenta = {};
@@ -306,8 +306,8 @@
       // Si el propio criterio del modelo menciona el ramo alternativo, esa es la explicación más fiel
       const cr = (entry.criterios_ramo || []).find((c) => new RegExp(`\\b${r}\\b`).test(c));
       const motivo = cr || (ind.length
-        ? `Hay indicios de ${r} (${ind.slice(0, 3).join(', ')}), pero el hecho causante y la póliza citada corresponden a ${entry.ramo}`
-        : `Sin indicios de ${r} en el mensaje`);
+        ? I18N.t('cumpl.hay_indicios_de_pero', { v: r, ind: ind.slice(0, 3).join(', '), ramo: entry.ramo })
+        : I18N.t('cumpl.sin_indicios_de_en', { v: r }));
       return { ramo: r, indicios: ind.slice(0, 4), motivo };
     });
   }
@@ -318,15 +318,15 @@
   // Solo KB-01 (los bloques de reglas de prompts.js) es real en la demo; el resto está simulado.
   // ---------------------------------------------------------------------------
   const CONOCIMIENTO = {
-    'KB-01': { nombre: 'Reglas de negocio Auto / Hogar / Salud', version: 'v2.3', simulada: false },
-    'KB-02': { nombre: 'Condicionados Auto 2026', version: '2026.09.2', simulada: true },
-    'KB-03': { nombre: 'Condicionados Hogar 2026', version: '2026.08.1', simulada: true },
-    'KB-04': { nombre: 'Manual de tramitación de siniestros', version: '4.2', simulada: true },
-    'KB-05': { nombre: 'Cuadro médico concertado', version: '2026-09-16', simulada: true },
-    'KB-06': { nombre: 'Red de talleres y peritos', version: '2026-09-08', simulada: true },
-    'KB-07': { nombre: 'Runbook de daños corporales', version: 'v1.4', simulada: true },
-    'KB-08': { nombre: 'Corpus normativo (LCS, LOSSEAR, RGPD, AI Act)', version: '2026.07', simulada: true },
-    'KB-09': { nombre: 'Plantillas de comunicación al cliente', version: 'v3.0', simulada: true },
+    'KB-01': { nombre: I18N.t('cumpl.reglas_de_negocio_auto'), version: 'v2.3', simulada: false },
+    'KB-02': { nombre: I18N.t('cumpl.condicionados_auto_2026'), version: '2026.09.2', simulada: true },
+    'KB-03': { nombre: I18N.t('cumpl.condicionados_hogar_2026'), version: '2026.08.1', simulada: true },
+    'KB-04': { nombre: I18N.t('cumpl.manual_de_tramitacion_de'), version: '4.2', simulada: true },
+    'KB-05': { nombre: I18N.t('cumpl.cuadro_medico_concertado'), version: '2026-09-16', simulada: true },
+    'KB-06': { nombre: I18N.t('cumpl.red_de_talleres_y'), version: '2026-09-08', simulada: true },
+    'KB-07': { nombre: I18N.t('cumpl.runbook_de_danos_corporales'), version: 'v1.4', simulada: true },
+    'KB-08': { nombre: I18N.t('cumpl.corpus_normativo_lcs_lossear'), version: '2026.07', simulada: true },
+    'KB-09': { nombre: I18N.t('cumpl.plantillas_de_comunicacion_al'), version: 'v3.0', simulada: true },
   };
   function conocimientoDe(entry = {}, prompt = '') {
     const ia = !/local/.test(String(prompt)) && prompt;
@@ -352,18 +352,18 @@
   // Qué recibió el modelo: seudonimizado o en claro (sin modelo, no aplica)
   function envioAlModelo(entry = {}) {
     const sd = entry.seudonimizacion;
-    if (!/^IA/.test(entry.origen || '')) return { aplica: false, motivo: 'Decisión del motor local: el mensaje no se envió a ningún modelo' };
-    if (!sd || !sd.activa) return { aplica: true, seudonimizado: false, motivo: 'El texto llegó completo al modelo, con los datos personales en claro' };
+    if (!/^IA/.test(entry.origen || '')) return { aplica: false, motivo: I18N.t('cumpl.decision_del_motor_local') };
+    if (!sd || !sd.activa) return { aplica: true, seudonimizado: false, motivo: I18N.t('cumpl.el_texto_llego_completo') };
     const e = sd.enviado || {};
     return {
       aplica: true,
       seudonimizado: true,
-      ...(sd.simulada ? { modo: 'Simulado sobre la respuesta guardada' } : {}),
+      ...(sd.simulada ? { modo: I18N.t('cumpl.simulado_sobre_la_respuesta') } : {}),
       sustituidos: sd.sustituidos,
       por_tipo: sd.por_tipo,
       marcadores: (sd.marcadores || []).map((m) => m.token),
       se_mantienen: SE_MANTIENEN,
-      correspondencias: 'Solo en memoria durante la llamada; no se envían al modelo ni se guardan en la traza',
+      correspondencias: I18N.t('cumpl.solo_en_memoria_durante'),
       hash_enviado: `sha256:${sha256(String(e.texto || ''))}`,
       normas: [N('rgpd-4-5'), N('rgpd-5c'), N('rgpd-25')],
     };
@@ -395,17 +395,17 @@
       recibidos: lista.length,
       archivos: lista.map((a) => {
         const h = recibidos.find((x) => x.id === a.id) || {};
-        return { id: a.id, archivo: a.archivo, mime: a.mime, bytes: h.bytes ?? null, hash: h.sha256 ? `sha256:${h.sha256}` : 'pendiente: se calcula al recibir el archivo' };
+        return { id: a.id, archivo: a.archivo, mime: a.mime, bytes: h.bytes ?? null, hash: h.sha256 ? `sha256:${h.sha256}` : I18N.t('cumpl.pendiente_se_calcula_al') };
       }),
-      datos_extraidos: !entry.adjuntos ? 'Ninguno: el motor local no lee los adjuntos' : entry.adjuntos_origen === 'guardado' ? 'Tomados de los resultados guardados: el modelo en vivo aún no recibe los adjuntos' : 'Por el modelo, en la misma llamada que el texto',
+      datos_extraidos: !entry.adjuntos ? I18N.t('cumpl.ninguno_el_motor_local') : entry.adjuntos_origen === 'guardado' ? I18N.t('cumpl.tomados_de_los_resultados') : I18N.t('cumpl.por_el_modelo_en'),
       datos_personales: { total: hallazgos.length, terceros: hallazgos.filter((h) => h.categoria === 'tercero').length, hallazgos },
-      envio_al_modelo: !ia ? 'No aplica: motor local' : entry.adjuntos_origen === 'guardado' ? 'No se envían al modelo en vivo'
-        : 'Sin seudonimizar: la sustitución por marcadores solo se aplica al texto; el PDF y las fotos llegan con los datos personales que contengan',
+      envio_al_modelo: !ia ? I18N.t('cumpl.no_aplica_motor_local') : entry.adjuntos_origen === 'guardado' ? I18N.t('cumpl.no_se_envian_al')
+        : I18N.t('cumpl.sin_seudonimizar_la_sustitucion'),
       normas: [N('ai-12'), N('rgpd-4-5'), N('rgpd-13')],
     };
   }
 
-  const DEC_TXT = { REVISION: 'A revisar', DESPEJADO: 'Aprobado' };
+  const DEC_TXT = { REVISION: I18N.t('cumpl.a_revisar'), DESPEJADO: I18N.t('cumpl.aprobado') };
   function gobernanza(entry = {}, opts = {}) {
     const m = entry.mensaje || {};
     const texto = String(m.texto || '');
@@ -436,12 +436,12 @@
     const masc = (str) => sustituir.reduce((acc, h) => acc.split(h._cita).join(h.valor_en_traza), String(str ?? ''));
     const conSalud = (str) => hallazgos.some((h) => h.categoria === 'salud' && String(str).includes(h._cita));
     const porQue = verificadas.filter((e) => e.ref === 'ramo' || e.ref === 'tipo_siniestro' || e.ref === 'numero_poliza').slice(0, 4)
-      .map((e) => ({ evidencia: e.n, cita: masc(e.cita), nota: masc(e.nota || ''), ...(conSalud(e.cita) ? { cifrado: 'contiene datos de salud: campo cifrado' } : {}) }));
+      .map((e) => ({ evidencia: e.n, cita: masc(e.cita), nota: masc(e.nota || ''), ...(conSalud(e.cita) ? { cifrado: I18N.t('cumpl.contiene_datos_de_salud') } : {}) }));
     const descarte = descartados(texto, entry).map((d) => ({ ...d, indicios: d.indicios.map(masc), motivo: masc(d.motivo) }));
 
     return {
       esquema: ESQUEMA,
-      generado_por: 'Plataforma de gobierno (determinista); no lo genera el modelo',
+      generado_por: I18N.t('cumpl.plataforma_de_gobierno_determinista'),
       trazabilidad: {
         traza_id: opts.traza_id || `TRZ-${hashRegistro.slice(0, 6).toUpperCase()}`,
         mensaje_id: entry.id || m.id || null,
@@ -457,9 +457,9 @@
         normas: [N('ai-12'), N('ai-10'), N('rgpd-5')],
       },
       retencion: {
-        traza_seudonimizada: { plazo: '6 meses como mínimo', hasta: sumarMeses(ts, 6), normas: [N('ai-19')] },
-        expediente: { plazo: personas ? '5 años (seguro de personas)' : '2 años (seguro de daños)', hasta: sumarAnios(ts, personas ? 5 : 2), normas: [N('lcs-23'), N('rgpd-5e')] },
-        despues: 'Bloqueo durante la prescripción y supresión; para analítica solo se conservan datos anonimizados',
+        traza_seudonimizada: { plazo: I18N.t('cumpl.6_meses_como_minimo'), hasta: sumarMeses(ts, 6), normas: [N('ai-19')] },
+        expediente: { plazo: personas ? I18N.t('cumpl.5_anos_seguro_de') : I18N.t('cumpl.2_anos_seguro_de'), hasta: sumarAnios(ts, personas ? 5 : 2), normas: [N('lcs-23'), N('rgpd-5e')] },
+        despues: I18N.t('cumpl.bloqueo_durante_la_prescripcion'),
         normas: [N('lopdgdd-32')],
       },
       datos_personales: {
@@ -485,18 +485,18 @@
       },
       supervision_humana: {
         requerida: revision,
-        motivo: revision ? (incumplidas.length ? `Incumple ${incumplidas.join(', ')}: la decisión desfavorable o dudosa la toma una persona` : 'Decisión dudosa: revisión por un tramitador') : 'Decisión favorable al asegurado dentro de los guardrails: aprobación automática permitida',
+        motivo: revision ? (incumplidas.length ? I18N.t('cumpl.incumple_la_decision_desfavorable', { incumplidas: incumplidas.join(', ') }) : I18N.t('cumpl.decision_dudosa_revision_por')) : I18N.t('cumpl.decision_favorable_al_asegurado'),
         // Override = una persona cambia una decisión que el agente tomó solo (Aprobado → A revisar): cuenta para su autonomía.
         // Validar = una persona resuelve un caso que el agente ya escaló: no es override.
-        estado: rev && rev.accion === 'override' ? 'override: una persona pasó a revisión una aprobación automática'
-          : revision ? (rev ? `revisada: ${rev.resultado === 'aprobada' ? 'aprobada' : 'se mantiene en revisión'}` : entry.revisado ? 'revisada' : 'pendiente de revisión') : 'no requerida',
+        estado: rev && rev.accion === 'override' ? I18N.t('cumpl.override_una_persona_paso')
+          : revision ? (rev ? `revisada: ${rev.resultado === 'aprobada' ? 'aprobada' : I18N.t('cumpl.se_mantiene_en_revision')}` : entry.revisado ? 'revisada' : I18N.t('cumpl.pendiente_de_revision')) : I18N.t('cumpl.no_requerida'),
         ...(rev ? { accion_humana: { tipo: rev.accion === 'override' ? 'override' : 'revision', de: DEC_TXT[rev.de] || rev.de, a: DEC_TXT[rev.a] || rev.a, cuenta_para_autonomia: rev.accion === 'override', revisor: rev.usuario, fecha: rev.fecha, comentario: rev.comentario || null } } : {}),
         normas: [N('ai-14'), N('rgpd-22')],
       },
-      ...(opts.antifraude ? { antifraude: { ...opts.antifraude, nota: 'Indicador interno de priorización: no decide ni se comunica al cliente', normas: [N('rgpd-22'), N('rgpd-c47')] } } : {}),
+      ...(opts.antifraude ? { antifraude: { ...opts.antifraude, nota: I18N.t('cumpl.indicador_interno_de_priorizacion'), normas: [N('rgpd-22'), N('rgpd-c47')] } } : {}),
       clasificacion_ria: {
-        nivel: 'No es alto riesgo (Anexo III 5.c solo cubre la tarificación y el riesgo en vida y salud)',
-        controles_alto_riesgo: 'Aplicados como buena práctica',
+        nivel: I18N.t('cumpl.no_es_alto_riesgo'),
+        controles_alto_riesgo: I18N.t('cumpl.aplicados_como_buena_practica'),
         normas: [N('ai-6')],
       },
     };
@@ -560,28 +560,28 @@
 
     const medido = (id, norma, exige, como, medida, estado, trazas) => ({ id, normas: norma, exige, como, medida, estado, fuente: 'medido', trazas: trazas || [] });
     const marcos = [
-      { id: 'ria', nombre: 'Reglamento de IA', sub: 'RIA · AI Act, Reglamento (UE) 2024/1689', controles: [
-        medido('ria-12', [N('ai-12')], 'Registro automático de eventos de cada decisión', 'Cada traza guarda modelo, versión de prompt, spans por agente y hash de entrada y salida', `${registroCompleto.length}/${n} trazas con registro completo`, registroCompleto.length === n ? 'ok' : 'ambar', registroCompleto),
-        medido('ria-12-int', [N('ai-12'), N('rgpd-32')], 'Registro íntegro, no manipulable', 'Cadena de hashes SHA-256 sobre las trazas en orden de registro', integra ? `Cadena íntegra · ${n}/${n} eslabones` : `Cadena rota en la traza ${cadena.items[cadena.roto].traza_id}`, integra ? 'ok' : 'rojo'),
-        medido('ria-13', [N('ai-13'), N('rgpd-15')], 'Resultados interpretables por quien los usa', 'Cada decisión cita fragmentos literales del mensaje que el navegador comprueba (evidencias verificadas ≥ 5)', `${pct(explicadas.length, n)} % de las decisiones (${explicadas.length}/${n})`, pct(explicadas.length, n) >= 90 ? 'ok' : 'ambar', explicadas),
-        medido('ria-13-alt', [N('ai-13')], 'Explicar también lo que se descartó', 'Para cada decisión se registra por qué no es de los otros ramos', `${conDescarte.length}/${n} decisiones con ramos descartados explicados`, conDescarte.length === n ? 'ok' : 'ambar', conDescarte),
-        medido('ria-14', [N('ai-14'), N('rgpd-22')], 'Supervisión humana efectiva', 'Toda decisión desfavorable o dudosa se escala a una persona; interruptor de pausa por agente', `${revision.length}/${revision.length} decisiones «A revisar» escaladas · ${revision.filter((g) => g.supervision_humana.estado === 'revisada').length} ya revisadas`, 'ok', revision.map((g) => g.trazabilidad.traza_id)),
+      { id: 'ria', nombre: I18N.t('cumpl.reglamento_de_ia'), sub: I18N.t('cumpl.ria_ai_act_reglamento'), controles: [
+        medido('ria-12', [N('ai-12')], I18N.t('cumpl.registro_automatico_de_eventos_2'), I18N.t('cumpl.cada_traza_guarda_modelo'), I18N.t('cumpl.trazas_con_registro_completo', { registroCompleto: registroCompleto.length, v: n }), registroCompleto.length === n ? 'ok' : 'ambar', registroCompleto),
+        medido('ria-12-int', [N('ai-12'), N('rgpd-32')], I18N.t('cumpl.registro_integro_no_manipulable'), I18N.t('cumpl.cadena_de_hashes_sha'), integra ? I18N.t('cumpl.cadena_integra_eslabones', { v: n }) : I18N.t('cumpl.cadena_rota_en_la', { traza_id: cadena.items[cadena.roto].traza_id }), integra ? 'ok' : 'rojo'),
+        medido('ria-13', [N('ai-13'), N('rgpd-15')], I18N.t('cumpl.resultados_interpretables_por_quien'), I18N.t('cumpl.cada_decision_cita_fragmentos'), I18N.t('cumpl.de_las_decisiones', { explicadas: pct(explicadas.length, n), explicadas2: explicadas.length, v: n }), pct(explicadas.length, n) >= 90 ? 'ok' : 'ambar', explicadas),
+        medido('ria-13-alt', [N('ai-13')], I18N.t('cumpl.explicar_tambien_lo_que'), I18N.t('cumpl.para_cada_decision_se'), I18N.t('cumpl.decisiones_con_ramos_descartados', { conDescarte: conDescarte.length, v: n }), conDescarte.length === n ? 'ok' : 'ambar', conDescarte),
+        medido('ria-14', [N('ai-14'), N('rgpd-22')], I18N.t('cumpl.supervision_humana_efectiva'), I18N.t('cumpl.toda_decision_desfavorable_o'), I18N.t('cumpl.decisiones_a_revisar_escaladas', { revision: revision.length, revisada: revision.filter((g) => g.supervision_humana.estado === 'revisada').length }), 'ok', revision.map((g) => g.trazabilidad.traza_id)),
         ...(declarados.ria || []),
       ] },
-      { id: 'rgpd', nombre: 'Protección de datos', sub: 'RGPD y LOPDGDD', controles: [
-        medido('rgpd-pii', [N('rgpd-4'), N('rgpd-25')], 'Identificar los datos personales que entran en el sistema', 'Detector determinista de 8 categorías sobre cada mensaje; cada hallazgo tiene tratamiento asignado', `${totalPII} datos personales detectados en ${n} mensajes · 100 % con tratamiento`, 'ok'),
-        medido('rgpd-9', [N('rgpd-9'), N('lossear-99')], 'Datos de salud solo con base jurídica y protección reforzada', 'Cifrado de campo y acceso restringido al rol Salud', `${salud} datos de salud · 100 % cifrados y con acceso restringido`, 'ok', T((g) => g.datos_personales.categoria_especial_salud > 0)),
-        medido('rgpd-8', [N('rgpd-8')], 'Protección específica de los menores', 'Marca de menor y exclusión de cualquier perfilado', `${menores} datos de menores marcados`, 'ok', T((g) => g.datos_personales.menores > 0)),
-        medido('rgpd-14', [N('rgpd-13')], 'Informar a los terceros cuyos datos aporta otra persona', 'Los terceros detectados quedan marcados para informarles en la primera comunicación', `${terceros} terceros identificados`, 'ok', T((g) => g.datos_personales.terceros > 0)),
+      { id: 'rgpd', nombre: I18N.t('cumpl.proteccion_de_datos'), sub: 'RGPD y LOPDGDD', controles: [
+        medido('rgpd-pii', [N('rgpd-4'), N('rgpd-25')], I18N.t('cumpl.identificar_los_datos_personales'), I18N.t('cumpl.detector_determinista_de_8'), I18N.t('cumpl.datos_personales_detectados_en', { totalPII, v: n }), 'ok'),
+        medido('rgpd-9', [N('rgpd-9'), N('lossear-99')], I18N.t('cumpl.datos_de_salud_solo'), I18N.t('cumpl.cifrado_de_campo_y'), I18N.t('cumpl.datos_de_salud_100', { salud }), 'ok', T((g) => g.datos_personales.categoria_especial_salud > 0)),
+        medido('rgpd-8', [N('rgpd-8')], I18N.t('cumpl.proteccion_especifica_de_los'), I18N.t('cumpl.marca_de_menor_y'), I18N.t('cumpl.datos_de_menores_marcados', { menores }), 'ok', T((g) => g.datos_personales.menores > 0)),
+        medido('rgpd-14', [N('rgpd-13')], I18N.t('cumpl.informar_a_los_terceros'), I18N.t('cumpl.los_terceros_detectados_quedan'), `${terceros} terceros identificados`, 'ok', T((g) => g.datos_personales.terceros > 0)),
         seudonimizadas.length && seudonimizadas.length === alModelo.length
-          ? medido('rgpd-5c', [N('rgpd-5c'), N('rgpd-4-5')], 'Minimización: enviar al modelo solo lo necesario', `Seudonimización antes de enviar: los datos personales viajan como marcadores ([PERSONA_1], [DNI_1]…) y se reconstruyen al volver. Se mantienen los datos de salud y la edad de los menores`, `${seudonimizadas.length}/${alModelo.length} trazas con datos personales enviadas seudonimizadas · ${sustituidos} datos sustituidos`, 'ok', seudonimizadas)
-          : medido('rgpd-5c', [N('rgpd-5c')], 'Minimización: enviar al modelo solo lo necesario', seudonimizadas.length ? `${alModelo.length - seudonimizadas.length} de ${alModelo.length} trazas llegaron al modelo con los datos en claro; ${noUsados} de ${totalPII} datos personales no se usaron para decidir` : `Hoy el texto llega completo al modelo; ${noUsados} de ${totalPII} datos personales no se usaron para decidir (p. ej. ${financieros ? 'IBAN, ' : ''}DNI, teléfono)`, seudonimizadas.length ? `${seudonimizadas.length}/${alModelo.length} trazas seudonimizadas` : `${pct(totalPII - noUsados, totalPII)} % de los datos enviados fueron necesarios`, 'ambar', T((g) => g.datos_personales.no_usados_en_decision > 0)),
-        medido('rgpd-22', [N('rgpd-22'), N('rgpd-15')], 'No decidir en contra del asegurado solo con la máquina', 'Las aprobaciones son automáticas; las desfavorables las firma una persona con la explicación delante', `${n - revision.length} aprobadas automáticamente · ${revision.length} a persona`, 'ok'),
-        medido('rgpd-5e', [N('rgpd-5e'), N('lopdgdd-32'), N('lcs-23')], 'Conservar solo el tiempo necesario', 'Plazo calculado por traza: 6 meses de traza, 2 o 5 años de expediente y después bloqueo', `${conRetencion.length}/${n} trazas con fecha de fin calculada`, conRetencion.length === n ? 'ok' : 'ambar', conRetencion),
+          ? medido('rgpd-5c', [N('rgpd-5c'), N('rgpd-4-5')], I18N.t('cumpl.minimizacion_enviar_al_modelo'), I18N.t('cumpl.seudonimizacion_antes_de_enviar'), I18N.t('cumpl.trazas_con_datos_personales', { seudonimizadas: seudonimizadas.length, alModelo: alModelo.length, sustituidos }), 'ok', seudonimizadas)
+          : medido('rgpd-5c', [N('rgpd-5c')], I18N.t('cumpl.minimizacion_enviar_al_modelo'), seudonimizadas.length ? I18N.t('cumpl.de_trazas_llegaron_al', { seudonimizadas: alModelo.length - seudonimizadas.length, alModelo: alModelo.length, noUsados, totalPII }) : I18N.t('cumpl.hoy_el_texto_llega', { noUsados, totalPII, IBAN: financieros ? 'IBAN, ' : '' }), seudonimizadas.length ? `${seudonimizadas.length}/${alModelo.length} trazas seudonimizadas` : I18N.t('cumpl.de_los_datos_enviados', { totalPII: pct(totalPII - noUsados, totalPII) }), 'ambar', T((g) => g.datos_personales.no_usados_en_decision > 0)),
+        medido('rgpd-22', [N('rgpd-22'), N('rgpd-15')], I18N.t('cumpl.no_decidir_en_contra'), I18N.t('cumpl.las_aprobaciones_son_automaticas'), I18N.t('cumpl.aprobadas_automaticamente_a_persona', { revision: n - revision.length, revision2: revision.length }), 'ok'),
+        medido('rgpd-5e', [N('rgpd-5e'), N('lopdgdd-32'), N('lcs-23')], I18N.t('cumpl.conservar_solo_el_tiempo'), I18N.t('cumpl.plazo_calculado_por_traza'), I18N.t('cumpl.trazas_con_fecha_de', { conRetencion: conRetencion.length, v: n }), conRetencion.length === n ? 'ok' : 'ambar', conRetencion),
         ...(declarados.rgpd || []),
       ] },
-      { id: 'dora', nombre: 'Resiliencia operativa', sub: 'DORA, Reglamento (UE) 2022/2554', controles: [...(declarados.dora || [])] },
-      { id: 'eiopa', nombre: 'Gobierno en seguros', sub: 'EIOPA y Solvencia II', controles: [...(declarados.eiopa || [])] },
+      { id: 'dora', nombre: I18N.t('cumpl.resiliencia_operativa'), sub: 'DORA, Reglamento (UE) 2022/2554', controles: [...(declarados.dora || [])] },
+      { id: 'eiopa', nombre: I18N.t('cumpl.gobierno_en_seguros'), sub: 'EIOPA y Solvencia II', controles: [...(declarados.eiopa || [])] },
     ];
     const PESO = { ok: 1, ambar: 0.5, rojo: 0 };
     marcos.forEach((mc) => {
@@ -623,7 +623,7 @@
         const c2 = { ...ctx, norma: ctx.norma || k === 'normas', gob: ctx.gob || k === '_gobernanza' };
         let cuerpo = rec(x, nivel + 1, r, c2);
         const nodo = plegable && /^[[{]<span class="j-in">/.test(cuerpo);
-        const sangria = nodo ? `${sp(nivel + 1).slice(2)}<button type="button" class="j-tog" aria-expanded="true" aria-label="Plegar ${escHtml(String(k))}"></button>` : sp(nivel + 1);
+        const sangria = nodo ? `${sp(nivel + 1).slice(2)}<button type="button" class="j-tog" aria-expanded="true" data-clave="${escHtml(String(k))}" aria-label="${I18N.t('cumpl.plegar', { clave: escHtml(String(k)) })}"></button>` : sp(nivel + 1);
         const envolver = (l) => (plegable ? `<span class="j-l${nodo ? ' j-nodo' : ''}">${l}</span>` : l);
         const cat = sensibles[r];
         if (cat) cuerpo = `<span class="j-pii j-pii-${cat}" title="${escHtml(`Dato personal · ${CATEGORIAS[cat].etiqueta} · ${CATEGORIAS[cat].tratamiento}`)}">${cuerpo}</span>`;

@@ -1,11 +1,10 @@
 // Validador de idiomas: `node scripts/i18n-check.js` (o `make i18n-check`, incluido en `make test`).
 // Estricto (falla) con el idioma base y lo común; con el resto de idiomas solo avisa, salvo los indicados en
 // IDIOMA (`make i18n-check IDIOMA=en` o `IDIOMA=en,de`), que pasan a estricto. Ver _docs/plan-i18n.md §4 y §8.
-const { fs, path, raiz, IDIOMAS, I18N, BASE, FICHEROS, cargarTabla, comparar } = require('./i18n-comun.js');
+const { fs, path, raiz, IDIOMAS, I18N, BASE, FICHEROS, cargarTabla, comparar, textosDatos, cargarTablaDatos, cifras } = require('./i18n-comun.js');
 
-// Mientras dura la fase 1 (migración del español) los HTML aún tienen texto: se avisa y se cuenta.
-// Pasa a true al terminar la fase 1.
-const HTML_ESTRICTO = false;
+// Los HTML no pueden tener texto visible (fase 1 del plan terminada): estricto
+const HTML_ESTRICTO = true;
 const HTML = ['index.html', 'gobierno.html', 'intro.html'];
 
 const estrictos = new Set((process.env.IDIOMA || '').split(',').map((s) => s.trim()).filter(Boolean));
@@ -35,7 +34,12 @@ for (const fichero of FICHEROS) {
   for (const [clave, v] of Object.entries(base)) {
     const ok = (typeof v === 'string' && v.trim()) || (v && typeof v === 'object' && !Array.isArray(v) && typeof v.other === 'string');
     if (!ok) error(`${BASE}: «${clave}» vacía o con formato no válido (texto o { one, other })`);
+    // I18N.t solo sustituye {nombre} con letras ASCII: un {críticas} se quedaría tal cual en pantalla
+    if (/\{[^{}\s]*[^\x00-\x7F][^{}\s]*\}/.test(JSON.stringify(v))) error(`${BASE}: «${clave}» tiene un marcador con letras no ASCII`);
   }
+  // Una clave repetida en el mismo fichero se pisa en silencio (gana la última)
+  const repetidas = (fs.readFileSync(path.join(raiz, 'locales', BASE, fichero), 'utf8').match(/^\s*'[^']+':/gm) || []).filter((k, i, a) => a.indexOf(k) !== i);
+  if (repetidas.length) error(`${BASE}: claves repetidas en ${fichero}: ${lista(repetidas.map((k) => k.trim()))}`);
   console.log(`  ${BASE}: ${Object.keys(base).length} claves`);
 
   for (const idioma of Object.keys(IDIOMAS).filter((i) => i !== BASE)) {
@@ -55,6 +59,26 @@ for (const fichero of FICHEROS) {
     const n = Object.keys(base).length - r.faltan.length;
     console.log(`  ${idioma}: ${n}/${Object.keys(base).length} traducidas${estricto ? ' (estricto)' : ''}`);
   }
+}
+
+// Datos (data/*.js, prompts.js): cada texto base traducido, con las mismas cifras
+console.log('\nDatos');
+const base = textosDatos();
+for (const [fichero, textos] of Object.entries(base)) {
+  const linea = [`  ${fichero}: ${textos.size} textos`];
+  for (const idioma of Object.keys(IDIOMAS).filter((i) => i !== BASE)) {
+    const tabla = cargarTablaDatos(idioma, fichero);
+    const pend = estrictos.has(idioma) ? error : aviso;
+    if (!tabla) { pend(`${idioma}: falta locales/${idioma}/${fichero}`); continue; }
+    const faltan = [...textos.keys()].filter((h) => !(h in tabla));
+    const sobran = Object.keys(tabla).filter((h) => !textos.has(h));
+    const malCifras = [...textos].filter(([h, t]) => h in tabla && cifras(I18N.valor(tabla[h])) !== cifras(t)).map(([h]) => h);
+    if (malCifras.length) error(`${idioma}/${fichero}: ${malCifras.length} traducciones con cifras distintas del ${BASE}: ${lista(malCifras)}`);
+    if (faltan.length) pend(`${idioma}/${fichero}: faltan ${faltan.length} de ${textos.size}`);
+    if (sobran.length) pend(`${idioma}/${fichero}: sobran ${sobran.length} (el texto base cambió o ya no existe)`);
+    linea.push(`${idioma} ${textos.size - faltan.length}/${textos.size}`);
+  }
+  console.log(linea.join(' · '));
 }
 
 // HTML sin texto visible: solo estructura y atributos data-i18n / data-i18n-attr

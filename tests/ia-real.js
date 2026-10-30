@@ -6,6 +6,7 @@
 //   export TRIAGE_MODEL='<despliegue o modelo>'     # opcional si va en la URL
 //   export TRIAGE_REASONING=low                     # opcional (modelos de razonamiento)
 //   make test-ia            # Paquete A (13 mensajes);  make test-ia N=3 para probar con 3
+require('../locales/node.js')();
 const fs = require('fs');
 const path = require('path');
 const E = require('../evidencias.js');

@@ -1,4 +1,5 @@
 // Pruebas de cumplimiento.js sin dependencias: `node tests/cumplimiento.test.js` (o `make test`).
+require('../locales/node.js')();
 const assert = require('assert');
 const crypto = require('crypto');
 const fs = require('fs');

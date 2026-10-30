@@ -12,6 +12,10 @@
 
   const IDIOMAS = root.IDIOMAS || (typeof require !== 'undefined' ? require('./idiomas.js') : {});
   const BASE = Object.keys(IDIOMAS).find((c) => IDIOMAS[c].base) || 'es';
+  // Ficheros de textos de cada idioma (locales/<idioma>/…): los carga cargar.js y los compara scripts/i18n-check.js
+  const FICHEROS = ['ui.js', 'ui-triaje.js', 'ui-gobierno.js', 'ui-intro.js'];
+  // Tablas de traducción de los datos (solo en los idiomas que no son el base: ver traducirDatos)
+  const FICHEROS_DATOS = ['datos-mensajes.js', 'datos-resultados.js', 'datos-gobierno.js', 'datos-fraude.js', 'datos-prompts.js'];
   const textos = {};          // { es: { clave: valor }, en: {...} }
   const avisadas = new Set(); // claves que faltan, avisadas una sola vez en consola
   let activo = BASE;
@@ -63,11 +67,14 @@
     fechaHora: (d, o) => new Date(d).toLocaleString(locale(), o),
   };
 
-  // Rellena el HTML: data-i18n="clave" (texto), data-i18n-attr="title:clave;aria-label:clave" (atributos)
+  // Rellena el HTML: data-i18n="clave" (texto), data-i18n-html="clave" (texto con etiquetas de formato: <b>, <code>,
+  // <a>… escritas en nuestros propios ficheros de idioma, nunca datos de usuario) y
+  // data-i18n-attr="title:clave;aria-label:clave" (atributos)
   function aplicar(raiz) {
     const r = raiz || (typeof document !== 'undefined' ? document : null);
     if (!r) return;
     r.querySelectorAll('[data-i18n]').forEach((el) => { el.textContent = t(el.dataset.i18n); });
+    r.querySelectorAll('[data-i18n-html]').forEach((el) => { el.innerHTML = t(el.dataset.i18nHtml); });
     r.querySelectorAll('[data-i18n-attr]').forEach((el) => {
       el.dataset.i18nAttr.split(';').map((p) => p.trim()).filter(Boolean).forEach((p) => {
         const [attr, clave] = p.split(':').map((x) => x.trim());
@@ -76,13 +83,55 @@
     });
   }
 
+  // ── Datos de la demo ──
+  // Los hechos están una sola vez, en data/*.js y prompts.js, en el idioma base. Cada traducción es una tabla
+  // { huella del texto base: texto traducido } (locales/<idioma>/datos-*.js) que traducirDatos aplica en el sitio
+  // sobre esos objetos al cargar la página. Lo que no está en la tabla se queda en el idioma base. Así los números,
+  // fechas y decisiones son siempre los mismos, y si el texto base cambia su huella cambia y queda pendiente.
+  // No se traducen los valores internos que compara el código: los campos de NO_TRADUCIR y las palabras sueltas en
+  // minúsculas y sin acentos ('aviso', 'superado', 'bajo'…), que son claves de estado.
+  const tablasDatos = {};
+  const NO_TRADUCIR = new Set(['id', 'ramo', 'ramos', 'dec', 'decision', 'canal', 'mime', 'src', 'archivo', 'ref', 'reglas',
+    'prompt', 'modelo', 'generado', 'dni', 'matricula', 'iban', 'permiso', 'nivel', 'severidad', 'esfuerzo', 'estado', 'sev',
+    'tipo', 'ambito', 'origen', 'agente', 'agentes', 'traza', 'mensaje', 'regla', 'resultado', 'dim', 'fuente', 'version']);
+  const ES_CLAVE = /^[a-z0-9_.:-]+$/;   // 'aviso', 'gpt-5', 'v2.3', 'kb-02'…
+  const esTraducible = (s, campo) => typeof s === 'string' && !NO_TRADUCIR.has(campo) && /\p{L}/u.test(s) && !ES_CLAVE.test(s)
+    && !/^[A-Z]{1,5}-[\w-]+$/.test(s) && !/^\d{4}-\d\d-\d\d/.test(s);
+
+  function registrarDatos(idioma, tabla) { tablasDatos[idioma] = Object.assign(tablasDatos[idioma] || {}, tabla); }
+
+  // Recorre un objeto de datos y llama a fn(texto, campo, poner) por cada texto traducible
+  function recorrerDatos(raiz, fn) {
+    const visitar = (o, campo) => {
+      if (Array.isArray(o)) { o.forEach((v, i) => (typeof v === 'string' ? (esTraducible(v, campo) && fn(v, campo, (x) => { o[i] = x; })) : visitar(v, campo))); return; }
+      if (!o || typeof o !== 'object') return;
+      for (const [k, v] of Object.entries(o)) {
+        if (typeof v === 'string') { if (esTraducible(v, k)) fn(v, k, (x) => { o[k] = x; }); } else visitar(v, k);
+      }
+    };
+    visitar(raiz, '');
+  }
+
+  // Traduce en el sitio. Devuelve cuántos textos había y cuántos se tradujeron.
+  function traducirDatos(raiz, idioma = activo) {
+    const r = { total: 0, traducidos: 0 };
+    if (idioma === BASE || !raiz) return r;
+    const tabla = tablasDatos[idioma] || {};
+    recorrerDatos(raiz, (texto, campo, poner) => {
+      r.total++;
+      const h = huella(texto);
+      if (h in tabla) { poner(valor(tabla[h])); r.traducidos++; }
+    });
+    return r;
+  }
+
   const I18N = {
-    IDIOMAS, BASE, huella, registrar, usar, t, fmt, aplicar, valor,
+    IDIOMAS, BASE, FICHEROS, FICHEROS_DATOS, huella, registrarDatos, recorrerDatos, traducirDatos, esTraducible,
+    tablaDatos: (idioma) => tablasDatos[idioma] || {}, registrar, usar, t, fmt, aplicar, valor,
     get idioma() { return activo; },
     get locale() { return locale(); },
     tabla: (idioma) => textos[idioma] || {},
   };
   root.I18N = I18N;
-  root.t = t;
   if (typeof module !== 'undefined' && module.exports) module.exports = I18N;
 })(typeof window !== 'undefined' ? window : globalThis);

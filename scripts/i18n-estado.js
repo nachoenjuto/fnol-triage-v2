@@ -2,14 +2,15 @@
 // Por idioma: claves que faltan y desactualizadas, con el texto base y la huella que hay que poner en la
 // traducción; claves que sobran; y qué ha cambiado en el idioma base desde la última puesta al día
 // (locales/<idioma>/estado.json). Ver _docs/plan-i18n.md §8.
+// Con --json escribe los textos de datos pendientes en locales/<idioma>/pendientes-datos-*.json (para traducir).
 //
 // Al terminar una puesta al día: `make i18n-marcar IDIOMA=en` (node scripts/i18n-estado.js --marcar) comprueba
 // ese idioma en estricto y, si pasa, guarda en estado.json el commit actual como referencia.
 const { execSync } = require('child_process');
-const { fs, path, raiz, IDIOMAS, I18N, BASE, FICHEROS, cargarTabla, comparar } = require('./i18n-comun.js');
+const { fs, path, raiz, IDIOMAS, I18N, BASE, FICHEROS, cargarTabla, comparar, textosDatos, cargarTablaDatos } = require('./i18n-comun.js');
 
 // Fuentes del idioma base cuyo cambio obliga a revisar las traducciones
-const FUENTES_BASE = [`locales/${BASE}`, 'data/base', `_docs/${BASE}`];
+const FUENTES_BASE = [`locales/${BASE}`, 'data', 'prompts.js', `_docs/${BASE}`];
 
 const pedidos = (process.env.IDIOMA || '').split(',').map((s) => s.trim()).filter(Boolean);
 const idiomas = (pedidos.length ? pedidos : Object.keys(IDIOMAS)).filter((i) => i !== BASE && IDIOMAS[i]);
@@ -44,6 +45,20 @@ for (const idioma of idiomas) {
       if (motivo === 'desactualizada') console.log(`      ahora: ${JSON.stringify(I18N.valor(trad[clave]))}`);
     }
     for (const clave of r.sobran) console.log(`  [sobra] '${clave}'`);
+  }
+
+  // Datos: textos base sin traducción (nuevos o cambiados), con su huella; con --json los vuelca para traducir
+  const datos = textosDatos();
+  for (const [fichero, textos] of Object.entries(datos)) {
+    const tabla = cargarTablaDatos(idioma, fichero) || {};
+    const faltan = [...textos].filter(([h]) => !(h in tabla));
+    const sobran = Object.keys(tabla).filter((h) => !textos.has(h));
+    console.log(`\n${fichero}: ${faltan.length} pendientes de ${textos.size} · ${sobran.length} sobran`);
+    if (process.argv.includes('--json')) {
+      const salida = path.join(raiz, 'locales', idioma, `pendientes-${fichero.replace(/\.js$/, '')}.json`);
+      fs.writeFileSync(salida, `${JSON.stringify(Object.fromEntries(faltan), null, 1)}\n`);
+      console.log(`  → ${path.relative(raiz, salida)}`);
+    } else faltan.slice(0, 5).forEach(([h, t]) => console.log(`  '${h}': ${JSON.stringify(t.slice(0, 100))}`));
   }
 
   if (estado.sincronizado_con) {

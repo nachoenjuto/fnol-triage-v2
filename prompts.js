@@ -107,19 +107,19 @@ function buildSystemPrompt(bloques, ramo = null) {
 
 function buildUserPrompt(mensaje, ramoPrevio = null, seudonimizado = false) {
   const cabecera = [
-    ...(ramoPrevio ? [`Ramo ya clasificado en el paso anterior: ${ramoPrevio}`] : []),
-    `Canal: ${mensaje.canal}`,
-    `Fecha de recepción: ${mensaje.fecha_recepcion.replace('T', ' ')}`,
-    `Remitente: ${mensaje.remitente.nombre} (${mensaje.remitente.contacto})`,
-    `Asunto: ${mensaje.asunto}`,
+    ...(ramoPrevio ? [I18N.t('prompt.ramo_ya_clasificado_en', { ramoPrevio })] : []),
+    I18N.t('prompt.canal', { canal: mensaje.canal }),
+    I18N.t('prompt.fecha_de_recepcion', { fecha: mensaje.fecha_recepcion.replace('T', ' ') }),
+    I18N.t('prompt.remitente', { nombre: mensaje.remitente.nombre, contacto: mensaje.remitente.contacto }),
+    I18N.t('prompt.asunto', { asunto: mensaje.asunto }),
   ].join('\n');
-  return `Mensaje a evaluar. Responde solo con el objeto JSON indicado.${seudonimizado ? `\n\n${PROMPT_SEUDONIMOS}` : ''}\n\n${cabecera}\n\nTexto del mensaje:\n"""\n${mensaje.texto}\n"""`;
+  return I18N.t('prompt.mensaje_a_evaluar_responde', { PROMPT_SEUDONIMOS: seudonimizado ? `\n\n${PROMPT_SEUDONIMOS}` : '', cabecera, texto: mensaje.texto });
 }
 
 // Aviso al modelo cuando el mensaje llega seudonimizado (los marcadores se reconstruyen en la plataforma)
-const PROMPT_SEUDONIMOS = 'Los datos personales del mensaje están seudonimizados con marcadores entre corchetes, como [PERSONA_1], [DNI_1] o [POLIZA_AU_1]. '
-  + 'Cópialos tal cual en datos_extraidos y en las citas de las evidencias, y no intentes adivinar el valor real. '
-  + 'El marcador de póliza conserva el prefijo del ramo (AU, HO, SA), que sí puedes usar para clasificar.';
+const PROMPT_SEUDONIMOS = I18N.t('prompt.los_datos_personales_del')
+  + I18N.t('prompt.copialos_tal_cual_en')
+  + I18N.t('prompt.el_marcador_de_poliza');
 
 // Versión del prompt de reglas: se registra en cada traza (_gobernanza.trazabilidad.prompt) y coincide con el panel de gobierno
 const PROMPT_VERSION = 'reglas v2.3';

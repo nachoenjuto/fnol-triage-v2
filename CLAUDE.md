@@ -7,9 +7,10 @@ Demo estática (sin build) de triaje FNOL con agentes de IA gobernados: `index.h
 Plan y estado: `_docs/plan-i18n.md`. Reglas que se cumplen siempre, también cuando se trabaja solo en español:
 
 - **Ningún texto visible en los HTML.** Solo estructura y atributos `data-i18n="clave"` / `data-i18n-attr="title:clave;aria-label:clave"`.
-- **Ningún literal de texto en el código.** Todo texto va en `locales/es/ui.js` (o en los ficheros de contenido de `locales/es/`) y se usa con `t('clave', {vars})`. Fechas, números e importes con `I18N.fmt`, nunca con `'es-ES'` fijo.
+- **Ningún literal de texto en el código.** Todo texto va en `locales/es/ui*.js` (`ui.js` lo común; `ui-triaje.js`, `ui-gobierno.js`, `ui-intro.js` lo de cada página) y se usa con `I18N.t('clave', { vars })` (no `t()`: muchas funciones tienen un parámetro `t`). Fechas, números e importes con `I18N.fmt`, nunca con `'es-ES'` fijo.
 - **Valores internos sin traducir**: `'Auto'`, `'Hogar'`, `'Salud'`, `'DESPEJADO'`, `'REVISION'`, A1…S8, IF-…, G-… son claves; solo se traduce la etiqueta que se muestra.
-- **Los hechos se escriben una sola vez** en `data/base/` (importes, fechas, decisiones, resultado de cada regla, métricas, tokens, scores). Los idiomas solo aportan texto.
+- **Los hechos se escriben una sola vez**, en español, en `data/*.js` y `prompts.js` (importes, fechas, decisiones, resultado de cada regla, métricas, tokens, scores). Los otros idiomas solo aportan tablas de traducción de esos textos, indexadas por la huella del texto español (`locales/<idioma>/datos-*.js`), que `locales/traducir-datos.js` aplica al cargar. Una traducción tiene que llevar las mismas cifras que su original.
+- Los valores internos de los datos que compara el código (estados, ramos, ámbitos…) no se traducen: ver `NO_TRADUCIR` en `locales/i18n.js`.
 - `make test` (incluye `make i18n-check`) tiene que pasar: estricto con el español y lo común, aviso con el resto.
 
 ### Modo de trabajo

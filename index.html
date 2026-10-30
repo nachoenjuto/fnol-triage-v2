@@ -3,8 +3,8 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>FNOL — Primer Aviso de Siniestro</title>
-  <meta name="description" content="Demo de triaje multicanal de mensajes de clientes de una aseguradora: clasificación por ramo, extracción de datos y aplicación de reglas con un proveedor de IA.">
+  <title data-i18n="triaje.pagina.fnol_primer_aviso_de"></title>
+  <meta name="description" data-i18n-attr="content:triaje.pagina.demo_de_triaje_multicanal">
   <link rel="stylesheet" href="styles.css?v=47">
   <link rel="stylesheet" href="header.css?v=44">
   <link rel="stylesheet" href="cumplimiento.css?v=37">
@@ -14,27 +14,27 @@
     <div class="brand">
       <span class="brand-icon" aria-hidden="true"><svg class="lucide-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" focusable="false"><path d="M3 7V5a2 2 0 0 1 2-2h2" /><path d="M17 3h2a2 2 0 0 1 2 2v2" /><path d="M21 17v2a2 2 0 0 1-2 2h-2" /><path d="M7 21H5a2 2 0 0 1-2-2v-2" /><path d="M7 8h8" /><path d="M7 12h10" /><path d="M7 16h6" /></svg></span>
       <div>
-        <h1>FNOL (First Notice of Loss/Primer Aviso de Siniestro)</h1>
-        <p class="brand-sub">Clasificación, priorización y automatización controlada de siniestros FNOL</p>
+        <h1 data-i18n="triaje.pagina.fnol_first_notice_of"></h1>
+        <p class="brand-sub" data-i18n="triaje.pagina.clasificacion_priorizacion_y_automatizac"></p>
       </div>
     </div>
     <div class="row topbar-actions">
-      <span id="mode-badge" class="badge">Motor: reglas</span>
+      <span id="mode-badge" class="badge" data-i18n="triaje.mode_badge.motor_reglas"></span>
       <div class="topbar-buttons">
-        <button id="btn-toggle-config" class="btn btn-topbar" type="button" aria-expanded="false" aria-controls="config-panel"><span data-lucide="settings" aria-hidden="true"></span> Configurar IA <span id="ai-dot" class="dot dot-off" aria-hidden="true"></span></button>
-        <a href="gobierno.html" class="btn btn-topbar"><span data-lucide="shield-check" aria-hidden="true"></span> Gobierno de Agentes</a>
+        <button id="btn-toggle-config" class="btn btn-topbar" type="button" aria-expanded="false" aria-controls="config-panel"><span data-lucide="settings" aria-hidden="true"></span> <span data-i18n="triaje.btn_toggle_config.configurar_ia"></span> <span id="ai-dot" class="dot dot-off" aria-hidden="true"></span></button>
+        <a href="gobierno.html" class="btn btn-topbar"><span data-lucide="shield-check" aria-hidden="true"></span> <span data-i18n="triaje.pagina.gobierno_de_agentes"></span></a>
       </div>
     </div>
   </header>
 
   <!-- Fases del proceso: breadcrumb con ficha explicativa al pasar el ratón / clic -->
-  <nav class="submenu" id="phases" aria-label="Fases del proceso">
-    <button type="button" class="phase" data-phase="multicanal" aria-expanded="false"><span class="step-n" aria-hidden="true">1</span> Ag. de Multicanalidad</button><span class="arrow" data-lucide="chevron-right" aria-hidden="true"></span>
-    <button type="button" class="phase" data-phase="ramo" aria-expanded="false"><span class="step-n" aria-hidden="true">2</span> Ag. de Clasificación por ramo</button><span class="arrow" data-lucide="chevron-right" aria-hidden="true"></span>
-    <button type="button" class="phase" data-phase="datos" aria-expanded="false"><span class="step-n" aria-hidden="true">3</span> Ag. de Extracción de datos</button><span class="arrow" data-lucide="chevron-right" aria-hidden="true"></span>
-    <button type="button" class="phase" data-phase="reglas" aria-expanded="false"><span class="step-n" aria-hidden="true">4</span> Ag. de Reglas de negocio</button><span class="arrow" data-lucide="chevron-right" aria-hidden="true"></span>
-    <button type="button" class="phase" data-phase="registro" aria-expanded="false"><span class="step-n" aria-hidden="true">5</span> Trazabilidad</button><span class="arrow" data-lucide="chevron-right" aria-hidden="true"></span>
-    <button type="button" class="phase" data-phase="automatizacion" aria-expanded="false"><span class="step-n" aria-hidden="true">6</span> Automatización</button>
+  <nav class="submenu" id="phases" data-i18n-attr="aria-label:triaje.phases.fases_del_proceso">
+    <button type="button" class="phase" data-phase="multicanal" aria-expanded="false"><span class="step-n" aria-hidden="true">1</span> <span data-i18n="triaje.phases.ag_de_multicanalidad"></span></button><span class="arrow" data-lucide="chevron-right" aria-hidden="true"></span>
+    <button type="button" class="phase" data-phase="ramo" aria-expanded="false"><span class="step-n" aria-hidden="true">2</span> <span data-i18n="triaje.phases.ag_de_clasificacion_por"></span></button><span class="arrow" data-lucide="chevron-right" aria-hidden="true"></span>
+    <button type="button" class="phase" data-phase="datos" aria-expanded="false"><span class="step-n" aria-hidden="true">3</span> <span data-i18n="triaje.phases.ag_de_extraccion_de"></span></button><span class="arrow" data-lucide="chevron-right" aria-hidden="true"></span>
+    <button type="button" class="phase" data-phase="reglas" aria-expanded="false"><span class="step-n" aria-hidden="true">4</span> <span data-i18n="triaje.phases.ag_de_reglas_de"></span></button><span class="arrow" data-lucide="chevron-right" aria-hidden="true"></span>
+    <button type="button" class="phase" data-phase="registro" aria-expanded="false"><span class="step-n" aria-hidden="true">5</span> <span data-i18n="triaje.phases.trazabilidad"></span></button><span class="arrow" data-lucide="chevron-right" aria-hidden="true"></span>
+    <button type="button" class="phase" data-phase="automatizacion" aria-expanded="false"><span class="step-n" aria-hidden="true">6</span> <span data-i18n="triaje.phases.automatizacion"></span></button>
     <!-- Panel emergente con la descripción de la fase (se rellena en app.js) -->
     <div id="phase-pop" class="phase-pop" role="tooltip" hidden>
       <div class="phase-pop-caret" aria-hidden="true"></div>
@@ -44,49 +44,49 @@
 
   <!-- Marco común con gobierno.html (shell.js): menú lateral plegable (plegado, solo iconos) con usuario y botón al pie -->
   <div class="shell" id="shell" data-pagina="triaje">
-    <nav class="sidenav" aria-label="Ajustes del triaje">
+    <nav class="sidenav" data-i18n-attr="aria-label:triaje.shell.ajustes_del_triaje">
       <div class="sidenav-body" id="sidebar">
       <details class="nav-sec">
-        <summary class="nav-item" title="Paquete de mensajes"><span data-lucide="inbox" aria-hidden="true"></span><span class="lbl">Paquete de mensajes</span><span class="nav-chev" aria-hidden="true"></span></summary>
+        <summary class="nav-item" data-i18n-attr="title:triaje.sidebar.paquete_de_mensajes"><span data-lucide="inbox" aria-hidden="true"></span><span class="lbl" data-i18n="triaje.sidebar.paquete_de_mensajes"></span><span class="nav-chev" aria-hidden="true"></span></summary>
         <div class="section-body">
-          <select id="sel-paquete" aria-label="Paquete de mensajes"></select>
+          <select id="sel-paquete" data-i18n-attr="aria-label:triaje.sidebar.paquete_de_mensajes"></select>
           <p id="paquete-desc" class="hint"></p>
           <ol id="paquete-lista" class="msg-list"></ol>
         </div>
       </details>
       <details class="nav-sec">
-        <summary class="nav-item" title="Configuración"><span data-lucide="settings" aria-hidden="true"></span><span class="lbl">Configuración</span><span class="nav-chev" aria-hidden="true"></span></summary>
+        <summary class="nav-item" data-i18n-attr="title:triaje.sidebar.configuracion"><span data-lucide="settings" aria-hidden="true"></span><span class="lbl" data-i18n="triaje.sidebar.configuracion"></span><span class="nav-chev" aria-hidden="true"></span></summary>
         <div class="section-body">
           <label>
-            <span>Motor de triaje</span>
+            <span data-i18n="triaje.sidebar.motor_de_triaje"></span>
             <select id="sel-motor">
-              <option value="auto">Automático — IA si está configurada, si no reglas locales</option>
-              <option value="guardado">Resultados guardados — reproducción (3–5 s por mensaje)</option>
-              <option value="archivo" disabled>Archivo cargado — reproducción (3–5 s por mensaje)</option>
+              <option value="auto" data-i18n="triaje.sel_motor.automatico_ia_si_esta"></option>
+              <option value="guardado" data-i18n="triaje.sel_motor.resultados_guardados_reproduccion_35"></option>
+              <option value="archivo" disabled data-i18n="triaje.sel_motor.archivo_cargado_reproduccion_35"></option>
             </select>
             <small id="motor-hint"></small>
           </label>
           <label>
-            <span>Reproducir desde archivo</span>
+            <span data-i18n="triaje.sidebar.reproducir_desde_archivo"></span>
             <input id="file-replay" type="file" accept="application/json,.json">
-            <small>Carga un JSON exportado con «Exportar JSON» para repetir un lote real sin llamar al modelo.</small>
+            <small data-i18n="triaje.sidebar.carga_un_json_exportado"></small>
           </label>
           <label>
-            <span>Llamadas a la IA por mensaje</span>
+            <span data-i18n="triaje.sidebar.llamadas_a_la_ia"></span>
             <select id="sel-estrategia">
-              <option value="1paso">1 paso — clasificar y aplicar con los tres bloques de reglas</option>
-              <option value="2pasos">2 pasos — clasificar ramo, luego reglas solo de ese ramo</option>
+              <option value="1paso" data-i18n="triaje.sel_estrategia.1_paso_clasificar_y"></option>
+              <option value="2pasos" data-i18n="triaje.sel_estrategia.2_pasos_clasificar_ramo"></option>
             </select>
-            <small>1 paso: una llamada por mensaje. 2 pasos: menos tokens de entrada pero dos llamadas y dos razonamientos; la ficha muestra los tokens de cada paso.</small>
+            <small data-i18n="triaje.sidebar.1_paso_una_llamada"></small>
           </label>
           <label class="check-row">
-            <span class="check-line"><input id="chk-seud" type="checkbox" checked> Seudonimizar antes de enviar al modelo</span>
-            <small>Nombres, DNI, teléfono, IBAN, póliza, matrícula y dirección viajan como marcadores ([PERSONA_1], [DNI_1]…) y se reconstruyen al volver. Los datos de salud se mantienen porque hacen falta para decidir. RGPD art. 5.1.c.</small>
+            <span class="check-line"><input id="chk-seud" type="checkbox" checked> <span data-i18n="triaje.sidebar.seudonimizar_antes_de_enviar"></span></span>
+            <small data-i18n="triaje.sidebar.nombres_dni_telefono_iban"></small>
           </label>
         </div>
       </details>
       <details class="nav-sec">
-        <summary class="nav-item" title="Prompt"><span data-lucide="file-text" aria-hidden="true"></span><span class="lbl">Prompt</span><span class="nav-chev" aria-hidden="true"></span></summary>
+        <summary class="nav-item" data-i18n-attr="title:triaje.sidebar.prompt"><span data-lucide="file-text" aria-hidden="true"></span><span class="lbl" data-i18n="triaje.sidebar.prompt"></span><span class="nav-chev" aria-hidden="true"></span></summary>
         <div class="section-body" id="prompt-sections"></div>
       </details>
       </div>
@@ -97,71 +97,68 @@
     <!-- Panel principal -->
       <!-- Conexión Azure AI Foundry (arriba, plegable) -->
       <section id="config-panel" class="card config" hidden>
-        <h2>Azure AI Foundry</h2>
-        <p class="hint">
-          La configuración se guarda solo en <code>sessionStorage</code> (se borra al cerrar la pestaña) y la clave se envía
-          directamente a tu endpoint de Azure. Sin clave, el triaje usa un motor local de reglas por palabras clave (modo degradado).
-        </p>
+        <h2 data-i18n="triaje.config_panel.azure_ai_foundry"></h2>
+        <p class="hint" data-i18n-html="triaje.config_panel.la_configuracion_se_guarda"></p>
         <div class="grid-2">
           <label>
-            <span>Endpoint</span>
-            <input id="cfg-endpoint" type="url" placeholder="https://mi-recurso.services.ai.azure.com/openai/v1/responses" autocomplete="off" spellcheck="false">
-            <small>URL del recurso. Si pegas la URL completa del portal (<code>…/openai/v1/responses</code> o <code>…/chat/completions</code>) la ruta se selecciona sola.</small>
+            <span data-i18n="triaje.config_panel.endpoint"></span>
+            <input id="cfg-endpoint" type="url" autocomplete="off" spellcheck="false" data-i18n-attr="placeholder:triaje.cfg_endpoint.https_mi_recurso_services">
+            <small data-i18n-html="triaje.config_panel.url_del_recurso_si"></small>
           </label>
           <label>
-            <span>Deployment / modelo</span>
-            <input id="cfg-deployment" type="text" placeholder="gpt-5-nano" autocomplete="off" spellcheck="false">
+            <span data-i18n="triaje.config_panel.deployment_modelo"></span>
+            <input id="cfg-deployment" type="text" autocomplete="off" spellcheck="false" data-i18n-attr="placeholder:triaje.cfg_deployment.gpt_5_nano">
           </label>
           <label>
-            <span>Ruta de API</span>
+            <span data-i18n="triaje.config_panel.ruta_de_api"></span>
             <select id="cfg-route">
-              <option value="v1">v1 — /openai/v1/chat/completions (sin api-version)</option>
-              <option value="responses">Responses API — /openai/v1/responses (sin api-version)</option>
-              <option value="deployments">Clásica — /openai/deployments/{deployment}/chat/completions</option>
-              <option value="models">Foundry Models — /models/chat/completions</option>
+              <option value="v1" data-i18n="triaje.cfg_route.v1_openai_v1_chat"></option>
+              <option value="responses" data-i18n="triaje.cfg_route.responses_api_openai_v1"></option>
+              <option value="deployments" data-i18n="triaje.cfg_route.clasica_openai_deployments_deployment"></option>
+              <option value="models" data-i18n="triaje.cfg_route.foundry_models_models_chat"></option>
             </select>
           </label>
           <label>
-            <span>API version <small>(solo rutas clásica y Foundry Models)</small></span>
-            <input id="cfg-api-version" type="text" placeholder="2024-10-21 · 2024-05-01-preview" autocomplete="off" spellcheck="false">
+            <span data-i18n-html="triaje.config_panel.api_version_solo_rutas"></span>
+            <input id="cfg-api-version" type="text" autocomplete="off" spellcheck="false" data-i18n-attr="placeholder:triaje.cfg_api_version.2024_10_21_2024">
           </label>
           <label>
-            <span>API key</span>
+            <span data-i18n="triaje.config_panel.api_key"></span>
             <input id="cfg-api-key" type="password" placeholder="••••••••••••••••" autocomplete="off" spellcheck="false">
           </label>
         </div>
         <div class="row">
-          <button id="btn-test-ai" class="btn" type="button">Probar conexión</button>
-          <button id="btn-clear-ai" class="btn btn-ghost" type="button">Borrar clave</button>
+          <button id="btn-test-ai" class="btn" type="button" data-i18n="triaje.btn_test_ai.probar_conexion"></button>
+          <button id="btn-clear-ai" class="btn btn-ghost" type="button" data-i18n="triaje.btn_clear_ai.borrar_clave"></button>
           <span id="ai-status" class="status" role="status" aria-live="polite"></span>
         </div>
       </section>
 
     <main class="content">
-      <section class="counters" aria-label="Indicadores">
+      <section class="counters" data-i18n-attr="aria-label:triaje.shell.indicadores">
         <article class="card counter counter-ok">
-          <span class="counter-label">Aprobados</span>
+          <span class="counter-label" data-i18n="triaje.shell.aprobados"></span>
           <span id="cnt-cleared" class="counter-value">0</span>
           <span id="pct-cleared" class="counter-sub">—</span>
         </article>
         <article class="card counter counter-review">
-          <span class="counter-label">A revisar</span>
+          <span class="counter-label" data-i18n="triaje.shell.a_revisar"></span>
           <span id="cnt-review" class="counter-value">0</span>
           <span id="pct-review" class="counter-sub">—</span>
         </article>
         <article class="card counter counter-time">
-          <span class="counter-label">Tiempo medio de ciclo</span>
+          <span class="counter-label" data-i18n="triaje.shell.tiempo_medio_de_ciclo"></span>
           <span id="cnt-cycle" class="counter-value">—</span>
-          <span id="cycle-sub" class="counter-sub">por mensaje</span>
+          <span id="cycle-sub" class="counter-sub" data-i18n="triaje.cycle_sub.por_mensaje"></span>
         </article>
       </section>
-      <div id="ramo-chips" class="chips" aria-label="Desglose por ramo"></div>
+      <div id="ramo-chips" class="chips" data-i18n-attr="aria-label:triaje.ramo_chips.desglose_por_ramo"></div>
 
       <section class="card actions">
         <div class="row wrap">
-          <button id="btn-run" class="btn btn-primary" type="button"><span data-lucide="play" aria-hidden="true"></span> Procesar paquete</button>
-          <button id="btn-pause" class="btn" type="button" disabled><span data-lucide="pause" aria-hidden="true"></span> Pausar</button>
-          <button id="btn-reset" class="btn btn-ghost" type="button"><span data-lucide="rotate-ccw" aria-hidden="true"></span> Reiniciar lote</button>
+          <button id="btn-run" class="btn btn-primary" type="button"><span data-lucide="play" aria-hidden="true"></span> <span data-i18n="triaje.btn_run.procesar_paquete"></span></button>
+          <button id="btn-pause" class="btn" type="button" disabled><span data-lucide="pause" aria-hidden="true"></span> <span data-i18n="triaje.btn_pause.pausar"></span></button>
+          <button id="btn-reset" class="btn btn-ghost" type="button"><span data-lucide="rotate-ccw" aria-hidden="true"></span> <span data-i18n="triaje.btn_reset.reiniciar_lote"></span></button>
           <span id="run-status" class="status" role="status" aria-live="polite"></span>
         </div>
         <div class="progress" aria-hidden="true"><div id="progress-bar" class="progress-bar"></div></div>
@@ -169,57 +166,54 @@
 
       <section class="card log">
         <div class="row wrap between">
-          <h2>Registro de decisiones <span id="log-count" class="muted"></span></h2>
+          <h2><span data-i18n="triaje.shell.registro_de_decisiones"></span> <span id="log-count" class="muted"></span></h2>
           <div class="row wrap">
-            <label class="inline">Ramo
+            <label class="inline"><span data-i18n="triaje.shell.ramo"></span>
               <select id="filter-ramo">
-                <option value="">Todos</option>
-                <option>Auto</option>
-                <option>Hogar</option>
-                <option>Salud</option>
-                <option>Indeterminado</option>
+                <option value="" data-i18n="triaje.filter_ramo.todos"></option>
+                <option value="Auto" data-i18n="triaje.filter_ramo.auto"></option>
+                <option value="Hogar" data-i18n="triaje.filter_ramo.hogar"></option>
+                <option value="Salud" data-i18n="triaje.filter_ramo.salud"></option>
+                <option value="Indeterminado" data-i18n="triaje.filter_ramo.indeterminado"></option>
               </select>
             </label>
-            <label class="inline"><input id="filter-review" type="checkbox"> Solo a revisar</label>
-            <button id="btn-export-json" class="btn btn-ghost btn-sm" type="button"><span data-lucide="download" aria-hidden="true"></span> Exportar JSON</button>
-            <button id="btn-export-csv" class="btn btn-ghost btn-sm" type="button"><span data-lucide="download" aria-hidden="true"></span> Exportar CSV</button>
+            <label class="inline"><input id="filter-review" type="checkbox"> <span data-i18n="triaje.shell.solo_a_revisar"></span></label>
+            <button id="btn-export-json" class="btn btn-ghost btn-sm" type="button"><span data-lucide="download" aria-hidden="true"></span> <span data-i18n="triaje.btn_export_json.exportar_json"></span></button>
+            <button id="btn-export-csv" class="btn btn-ghost btn-sm" type="button"><span data-lucide="download" aria-hidden="true"></span> <span data-i18n="triaje.btn_export_csv.exportar_csv"></span></button>
           </div>
         </div>
         <div class="table-wrap">
           <table id="log-table">
             <thead>
               <tr>
-                <th data-sort="id">Mensaje</th>
-                <th data-sort="ramo">Ramo</th>
-                <th data-sort="importe">Importe</th>
-                <th data-sort="decision">Decisión</th>
-                <th>Motivo</th>
-                <th data-sort="origen">Origen</th>
-                <th data-sort="confianza">Conf.</th>
-                <th data-sort="duracion_ms">Ciclo</th>
-                <th data-sort="timestamp">Hora</th>
+                <th data-sort="id" data-i18n="triaje.log_table.mensaje"></th>
+                <th data-sort="ramo" data-i18n="triaje.shell.ramo"></th>
+                <th data-sort="importe" data-i18n="triaje.log_table.importe"></th>
+                <th data-sort="decision" data-i18n="triaje.log_table.decision"></th>
+                <th data-i18n="triaje.log_table.motivo"></th>
+                <th data-sort="origen" data-i18n="triaje.log_table.origen"></th>
+                <th data-sort="confianza" data-i18n="triaje.log_table.conf"></th>
+                <th data-sort="duracion_ms" data-i18n="triaje.log_table.ciclo"></th>
+                <th data-sort="timestamp" data-i18n="triaje.log_table.hora"></th>
               </tr>
             </thead>
             <tbody id="log-body"></tbody>
           </table>
-          <p id="log-empty" class="muted center">Todavía no hay decisiones. Elige un paquete y pulsa «Procesar paquete». Haz clic en una fila para ver la ficha.</p>
+          <p id="log-empty" class="muted center" data-i18n="triaje.log_empty.todavia_no_hay_decisiones"></p>
         </div>
       </section>
     </main>
-      <footer class="pie">
-        <span>Demo estática · HTML + JavaScript · sin backend · datos solo en esta sesión</span>
-        <a href="https://github.com/nachoenjuto/fnol-triage" target="_blank" rel="noopener">Código en GitHub</a>
-      </footer>
+      <footer class="pie" data-i18n-html="triaje.shell.demo_estatica_html_javascript"></footer>
     </div>
   </div>
 
   <!-- Editor ancho de un bloque de prompt (el menú lateral es estrecho) -->
   <dialog id="modal-prompt" class="modal modal-prompt" aria-labelledby="modal-prompt-title">
-    <div class="modal-head"><h2 id="modal-prompt-title"></h2><button class="btn btn-ghost btn-icon" type="button" aria-label="Cerrar" onclick="this.closest('dialog').close()"><span data-lucide="x" aria-hidden="true"></span></button></div>
+    <div class="modal-head"><h2 id="modal-prompt-title"></h2><button class="btn btn-ghost btn-icon" type="button" onclick="this.closest('dialog').close()" data-i18n-attr="aria-label:triaje.modal_prompt.cerrar"><span data-lucide="x" aria-hidden="true"></span></button></div>
     <div class="modal-prompt-body">
-      <textarea id="prompt-grande" spellcheck="false" aria-label="Texto del bloque de prompt"></textarea>
+      <textarea id="prompt-grande" spellcheck="false" data-i18n-attr="aria-label:triaje.prompt_grande.texto_del_bloque_de"></textarea>
       <div class="row between"><small class="muted" id="prompt-grande-count"></small>
-        <span class="row"><button class="btn btn-ghost btn-sm" type="button" id="prompt-grande-restaurar">Restaurar original</button><button class="btn btn-sm" type="button" onclick="this.closest('dialog').close()">Cancelar</button><button class="btn btn-primary btn-sm" type="button" id="prompt-grande-guardar"><span data-lucide="check" aria-hidden="true"></span> Guardar</button></span></div>
+        <span class="row"><button class="btn btn-ghost btn-sm" type="button" id="prompt-grande-restaurar" data-i18n="triaje.prompt_grande_restaurar.restaurar_original"></button><button class="btn btn-sm" type="button" onclick="this.closest('dialog').close()" data-i18n="triaje.modal_prompt.cancelar"></button><button class="btn btn-primary btn-sm" type="button" id="prompt-grande-guardar"><span data-lucide="check" aria-hidden="true"></span> <span data-i18n="triaje.prompt_grande_guardar.guardar"></span></button></span></div>
     </div>
   </dialog>
 
@@ -229,37 +223,37 @@
       <div class="mh-title"><span id="modal-canal" class="mh-ico" aria-hidden="true"></span><h2 id="modal-title"></h2></div>
       <div class="mh-actions">
         <span id="modal-pos" class="mh-pos" aria-live="polite"></span>
-        <button id="modal-prev" class="btn btn-ghost btn-icon" type="button" aria-label="Mensaje anterior" title="Anterior (←)"></button>
-        <button id="modal-next" class="btn btn-ghost btn-icon" type="button" aria-label="Mensaje siguiente" title="Siguiente (→)"></button>
-        <button id="modal-close" class="btn btn-ghost btn-icon" type="button" aria-label="Cerrar"><span data-lucide="x" aria-hidden="true"></span></button>
+        <button id="modal-prev" class="btn btn-ghost btn-icon" type="button" data-i18n-attr="title:triaje.modal_prev.anterior;aria-label:triaje.modal_prev.mensaje_anterior"></button>
+        <button id="modal-next" class="btn btn-ghost btn-icon" type="button" data-i18n-attr="title:triaje.modal_next.siguiente;aria-label:triaje.modal_next.mensaje_siguiente"></button>
+        <button id="modal-close" class="btn btn-ghost btn-icon" type="button" data-i18n-attr="aria-label:triaje.modal_prompt.cerrar"><span data-lucide="x" aria-hidden="true"></span></button>
       </div>
     </div>
     <div class="ficha-kpis" id="modal-kpis"></div>
     <div class="ficha-rev" id="modal-rev" hidden></div>
-    <div class="ficha-tabs" id="modal-tabs" role="tablist" aria-label="Secciones de la ficha"></div>
+    <div class="ficha-tabs" id="modal-tabs" role="tablist" data-i18n-attr="aria-label:triaje.modal_tabs.secciones_de_la_ficha"></div>
     <div class="ficha-body">
       <section class="ficha-panel" id="tab-mensaje" role="tabpanel">
         <div class="ficha-resumen">
           <div class="ficha-col">
-            <h3>Datos del mensaje</h3>
+            <h3 data-i18n="triaje.tab_mensaje.datos_del_mensaje"></h3>
             <div class="box"><dl id="modal-mensaje" class="kv"></dl></div>
-            <h3>Mensaje con evidencias</h3>
+            <h3 data-i18n="triaje.tab_mensaje.mensaje_con_evidencias"></h3>
             <div id="modal-texto" class="msg-text msg-evid"></div>
           </div>
           <div class="ficha-col">
             <div class="ev-head">
-              <h3 id="ev-titulo" aria-live="polite">Evidencias</h3>
-              <button id="btn-leyenda" class="btn-leyenda" type="button" aria-expanded="false" aria-controls="ev-pop"><span data-lucide="info" aria-hidden="true"></span> Leyenda</button>
+              <h3 id="ev-titulo" aria-live="polite" data-i18n="triaje.ev_titulo.evidencias"></h3>
+              <button id="btn-leyenda" class="btn-leyenda" type="button" aria-expanded="false" aria-controls="ev-pop"><span data-lucide="info" aria-hidden="true"></span> <span data-i18n="triaje.btn_leyenda.leyenda"></span></button>
               <div id="ev-pop" class="ev-pop" role="tooltip" hidden>
-                <h4>Leyenda de las evidencias</h4>
-                <ul class="ev-leyenda" aria-label="Leyenda de colores de las evidencias">
-                  <li data-kind="ev-ramo"><mark class="ev ev-ramo">ramo</mark><span><b>Ramo</b> · indicio que justifica el ramo asignado</span></li>
-                  <li data-kind="ev-dato"><mark class="ev ev-dato">dato</mark><span><b>Dato extraído</b> · póliza, importe, tipo de siniestro, lugar o documentación</span></li>
-                  <li data-kind="ev-fecha"><mark class="ev ev-fecha">fecha</mark><span><b>Fecha del hecho</b> · cuándo ocurrió el siniestro</span></li>
-                  <li data-kind="ev-incumple"><mark class="ev ev-incumple">regla</mark><span><b>Regla que incumple</b> · motivo de la revisión humana</span></li>
-                  <li data-kind="ev-regla"><mark class="ev ev-regla">regla</mark><span><b>Regla que cumple</b> · prueba de que se cumple</span></li>
+                <h4 data-i18n="triaje.ev_pop.leyenda_de_las_evidencias"></h4>
+                <ul class="ev-leyenda" data-i18n-attr="aria-label:triaje.ev_pop.leyenda_de_colores_de">
+                  <li data-kind="ev-ramo"><mark class="ev ev-ramo" data-i18n="triaje.ev_pop.ramo"></mark><span data-i18n-html="triaje.ev_pop.ramo_indicio_que_justifica"></span></li>
+                  <li data-kind="ev-dato"><mark class="ev ev-dato" data-i18n="triaje.ev_pop.dato"></mark><span data-i18n-html="triaje.ev_pop.dato_extraido_poliza_importe"></span></li>
+                  <li data-kind="ev-fecha"><mark class="ev ev-fecha" data-i18n="triaje.ev_pop.fecha"></mark><span data-i18n-html="triaje.ev_pop.fecha_del_hecho_cuando"></span></li>
+                  <li data-kind="ev-incumple"><mark class="ev ev-incumple" data-i18n="triaje.ev_pop.regla"></mark><span data-i18n-html="triaje.ev_pop.regla_que_incumple_motivo"></span></li>
+                  <li data-kind="ev-regla"><mark class="ev ev-regla" data-i18n="triaje.ev_pop.regla"></mark><span data-i18n-html="triaje.ev_pop.regla_que_cumple_prueba"></span></li>
                 </ul>
-                <p class="small muted">Etiquetas: <span class="ev-tag ok">verificada</span> el modelo la citó y está en el texto · <span class="ev-tag aprox">reconstruida</span> deducida de los datos extraídos · <span class="ev-tag ko">no localizada</span> la cita no aparece en el mensaje.</p>
+                <p class="small muted"><span data-i18n="triaje.ev_pop.etiquetas"></span> <span class="ev-tag ok" data-i18n="triaje.ev_pop.verificada"></span> <span data-i18n="triaje.ev_pop.el_modelo_la_cito"></span> <span class="ev-tag aprox" data-i18n="triaje.ev_pop.reconstruida"></span> <span data-i18n="triaje.ev_pop.deducida_de_los_datos"></span> <span class="ev-tag ko" data-i18n="triaje.ev_pop.no_localizada"></span> <span data-i18n="triaje.ev_pop.la_cita_no_aparece"></span></p>
               </div>
             </div>
             <p class="small muted" id="modal-evid-resumen"></p>
@@ -269,59 +263,59 @@
       </section>
       <section class="ficha-panel" id="tab-adjuntos" role="tabpanel" hidden>
         <div class="adj-layout">
-          <ul id="adj-lista" class="adj-lista" aria-label="Adjuntos del mensaje"></ul>
+          <ul id="adj-lista" class="adj-lista" data-i18n-attr="aria-label:triaje.adj_lista.adjuntos_del_mensaje"></ul>
           <div class="adj-centro">
             <div id="adj-barra" class="adj-barra"></div>
             <div id="adj-visor" class="adj-visor"></div>
           </div>
-          <aside id="adj-datos" class="adj-datos" aria-label="Datos extraídos del adjunto"></aside>
+          <aside id="adj-datos" class="adj-datos" data-i18n-attr="aria-label:triaje.adj_datos.datos_extraidos_del_adjunto"></aside>
         </div>
       </section>
       <section class="ficha-panel" id="tab-datos" role="tabpanel" hidden>
-        <h3>Datos extraídos</h3>
+        <h3 data-i18n="triaje.tab_datos.datos_extraidos"></h3>
         <div class="box"><dl id="modal-datos" class="kv kv-wide"></dl></div>
       </section>
       <section class="ficha-panel" id="tab-reglas" role="tabpanel" hidden>
-        <h3 id="modal-reglas-h">Reglas de negocio del ramo</h3>
+        <h3 id="modal-reglas-h" data-i18n="triaje.modal_reglas_h.reglas_de_negocio_del"></h3>
         <ul id="modal-criterios" class="criterios"></ul>
         <div id="modal-fraude-ind" class="fr-bloque"></div>
       </section>
       <section class="ficha-panel" id="tab-razonamiento" role="tabpanel" hidden>
         <div class="ficha-resumen">
           <div class="ficha-col">
-            <h3>Ramo</h3>
+            <h3 data-i18n="triaje.shell.ramo"></h3>
             <p id="modal-ramo"></p>
             <ul id="modal-ramo-criterios" class="ramo-criterios"></ul>
-            <h3>Decisión</h3>
+            <h3 data-i18n="triaje.log_table.decision"></h3>
             <dl id="modal-resultado" class="kv"></dl>
           </div>
           <div class="ficha-col">
             <div id="modal-sig" class="sig-card"></div>
-            <h3>Cronología del procesamiento</h3>
+            <h3 data-i18n="triaje.tab_razonamiento.cronologia_del_procesamiento"></h3>
             <ol id="modal-crono" class="crono"></ol>
           </div>
         </div>
       </section>
       <section class="ficha-panel" id="tab-json" role="tabpanel" hidden>
         <div class="row between wrap raw-head">
-          <h3 style="margin:0;border:0;padding:0">Respuesta cruda del modelo</h3>
+          <h3 style="margin:0;border:0;padding:0" data-i18n="triaje.tab_json.respuesta_cruda_del_modelo"></h3>
           <div class="row">
-            <div class="seg" role="group" aria-label="Contenido de la respuesta">
-              <button type="button" class="seg-btn" data-raw="enviado" aria-pressed="false">Enviado al modelo</button>
-              <button type="button" class="seg-btn" data-raw="modelo" aria-pressed="false">Salida del modelo</button>
-              <button type="button" class="seg-btn" data-raw="gobierno" aria-pressed="true">+ Gobierno</button>
+            <div class="seg" role="group" data-i18n-attr="aria-label:triaje.tab_json.contenido_de_la_respuesta">
+              <button type="button" class="seg-btn" data-raw="enviado" aria-pressed="false" data-i18n="triaje.tab_json.enviado_al_modelo"></button>
+              <button type="button" class="seg-btn" data-raw="modelo" aria-pressed="false" data-i18n="triaje.tab_json.salida_del_modelo"></button>
+              <button type="button" class="seg-btn" data-raw="gobierno" aria-pressed="true" data-i18n="triaje.tab_json.gobierno"></button>
             </div>
             <button id="modal-copy-raw" class="btn btn-sm" type="button"></button>
           </div>
         </div>
         <div class="row between wrap raw-filtro" id="raw-filtro">
-          <ul class="raw-leyenda" id="raw-leyenda" aria-label="Ver solo una parte de la respuesta">
-            <li><button type="button" class="rl-btn" data-foco="pii" aria-pressed="false"><i class="rl-pii"></i>Dato personal</button></li><li><button type="button" class="rl-btn" data-foco="salud" aria-pressed="false"><i class="rl-art9"></i>Salud (RGPD art. 9)</button></li><li><button type="button" class="rl-btn" data-foco="tag" aria-pressed="false"><i class="rl-tag"></i>Clave usada para trazabilidad (norma al pasar el ratón)</button></li>
-            <li class="rl-gob"><button type="button" class="rl-btn" data-foco="traz" aria-pressed="false"><i class="rl-traz"></i>Trazabilidad</button></li><li class="rl-gob"><button type="button" class="rl-btn" data-foco="expl" aria-pressed="false"><i class="rl-expl"></i>Explicabilidad</button></li><li class="rl-gob"><button type="button" class="rl-btn" data-foco="sup" aria-pressed="false"><i class="rl-sup"></i>Supervisión humana</button></li><li class="rl-gob"><button type="button" class="rl-btn" data-foco="ret" aria-pressed="false"><i class="rl-ret"></i>Retención</button></li><li class="rl-gob"><button type="button" class="rl-btn" data-foco="norma" aria-pressed="false"><i class="rl-norma"></i>Norma</button></li>
+          <ul class="raw-leyenda" id="raw-leyenda" data-i18n-attr="aria-label:triaje.raw_leyenda.ver_solo_una_parte">
+            <li><button type="button" class="rl-btn" data-foco="pii" aria-pressed="false"><i class="rl-pii"></i><span data-i18n="triaje.raw_leyenda.dato_personal"></span></button></li><li><button type="button" class="rl-btn" data-foco="salud" aria-pressed="false"><i class="rl-art9"></i><span data-i18n="triaje.raw_leyenda.salud_rgpd_art_9"></span></button></li><li><button type="button" class="rl-btn" data-foco="tag" aria-pressed="false"><i class="rl-tag"></i><span data-i18n="triaje.raw_leyenda.clave_usada_para_trazabilidad"></span></button></li>
+            <li class="rl-gob"><button type="button" class="rl-btn" data-foco="traz" aria-pressed="false"><i class="rl-traz"></i><span data-i18n="triaje.phases.trazabilidad"></span></button></li><li class="rl-gob"><button type="button" class="rl-btn" data-foco="expl" aria-pressed="false"><i class="rl-expl"></i><span data-i18n="triaje.raw_leyenda.explicabilidad"></span></button></li><li class="rl-gob"><button type="button" class="rl-btn" data-foco="sup" aria-pressed="false"><i class="rl-sup"></i><span data-i18n="triaje.raw_leyenda.supervision_humana"></span></button></li><li class="rl-gob"><button type="button" class="rl-btn" data-foco="ret" aria-pressed="false"><i class="rl-ret"></i><span data-i18n="triaje.raw_leyenda.retencion"></span></button></li><li class="rl-gob"><button type="button" class="rl-btn" data-foco="norma" aria-pressed="false"><i class="rl-norma"></i><span data-i18n="triaje.raw_leyenda.norma"></span></button></li>
           </ul>
           <div class="row raw-plegar">
-            <button type="button" class="btn btn-sm" data-plegar="todo">Plegar todo</button>
-            <button type="button" class="btn btn-sm" data-plegar="nada">Desplegar todo</button>
+            <button type="button" class="btn btn-sm" data-plegar="todo" data-i18n="triaje.raw_filtro.plegar_todo"></button>
+            <button type="button" class="btn btn-sm" data-plegar="nada" data-i18n="triaje.raw_filtro.desplegar_todo"></button>
           </div>
         </div>
         <pre id="modal-raw" class="raw"></pre>
@@ -331,20 +325,21 @@
   </dialog>
 
   <script src="locales/idiomas.js?v=1"></script>
-  <script src="locales/i18n.js?v=1"></script>
-  <script src="locales/cargar.js?v=1"></script>
+  <script src="locales/i18n.js?v=3"></script>
+  <script src="locales/cargar.js?v=3"></script>
   <script src="icons.js?v=40"></script>
   <script src="data/recorrido.js?v=45"></script>
-  <script src="shell.js?v=52"></script>
+  <script src="shell.js?v=53"></script>
   <script src="data/mensajes.js?v=37"></script>
   <script src="data/resultados.js?v=37"></script>
-  <script src="data/fraude.js?v=36"></script>
+  <script src="data/fraude.js?v=37"></script>
+  <script src="prompts.js?v=37"></script>
+  <script src="locales/traducir-datos.js?v=1"></script>
   <script src="fechas.js?v=36"></script>
-  <script src="prompts.js?v=36"></script>
-  <script src="evidencias.js?v=36"></script>
-  <script src="cumplimiento.js?v=40"></script>
-  <script src="fraude.js?v=36"></script>
-  <script src="adjuntos.js?v=1"></script>
-  <script src="app.js?v=50"></script>
+  <script src="evidencias.js?v=37"></script>
+  <script src="cumplimiento.js?v=41"></script>
+  <script src="fraude.js?v=37"></script>
+  <script src="adjuntos.js?v=2"></script>
+  <script src="app.js?v=51"></script>
 </body>
 </html>

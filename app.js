@@ -39,7 +39,7 @@
   const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
   const isoDate = (d) => d.toISOString().slice(0, 10);
   const daysBetween = (a, b) => Math.round((new Date(b) - new Date(a)) / 86400000);
-  const fmtEur = (n) => (n == null || Number.isNaN(Number(n)) ? '—' : Number(n).toLocaleString('es-ES', { style: 'currency', currency: 'EUR', maximumFractionDigits: 0, useGrouping: 'always' }));
+  const fmtEur = (n) => (n == null || Number.isNaN(Number(n)) ? '—' : Number(n).toLocaleString(I18N.locale, { style: 'currency', currency: 'EUR', maximumFractionDigits: 0, useGrouping: 'always' }));
   const fmtMs = (ms) => (ms >= 1000 ? `${(ms / 1000).toFixed(2)} s` : `${Math.round(ms)} ms`);
   const escapeHtml = (s) => String(s ?? '').replace(/[&<>"']/g, (ch) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[ch]));
   const ssGet = (k, fallback) => { try { const v = sessionStorage.getItem(k); return v ? JSON.parse(v) : fallback; } catch { return fallback; } };
@@ -47,7 +47,18 @@
 
   // Iconos de canal: mismos iconos Lucide que la ficha de fase «Multicanalidad» (icons.js)
   const CANAL_LUCIDE = { email: 'mail', web: 'globe', chat: 'messages-square', telefono: 'phone', whatsapp: 'message-circle' };
-  const CANAL_LABEL = { email: 'Email', web: 'Formulario web', chat: 'Chat', telefono: 'Teléfono', whatsapp: 'WhatsApp' };
+  const CANAL_LABEL = { email: I18N.t('triaje.email'), web: I18N.t('triaje.formulario_web'), chat: I18N.t('triaje.chat'), telefono: I18N.t('triaje.telefono'), whatsapp: I18N.t('triaje.whatsapp') };
+  // Origen de la decisión: el valor guardado es interno (lo leen /^IA/ y /^reglas locales/, y va en el JSON exportado)
+  // y solo se traduce al mostrarlo. «… (archivo)» se añade al reproducir un JSON exportado.
+  const ORIGEN_CLAVE = { 'IA': 'triaje.origen.ia', 'IA (guardado)': 'triaje.origen.ia_guardado', 'reglas locales': 'triaje.origen.reglas_locales', 'reglas locales (sin ficha guardada)': 'triaje.origen.sin_ficha' };
+  function origenTexto(o) {
+    const s = String(o || '');
+    const archivo = s.match(/^(.*) \(archivo\)$/);
+    if (archivo) return I18N.t('triaje.origen.archivo', { origen: origenTexto(archivo[1]) });
+    const fallback = s.match(/^reglas locales \(fallback IA: (.*)\)$/);
+    if (fallback) return I18N.t('triaje.origen.fallback', { error: fallback[1] });
+    return ORIGEN_CLAVE[s] ? I18N.t(ORIGEN_CLAVE[s]) : s;
+  }
   const canalIcon = (canal) => `<span class="canal-icon canal-${escapeHtml(canal)}" title="${escapeHtml(CANAL_LABEL[canal] || canal)}" aria-label="${escapeHtml(CANAL_LABEL[canal] || canal)}">${lucide(CANAL_LUCIDE[canal] || 'messages-square')}</span>`;
 
   // ---------------------------------------------------------------------------
@@ -85,7 +96,7 @@
     const scores = hits.map(([r, words]) => [r, words.length]).sort((a, b) => b[1] - a[1]);
     const [best, second] = scores;
     const ramo = best[1] === 0 || best[1] === second[1] ? 'Indeterminado' : best[0];
-    const criterios = hits.map(([r, words]) => `${r}: ${words.length ? words.join(', ') : 'sin indicios'} (${words.length})`);
+    const criterios = hits.map(([r, words]) => `${r}: ${words.length ? words.join(', ') : I18N.t('triaje.sin_indicios')} (${words.length})`);
     return { ramo, criterios };
   }
 
@@ -125,44 +136,44 @@
       terceros_implicados: /\b(otro (coche|conductor|veh[ií]culo)|otra conductora|un coche (me|se)|vecino de arriba)\b/i.test(t),
       lesionados: /\b(herid\w+|lesion\w+|ambulancia|ingresad\w+|fractura|costillas|clav[ií]cula|da[ñn]o en el cuello)\b/i.test(sinNegaciones),
       documentacion_mencionada: docs,
-      observaciones: 'Extracción local por expresiones regulares (sin IA)',
+      observaciones: I18N.t('triaje.extraccion_local_por_expresiones'),
     };
   }
 
   // Cada regla: [código, descripción, evaluador(texto, datos, mensaje) → 'cumple'|'incumple'|'no_aplica', evidencia]
   const LOCAL_RULES = {
     Auto: [
-      ['A2', 'Comunicación en 7 días', (t, d, m) => (d.fecha_hecho ? (daysBetween(d.fecha_hecho, m.fecha_recepcion) > 7 ? 'incumple' : 'cumple') : 'no_aplica'), 'Fecha del hecho vs. recepción'],
-      ['A3', 'Conductor declarado en póliza', (t) => (/\b(mi (hijo|hija|sobrin\w|amig\w|novi\w|cu[ñn]ad\w))\b[^.]*\b(cogi[oó]|conduc\w+|llevaba|sali[oó])\b/i.test(t) ? 'incumple' : 'cumple'), 'Mención de otro conductor'],
-      ['A4', 'Sin alcohol, drogas ni fuga', (t) => (/\b(cervez\w+|alcohol|copas|bebid\w+|drog\w+|sin carn[eé]|sin permiso)\b/i.test(t) ? 'incumple' : 'cumple'), 'Circunstancias agravantes'],
-      ['A5', 'Terceros documentados y sin lesionados', (t, d) => (d.lesionados || (d.terceros_implicados && !/parte amistoso|atestado|denuncia/i.test(t)) ? 'incumple' : 'cumple'), 'Lesionados / parte amistoso'],
-      ['A6', 'Importe inferior a 6.000 €', (t, d) => (d.importe_estimado_eur == null ? 'no_aplica' : d.importe_estimado_eur > 6000 ? 'incumple' : 'cumple'), 'Importe extraído'],
-      ['A7', 'Caso de despeje directo con documentación', (t, d) => (d.documentacion_mencionada.length ? 'cumple' : 'no_aplica'), 'Documentación mencionada'],
+      ['A2', I18N.t('triaje.comunicacion_en_7_dias'), (t, d, m) => (d.fecha_hecho ? (daysBetween(d.fecha_hecho, m.fecha_recepcion) > 7 ? 'incumple' : 'cumple') : 'no_aplica'), I18N.t('triaje.fecha_del_hecho_vs')],
+      ['A3', I18N.t('triaje.conductor_declarado_en_poliza'), (t) => (/\b(mi (hijo|hija|sobrin\w|amig\w|novi\w|cu[ñn]ad\w))\b[^.]*\b(cogi[oó]|conduc\w+|llevaba|sali[oó])\b/i.test(t) ? 'incumple' : 'cumple'), I18N.t('triaje.mencion_de_otro_conductor')],
+      ['A4', I18N.t('triaje.sin_alcohol_drogas_ni'), (t) => (/\b(cervez\w+|alcohol|copas|bebid\w+|drog\w+|sin carn[eé]|sin permiso)\b/i.test(t) ? 'incumple' : 'cumple'), I18N.t('triaje.circunstancias_agravantes')],
+      ['A5', I18N.t('triaje.terceros_documentados_y_sin'), (t, d) => (d.lesionados || (d.terceros_implicados && !/parte amistoso|atestado|denuncia/i.test(t)) ? 'incumple' : 'cumple'), I18N.t('triaje.lesionados_parte_amistoso')],
+      ['A6', I18N.t('triaje.importe_inferior_a_6'), (t, d) => (d.importe_estimado_eur == null ? 'no_aplica' : d.importe_estimado_eur > 6000 ? 'incumple' : 'cumple'), I18N.t('triaje.importe_extraido')],
+      ['A7', I18N.t('triaje.caso_de_despeje_directo'), (t, d) => (d.documentacion_mencionada.length ? 'cumple' : 'no_aplica'), I18N.t('triaje.documentacion_mencionada')],
     ],
     Hogar: [
-      ['H2', 'Comunicación en 7 días', (t) => (/\b(desde hace|hace (unos|varios|un par de) (meses|semanas))\b/i.test(t) ? 'incumple' : 'cumple'), 'Antigüedad del daño'],
-      ['H3', 'Daño por agua súbito (no filtración)', (t) => (/\b(humedad\w*|filtraci\w+|condensaci\w+|silicona|junta)\b/i.test(t) ? 'incumple' : /\b(agua|tuber[ií]a|fuga|latiguillo|gotera)\b/i.test(t) ? 'cumple' : 'no_aplica'), 'Tipo de daño por agua'],
-      ['H4', 'Robo con fuerza, denuncia y dentro de límites', (t, d) => {
+      ['H2', I18N.t('triaje.comunicacion_en_7_dias'), (t) => (/\b(desde hace|hace (unos|varios|un par de) (meses|semanas))\b/i.test(t) ? 'incumple' : 'cumple'), I18N.t('triaje.antiguedad_del_dano')],
+      ['H3', I18N.t('triaje.dano_por_agua_subito'), (t) => (/\b(humedad\w*|filtraci\w+|condensaci\w+|silicona|junta)\b/i.test(t) ? 'incumple' : /\b(agua|tuber[ií]a|fuga|latiguillo|gotera)\b/i.test(t) ? 'cumple' : 'no_aplica'), I18N.t('triaje.tipo_de_dano_por')],
+      ['H4', I18N.t('triaje.robo_con_fuerza_denuncia'), (t, d) => {
         if (!/\b(rob\w+|sustra\w+|se han llevado|faltaban)\b/i.test(t)) return 'no_aplica';
         const sinFuerza = /\b(sin marcas|sin (signos|se[ñn]ales)|no sab\w+ c[oó]mo|entornad\w|abierta)\b/i.test(t);
         const joyas = /\b(joya\w*|anillo\w*|collar|reloj)\b/i.test(t) && (d.importe_estimado_eur || 0) > 3000;
         return sinFuerza || joyas || !/denuncia/i.test(t) ? 'incumple' : 'cumple';
-      }, 'Fuerza, denuncia y límites de joyas'],
-      ['H5', 'Cristales / eléctrico < 1.500 €', (t, d) => (/\b(cristal\w*|mampara|vitrocer[aá]mica|sobretensi[oó]n|subida de tensi[oó]n)\b/i.test(t) ? ((d.importe_estimado_eur || 0) < 1500 ? 'cumple' : 'incumple') : 'no_aplica'), 'Importe del daño'],
-      ['H9', 'Importe inferior a 10.000 €', (t, d) => (d.importe_estimado_eur == null ? 'no_aplica' : d.importe_estimado_eur > 10000 ? 'incumple' : 'cumple'), 'Importe extraído'],
+      }, I18N.t('triaje.fuerza_denuncia_y_limites')],
+      ['H5', I18N.t('triaje.cristales_electrico_1_500'), (t, d) => (/\b(cristal\w*|mampara|vitrocer[aá]mica|sobretensi[oó]n|subida de tensi[oó]n)\b/i.test(t) ? ((d.importe_estimado_eur || 0) < 1500 ? 'cumple' : 'incumple') : 'no_aplica'), I18N.t('triaje.importe_del_dano')],
+      ['H9', I18N.t('triaje.importe_inferior_a_10'), (t, d) => (d.importe_estimado_eur == null ? 'no_aplica' : d.importe_estimado_eur > 10000 ? 'incumple' : 'cumple'), I18N.t('triaje.importe_extraido')],
     ],
     Salud: [
-      ['S2', 'Fuera de periodo de carencia', (t) => (/\bcontrat[ée][^.]*\b(enero|febrero|marzo|abril|mayo|junio|julio|agosto|septiembre|octubre|noviembre|diciembre) de 20\d\d\b/i.test(t) && /\b(oper\w+|cirug[ií]a|hospitaliz\w+|ingres\w+)\b/i.test(t) ? 'incumple' : 'cumple'), 'Antigüedad de la póliza vs. prestación'],
-      ['S3', 'Sin preexistencias no declaradas', (t) => (/\b(arrastraba|desde hace (a[ñn]os|un par de a[ñn]os)|ya ten[ií]a)\b/i.test(t) ? 'incumple' : 'cumple'), 'Mención de patología previa'],
-      ['S4', 'Autorización previa cuando procede', (t) => {
+      ['S2', I18N.t('triaje.fuera_de_periodo_de'), (t) => (/\bcontrat[ée][^.]*\b(enero|febrero|marzo|abril|mayo|junio|julio|agosto|septiembre|octubre|noviembre|diciembre) de 20\d\d\b/i.test(t) && /\b(oper\w+|cirug[ií]a|hospitaliz\w+|ingres\w+)\b/i.test(t) ? 'incumple' : 'cumple'), I18N.t('triaje.antiguedad_de_la_poliza')],
+      ['S3', I18N.t('triaje.sin_preexistencias_no_declaradas'), (t) => (/\b(arrastraba|desde hace (a[ñn]os|un par de a[ñn]os)|ya ten[ií]a)\b/i.test(t) ? 'incumple' : 'cumple'), I18N.t('triaje.mencion_de_patologia_previa')],
+      ['S4', I18N.t('triaje.autorizacion_previa_cuando_procede'), (t) => {
         const ses = t.match(/(\d+)\s+sesiones/i);
         if (/\b(me operaron|ya me han operado|adjunto la factura)\b/i.test(t) && /\b(oper\w+|cirug[ií]a)\b/i.test(t)) return 'incumple';
         if (ses && Number(ses[1]) > 10) return 'incumple';
         return 'cumple';
-      }, 'Prestación realizada sin autorización / sesiones'],
-      ['S5', 'Centro del cuadro médico', (t) => (/\b(fuera del cuadro|no est[aá] en (vuestro|el) cuadro|cl[ií]nica privada)\b/i.test(t) ? 'incumple' : /\bcuadro\b/i.test(t) ? 'cumple' : 'no_aplica'), 'Mención del cuadro médico'],
-      ['S7', 'Reembolso ≤ 2.000 € y prestación cubierta', (t, d) => (/reembols/i.test(t) && (d.importe_estimado_eur || 0) > 2000 ? 'incumple' : 'cumple'), 'Importe del reembolso'],
-      ['S8', 'No corresponde a tráfico ni mutua laboral', (t) => (/\b(laboral|en el trabajo|almac[eé]n de mi empresa|mutua|accidente de tr[aá]fico)\b/i.test(t) ? 'incumple' : 'cumple'), 'Origen de la lesión'],
+      }, I18N.t('triaje.prestacion_realizada_sin_autorizacion')],
+      ['S5', I18N.t('triaje.centro_del_cuadro_medico'), (t) => (/\b(fuera del cuadro|no est[aá] en (vuestro|el) cuadro|cl[ií]nica privada)\b/i.test(t) ? 'incumple' : /\bcuadro\b/i.test(t) ? 'cumple' : 'no_aplica'), I18N.t('triaje.mencion_del_cuadro_medico')],
+      ['S7', I18N.t('triaje.reembolso_2_000_y'), (t, d) => (/reembols/i.test(t) && (d.importe_estimado_eur || 0) > 2000 ? 'incumple' : 'cumple'), I18N.t('triaje.importe_del_reembolso')],
+      ['S8', I18N.t('triaje.no_corresponde_a_trafico'), (t) => (/\b(laboral|en el trabajo|almac[eé]n de mi empresa|mutua|accidente de tr[aá]fico)\b/i.test(t) ? 'incumple' : 'cumple'), I18N.t('triaje.origen_de_la_lesion')],
     ],
   };
 
@@ -174,11 +185,11 @@
     const incumplidas = criterios.filter((c) => c.resultado === 'incumple');
     let decision, motivo;
     if (ramo === 'Indeterminado') {
-      decision = DECISION.REVIEW; motivo = 'Ramo no determinable por palabras clave';
+      decision = DECISION.REVIEW; motivo = I18N.t('triaje.ramo_no_determinable_por');
     } else if (incumplidas.length) {
       decision = DECISION.REVIEW; motivo = `Incumple ${incumplidas.map((c) => `${c.regla} (${c.descripcion})`).join(', ')}`;
     } else {
-      decision = DECISION.CLEARED; motivo = `Ramo ${ramo}: sin incumplimientos en las reglas locales; importe ${fmtEur(datos.importe_estimado_eur)}`;
+      decision = DECISION.CLEARED; motivo = I18N.t('triaje.ramo_sin_incumplimientos_en', { ramo, importe_estimado_eur: fmtEur(datos.importe_estimado_eur) });
     }
     return { ramo, criterios_ramo, datos_extraidos: datos, criterios, decision, motivo, confianza: ramo === 'Indeterminado' ? 0.3 : 0.6 + Math.min(0.25, criterios.length * 0.04) };
   }
@@ -200,7 +211,7 @@
   function buildEndpointUrl(cfg) {
     const raw = cfg.endpoint.trim().replace(/\/+$/, '');
     let origin;
-    try { origin = new URL(raw).origin; } catch { throw new PermanentError(`Endpoint no válido: ${raw}`); }
+    try { origin = new URL(raw).origin; } catch { throw new PermanentError(I18N.t('triaje.endpoint_no_valido', { raw })); }
     const route = cfg.route || 'v1';
     if (routeFromUrl(raw) === route && /\?api-version=|\/openai\/v1\//i.test(raw)) return raw;
     if (route === 'responses') return `${origin}/openai/v1/responses`;
@@ -217,7 +228,7 @@
   function buildBody(cfg, messages, { jsonMode, maxTokens }) {
     const reasoning = isReasoningModel(cfg.deployment);
     if (jsonMode && !messages.some((m) => m.role === 'user' && /json/i.test(m.content))) {
-      messages = messages.map((m, i, arr) => (i === arr.length - 1 && m.role === 'user' ? { ...m, content: `${m.content}\n\nResponde únicamente con un objeto JSON.` } : m));
+      messages = messages.map((m, i, arr) => (i === arr.length - 1 && m.role === 'user' ? { ...m, content: I18N.t('triaje.responde_unicamente_con_un', { content: m.content }) } : m));
     }
     let body;
     if (cfg.route === 'responses') {
@@ -265,7 +276,7 @@
       const body = buildBody(cfg, messages, { jsonMode, maxTokens });
       const controller = new AbortController();
       const timer = setTimeout(() => controller.abort(), REQUEST_TIMEOUT_MS);
-      const label = attempt ? `Reintento ${attempt}` : 'Esperando respuesta del modelo';
+      const label = attempt ? `Reintento ${attempt}` : I18N.t('triaje.esperando_respuesta_del_modelo');
       progress(label);
       const ticker = setInterval(() => progress(label), 1000);
       let res;
@@ -278,9 +289,9 @@
         });
       } catch (err) {
         clearTimeout(timer); clearInterval(ticker);
-        const reason = err.name === 'AbortError' ? `sin respuesta en ${REQUEST_TIMEOUT_MS / 1000} s` : err.message;
-        if (attempt >= NETWORK_RETRIES) throw new PermanentError(`Red/timeout tras ${attempt + 1} intentos (${reason}). Revisa el endpoint y la ruta de API (${url}).`);
-        progress(`Sin respuesta (${reason}), reintentando`);
+        const reason = err.name === 'AbortError' ? I18N.t('triaje.sin_respuesta_en_s', { REQUEST_TIMEOUT_MS: REQUEST_TIMEOUT_MS / 1000 }) : err.message;
+        if (attempt >= NETWORK_RETRIES) throw new PermanentError(I18N.t('triaje.red_timeout_tras_intentos', { attempt: attempt + 1, reason, url }));
+        progress(I18N.t('triaje.sin_respuesta_reintentando', { reason }));
         await sleep(Math.min(RETRY.cap, RETRY.base * 2 ** attempt) + rnd(0, 500));
         continue;
       }
@@ -290,7 +301,7 @@
         const data = await res.json();
         const { text, truncated, usage } = extractContent(cfg, data);
         console.info('[triage][llm] tokens', usage);
-        if (!text && truncated) throw new Error('Respuesta vacía: el modelo agotó los tokens en razonamiento');
+        if (!text && truncated) throw new Error(I18N.t('triaje.respuesta_vacia_el_modelo'));
         return { text, usage, truncated };
       }
       const text = await res.text().catch(() => '');
@@ -388,8 +399,8 @@
       ], { onProgress });
       const duracion_ms = Math.round(performance.now() - t0);
       const parsed = parseTriage(text);
-      if (!parsed) throw new Error('Respuesta del modelo no válida');
-      return { ...parsed, raw: text, usage, pasos: [{ nombre: 'Triaje (todas las reglas)', usage, duracion_ms }] };
+      if (!parsed) throw new Error(I18N.t('triaje.respuesta_del_modelo_no'));
+      return { ...parsed, raw: text, usage, pasos: [{ nombre: I18N.t('triaje.triaje_todas_las_reglas'), usage, duracion_ms }] };
     }
 
     // Paso 1: clasificar el ramo con un prompt corto
@@ -400,7 +411,7 @@
     ], { maxTokens: 800, onProgress: (p) => onProgress && onProgress(`paso 1/2 ramo · ${p}`) });
     const ms1 = Math.round(performance.now() - t1);
     const ramoInfo = parseRamo(p1.text);
-    if (!ramoInfo) throw new Error('Respuesta de clasificación de ramo no válida');
+    if (!ramoInfo) throw new Error(I18N.t('triaje.respuesta_de_clasificacion_de'));
 
     // Paso 2: extracción + reglas solo del ramo clasificado (todas si es Indeterminado)
     const ramoPrevio = ramoInfo.ramo === 'Indeterminado' ? null : ramoInfo.ramo;
@@ -411,18 +422,18 @@
     ], { onProgress: (p) => onProgress && onProgress(`paso 2/2 reglas ${ramoInfo.ramo} · ${p}`) });
     const ms2 = Math.round(performance.now() - t2);
     const parsed = parseTriage(p2.text);
-    if (!parsed) throw new Error('Respuesta del modelo no válida');
+    if (!parsed) throw new Error(I18N.t('triaje.respuesta_del_modelo_no'));
 
-    const discrepancia = parsed.ramo !== ramoInfo.ramo ? `Paso 2 propone ${parsed.ramo} frente a ${ramoInfo.ramo} del paso 1` : null;
+    const discrepancia = parsed.ramo !== ramoInfo.ramo ? I18N.t('triaje.paso_2_propone_frente', { ramo: parsed.ramo, ramo2: ramoInfo.ramo }) : null;
     return {
       ...parsed,
       ramo: ramoInfo.ramo,
       criterios_ramo: [...ramoInfo.criterios_ramo, ...(discrepancia ? [`⚠ ${discrepancia}`] : []), ...parsed.criterios_ramo.filter((c) => !ramoInfo.criterios_ramo.includes(c))],
       decision: discrepancia ? DECISION.REVIEW : parsed.decision,
       motivo: discrepancia ? `${discrepancia}. ${parsed.motivo}` : parsed.motivo,
-      raw: `// Paso 1 — clasificación de ramo\n${p1.text}\n\n// Paso 2 — extracción y reglas\n${p2.text}`,
+      raw: I18N.t('triaje.paso_1_clasificacion_de', { text: p1.text, text2: p2.text }),
       usage: sumUsage(p1.usage, p2.usage),
-      pasos: [{ nombre: 'Paso 1 · ramo', usage: p1.usage, duracion_ms: ms1 }, { nombre: 'Paso 2 · reglas', usage: p2.usage, duracion_ms: ms2 }],
+      pasos: [{ nombre: I18N.t('triaje.paso_1_ramo'), usage: p1.usage, duracion_ms: ms1 }, { nombre: I18N.t('triaje.paso_2_reglas'), usage: p2.usage, duracion_ms: ms2 }],
     };
   }
 
@@ -452,11 +463,11 @@
   function updateModeBadge() {
     const cfg = readConfigFromForm();
     const on = aiEnabled(cfg);
-    if (state.motor === 'guardado') $('mode-badge').textContent = 'Motor: resultados guardados';
+    if (state.motor === 'guardado') $('mode-badge').textContent = I18N.t('triaje.motor_resultados_guardados');
     else if (state.motor === 'archivo') $('mode-badge').textContent = `Motor: archivo (${state.archivo?.nombre || '—'})`;
-    else $('mode-badge').textContent = on ? `Motor: IA (${cfg.deployment || 'endpoint'})` : 'Motor: reglas locales (sin IA)';
+    else $('mode-badge').textContent = on ? `Motor: IA (${cfg.deployment || 'endpoint'})` : I18N.t('triaje.motor_reglas_locales_sin');
     $('ai-dot').className = `dot ${on ? 'dot-on' : 'dot-off'}`;
-    $('ai-dot').title = on ? 'IA configurada' : 'IA sin configurar';
+    $('ai-dot').title = on ? I18N.t('triaje.ia_configurada') : I18N.t('triaje.ia_sin_configurar');
   }
 
   // ---------------------------------------------------------------------------
@@ -488,16 +499,16 @@
     const guardados = p.mensajes.filter((m) => RESULTADOS_GUARDADOS[m.id]).length;
     const sel = $('sel-motor');
     sel.querySelector('[value="guardado"]').disabled = guardados === 0;
-    sel.querySelector('[value="guardado"]').textContent = `Resultados guardados — reproducción (${guardados}/${p.mensajes.length} fichas, 3–5 s por mensaje)`;
+    sel.querySelector('[value="guardado"]').textContent = I18N.t('triaje.resultados_guardados_reproduccion_fichas', { guardados, mensajes: p.mensajes.length });
     const opArchivo = sel.querySelector('[value="archivo"]');
     opArchivo.disabled = !state.archivo;
-    opArchivo.textContent = state.archivo ? `Archivo cargado — ${state.archivo.nombre} (${state.archivo.entradas.length} fichas, 3–5 s por mensaje)` : 'Archivo cargado — reproducción (carga un JSON abajo)';
+    opArchivo.textContent = state.archivo ? I18N.t('triaje.archivo_cargado_fichas_35', { nombre: state.archivo.nombre, entradas: state.archivo.entradas.length }) : I18N.t('triaje.archivo_cargado_reproduccion_carga');
     if ((state.motor === 'guardado' && guardados === 0) || (state.motor === 'archivo' && !state.archivo)) state.motor = 'auto';
     sel.value = state.motor;
     $('motor-hint').textContent = {
-      auto: 'Llama a la IA si hay clave; si no, usa el motor local de reglas.',
-      guardado: 'Reproduce fichas generadas con IA y guardadas en data/resultados.js, sin llamar al modelo.',
-      archivo: 'Reproduce las fichas del JSON cargado en el orden en que se procesaron.',
+      auto: I18N.t('triaje.llama_a_la_ia'),
+      guardado: I18N.t('triaje.reproduce_fichas_generadas_con'),
+      archivo: I18N.t('triaje.reproduce_las_fichas_del'),
     }[state.motor];
     updateModeBadge();
   }
@@ -535,7 +546,7 @@
     const dlg = $('modal-prompt'); const area = $('prompt-grande');
     $('modal-prompt-title').textContent = def.titulo;
     area.value = ta.value;
-    const cuenta = () => { $('prompt-grande-count').textContent = `${area.value.length} caracteres${area.value === def.texto ? '' : ' · editado'}`; };
+    const cuenta = () => { $('prompt-grande-count').textContent = `${area.value.length} caracteres${area.value === def.texto ? '' : I18N.t('triaje.editado')}`; };
     area.oninput = cuenta; cuenta();
     $('prompt-grande-restaurar').onclick = () => { area.value = def.texto; cuenta(); };
     $('prompt-grande-guardar').onclick = () => { ta.value = area.value; ta.dispatchEvent(new Event('input')); dlg.close(); };
@@ -547,8 +558,8 @@
     const campos = (key) => `
       <textarea data-prompt="${key}" rows="14" spellcheck="false"></textarea>
       <div class="row between">
-        <small class="muted"><span data-count="${key}"></span> caracteres</small>
-        <span class="row"><button class="btn btn-ghost btn-sm" type="button" data-grande="${key}" title="Abrir el bloque en un editor ancho">${lucide('maximize-2')} Editar en grande</button><button class="btn btn-ghost btn-sm" type="button" data-restore="${key}">Restaurar</button></span>
+        <small class="muted"><span data-count="${key}"></span> ${I18N.t('triaje.caracteres')}</small>
+        <span class="row"><button class="btn btn-ghost btn-sm" type="button" data-grande="${key}" title="${I18N.t('triaje.abrir_el_bloque_en')}">${lucide('maximize-2')} ${I18N.t('triaje.editar_en_grande')}</button><button class="btn btn-ghost btn-sm" type="button" data-restore="${key}">${I18N.t('triaje.restaurar')}</button></span>
       </div>`;
 
     // «Prompt base» va directo, sin colapsable propio: es el bloque principal del prompt
@@ -557,7 +568,7 @@
     const baseDef = PROMPT_BLOQUES.base;
     const baseEdited = state.prompts.base !== baseDef.texto;
     base.innerHTML = `
-      <h3>${lucide('scan-text', 'lucide-svg section-ico')} ${escapeHtml(baseDef.titulo)} <span class="edited-flag" ${baseEdited ? '' : 'hidden'}>editado</span></h3>
+      <h3>${lucide('scan-text', 'lucide-svg section-ico')} ${escapeHtml(baseDef.titulo)} <span class="edited-flag" ${baseEdited ? '' : 'hidden'}>${I18N.t('triaje.editado_2')}</span></h3>
       ${campos('base')}`;
     bindPromptField(base, 'base', baseDef);
 
@@ -568,7 +579,7 @@
       details.dataset.bloque = key;
       const edited = state.prompts[key] !== def.texto;
       details.innerHTML = `
-        <summary>${lucide(BLOQUE_ICON[key], 'lucide-svg section-ico')} ${escapeHtml(def.titulo)} <span class="edited-flag" ${edited ? '' : 'hidden'}>editado</span></summary>
+        <summary>${lucide(BLOQUE_ICON[key], 'lucide-svg section-ico')} ${escapeHtml(def.titulo)} <span class="edited-flag" ${edited ? '' : 'hidden'}>${I18N.t('triaje.editado_2')}</span></summary>
         <div class="section-body">${campos(key)}</div>`;
       bindPromptField(details, key, def);
       return details;
@@ -589,14 +600,14 @@
     const total = entries.length;
     $('cnt-cleared').textContent = cleared;
     $('cnt-review').textContent = review;
-    $('pct-cleared').textContent = total ? `${Math.round((cleared / total) * 100)} % del lote` : '—';
-    $('pct-review').textContent = total ? `${Math.round((review / total) * 100)} % del lote` : '—';
+    $('pct-cleared').textContent = total ? I18N.t('triaje.del_lote', { total: Math.round((cleared / total) * 100) }) : '—';
+    $('pct-review').textContent = total ? I18N.t('triaje.del_lote', { total: Math.round((review / total) * 100) }) : '—';
     if (total) {
       $('cnt-cycle').textContent = fmtMs(entries.reduce((a, e) => a + e.duracion_ms, 0) / total);
-      $('cycle-sub').textContent = `por mensaje · ${total} procesados`;
+      $('cycle-sub').textContent = I18N.t('triaje.por_mensaje_procesados', { total });
     } else {
       $('cnt-cycle').textContent = '—';
-      $('cycle-sub').textContent = 'por mensaje';
+      $('cycle-sub').textContent = I18N.t('triaje.por_mensaje');
     }
     const porRamo = {};
     entries.forEach((e) => { porRamo[e.ramo] = (porRamo[e.ramo] || 0) + 1; });
@@ -612,7 +623,7 @@
     return rows.sort((a, b) => {
       const va = a[key] ?? '', vb = b[key] ?? '';
       if (typeof va === 'number' || typeof vb === 'number') return ((Number(va) || 0) - (Number(vb) || 0)) * mul;
-      return String(va).localeCompare(String(vb), 'es') * mul;
+      return String(va).localeCompare(String(vb), I18N.locale) * mul;
     });
   }
 
@@ -620,11 +631,11 @@
   function pillDecision(e) {
     const rev = e.revision && e.revision.a ? e.revision : null;
     const final = rev ? rev.a : e.decision;
-    const base = `<span class="pill ${final === DECISION.REVIEW ? 'pill-review' : 'pill-ok'}">${final === DECISION.REVIEW ? 'A revisar' : 'Aprobado'}</span>`;
+    const base = `<span class="pill ${final === DECISION.REVIEW ? 'pill-review' : 'pill-ok'}">${final === DECISION.REVIEW ? I18N.t('triaje.a_revisar') : I18N.t('triaje.aprobado')}</span>`;
     if (!rev) return base;
     return rev.accion === 'override'
-      ? `${base} <span class="pill pill-time" title="Override de ${escapeHtml(rev.usuario)}: el agente lo había aprobado">${lucide('repeat')} Override</span>`
-      : `${base} <span class="pill pill-revisado" title="Revisión validada por ${escapeHtml(rev.usuario)}">${lucide('circle-check')} Validado</span>`;
+      ? `${base} <span class="pill pill-time" title="${I18N.t('triaje.override_de_el_agente', { usuario: escapeHtml(rev.usuario) })}">${lucide('repeat')} ${I18N.t('triaje.override')}</span>`
+      : `${base} <span class="pill pill-revisado" title="${I18N.t('triaje.revision_validada_por', { usuario: escapeHtml(rev.usuario) })}">${lucide('circle-check')} ${I18N.t('triaje.validado')}</span>`;
   }
 
   function renderLog() {
@@ -641,17 +652,17 @@
       tr.className = e.decision === DECISION.REVIEW ? 'row-review' : 'row-ok';
       tr.dataset.id = e.id;
       tr.tabIndex = 0;
-      const ramoMark = e.esperado?.ramo ? (e.esperado.ramo === e.ramo ? `<span class="mark ok" title="Coincide con el ramo esperado">${lucide('check')}</span>` : `<span class="mark ko" title="Esperado: ${escapeHtml(e.esperado.ramo)}">${lucide('x')}</span>`) : '';
+      const ramoMark = e.esperado?.ramo ? (e.esperado.ramo === e.ramo ? `<span class="mark ok" title="${I18N.t('triaje.coincide_con_el_ramo')}">${lucide('check')}</span>` : `<span class="mark ko" title="${I18N.t('triaje.esperado', { ramo: escapeHtml(e.esperado.ramo) })}">${lucide('x')}</span>`) : '';
       tr.innerHTML = [
         `<td><strong>${escapeHtml(e.id)}</strong><br><span class="muted small">${escapeHtml(e.asunto)}</span></td>`,
         `<td><span class="pill pill-ramo-${e.ramo.toLowerCase()}">${escapeHtml(e.ramo)}</span> ${ramoMark}</td>`,
         `<td>${fmtEur(e.importe)}</td>`,
         `<td>${pillDecision(e)}${chipFraude(FRv[e.id])}</td>`,
         `<td class="motivo">${escapeHtml(e.motivo)}</td>`,
-        `<td>${escapeHtml(e.origen)}</td>`,
+        `<td>${escapeHtml(origenTexto(e.origen))}</td>`,
         `<td>${Math.round(e.confianza * 100)} %</td>`,
         `<td>${fmtMs(e.duracion_ms)}</td>`,
-        `<td>${new Date(e.timestamp).toLocaleTimeString('es-ES')}</td>`,
+        `<td>${new Date(e.timestamp).toLocaleTimeString(I18N.locale)}</td>`,
       ].join('');
       return tr;
     }));
@@ -670,27 +681,27 @@
   }
   function fmtValue(v) {
     if (v === null || v === undefined || v === '') return '<span class="muted">—</span>';
-    if (typeof v === 'boolean') return v ? 'Sí' : 'No';
+    if (typeof v === 'boolean') return v ? I18N.t('triaje.si') : I18N.t('triaje.no');
     if (Array.isArray(v)) return v.length ? escapeHtml(v.join(', ')) : '<span class="muted">—</span>';
     if (typeof v === 'object') return `<code>${escapeHtml(JSON.stringify(v))}</code>`;
     return escapeHtml(v);
   }
   const DATOS_LABELS = {
-    nombre_cliente: 'Cliente', numero_poliza: 'Nº de póliza', tipo_siniestro: 'Tipo de siniestro', fecha_hecho: 'Fecha del hecho',
-    importe_estimado_eur: 'Importe estimado', lugar: 'Lugar', terceros_implicados: 'Terceros implicados', lesionados: 'Lesionados',
-    documentacion_mencionada: 'Documentación mencionada', observaciones: 'Observaciones',
+    nombre_cliente: I18N.t('triaje.cliente'), numero_poliza: I18N.t('triaje.no_de_poliza'), tipo_siniestro: I18N.t('triaje.tipo_de_siniestro'), fecha_hecho: I18N.t('triaje.fecha_del_hecho'),
+    importe_estimado_eur: I18N.t('triaje.importe_estimado'), lugar: I18N.t('triaje.lugar'), terceros_implicados: I18N.t('triaje.terceros_implicados'), lesionados: I18N.t('triaje.lesionados'),
+    documentacion_mencionada: I18N.t('triaje.documentacion_mencionada'), observaciones: I18N.t('triaje.observaciones'),
   };
   const RESULT_ICON = { cumple: lucide('check'), incumple: lucide('x'), no_aplica: lucide('minus') };
 
   // Etiquetas y colores de cada tipo de evidencia
   const REF_LABEL = {
-    numero_poliza: 'Nº de póliza', tipo_siniestro: 'Tipo de siniestro', fecha_hecho: 'Fecha del hecho', importe_estimado_eur: 'Importe', lugar: 'Lugar',
-    nombre_cliente: 'Cliente', documentacion_mencionada: 'Documentación', lesionados: 'Lesionados', terceros_implicados: 'Terceros', observaciones: 'Observaciones', ramo: 'Ramo',
+    numero_poliza: I18N.t('triaje.no_de_poliza'), tipo_siniestro: I18N.t('triaje.tipo_de_siniestro'), fecha_hecho: I18N.t('triaje.fecha_del_hecho'), importe_estimado_eur: I18N.t('triaje.importe'), lugar: I18N.t('triaje.lugar'),
+    nombre_cliente: I18N.t('triaje.cliente'), documentacion_mencionada: I18N.t('triaje.documentacion'), lesionados: I18N.t('triaje.lesionados'), terceros_implicados: I18N.t('triaje.terceros'), observaciones: I18N.t('triaje.observaciones'), ramo: I18N.t('triaje.ramo'),
   };
   function refInfo(ref, entry) {
     if (String(ref).startsWith('regla:')) {
       const cod = ref.slice(6); const c = (entry.criterios || []).find((x) => x.regla === cod);
-      return { clase: c && c.resultado === 'incumple' ? 'ev-incumple' : 'ev-regla', label: `Regla ${cod}${c && c.resultado === 'incumple' ? ' · incumple' : ''}` };
+      return { clase: c && c.resultado === 'incumple' ? 'ev-incumple' : 'ev-regla', label: `Regla ${cod}${c && c.resultado === 'incumple' ? I18N.t('triaje.incumple') : ''}` };
     }
     return { clase: ref === 'ramo' ? 'ev-ramo' : ref === 'fecha_hecho' ? 'ev-fecha' : 'ev-dato', label: REF_LABEL[ref] || ref };
   }
@@ -701,16 +712,16 @@
     const ia = /^IA/.test(entry.origen || '');
     const pasos = entry.pasos || [];
     const tok = (u) => (u ? `${u.input ?? '?'}↑ ${u.output ?? '?'}↓${u.reasoning ? ` ${u.reasoning}⟳` : ''} tokens` : '');
-    const etapas = [{ nombre: 'Mensaje recibido', det: `${CANAL_LABEL[entry.mensaje.canal] || entry.mensaje.canal} · normalizado al formato común` }];
+    const etapas = [{ nombre: I18N.t('triaje.mensaje_recibido'), det: I18N.t('triaje.normalizado_al_formato_comun', { canal: CANAL_LABEL[entry.mensaje.canal] || entry.mensaje.canal }) }];
     if (ia && pasos.length > 1) pasos.forEach((p) => etapas.push({ nombre: p.nombre, ms: p.duracion_ms, det: tok(p.usage) }));
-    else if (ia) etapas.push({ nombre: 'Clasificación, extracción y reglas', ms: pasos[0] && pasos[0].duracion_ms, det: `una sola llamada al modelo · ${tok(entry.usage)}`.replace(/ · $/, '') });
-    else etapas.push({ nombre: 'Motor local de reglas', ms: entry.duracion_ms, det: 'expresiones regulares, sin IA' });
-    etapas.push({ nombre: entry.decision === DECISION.REVIEW ? 'Escalado a revisión humana' : 'Aprobado automáticamente', det: entry.motivo, review: entry.decision === DECISION.REVIEW });
+    else if (ia) etapas.push({ nombre: I18N.t('triaje.clasificacion_extraccion_y_reglas'), ms: pasos[0] && pasos[0].duracion_ms, det: I18N.t('triaje.una_sola_llamada_al', { usage: tok(entry.usage) }).replace(/ · $/, '') });
+    else etapas.push({ nombre: I18N.t('triaje.motor_local_de_reglas'), ms: entry.duracion_ms, det: I18N.t('triaje.expresiones_regulares_sin_ia') });
+    etapas.push({ nombre: entry.decision === DECISION.REVIEW ? I18N.t('triaje.escalado_a_revision_humana') : I18N.t('triaje.aprobado_automaticamente'), det: entry.motivo, review: entry.decision === DECISION.REVIEW });
     return etapas;
   }
 
   const modalState = { lista: [], idx: 0, entry: null, tab: 'mensaje', raw: 'gobierno', adj: 0, zoom: 1 };
-  const TABS = [['mensaje', 'messages-square', 'Mensaje'], ['adjuntos', 'paperclip', 'Adjuntos'], ['datos', 'database', 'Datos extraídos'], ['reglas', 'list-checks', 'Reglas de negocio'], ['razonamiento', 'brain', 'Razonamiento'], ['json', 'braces', 'Respuesta cruda']];
+  const TABS = [['mensaje', 'messages-square', I18N.t('triaje.mensaje')], ['adjuntos', 'paperclip', I18N.t('triaje.adjuntos')], ['datos', 'database', I18N.t('triaje.datos_extraidos')], ['reglas', 'list-checks', I18N.t('triaje.reglas_de_negocio')], ['razonamiento', 'brain', I18N.t('triaje.razonamiento')], ['json', 'braces', I18N.t('triaje.respuesta_cruda')]];
   // La pestaña «Adjuntos» solo existe en los mensajes que traen adjuntos
   const tabsDe = (entry) => TABS.filter(([k]) => k !== 'adjuntos' || ((entry.mensaje || {}).adjuntos || []).length);
   function setTab(nombre) {
@@ -721,11 +732,11 @@
   }
 
   // Título de la columna de evidencias: «Evidencias» o el tipo de la evidencia activa (hover o seleccionada)
-  const TIPO_EV = { 'ev-ramo': 'Ramo', 'ev-dato': 'Dato extraído', 'ev-fecha': 'Fecha del hecho', 'ev-incumple': 'Regla que incumple', 'ev-regla': 'Regla que cumple' };
+  const TIPO_EV = { 'ev-ramo': I18N.t('triaje.ramo'), 'ev-dato': I18N.t('triaje.dato_extraido'), 'ev-fecha': I18N.t('triaje.fecha_del_hecho'), 'ev-incumple': I18N.t('triaje.regla_que_incumple'), 'ev-regla': I18N.t('triaje.regla_que_cumple') };
   function tituloEvidencia(n) {
     const h = $('ev-titulo');
     const e = n && (modalState.evs || []).find((x) => String(x.n) === String(n));
-    if (!e) { h.textContent = 'Evidencias'; return; }
+    if (!e) { h.textContent = I18N.t('triaje.evidencias'); return; }
     const info = refInfo(e.ref, modalState.entry || {});
     const detalle = info.clase === 'ev-fecha' ? '' : info.clase.startsWith('ev-regla') || info.clase === 'ev-incumple' ? e.ref.slice(6) : info.clase === 'ev-ramo' ? (modalState.entry || {}).ramo || '' : info.label;
     h.innerHTML = `<span class="ev-activa ${info.clase}">${e.n} · ${escapeHtml(TIPO_EV[info.clase])}${detalle ? ` <small>${escapeHtml(detalle)}</small>` : ''}</span>`;
@@ -737,17 +748,17 @@
     const segs = Evidencias.segmentos(m.texto, ev.lista);
     const faltan = DATOS_ESENCIALES.filter((k) => (entry.datos_extraidos || {})[k] == null && !ev.lista.some((e) => e.ref === k));
     const r = ev.resumen;
-    const resumen = !r.total && !faltan.length ? 'Sin evidencias para este mensaje.'
-      : `${r.resaltadas} fragmento${r.resaltadas === 1 ? '' : 's'} del mensaje resaltado${r.resaltadas === 1 ? '' : 's'}`
-        + (r.pedidas ? ` · el modelo citó ${r.pedidas} y ${r.modelo} se localizaron en el texto` : '')
-        + (r.respaldo ? ` · ${r.respaldo} reconstruida${r.respaldo === 1 ? '' : 's'} a partir de los datos extraídos` : '');
+    const resumen = !r.total && !faltan.length ? I18N.t('triaje.sin_evidencias_para_este')
+      : I18N.t('triaje.fragmento_del_mensaje_resaltado', { resaltadas: r.resaltadas, resaltadas2: r.resaltadas === 1 ? '' : 's' })
+        + (r.pedidas ? I18N.t('triaje.el_modelo_cito_y', { pedidas: r.pedidas, modelo: r.modelo }) : '')
+        + (r.respaldo ? I18N.t('triaje.reconstruida_a_partir_de', { respaldo: r.respaldo, respaldo2: r.respaldo === 1 ? '' : 's' }) : '');
     const lista = ev.lista.map((e) => {
       const info = refInfo(e.ref, entry);
-      const tag = !e.verificada ? '<span class="ev-tag ko" title="La cita del modelo no aparece literalmente en el mensaje">no localizada</span>'
-        : e.origen === 'respaldo' ? '<span class="ev-tag aprox" title="Reconstruida a partir de los datos extraídos, no citada por el modelo">reconstruida</span>'
-        : '<span class="ev-tag ok" title="El modelo citó este fragmento y está en el texto del mensaje">verificada</span>';
+      const tag = !e.verificada ? I18N.t('triaje.no_localizada')
+        : e.origen === 'respaldo' ? I18N.t('triaje.reconstruida')
+        : I18N.t('triaje.verificada');
       return `<li class="ev-item ${info.clase}${e.resaltada ? '' : ' ev-sin'}" data-n="${e.n}"><span class="ev-num">${e.n}</span><div><strong>${escapeHtml(info.label)}</strong> <q>${escapeHtml(e.cita)}</q>${e.nota ? `<small>${escapeHtml(e.nota)}</small>` : ''}</div>${tag}</li>`;
-    }).join('') + faltan.map((k) => `<li class="ev-item ev-falta"><span class="ev-num">–</span><div><strong>${escapeHtml(REF_LABEL[k])}</strong><small>No consta en el mensaje</small></div></li>`).join('');
+    }).join('') + faltan.map((k) => `<li class="ev-item ev-falta"><span class="ev-num">–</span><div><strong>${escapeHtml(REF_LABEL[k])}</strong><small>${I18N.t('triaje.no_consta_en_el')}</small></div></li>`).join('');
     const cont = $('modal-texto'); cont.replaceChildren();
     segs.forEach((sg) => {
       if (!sg.ev) { cont.append(document.createTextNode(sg.t)); return; }
@@ -770,40 +781,40 @@
     entry.gobernanza = Cumplimiento.gobernanza(entry, { ...(entry.gob_opts || {}), ...(af ? { antifraude: af } : {}) });
     return entry.gobernanza;
   }
-  const NIVEL_FR = { siu: ['pill-fr-siu', 'SIU'], vigilancia: ['pill-fr-vig', 'Vigilancia'] };
+  const NIVEL_FR = { siu: ['pill-fr-siu', 'SIU'], vigilancia: ['pill-fr-vig', I18N.t('triaje.vigilancia')] };
   const chipFraude = (v) => {
     if (!v || (v.nivel === 'sin' && v.pago !== 'retenido')) return '';
-    const [cls, l] = NIVEL_FR[v.nivel] || ['pill-fr-pago', 'Pago retenido'];
-    return ` <span class="pill ${cls}" title="Indicadores de fraude: score ${v.score} de 100. No cambia la decisión ni se comunica al cliente.">${lucide('shield-alert')} ${l}${v.nivel !== 'sin' ? ` · ${v.score}` : ''}</span>`;
+    const [cls, l] = NIVEL_FR[v.nivel] || ['pill-fr-pago', I18N.t('triaje.pago_retenido')];
+    return ` <span class="pill ${cls}" title="${I18N.t('triaje.indicadores_de_fraude_score', { score: v.score })}">${lucide('shield-alert')} ${l}${v.nivel !== 'sin' ? ` · ${v.score}` : ''}</span>`;
   };
   // Bloque «Indicadores de fraude» de la pestaña de reglas: score, indicadores con su cita y qué pasa ahora
   function pintarFraude(entry) {
     const v = fraudeDe()[entry.id]; const box = $('modal-fraude-ind');
     if (!box) return;
-    if (!v || !v.indicadores.length) { box.innerHTML = `<h3>${lucide('shield-alert')} Indicadores de fraude</h3><p class="small muted">Sin indicios: ningún indicador de comportamiento se activa con este mensaje.</p>`; return; }
-    const lbl = { siu: 'Escalado a la SIU', vigilancia: 'Vigilancia', sin: 'Sin indicios' }[v.nivel];
-    box.innerHTML = `<h3>${lucide('shield-alert')} Indicadores de fraude <span class="pill ${(NIVEL_FR[v.nivel] || ['pill-fr-pago'])[0]}">${escapeHtml(lbl)} · ${v.score}</span></h3>
-      <p class="small muted">Motor sin IA que cruza el mensaje con el lote y con el histórico de la póliza. No cambia la decisión del triaje y no se comunica al cliente (G-12).</p>
-      <ul class="criterios">${v.indicadores.map((x) => `<li class="crit ${x.aplicado ? 'crit-incumple' : 'crit-no_aplica'}"><span class="crit-icon" aria-hidden="true">${x.aplicado ? lucide('circle-alert') : lucide('minus')}</span><div><strong>${escapeHtml(x.id)}</strong> ${escapeHtml(x.nombre)} <b>${x.aplicado ? `+${x.aplicado}` : x.contraindicio ? '· contraindicio, no suma' : '· inactivo'}</b><br><small>${escapeHtml(x.detalle || '')}${x.citas.length ? ` · ${x.citas.map((c) => `«${escapeHtml(c.cita)}»`).join(' ')}` : ''}</small></div></li>`).join('')}</ul>
-      <p class="small" style="margin-top:.5rem"><strong>Qué pasa ahora:</strong> ${escapeHtml(v.accion)}. El detalle, el escenario y la cola de la SIU están en el panel de gobierno, sección Fraude.</p>`;
+    if (!v || !v.indicadores.length) { box.innerHTML = `<h3>${lucide('shield-alert')} ${I18N.t('triaje.indicadores_de_fraude')}</h3><p class="small muted">${I18N.t('triaje.sin_indicios_ningun_indicador')}</p>`; return; }
+    const lbl = { siu: I18N.t('triaje.escalado_a_la_siu'), vigilancia: I18N.t('triaje.vigilancia'), sin: I18N.t('triaje.sin_indicios_2') }[v.nivel];
+    box.innerHTML = `<h3>${lucide('shield-alert')} ${I18N.t('triaje.indicadores_de_fraude')} <span class="pill ${(NIVEL_FR[v.nivel] || ['pill-fr-pago'])[0]}">${escapeHtml(lbl)} · ${v.score}</span></h3>
+      <p class="small muted">${I18N.t('triaje.motor_sin_ia_que')}</p>
+      <ul class="criterios">${v.indicadores.map((x) => `<li class="crit ${x.aplicado ? 'crit-incumple' : 'crit-no_aplica'}"><span class="crit-icon" aria-hidden="true">${x.aplicado ? lucide('circle-alert') : lucide('minus')}</span><div><strong>${escapeHtml(x.id)}</strong> ${escapeHtml(x.nombre)} <b>${x.aplicado ? `+${x.aplicado}` : x.contraindicio ? I18N.t('triaje.contraindicio_no_suma') : I18N.t('triaje.inactivo')}</b><br><small>${escapeHtml(x.detalle || '')}${x.citas.length ? I18N.t('triaje.texto', { cita: x.citas.map((c) => `«${escapeHtml(c.cita)}»`).join(' ') }) : ''}</small></div></li>`).join('')}</ul>
+      <p class="small" style="margin-top:.5rem"><strong>${I18N.t('triaje.que_pasa_ahora')}</strong> ${I18N.t('triaje.el_detalle_el_escenario', { accion: escapeHtml(v.accion) })}</p>`;
   }
 
   // Pestaña «Adjuntos»: miniaturas, visor (PDF del navegador o imagen con zoom) y datos extraídos de cada adjunto,
   // contrastados con el texto del mensaje. El parte se genera con pdf-lib al abrirlo (adjuntos.js).
   const ADJ_LABELS = {
-    fecha_hecho: 'Fecha', hora: 'Hora', lugar: 'Lugar', heridos: 'Heridos', danos_otros_bienes: 'Daños a otros bienes', testigos: 'Testigos',
-    vehiculo_a: 'Vehículo A', vehiculo_b: 'Vehículo B', circunstancias_a: 'Circunstancias A', circunstancias_b: 'Circunstancias B', firmado_ambos: 'Firmado por ambos',
-    conductor: 'Conductor', dni: 'DNI', vehiculo: 'Vehículo', matricula: 'Matrícula', aseguradora: 'Aseguradora', poliza: 'Póliza', punto_choque: 'Punto de choque', danos: 'Daños',
-    vista: 'Vista', zona_danada: 'Zona dañada', danos_visibles: 'Daños visibles', gravedad_aparente: 'Gravedad aparente', matricula_visible: 'Matrícula visible',
+    fecha_hecho: I18N.t('triaje.fecha'), hora: I18N.t('triaje.hora'), lugar: I18N.t('triaje.lugar'), heridos: I18N.t('triaje.heridos'), danos_otros_bienes: I18N.t('triaje.danos_a_otros_bienes'), testigos: I18N.t('triaje.testigos'),
+    vehiculo_a: I18N.t('triaje.vehiculo_a'), vehiculo_b: I18N.t('triaje.vehiculo_b'), circunstancias_a: I18N.t('triaje.circunstancias_a'), circunstancias_b: I18N.t('triaje.circunstancias_b'), firmado_ambos: I18N.t('triaje.firmado_por_ambos'),
+    conductor: I18N.t('triaje.conductor'), dni: 'DNI', vehiculo: I18N.t('triaje.vehiculo'), matricula: I18N.t('triaje.matricula'), aseguradora: I18N.t('triaje.aseguradora'), poliza: I18N.t('triaje.poliza'), punto_choque: I18N.t('triaje.punto_de_choque'), danos: I18N.t('triaje.danos'),
+    vista: I18N.t('triaje.vista'), zona_danada: I18N.t('triaje.zona_danada'), danos_visibles: I18N.t('triaje.danos_visibles'), gravedad_aparente: I18N.t('triaje.gravedad_aparente'), matricula_visible: I18N.t('triaje.matricula_visible'),
   };
-  const CONTRASTE = { coincide: ['circle-check', 'ok', 'Coincide'], no_consta: ['circle-help', 'aviso', 'No consta en el mensaje'], discrepa: ['circle-x', 'ko', 'Discrepa'] };
-  const fmtKb = (b) => (b == null ? '' : `${(b / 1024).toLocaleString('es-ES', { maximumFractionDigits: 1 })} KB`);
+  const CONTRASTE = { coincide: ['circle-check', 'ok', I18N.t('triaje.coincide')], no_consta: ['circle-help', 'aviso', I18N.t('triaje.no_consta_en_el')], discrepa: ['circle-x', 'ko', I18N.t('triaje.discrepa')] };
+  const fmtKb = (b) => (b == null ? '' : I18N.t('triaje.kb', { maximumFractionDigits: (b / 1024).toLocaleString(I18N.locale, { maximumFractionDigits: 1 }) }));
   function valorAdjunto(k, v) {
     if (/^circunstancias_/.test(k)) {
       const C = typeof Adjuntos !== 'undefined' ? Adjuntos.CIRCUNSTANCIAS : [];
-      return v && v.length ? v.map((n) => `${n} · ${escapeHtml(C[n - 1] || '')}`).join('<br>') : 'Ninguna';
+      return v && v.length ? v.map((n) => `${n} · ${escapeHtml(C[n - 1] || '')}`).join('<br>') : I18N.t('triaje.ninguna');
     }
-    if (k === 'fecha_hecho' && v) return escapeHtml(new Date(`${v}T12:00:00`).toLocaleDateString('es-ES'));
+    if (k === 'fecha_hecho' && v) return escapeHtml(new Date(`${v}T12:00:00`).toLocaleDateString(I18N.locale));
     return fmtValue(v);
   }
   function datosAdjuntoHtml(datos) {
@@ -821,15 +832,15 @@
     const huella = (entry.adjuntos_recibidos || []).find((h) => h.id === a.id) || {};
     $('adj-lista').innerHTML = lista.map((x, i) => {
       const h = (entry.adjuntos_recibidos || []).find((y) => y.id === x.id) || {};
-      const mini = x.mime === 'application/pdf' ? `<span class="adj-mini pdf">${lucide('file-text')}<b>PDF</b></span>` : `<img class="adj-mini" src="${escapeHtml(x.src)}" alt="" loading="lazy">`;
+      const mini = x.mime === 'application/pdf' ? `<span class="adj-mini pdf">${lucide('file-text')}<b>${I18N.t('triaje.pdf')}</b></span>` : `<img class="adj-mini" src="${escapeHtml(x.src)}" alt="" loading="lazy">`;
       return `<li><button type="button" class="adj-item" data-adj="${i}" aria-pressed="${i === idx}">${mini}<span><strong>${escapeHtml(x.titulo)}</strong><small>${escapeHtml(x.archivo)}${h.bytes ? ` · ${fmtKb(h.bytes)}` : ''}</small></span></button></li>`;
     }).join('');
     const esImg = a.mime.startsWith('image/');
     $('adj-barra').innerHTML = `<span class="adj-nombre">${lucide(esImg ? 'image' : 'file-text')} ${escapeHtml(a.archivo)}</span>
       <span class="row">
-        ${esImg ? `<button class="btn btn-ghost btn-icon" type="button" data-zoom="-1" aria-label="Alejar" title="Alejar">${lucide('zoom-out')}</button><span class="adj-zoom" aria-live="polite">${Math.round(modalState.zoom * 100)} %</span><button class="btn btn-ghost btn-icon" type="button" data-zoom="1" aria-label="Acercar" title="Acercar">${lucide('zoom-in')}</button><button class="btn btn-sm btn-ghost" type="button" data-zoom="0">Ajustar</button>` : ''}
-        <a class="btn btn-sm btn-ghost" id="adj-abrir" target="_blank" rel="noopener" aria-disabled="true">${lucide('external-link')} Abrir</a>
-        <a class="btn btn-sm btn-ghost" id="adj-bajar" download="${escapeHtml(a.archivo)}" aria-disabled="true">${lucide('download')} Descargar</a>
+        ${esImg ? `<button class="btn btn-ghost btn-icon" type="button" data-zoom="-1" aria-label="${I18N.t('triaje.alejar')}" title="${I18N.t('triaje.alejar')}">${lucide('zoom-out')}</button><span class="adj-zoom" aria-live="polite">${Math.round(modalState.zoom * 100)} %</span><button class="btn btn-ghost btn-icon" type="button" data-zoom="1" aria-label="${I18N.t('triaje.acercar')}" title="${I18N.t('triaje.acercar')}">${lucide('zoom-in')}</button><button class="btn btn-sm btn-ghost" type="button" data-zoom="0">${I18N.t('triaje.ajustar')}</button>` : ''}
+        <a class="btn btn-sm btn-ghost" id="adj-abrir" target="_blank" rel="noopener" aria-disabled="true">${lucide('external-link')} ${I18N.t('triaje.abrir')}</a>
+        <a class="btn btn-sm btn-ghost" id="adj-bajar" download="${escapeHtml(a.archivo)}" aria-disabled="true">${lucide('download')} ${I18N.t('triaje.descargar')}</a>
       </span>`;
     const visor = $('adj-visor');
     // Clave del adjunto visible: un PDF que termina de generarse tarde no pisa lo que se ha elegido después
@@ -840,28 +851,28 @@
       visor.classList.toggle('ampliada', modalState.zoom > 1);
       ['adj-abrir', 'adj-bajar'].forEach((id) => { $(id).href = a.src; $(id).removeAttribute('aria-disabled'); });
     } else {
-      visor.innerHTML = `<p class="muted center adj-cargando">${lucide('file-text')} Abriendo el PDF…</p>`;
+      visor.innerHTML = `<p class="muted center adj-cargando">${lucide('file-text')} ${I18N.t('triaje.abriendo_el_pdf')}</p>`;
       Adjuntos.url(a, m).then((u) => {
         if (modalState.adjClave !== clave) return;
         visor.innerHTML = `<iframe src="${u}#view=FitH&navpanes=0" title="${escapeHtml(a.titulo)}"></iframe>`;
         ['adj-abrir', 'adj-bajar'].forEach((id) => { $(id).href = u; $(id).removeAttribute('aria-disabled'); });
-      }).catch((e) => { if (modalState.adjClave === clave) visor.innerHTML = `<p class="muted center">No se pudo generar el PDF (${escapeHtml(e.message)}).</p>`; });
+      }).catch((e) => { if (modalState.adjClave === clave) visor.innerHTML = `<p class="muted center">${I18N.t('triaje.no_se_pudo_generar', { message: escapeHtml(e.message) })}</p>`; });
     }
 
     // Panel lateral: lo que extrajo el modelo de este adjunto y su contraste con el mensaje
     const ext = (entry.adjuntos || []).find((x) => x.id === a.id);
-    const pie = huella.sha256 ? `<p class="small muted adj-huella" title="sha256:${escapeHtml(huella.sha256)}">${lucide('fingerprint')} sha256:${escapeHtml(huella.sha256.slice(0, 16))}… · ${fmtKb(huella.bytes)}</p>` : '';
+    const pie = huella.sha256 ? `<p class="small muted adj-huella" title="${I18N.t('triaje.sha256', { sha256: escapeHtml(huella.sha256) })}">${lucide('fingerprint')} ${I18N.t('triaje.sha256_2', { sha256: escapeHtml(huella.sha256.slice(0, 16)), bytes: fmtKb(huella.bytes) })}</p>` : '';
     if (!ext) {
-      $('adj-datos').innerHTML = `<h3>Datos extraídos</h3><p class="small muted">${/^IA/.test(entry.origen || '') ? 'El modelo no devolvió datos de este adjunto.' : 'Sin datos extraídos: el motor local no lee los adjuntos, solo el texto del mensaje.'}</p>${pie}`;
+      $('adj-datos').innerHTML = `<h3>${I18N.t('triaje.datos_extraidos')}</h3><p class="small muted">${/^IA/.test(entry.origen || '') ? I18N.t('triaje.el_modelo_no_devolvio') : I18N.t('triaje.sin_datos_extraidos_el')}</p>${pie}`;
       return;
     }
     const n = { coincide: 0, no_consta: 0, discrepa: 0 }; (ext.contraste || []).forEach((c) => { n[c.resultado] = (n[c.resultado] || 0) + 1; });
-    $('adj-datos').innerHTML = `<h3>Datos extraídos</h3>
-      ${entry.adjuntos_origen === 'guardado' ? `<p class="small adj-aviso">${lucide('info')} Tomados de los resultados guardados: el modelo en vivo todavía no recibe los adjuntos.</p>` : ''}
+    $('adj-datos').innerHTML = `<h3>${I18N.t('triaje.datos_extraidos')}</h3>
+      ${entry.adjuntos_origen === 'guardado' ? `<p class="small adj-aviso">${lucide('info')} ${I18N.t('triaje.tomados_de_los_resultados')}</p>` : ''}
       <p class="small">${escapeHtml(ext.resumen || '')}</p>
-      ${(ext.reglas || []).length ? `<p class="small adj-reglas">Refuerza ${ext.reglas.map((r) => `<span>${escapeHtml(r)}</span>`).join(' ')}</p>` : ''}
+      ${(ext.reglas || []).length ? `<p class="small adj-reglas">${I18N.t('triaje.refuerza', { span: ext.reglas.map((r) => `<span>${escapeHtml(r)}</span>`).join(' ') })}</p>` : ''}
       ${datosAdjuntoHtml(ext.datos || {})}
-      <h4>Contraste con el mensaje <small class="muted">${n.coincide} coinciden${n.no_consta ? ` · ${n.no_consta} no constan` : ''}${n.discrepa ? ` · ${n.discrepa} discrepan` : ''}</small></h4>
+      <h4>${I18N.t('triaje.contraste_con_el_mensaje')} <small class="muted">${I18N.t('triaje.coinciden', { coincide: n.coincide, no_consta: n.no_consta ? I18N.t('triaje.no_constan', { no_consta: n.no_consta }) : '', discrepan: n.discrepa ? ` · ${n.discrepa} discrepan` : '' })}</small></h4>
       <ul class="adj-contraste">${(ext.contraste || []).map((c) => {
         const [ico, cls, txt] = CONTRASTE[c.resultado] || CONTRASTE.no_consta;
         return `<li class="${cls}"><span class="ci" title="${txt}">${lucide(ico)}</span><div><strong>${escapeHtml(ADJ_LABELS[c.campo] || c.campo)}</strong> ${escapeHtml(c.detalle || '')}${c.cita ? `<q>${escapeHtml(c.cita)}</q>` : ''}</div></li>`;
@@ -876,7 +887,7 @@
     document.querySelectorAll('#tab-json .seg-btn').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.raw === vista)));
     $('raw-leyenda').classList.toggle('sin-gob', !conGob);
     $('raw-filtro').style.display = vista === 'enviado' ? 'none' : '';
-    $('modal-copy-raw').innerHTML = `${lucide('copy')} ${vista === 'enviado' ? 'Copiar texto' : 'Copiar JSON'}`;
+    $('modal-copy-raw').innerHTML = `${lucide('copy')} ${vista === 'enviado' ? I18N.t('triaje.copiar_texto') : I18N.t('triaje.copiar_json')}`;
     if (vista === 'enviado') { pintarEnviado(entry); return; }
     let modelo = null;
     try { const m = String(entry.raw || '').match(/^\s*\{[\s\S]*\}\s*$/); if (m) modelo = JSON.parse(m[0]); } catch { modelo = null; }
@@ -886,7 +897,7 @@
       const obj = conGob ? { ...modelo, _gobernanza: gob } : modelo;
       html = Cumplimiento.jsonHtml(obj, opts); texto = JSON.stringify(obj, null, 2);
     } else {
-      const base = entry.raw || '(sin respuesta cruda: decisión del motor local)';
+      const base = entry.raw || I18N.t('triaje.sin_respuesta_cruda_decision');
       html = escapeHtml(base) + (conGob ? `\n\n${Cumplimiento.jsonHtml({ _gobernanza: gob }, opts)}` : '');
       texto = base + (conGob ? `\n\n${JSON.stringify({ _gobernanza: gob }, null, 2)}` : '');
     }
@@ -898,8 +909,8 @@
     enfocarRaw(modalState.rawFoco);
     const dp = gob.datos_personales;
     $('raw-nota').textContent = conGob
-      ? `El bloque «_gobernanza» lo añade la plataforma, no el modelo. ${dp.total} datos personales detectados (${dp.categoria_especial_salud} de salud, ${dp.menores} de menores, ${dp.terceros} de terceros): esta ficha es la vista operativa del tramitador; la traza persistida guarda «valor_en_traza», nunca el dato en claro.`
-      : 'Salida del modelo tal y como llegó, sin metadatos de gobierno.';
+      ? I18N.t('triaje.el_bloque_gobernanza_lo', { total: dp.total, categoria_especial_salud: dp.categoria_especial_salud, menores: dp.menores, terceros: dp.terceros })
+      : I18N.t('triaje.salida_del_modelo_tal');
   }
 
   // Plegado del JSON. Un botón de la leyenda pliega todo y deja abierto solo el camino hasta lo que marca ese color
@@ -909,7 +920,7 @@
     n.classList.toggle('plegado', plegado);
     const b = n.querySelector('.j-tog');
     b.setAttribute('aria-expanded', String(!plegado));
-    b.setAttribute('aria-label', b.getAttribute('aria-label').replace(/^(Plegar|Desplegar)/, plegado ? 'Desplegar' : 'Plegar'));
+    b.setAttribute('aria-label', I18N.t(plegado ? 'cumpl.desplegar' : 'cumpl.plegar', { clave: b.dataset.clave }));
   }
   function enfocarRaw(foco) {
     const pre = $('modal-raw');
@@ -937,7 +948,7 @@
     const sd = entry.seudonimizacion;
     const envio = gob_envio(entry);
     if (!sd || !sd.activa) {
-      const texto = envio.aplica === false ? envio.motivo : `${envio.motivo}. Activa «Seudonimizar antes de enviar al modelo» en Configuración y vuelve a procesar el lote.`;
+      const texto = envio.aplica === false ? envio.motivo : I18N.t('triaje.activa_seudonimizar_antes_de', { motivo: envio.motivo });
       $('modal-raw').textContent = texto; modalState.rawTexto = texto;
       $('raw-nota').textContent = '';
       return;
@@ -946,16 +957,16 @@
     const adj = (entry.mensaje || {}).adjuntos || [];
     const lineaAdj = (a) => { const h = (entry.adjuntos_recibidos || []).find((x) => x.id === a.id) || {}; return `· ${a.archivo} (${a.mime}${h.bytes ? `, ${fmtKb(h.bytes)}` : ''}${h.sha256 ? `, sha256:${h.sha256.slice(0, 16)}…` : ''})`; };
     const bloqueAdj = !adj.length ? ''
-      : entry.adjuntos_origen === 'guardado' ? `\n\nAdjuntos: ${adj.length}, no se envían al modelo en vivo (sus datos salen de los resultados guardados)\n${adj.map(lineaAdj).join('\n')}`
-      : `\n\nAdjuntos enviados tal cual, sin seudonimizar: ${adj.length}\n${adj.map(lineaAdj).join('\n')}`;
+      : entry.adjuntos_origen === 'guardado' ? I18N.t('triaje.adjuntos_no_se_envian', { adj: adj.length, lineaAdj: adj.map(lineaAdj).join('\n') })
+      : I18N.t('triaje.adjuntos_enviados_tal_cual', { adj: adj.length, lineaAdj: adj.map(lineaAdj).join('\n') });
     const texto = `Asunto: ${e.asunto}\nRemitente: ${e.remitente}\n\n${e.texto}${bloqueAdj}`;
     $('modal-raw').innerHTML = escapeHtml(texto).replace(/\[[A-Z_]+_\d+\]/g, (t) => `<mark class="raw-tok">${t}</mark>`);
     modalState.rawTexto = texto;
-    const NOMBRE_TIPO = { nombre: ['nombre', 'nombres'], nombre_tercero: ['nombre de tercero', 'nombres de terceros'], dni: ['DNI', 'DNI'], nie: ['NIE', 'NIE'], email: ['email', 'emails'], telefono: ['teléfono', 'teléfonos'], iban: ['IBAN', 'IBAN'], tarjeta_sanitaria: ['tarjeta sanitaria', 'tarjetas sanitarias'], poliza: ['póliza', 'pólizas'], matricula: ['matrícula', 'matrículas'], expediente: ['expediente', 'expedientes'], direccion: ['dirección', 'direcciones'] };
+    const NOMBRE_TIPO = { nombre: ['nombre', 'nombres'], nombre_tercero: [I18N.t('triaje.nombre_de_tercero'), I18N.t('triaje.nombres_de_terceros')], dni: ['DNI', 'DNI'], nie: ['NIE', 'NIE'], email: ['email', 'emails'], telefono: ['teléfono', 'teléfonos'], iban: ['IBAN', 'IBAN'], tarjeta_sanitaria: [I18N.t('triaje.tarjeta_sanitaria'), I18N.t('triaje.tarjetas_sanitarias')], poliza: ['póliza', 'pólizas'], matricula: ['matrícula', 'matrículas'], expediente: ['expediente', 'expedientes'], direccion: ['dirección', 'direcciones'] };
     const tipos = Object.entries(sd.por_tipo || {}).map(([k, n]) => `${n} ${(NOMBRE_TIPO[k] || [k, k])[n === 1 ? 0 : 1]}`).join(', ');
-    $('raw-nota').textContent = `${sd.simulada ? 'Reproducción de una respuesta guardada: así habría llegado el mensaje al modelo. ' : ''}${sd.sustituidos} datos personales sustituidos por marcadores (${tipos || 'ninguno'}). `
-      + 'La tabla de correspondencias solo existe en memoria durante la llamada: la plataforma la usa para reconstruir la respuesta y no se guarda en la traza. Los datos de salud se mantienen porque hacen falta para decidir (RGPD art. 9.2.f).'
-      + (adj.length && entry.adjuntos_origen !== 'guardado' ? ' La seudonimización solo se aplica al texto: el PDF y las fotos llegan al modelo con los datos personales que contengan.' : '');
+    $('raw-nota').textContent = I18N.t('triaje.datos_personales_sustituidos_por', { reproduccion_de_una_resp: sd.simulada ? I18N.t('triaje.reproduccion_de_una_respuesta') : '', sustituidos: sd.sustituidos, ninguno: tipos || 'ninguno' })
+      + I18N.t('triaje.la_tabla_de_correspondencias')
+      + (adj.length && entry.adjuntos_origen !== 'guardado' ? I18N.t('triaje.la_seudonimizacion_solo_se') : '');
   }
   const gob_envio = (entry) => (entry.gobernanza && entry.gobernanza.datos_personales.envio_al_modelo) || {};
 
@@ -965,20 +976,20 @@
     const review = entry.decision === DECISION.REVIEW || !!entry.revision;
     const card = $('modal-sig'); card.className = `sig-card ${paso.tono === 'ok' ? 'ok' : ''}`;
     const borrador = Evidencias.borradorSolicitud(entry, paso);
-    card.innerHTML = `<span class="k">Siguiente paso recomendado</span>
+    card.innerHTML = `<span class="k">${I18N.t('triaje.siguiente_paso_recomendado')}</span>
       <div class="t">${lucide(paso.icono)} ${escapeHtml(paso.titulo)}</div>
       <div class="small">${escapeHtml(paso.detalle)}</div>
-      ${paso.pedir.length ? `<div class="small muted">Qué pedir al cliente:</div><div class="pedir">${paso.pedir.map((x) => `<span>${escapeHtml(x)}</span>`).join('')}</div>` : ''}
-      ${paso.otras && paso.otras.length ? `<div class="small muted">También: ${escapeHtml(paso.otras.join(' · '))}</div>` : ''}
+      ${paso.pedir.length ? `<div class="small muted">${I18N.t('triaje.que_pedir_al_cliente')}</div><div class="pedir">${paso.pedir.map((x) => `<span>${escapeHtml(x)}</span>`).join('')}</div>` : ''}
+      ${paso.otras && paso.otras.length ? `<div class="small muted">${I18N.t('triaje.tambien', { otras: escapeHtml(paso.otras.join(' · ')) })}</div>` : ''}
       <div class="sig-acciones">
-        ${review ? '' : `<button class="btn btn-sm btn-primary" type="button" id="btn-revisado">${lucide('check')} ${entry.revisado ? 'Revisado' : 'Marcar como tramitado'}</button>`}
-        ${borrador ? `<button class="btn btn-sm" type="button" id="btn-solicitud">${lucide('copy')} Copiar solicitud al cliente</button>` : ''}
+        ${review ? '' : `<button class="btn btn-sm btn-primary" type="button" id="btn-revisado">${lucide('check')} ${entry.revisado ? I18N.t('triaje.revisado') : I18N.t('triaje.marcar_como_tramitado')}</button>`}
+        ${borrador ? `<button class="btn btn-sm" type="button" id="btn-solicitud">${lucide('copy')} ${I18N.t('triaje.copiar_solicitud_al_cliente')}</button>` : ''}
       </div>`;
     if (!review) $('btn-revisado').addEventListener('click', () => { entry.revisado = !entry.revisado; gobDe(entry); persistLog(); pintarSiguientePaso(entry); pintarIndicadores(entry); pintarRaw(entry); });
     const bs = $('btn-solicitud');
     if (bs) bs.addEventListener('click', async () => {
-      try { await navigator.clipboard.writeText(borrador); bs.innerHTML = `${lucide('check')} Copiado`; } catch { bs.textContent = 'No se pudo copiar'; }
-      setTimeout(() => { bs.innerHTML = `${lucide('copy')} Copiar solicitud al cliente`; }, 1800);
+      try { await navigator.clipboard.writeText(borrador); bs.innerHTML = `${lucide('check')} Copiado`; } catch { bs.textContent = I18N.t('triaje.no_se_pudo_copiar'); }
+      setTimeout(() => { bs.innerHTML = I18N.t('triaje.copiar_solicitud_al_cliente_2', { copy: lucide('copy') }); }, 1800);
     });
   }
 
@@ -988,10 +999,10 @@
   // · Override (solo «Aprobado»): el tramitador cambia una decisión que el agente tomó solo y la pasa a «A revisar».
   //   Cuenta en la tasa de override del agente de Reglas y puede proponer bajarle de nivel (gobierno.html).
   const ACC_REV = {
-    validar: { icono: 'circle-check', boton: 'Validar', titulo: 'Validar la revisión', confirmar: 'Confirmar', pista: 'Qué has comprobado', ayuda: 'Resuelves un caso que el agente ya escaló: no cuenta como override ni afecta a su autonomía.' },
-    override: { icono: 'repeat', boton: 'Override', titulo: 'Cambiar a «A revisar» (override)', confirmar: 'Pasar a «A revisar»', pista: 'Por qué no estás de acuerdo con la aprobación', ayuda: 'Cambias una decisión que el agente tomó solo: cuenta como override del agente de Reglas y, si la tasa pasa del 3 %, se propone bajarle de nivel.' },
+    validar: { icono: 'circle-check', boton: I18N.t('triaje.validar'), titulo: I18N.t('triaje.validar_la_revision'), confirmar: I18N.t('triaje.confirmar'), pista: I18N.t('triaje.que_has_comprobado'), ayuda: I18N.t('triaje.resuelves_un_caso_que') },
+    override: { icono: 'repeat', boton: I18N.t('triaje.override'), titulo: I18N.t('triaje.cambiar_a_a_revisar'), confirmar: I18N.t('triaje.pasar_a_a_revisar'), pista: I18N.t('triaje.por_que_no_estas'), ayuda: I18N.t('triaje.cambias_una_decision_que') },
   };
-  const RESULTADO_REV = { aprobada: 'Aprobar', mantenida: 'Mantener en «A revisar»' };
+  const RESULTADO_REV = { aprobada: I18N.t('triaje.aprobar'), mantenida: I18N.t('triaje.mantener_en_a_revisar') };
   // Decisión vigente tras la acción humana (la del agente se conserva en entry.decision)
   const decisionFinal = (e) => (e.revision && e.revision.a ? e.revision.a : e.decision);
   function tarjetaDecision(entry, inc) {
@@ -1001,19 +1012,19 @@
     const finalReview = final === DECISION.REVIEW;
     const accion = review ? 'validar' : 'override';
     const abierta = !rev && modalState.revForm === accion;
-    const quien = rev ? `${escapeHtml(rev.usuario)} · ${new Date(rev.fecha).toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' })}` : '';
-    const sub = entry.revisado && !rev ? '<span class="pill pill-revisado">Revisado</span>' : inc.length ? `incumple ${escapeHtml(inc.join(', '))}` : 'sin reglas incumplidas';
+    const quien = rev ? `${escapeHtml(rev.usuario)} · ${new Date(rev.fecha).toLocaleTimeString(I18N.locale, { hour: '2-digit', minute: '2-digit' })}` : '';
+    const sub = entry.revisado && !rev ? I18N.t('triaje.revisado_2') : inc.length ? `incumple ${escapeHtml(inc.join(', '))}` : I18N.t('triaje.sin_reglas_incumplidas');
     // Columna derecha: el botón (sigue visible con el formulario abierto, así la tarjeta no cambia de alto)
     // o, tras la acción, quién la hizo, el cambio y el comentario (recortado a dos líneas; entero al pasar el ratón)
     const lado = rev
-      ? `<span class="pill ${rev.accion === 'override' ? 'pill-time' : 'pill-revisado'}">${lucide(ACC_REV[rev.accion === 'override' ? 'override' : 'validar'].icono)} ${rev.accion === 'override' ? 'Override' : 'Validado'}</span>
+      ? `<span class="pill ${rev.accion === 'override' ? 'pill-time' : 'pill-revisado'}">${lucide(ACC_REV[rev.accion === 'override' ? 'override' : 'validar'].icono)} ${rev.accion === 'override' ? I18N.t('triaje.override') : I18N.t('triaje.validado')}</span>
         <span class="dec-quien">${quien}</span>
-        ${rev.de !== rev.a ? `<span class="dec-antes">El agente decidió «${review ? 'A revisar' : 'Aprobado'}»</span>` : ''}
+        ${rev.de !== rev.a ? `<span class="dec-antes">${I18N.t('triaje.el_agente_decidio', { aprobado: review ? I18N.t('triaje.a_revisar') : I18N.t('triaje.aprobado') })}</span>` : ''}
         ${rev.comentario ? `<q class="dec-coment" title="${escapeHtml(rev.comentario)}">${escapeHtml(rev.comentario)}</q>` : ''}`
       : `<button class="btn btn-sm${review ? ' btn-primary' : ''}" type="button" data-rev="${accion}" aria-expanded="${abierta}" aria-controls="modal-rev">${lucide(ACC_REV[accion].icono)} ${ACC_REV[accion].boton}</button>`;
     return `<div class="kpi-tile ico dec-tile${abierta ? ' activa' : ''}" style="--tc:${finalReview ? 'var(--review)' : 'var(--ok)'}">
       <span class="kpi-ico">${lucide(finalReview ? 'eye' : 'thumbs-up')}</span>
-      <div class="txt"><span class="l">Decisión</span><span class="v">${finalReview ? 'A revisar' : 'Aprobado'}</span><span class="s">${sub}</span></div>
+      <div class="txt"><span class="l">${I18N.t('triaje.decision')}</span><span class="v">${finalReview ? I18N.t('triaje.a_revisar') : I18N.t('triaje.aprobado')}</span><span class="s">${sub}</span></div>
       <div class="dec-lado">${lado}</div>
     </div>`;
   }
@@ -1025,11 +1036,11 @@
     box.hidden = !f;
     box.innerHTML = f ? `<form class="dec-form" data-accion="${accion}">
         <b>${f.titulo}</b>
-        ${accion === 'validar' ? `<fieldset class="dec-resultado"><legend>Resultado de la revisión</legend>${Object.entries(RESULTADO_REV).map(([k, l], i) => `<label class="inline"><input type="radio" name="dec-resultado" value="${k}"${i ? '' : ' checked'}> ${l}</label>`).join('')}</fieldset>` : ''}
-        <label for="dec-coment">Comentario <span class="muted">(opcional)</span></label>
+        ${accion === 'validar' ? `<fieldset class="dec-resultado"><legend>${I18N.t('triaje.resultado_de_la_revision')}</legend>${Object.entries(RESULTADO_REV).map(([k, l], i) => `<label class="inline"><input type="radio" name="dec-resultado" value="${k}"${i ? '' : ' checked'}> ${l}</label>`).join('')}</fieldset>` : ''}
+        <label for="dec-coment">${I18N.t('triaje.comentario')} <span class="muted">${I18N.t('triaje.opcional')}</span></label>
         <textarea id="dec-coment" rows="2" maxlength="500" placeholder="${f.pista}"></textarea>
         <p class="small muted">${f.ayuda}</p>
-        <div class="dec-acciones"><button class="btn btn-sm btn-primary" type="submit">${lucide('check')} ${f.confirmar}</button><button class="btn btn-sm" type="button" data-rev="cancelar">Cancelar</button></div>
+        <div class="dec-acciones"><button class="btn btn-sm btn-primary" type="submit">${lucide('check')} ${f.confirmar}</button><button class="btn btn-sm" type="button" data-rev="cancelar">${I18N.t('triaje.cancelar')}</button></div>
       </form>` : '';
   }
   function revisar(entry, accion, { resultado, comentario } = {}) {
@@ -1049,8 +1060,8 @@
     const esperado = entry.esperado || {};
     $('modal-kpis').innerHTML = `
       ${tarjetaDecision(entry, inc)}
-      <div class="kpi-tile ico" style="--tc:${ramoColor}"><span class="kpi-ico">${lucide(ramoIcon)}</span><div class="txt"><span class="l">Ramo</span><span class="v">${escapeHtml(entry.ramo)}</span><span class="s">${esperado.ramo ? (esperado.ramo === entry.ramo ? 'coincide con el esperado' : `esperado ${escapeHtml(esperado.ramo)}`) : escapeHtml(entry.origen.startsWith('IA') ? 'asignado por el modelo' : 'asignado por reglas locales')}</span></div></div>
-      <div class="kpi-tile ico conf" style="--tc:${entry.confianza >= 0.85 ? 'var(--ok)' : entry.confianza >= 0.7 ? 'var(--review)' : 'var(--error)'}"><span class="kpi-ico">${lucide('gauge')}</span><div class="txt"><span class="l">Confianza</span><span class="v" style="color:var(--tc)">${entry.confianza >= 0.85 ? 'Alta' : entry.confianza >= 0.7 ? 'Media' : 'Baja'}</span><span class="s">del modelo en su decisión</span></div><svg class="ring" viewBox="0 0 64 64" role="img" aria-label="Confianza ${Math.round(entry.confianza * 100)} por ciento"><circle class="pista" cx="32" cy="32" r="26"/><circle class="valor" cx="32" cy="32" r="26" stroke-dasharray="${(entry.confianza * 163.36).toFixed(1)} 999"/><text x="32" y="37" text-anchor="middle">${Math.round(entry.confianza * 100)}%</text></svg></div>`;
+      <div class="kpi-tile ico" style="--tc:${ramoColor}"><span class="kpi-ico">${lucide(ramoIcon)}</span><div class="txt"><span class="l">${I18N.t('triaje.ramo')}</span><span class="v">${escapeHtml(entry.ramo)}</span><span class="s">${esperado.ramo ? (esperado.ramo === entry.ramo ? I18N.t('triaje.coincide_con_el_esperado') : `esperado ${escapeHtml(esperado.ramo)}`) : escapeHtml(entry.origen.startsWith('IA') ? I18N.t('triaje.asignado_por_el_modelo') : I18N.t('triaje.asignado_por_reglas_locales'))}</span></div></div>
+      <div class="kpi-tile ico conf" style="--tc:${entry.confianza >= 0.85 ? 'var(--ok)' : entry.confianza >= 0.7 ? 'var(--review)' : 'var(--error)'}"><span class="kpi-ico">${lucide('gauge')}</span><div class="txt"><span class="l">${I18N.t('triaje.confianza')}</span><span class="v" style="color:var(--tc)">${entry.confianza >= 0.85 ? I18N.t('triaje.alta') : entry.confianza >= 0.7 ? I18N.t('triaje.media') : I18N.t('triaje.baja')}</span><span class="s">${I18N.t('triaje.del_modelo_en_su')}</span></div><svg class="ring" viewBox="0 0 64 64" role="img" aria-label="${I18N.t('triaje.confianza_por_ciento', { confianza: Math.round(entry.confianza * 100) })}"><circle class="pista" cx="32" cy="32" r="26"/><circle class="valor" cx="32" cy="32" r="26" stroke-dasharray="${(entry.confianza * 163.36).toFixed(1)} 999"/><text x="32" y="37" text-anchor="middle">${Math.round(entry.confianza * 100)}%</text></svg></div>`;
     pintarFormRevision(entry);
   }
 
@@ -1064,7 +1075,7 @@
     const esperado = entry.esperado || {};
     $('modal-title').textContent = `${entry.id} · ${m.asunto}`;
     $('modal-canal').innerHTML = canalIcon(m.canal);
-    $('modal-pos').textContent = modalState.lista.length > 1 ? `${modalState.idx + 1} de ${modalState.lista.length}` : '';
+    $('modal-pos').textContent = modalState.lista.length > 1 ? I18N.t('triaje.de', { idx: modalState.idx + 1, lista: modalState.lista.length }) : '';
     $('modal-prev').disabled = modalState.idx <= 0; $('modal-next').disabled = modalState.idx >= modalState.lista.length - 1;
     $('modal-prev').innerHTML = lucide('chevron-left'); $('modal-next').innerHTML = lucide('chevron-right');
     $('modal-copy-raw').innerHTML = `${lucide('copy')} Copiar JSON`;
@@ -1082,44 +1093,44 @@
     pintarSiguientePaso(entry);
     const etapas = etapasDe(entry);
     $('modal-crono').innerHTML = etapas.map((e) => `<li class="${e.review ? 'review' : ''}"><b>${escapeHtml(e.nombre)}</b>${e.ms != null ? `<span class="ms">${fmtMs(e.ms)}</span>` : ''}${e.det ? `<small>${escapeHtml(e.det)}</small>` : ''}</li>`).join('')
-      + `<li class="crono-total" style="--dc:transparent">Ciclo total ${fmtMs(entry.duracion_ms)}</li>`;
+      + `<li class="crono-total" style="--dc:transparent">${I18N.t('triaje.ciclo_total', { duracion_ms: fmtMs(entry.duracion_ms) })}</li>`;
 
     $('modal-mensaje').innerHTML = kv([
-      ['Remitente', escapeHtml(m.remitente.nombre)],
-      ['Contacto', escapeHtml(m.remitente.contacto)],
-      ['Canal', escapeHtml(CANAL_LABEL[m.canal] || m.canal)],
-      ['Recibido', new Date(m.fecha_recepcion).toLocaleString('es-ES')],
-      ['Asunto', escapeHtml(m.asunto)],
+      [I18N.t('triaje.remitente'), escapeHtml(m.remitente.nombre)],
+      [I18N.t('triaje.contacto'), escapeHtml(m.remitente.contacto)],
+      [I18N.t('triaje.canal'), escapeHtml(CANAL_LABEL[m.canal] || m.canal)],
+      [I18N.t('triaje.recibido'), new Date(m.fecha_recepcion).toLocaleString(I18N.locale)],
+      [I18N.t('triaje.asunto'), escapeHtml(m.asunto)],
     ]);
     const keys = [...Object.keys(DATOS_LABELS), ...Object.keys(datos).filter((k) => !DATOS_LABELS[k])];
     $('modal-datos').innerHTML = kv(keys.filter((k) => k in datos).map((k) => [DATOS_LABELS[k] || k, k === 'importe_estimado_eur' ? fmtEur(datos[k]) : fmtValue(datos[k])]));
 
-    const ramoOk = esperado.ramo ? (esperado.ramo === entry.ramo ? `<span class="mark ok">${lucide('check')} coincide</span>` : `<span class="mark ko">${lucide('x')} esperado ${escapeHtml(esperado.ramo)}</span>`) : '';
+    const ramoOk = esperado.ramo ? (esperado.ramo === entry.ramo ? `<span class="mark ok">${lucide('check')} ${I18N.t('triaje.coincide_2')}</span>` : `<span class="mark ko">${lucide('x')} ${I18N.t('triaje.esperado_2', { ramo: escapeHtml(esperado.ramo) })}</span>`) : '';
     const colorRamo = { Auto: 'var(--auto)', Hogar: 'var(--hogar)', Salud: 'var(--salud)' }[entry.ramo] || 'var(--muted)';
     const hReglas = $('modal-reglas-h');
-    hReglas.textContent = `Reglas de negocio del ramo ${entry.ramo}`; hReglas.style.color = colorRamo; hReglas.style.borderLeftColor = colorRamo;
-    $('modal-ramo').innerHTML = `Asignado por el ${entry.origen.startsWith('IA') ? 'modelo' : 'motor local'}: <strong>${escapeHtml(entry.ramo)}</strong> ${ramoOk}`;
+    hReglas.textContent = I18N.t('triaje.reglas_de_negocio_del', { ramo: entry.ramo }); hReglas.style.color = colorRamo; hReglas.style.borderLeftColor = colorRamo;
+    $('modal-ramo').innerHTML = `${I18N.t('triaje.asignado_por_el', { motor_local: entry.origen.startsWith('IA') ? 'modelo' : I18N.t('triaje.motor_local') })} <strong>${escapeHtml(entry.ramo)}</strong> ${ramoOk}`;
     $('modal-ramo-criterios').replaceChildren(...(entry.criterios_ramo || []).map((c) => Object.assign(document.createElement('li'), { textContent: c })));
-    if (!(entry.criterios_ramo || []).length) $('modal-ramo-criterios').innerHTML = '<li class="muted">Sin criterios de clasificación en el resultado.</li>';
+    if (!(entry.criterios_ramo || []).length) $('modal-ramo-criterios').innerHTML = I18N.t('triaje.sin_criterios_de_clasificacion');
     $('modal-criterios').replaceChildren(...(entry.criterios || []).map((c) => {
       const li = document.createElement('li');
       li.className = `crit crit-${c.resultado}`;
       li.innerHTML = `<span class="crit-icon" aria-hidden="true">${RESULT_ICON[c.resultado] || '–'}</span><div><strong>${escapeHtml(c.regla)}</strong> ${escapeHtml(c.descripcion)}<br><small>${escapeHtml(c.evidencia)}</small></div>`;
       return li;
     }));
-    if (!(entry.criterios || []).length) $('modal-criterios').innerHTML = '<li class="muted">El resultado no incluye criterios.</li>';
+    if (!(entry.criterios || []).length) $('modal-criterios').innerHTML = I18N.t('triaje.el_resultado_no_incluye');
     pintarFraude(entry);
     pintarAdjuntos(entry);
 
     $('modal-resultado').innerHTML = kv([
-      ['Decisión', entry.decision === DECISION.REVIEW ? 'A revisar (revisión humana)' : 'Aprobado automáticamente'],
-      ['Motivo', escapeHtml(entry.motivo)],
-      ['Confianza', `${Math.round(entry.confianza * 100)} %`],
-      ['Origen', escapeHtml(entry.origen)],
-      ['Ciclo', fmtMs(entry.duracion_ms)],
-      ['Tokens', entry.usage ? `${entry.usage.input ?? '?'} entrada · ${entry.usage.output ?? '?'} salida${entry.usage.reasoning != null ? ` (${entry.usage.reasoning} razonamiento)` : ''}` : undefined],
+      [I18N.t('triaje.decision'), entry.decision === DECISION.REVIEW ? I18N.t('triaje.a_revisar_revision_humana') : I18N.t('triaje.aprobado_automaticamente')],
+      [I18N.t('triaje.motivo'), escapeHtml(entry.motivo)],
+      [I18N.t('triaje.confianza'), `${Math.round(entry.confianza * 100)} %`],
+      [I18N.t('triaje.origen'), escapeHtml(origenTexto(entry.origen))],
+      [I18N.t('triaje.ciclo'), fmtMs(entry.duracion_ms)],
+      [I18N.t('triaje.tokens'), entry.usage ? `${entry.usage.input ?? '?'} entrada · ${entry.usage.output ?? '?'} salida${entry.usage.reasoning != null ? ` (${entry.usage.reasoning} razonamiento)` : ''}` : undefined],
       ...(entry.pasos && entry.pasos.length > 1 ? entry.pasos.map((p) => [`${lucide('corner-down-right')} ${escapeHtml(p.nombre)}`, `${p.duracion_ms != null ? `${fmtMs(p.duracion_ms)} · ` : ''}${p.usage?.input ?? '?'} entrada · ${p.usage?.output ?? '?'} salida${p.usage?.reasoning != null ? ` (${p.usage.reasoning} razonamiento)` : ''}`]) : []),
-      ['Referencia demo', esperado.ramo ? `${esperado.revision ? 'A revisar (esperado)' : 'Aprobado (esperado)'}${esperado.nota ? ` — ${escapeHtml(esperado.nota)}` : ''}` : undefined],
+      [I18N.t('triaje.referencia_demo'), esperado.ramo ? `${esperado.revision ? I18N.t('triaje.a_revisar_esperado') : I18N.t('triaje.aprobado_esperado')}${esperado.nota ? ` — ${escapeHtml(esperado.nota)}` : ''}` : undefined],
     ]);
     pintarRaw(entry);
     $('modal').classList.remove('cerrando');
@@ -1156,7 +1167,7 @@
     const t0 = performance.now();
     while (performance.now() - t0 < total) {
       if (state.cancelled) return;
-      onProgress && onProgress(`Esperando respuesta del modelo · ${((performance.now() - t0) / 1000).toFixed(0)} s`);
+      onProgress && onProgress(I18N.t('triaje.esperando_respuesta_del_modelo_2', { t0: ((performance.now() - t0) / 1000).toFixed(0) }));
       await sleep(250);
     }
   }
@@ -1212,7 +1223,7 @@
     const paquete = paqueteActual();
     let mensajes = paquete.mensajes;
     if (state.motor === 'archivo') {
-      if (!state.archivo) { setStatus('run-status', 'Carga primero un archivo JSON.', 'error'); return; }
+      if (!state.archivo) { setStatus('run-status', I18N.t('triaje.carga_primero_un_archivo'), 'error'); return; }
       const todos = PAQUETES.flatMap((p) => p.mensajes);
       mensajes = state.archivo.entradas.map((e) => {
         const original = todos.find((m) => m.id === e.id);
@@ -1269,7 +1280,7 @@
             // En «Resultados guardados» del Paquete A se usa la misma traza que el panel de gobierno
             // (y al reproducir un archivo exportado, la traza y el modelo que se registraron entonces)
             traza_id: (msg.__entrada && msg.__entrada.gob_opts && msg.__entrada.gob_opts.traza_id) || (state.motor === 'guardado' && typeof TRAZA_DEMO !== 'undefined' ? TRAZA_DEMO[msg.id] : undefined),
-            modelo: /^IA/.test(result.origen || '') ? ((msg.__entrada && msg.__entrada.gob_opts && msg.__entrada.gob_opts.modelo) || (state.motor === 'guardado' ? 'gpt-5' : (cfg && cfg.deployment) || 'modelo IA')) : 'motor local (sin IA)',
+            modelo: /^IA/.test(result.origen || '') ? ((msg.__entrada && msg.__entrada.gob_opts && msg.__entrada.gob_opts.modelo) || (state.motor === 'guardado' ? 'gpt-5' : (cfg && cfg.deployment) || I18N.t('triaje.modelo_ia'))) : I18N.t('triaje.motor_local_sin_ia'),
             prompt: /^IA/.test(result.origen || '') ? PROMPT_VERSION : 'reglas locales',
           },
         });
@@ -1298,7 +1309,7 @@
     if (!state.running) return;
     state.paused = !state.paused;
     setRunButtons();
-    setStatus('run-status', state.paused ? 'En pausa: se completará la llamada en curso y se detendrá.' : 'Reanudando…');
+    setStatus('run-status', state.paused ? I18N.t('triaje.en_pausa_se_completara') : I18N.t('triaje.reanudando'));
   }
 
   function resetBatch() {
@@ -1308,7 +1319,7 @@
     renderCounters();
     renderLog();
     setProgress(0, 1);
-    setStatus('run-status', state.running ? 'Lote cancelado y registro vaciado.' : '');
+    setStatus('run-status', state.running ? I18N.t('triaje.lote_cancelado_y_registro') : '');
   }
 
   // ---------------------------------------------------------------------------
@@ -1349,7 +1360,7 @@
         // El paso no termina hasta que están los 13 mensajes: el recorrido no deja avanzar mientras tanto
         const listo = () => !state.running && hechos() >= total;
         if (state.running) return { aviso: '', listo };                                   // ya en marcha: se espera a que acabe
-        if (hechos() >= total) return 'El Paquete A ya está procesado. Para repetirlo, pulsa «Reiniciar lote».';
+        if (hechos() >= total) return I18N.t('triaje.el_paquete_a_ya');
         if (hechos()) resetBatch();   // lote cortado (por ejemplo, al cambiar de página a mitad): se vuelve a procesar entero
         $('sel-motor').value = 'guardado'; $('sel-motor').dispatchEvent(new Event('change'));
         $('sel-paquete').value = 'A'; $('sel-paquete').dispatchEvent(new Event('change'));
@@ -1359,7 +1370,7 @@
       ficha: (id, tab) => {
         cerrarFase();
         const e = state.log.find((x) => x.id === id);
-        if (!e) return `Todavía no hay ficha de ${id}: procesa antes el Paquete A y espera a que termine.`;
+        if (!e) return I18N.t('triaje.todavia_no_hay_ficha', { id });
         openModal(e); if (tab) setTab(tab);
         return '';
       },
@@ -1395,20 +1406,20 @@
     });
     $('btn-test-ai').addEventListener('click', async () => {
       const cfg = readConfigFromForm();
-      if (!aiEnabled(cfg)) { setStatus('ai-status', 'Faltan endpoint, deployment o clave.', 'error'); return; }
+      if (!aiEnabled(cfg)) { setStatus('ai-status', I18N.t('triaje.faltan_endpoint_deployment_o'), 'error'); return; }
       setStatus('ai-status', `Probando ${buildEndpointUrl(cfg)}…`);
       $('btn-test-ai').disabled = true;
       try {
-        const { text } = await callChat(cfg, [{ role: 'user', content: 'Responde solo con este JSON: {"ok": true}' }], { maxTokens: 300, onProgress: (p) => setStatus('ai-status', `${p}…`) });
-        setStatus('ai-status', `Conexión correcta. Respuesta: ${String(text).slice(0, 60)}`, 'ok');
+        const { text } = await callChat(cfg, [{ role: 'user', content: I18N.t('triaje.responde_solo_con_este') }], { maxTokens: 300, onProgress: (p) => setStatus('ai-status', `${p}…`) });
+        setStatus('ai-status', I18N.t('triaje.conexion_correcta_respuesta', { text: String(text).slice(0, 60) }), 'ok');
       } catch (err) {
-        const hint = /api version/i.test(err.message) ? ' → Prueba otra «Ruta de API».' : '';
+        const hint = /api version/i.test(err.message) ? I18N.t('triaje.prueba_otra_ruta_de') : '';
         setStatus('ai-status', `Error: ${err.message}${hint}`, 'error');
       } finally {
         $('btn-test-ai').disabled = false;
       }
     });
-    $('btn-clear-ai').addEventListener('click', () => { $('cfg-api-key').value = ''; saveConfig(readConfigFromForm()); updateModeBadge(); setStatus('ai-status', 'Clave eliminada de la sesión.'); });
+    $('btn-clear-ai').addEventListener('click', () => { $('cfg-api-key').value = ''; saveConfig(readConfigFromForm()); updateModeBadge(); setStatus('ai-status', I18N.t('triaje.clave_eliminada_de_la')); });
 
     $('sel-motor').addEventListener('change', () => { state.motor = $('sel-motor').value; ssSet(SS.motor, state.motor); renderPaquete(); });
     $('file-replay').addEventListener('change', async () => {
@@ -1416,15 +1427,15 @@
       if (!file) return;
       try {
         const data = Fechas.alDia(JSON.parse(await file.text()));
-        if (!Array.isArray(data) || !data.length || !data.every((e) => e && e.id && e.decision && e.mensaje)) throw new Error('El archivo no tiene el formato de «Exportar JSON»');
+        if (!Array.isArray(data) || !data.length || !data.every((e) => e && e.id && e.decision && e.mensaje)) throw new Error(I18N.t('triaje.el_archivo_no_tiene'));
         // El export va de más reciente a más antiguo: reproducir en el orden original
         state.archivo = { nombre: file.name, entradas: [...data].reverse() };
         state.motor = 'archivo';
         ssSet(SS.motor, state.motor);
-        setStatus('run-status', `Archivo ${file.name} cargado: ${data.length} fichas listas para reproducir.`, 'ok');
+        setStatus('run-status', I18N.t('triaje.archivo_cargado_fichas_listas', { name: file.name, data: data.length }), 'ok');
       } catch (err) {
         state.archivo = null;
-        setStatus('run-status', `No se pudo cargar el archivo: ${err.message}`, 'error');
+        setStatus('run-status', I18N.t('triaje.no_se_pudo_cargar', { message: err.message }), 'error');
       }
       renderPaquete();
     });
@@ -1526,8 +1537,8 @@
     $('modal').addEventListener('keydown', (ev) => { if (ev.key === 'Escape' && !pop.hidden) { ev.preventDefault(); fijada = false; verLeyenda(false); btnLey.focus(); } });
     $('modal-copy-raw').addEventListener('click', async () => {
       const b = $('modal-copy-raw');
-      try { await navigator.clipboard.writeText(modalState.rawTexto || $('modal-raw').textContent); b.innerHTML = `${lucide('check')} Copiado`; } catch { b.textContent = 'No se pudo copiar'; }
-      setTimeout(() => { b.innerHTML = `${lucide('copy')} ${modalState.raw === 'enviado' ? 'Copiar texto' : 'Copiar JSON'}`; }, 1800);
+      try { await navigator.clipboard.writeText(modalState.rawTexto || $('modal-raw').textContent); b.innerHTML = `${lucide('check')} Copiado`; } catch { b.textContent = I18N.t('triaje.no_se_pudo_copiar'); }
+      setTimeout(() => { b.innerHTML = `${lucide('copy')} ${modalState.raw === 'enviado' ? I18N.t('triaje.copiar_texto') : I18N.t('triaje.copiar_json')}`; }, 1800);
     });
     $('tab-json').addEventListener('click', (ev) => {
       const b = ev.target.closest('.seg-btn'); if (!b || !modalState.entry) return;
@@ -1601,116 +1612,116 @@
   // Colores por grupo semántico (variables de styles.css)
   const C = { primary: 'var(--primary)', ok: 'var(--ok)', review: 'var(--review)', muted: 'var(--muted)', time: 'var(--time)', auto: 'var(--auto)', hogar: 'var(--hogar)', salud: 'var(--salud)', teal: '#3f7a6a' };
   const RAMO_ITEMS = (detalles) => [
-    { icono: 'car', color: C.auto, etiqueta: '<strong>Auto</strong>', detalle: detalles[0] },
-    { icono: 'house', color: C.hogar, etiqueta: '<strong>Hogar</strong>', detalle: detalles[1] },
-    { icono: 'heart-pulse', color: C.salud, etiqueta: '<strong>Salud</strong>', detalle: detalles[2] },
+    { icono: 'car', color: C.auto, etiqueta: I18N.t('triaje.auto'), detalle: detalles[0] },
+    { icono: 'house', color: C.hogar, etiqueta: I18N.t('triaje.hogar'), detalle: detalles[1] },
+    { icono: 'heart-pulse', color: C.salud, etiqueta: I18N.t('triaje.salud'), detalle: detalles[2] },
   ];
 
   // Contenido de cada panel: título, descripción, secciones con lista de ítems (icono + color + etiqueta + detalle), cierre y motores ('ia' | 'logica')
   const PHASE_INFO = {
     multicanal: {
-      titulo: 'Multicanalidad',
-      descripcion: 'Recibe los mensajes de los clientes por cualquier canal y los unifica en un único flujo de triaje.',
+      titulo: I18N.t('triaje.multicanalidad'),
+      descripcion: I18N.t('triaje.recibe_los_mensajes_de'),
       secciones: [
-        { titulo: 'Canales de entrada', items: [
-          { icono: 'mail', color: C.primary, etiqueta: '<strong>Email</strong>', detalle: 'texto largo, a veces con adjuntos' },
-          { icono: 'message-circle', color: C.primary, etiqueta: '<strong>WhatsApp</strong>', detalle: 'mensajes cortos e informales' },
-          { icono: 'messages-square', color: C.primary, etiqueta: '<strong>Chat</strong>', detalle: 'conversación desde la web o la app' },
-          { icono: 'globe', color: C.primary, etiqueta: '<strong>Formulario web</strong>', detalle: 'campos estructurados más texto libre' },
-          { icono: 'phone', color: C.primary, etiqueta: '<strong>Teléfono</strong>', detalle: 'transcripción de la llamada (speech-to-text)' },
+        { titulo: I18N.t('triaje.canales_de_entrada'), items: [
+          { icono: 'mail', color: C.primary, etiqueta: I18N.t('triaje.email_2'), detalle: I18N.t('triaje.texto_largo_a_veces') },
+          { icono: 'message-circle', color: C.primary, etiqueta: I18N.t('triaje.whatsapp_2'), detalle: I18N.t('triaje.mensajes_cortos_e_informales') },
+          { icono: 'messages-square', color: C.primary, etiqueta: I18N.t('triaje.chat_2'), detalle: I18N.t('triaje.conversacion_desde_la_web') },
+          { icono: 'globe', color: C.primary, etiqueta: I18N.t('triaje.formulario_web_2'), detalle: I18N.t('triaje.campos_estructurados_mas_texto') },
+          { icono: 'phone', color: C.primary, etiqueta: I18N.t('triaje.telefono_2'), detalle: I18N.t('triaje.transcripcion_de_la_llamada') },
         ] },
-        { titulo: 'Unificación', items: [
-          { icono: 'inbox', color: C.teal, etiqueta: 'Un único formato de mensaje', detalle: 'id, canal, asunto, texto y fecha' },
-          { icono: 'route', color: C.teal, etiqueta: 'Se conserva el canal de origen', detalle: 'visible en la lista, la ficha y el registro' },
-          { icono: 'merge', color: C.teal, etiqueta: 'Mismo flujo para todos', detalle: 'clasificación, extracción y reglas' },
+        { titulo: I18N.t('triaje.unificacion'), items: [
+          { icono: 'inbox', color: C.teal, etiqueta: I18N.t('triaje.un_unico_formato_de'), detalle: I18N.t('triaje.id_canal_asunto_texto') },
+          { icono: 'route', color: C.teal, etiqueta: I18N.t('triaje.se_conserva_el_canal'), detalle: I18N.t('triaje.visible_en_la_lista') },
+          { icono: 'merge', color: C.teal, etiqueta: I18N.t('triaje.mismo_flujo_para_todos'), detalle: I18N.t('triaje.clasificacion_extraccion_y_reglas_2') },
         ] },
       ],
-      cierre: 'El <strong>canal no cambia el tratamiento</strong>: todos los mensajes entran en el <strong>mismo flujo</strong> de triaje, conservando su <strong>origen</strong> para la trazabilidad.',
+      cierre: I18N.t('triaje.el_canal_no_cambia'),
       motores: ['logica', 'ia'],
     },
     ramo: {
-      titulo: 'Clasificación por ramo',
-      descripcion: 'Determina a qué ramo pertenece cada mensaje recibido.',
+      titulo: I18N.t('triaje.clasificacion_por_ramo'),
+      descripcion: I18N.t('triaje.determina_a_que_ramo'),
       secciones: [
-        { titulo: 'Ramos', items: [
-          ...RAMO_ITEMS(['vehículo: colisión, lunas, robo, granizo', 'vivienda o contenido: agua, cristales, robo, eléctrico', 'prestación sanitaria: urgencias, cirugía, reembolsos']),
-          { icono: 'circle-help', color: C.muted, etiqueta: 'Indeterminado', detalle: 'si no puede decidirse, pasa a revisión' },
+        { titulo: I18N.t('triaje.ramos'), items: [
+          ...RAMO_ITEMS([I18N.t('triaje.vehiculo_colision_lunas_robo'), I18N.t('triaje.vivienda_o_contenido_agua'), I18N.t('triaje.prestacion_sanitaria_urgencias_cirugia')]),
+          { icono: 'circle-help', color: C.muted, etiqueta: I18N.t('triaje.indeterminado'), detalle: I18N.t('triaje.si_no_puede_decidirse') },
         ] },
       ],
-      cierre: 'Se utiliza <strong>lógica semántica</strong> e <strong>IA generativa</strong> para asignar el ramo y <strong>justificar la decisión</strong> citando los <strong>indicios del texto</strong>.',
+      cierre: I18N.t('triaje.se_utiliza_logica_semantica'),
       motores: ['ia'],
     },
     datos: {
-      titulo: 'Extracción de datos',
-      descripcion: 'Convierte el texto libre del mensaje en datos estructurados listos para tramitar.',
+      titulo: I18N.t('triaje.extraccion_de_datos'),
+      descripcion: I18N.t('triaje.convierte_el_texto_libre'),
       secciones: [
-        { titulo: 'Datos que se extraen', cols: true, items: [
-          { icono: 'user', color: C.time, etiqueta: 'Nombre del cliente' },
-          { icono: 'file-text', color: C.time, etiqueta: 'Número de póliza' },
-          { icono: 'tag', color: C.time, etiqueta: 'Tipo de siniestro' },
-          { icono: 'calendar', color: C.time, etiqueta: 'Fecha del hecho' },
-          { icono: 'euro', color: C.time, etiqueta: 'Importe estimado' },
-          { icono: 'map-pin', color: C.time, etiqueta: 'Lugar' },
-          { icono: 'users', color: C.time, etiqueta: 'Terceros implicados' },
-          { icono: 'bandage', color: C.time, etiqueta: 'Lesionados' },
-          { icono: 'paperclip', color: C.time, etiqueta: 'Documentación' },
+        { titulo: I18N.t('triaje.datos_que_se_extraen'), cols: true, items: [
+          { icono: 'user', color: C.time, etiqueta: I18N.t('triaje.nombre_del_cliente') },
+          { icono: 'file-text', color: C.time, etiqueta: I18N.t('triaje.numero_de_poliza') },
+          { icono: 'tag', color: C.time, etiqueta: I18N.t('triaje.tipo_de_siniestro') },
+          { icono: 'calendar', color: C.time, etiqueta: I18N.t('triaje.fecha_del_hecho') },
+          { icono: 'euro', color: C.time, etiqueta: I18N.t('triaje.importe_estimado') },
+          { icono: 'map-pin', color: C.time, etiqueta: I18N.t('triaje.lugar') },
+          { icono: 'users', color: C.time, etiqueta: I18N.t('triaje.terceros_implicados') },
+          { icono: 'bandage', color: C.time, etiqueta: I18N.t('triaje.lesionados') },
+          { icono: 'paperclip', color: C.time, etiqueta: I18N.t('triaje.documentacion') },
         ] },
       ],
-      cierre: 'Solo se recoge lo que <strong>aparece en el mensaje</strong>; <strong>nunca se inventa</strong> un dato — si falta, queda como <strong>nulo</strong> y puede motivar la revisión.',
+      cierre: I18N.t('triaje.solo_se_recoge_lo'),
       motores: ['ia'],
     },
     reglas: {
-      titulo: 'Reglas de negocio',
-      descripcion: 'Aplica el bloque de reglas del ramo clasificado a los datos extraídos.',
+      titulo: I18N.t('triaje.reglas_de_negocio'),
+      descripcion: I18N.t('triaje.aplica_el_bloque_de'),
       secciones: [
-        { titulo: 'Reglas por ramo', items: [
-          { icono: 'car', color: C.auto, etiqueta: '<strong>Auto</strong>', reglas: [['A2', 'Comunicación en un máximo de 7 días desde el hecho'], ['A3', 'Conductor: tomador o declarado en la póliza'], ['A6', 'Daños estimados inferiores a 6.000 €']] },
-          { icono: 'house', color: C.hogar, etiqueta: '<strong>Hogar</strong>', reglas: [['H3', 'Daños por agua súbitos; no filtraciones ni humedades'], ['H4', 'Robo con signos de fuerza y denuncia policial'], ['H9', 'Daños estimados inferiores a 10.000 €']] },
-          { icono: 'heart-pulse', color: C.salud, etiqueta: '<strong>Salud</strong>', reglas: [['S2', 'Fuera del periodo de carencia (6 / 8 / 10 meses)'], ['S4', 'Autorización previa en cirugías, hospitalización y pruebas'], ['S5', 'Asistencia en centros del cuadro médico']] },
+        { titulo: I18N.t('triaje.reglas_por_ramo'), items: [
+          { icono: 'car', color: C.auto, etiqueta: I18N.t('triaje.auto'), reglas: [['A2', I18N.t('triaje.comunicacion_en_un_maximo')], ['A3', I18N.t('triaje.conductor_tomador_o_declarado')], ['A6', I18N.t('triaje.danos_estimados_inferiores_a')]] },
+          { icono: 'house', color: C.hogar, etiqueta: I18N.t('triaje.hogar'), reglas: [['H3', I18N.t('triaje.danos_por_agua_subitos')], ['H4', I18N.t('triaje.robo_con_signos_de')], ['H9', I18N.t('triaje.danos_estimados_inferiores_a_2')]] },
+          { icono: 'heart-pulse', color: C.salud, etiqueta: I18N.t('triaje.salud'), reglas: [['S2', I18N.t('triaje.fuera_del_periodo_de')], ['S4', I18N.t('triaje.autorizacion_previa_en_cirugias')], ['S5', I18N.t('triaje.asistencia_en_centros_del')]] },
         ] },
-        { titulo: 'Resultado de cada regla', cols: true, items: [
-          { icono: 'check', color: C.ok, etiqueta: 'Cumple' },
-          { icono: 'x', color: C.review, etiqueta: 'Incumple' },
-          { icono: 'minus', color: C.muted, etiqueta: 'No aplica' },
+        { titulo: I18N.t('triaje.resultado_de_cada_regla'), cols: true, items: [
+          { icono: 'check', color: C.ok, etiqueta: I18N.t('triaje.cumple') },
+          { icono: 'x', color: C.review, etiqueta: I18N.t('triaje.incumple_2') },
+          { icono: 'minus', color: C.muted, etiqueta: I18N.t('triaje.no_aplica') },
         ] },
       ],
-      cierre: 'Cada regla se evalúa <strong>citando la evidencia textual</strong>; el conjunto determina la decisión: <span class="pill pill-ok">Aprobado</span> o <span class="pill pill-review">A revisar</span>.',
+      cierre: I18N.t('triaje.cada_regla_se_evalua'),
       motores: ['ia'],
     },
     registro: {
-      titulo: 'Trazabilidad',
-      descripcion: 'Deja traza completa de cada mensaje procesado para consulta, auditoría y gobierno de los agentes.',
+      titulo: I18N.t('triaje.trazabilidad'),
+      descripcion: I18N.t('triaje.deja_traza_completa_de'),
       secciones: [
-        { titulo: 'Qué se registra', cols: true, items: [
-          { icono: 'tags', color: C.teal, etiqueta: 'Ramo y decisión' },
-          { icono: 'list-checks', color: C.teal, etiqueta: 'Motivo y criterios' },
-          { icono: 'cpu', color: C.teal, etiqueta: 'Motor y tokens' },
-          { icono: 'timer', color: C.teal, etiqueta: 'Tiempo de proceso' },
+        { titulo: I18N.t('triaje.que_se_registra'), cols: true, items: [
+          { icono: 'tags', color: C.teal, etiqueta: I18N.t('triaje.ramo_y_decision') },
+          { icono: 'list-checks', color: C.teal, etiqueta: I18N.t('triaje.motivo_y_criterios') },
+          { icono: 'cpu', color: C.teal, etiqueta: I18N.t('triaje.motor_y_tokens') },
+          { icono: 'timer', color: C.teal, etiqueta: I18N.t('triaje.tiempo_de_proceso') },
         ] },
-        { titulo: 'Qué se puede hacer', cols: true, items: [
-          { icono: 'file-search', color: C.primary, etiqueta: 'Abrir la ficha' },
-          { icono: 'filter', color: C.primary, etiqueta: 'Filtrar por ramo / estado' },
-          { icono: 'download', color: C.primary, etiqueta: 'Exportar JSON / CSV' },
-          { icono: 'play', color: C.primary, etiqueta: 'Reproducir desde archivo' },
+        { titulo: I18N.t('triaje.que_se_puede_hacer'), cols: true, items: [
+          { icono: 'file-search', color: C.primary, etiqueta: I18N.t('triaje.abrir_la_ficha') },
+          { icono: 'filter', color: C.primary, etiqueta: I18N.t('triaje.filtrar_por_ramo_estado') },
+          { icono: 'download', color: C.primary, etiqueta: I18N.t('triaje.exportar_json_csv') },
+          { icono: 'play', color: C.primary, etiqueta: I18N.t('triaje.reproducir_desde_archivo') },
         ] },
       ],
-      cierre: 'Todo queda <strong>trazable</strong> y <strong>reproducible</strong>, sin volver a llamar al modelo.',
+      cierre: I18N.t('triaje.todo_queda_trazable_y'),
       motores: ['logica'],
     },
     automatizacion: {
-      titulo: 'Automatización',
-      descripcion: 'Convierte las decisiones en flujo de trabajo, reduciendo la intervención humana a los casos que la necesitan.',
+      titulo: I18N.t('triaje.automatizacion'),
+      descripcion: I18N.t('triaje.convierte_las_decisiones_en'),
       secciones: [
-        { titulo: 'Salidas del triaje', items: [
-          { icono: 'circle-check', color: C.ok, etiqueta: '<strong>Aprobado</strong>', detalle: 'continúa la tramitación sin intervención humana' },
-          { icono: 'user-check', color: C.review, etiqueta: '<strong>A revisar</strong>', detalle: 'se deriva a un tramitador con la información preparada' },
+        { titulo: I18N.t('triaje.salidas_del_triaje'), items: [
+          { icono: 'circle-check', color: C.ok, etiqueta: I18N.t('triaje.aprobado_2'), detalle: I18N.t('triaje.continua_la_tramitacion_sin') },
+          { icono: 'user-check', color: C.review, etiqueta: I18N.t('triaje.a_revisar_2'), detalle: I18N.t('triaje.se_deriva_a_un') },
         ] },
-        { titulo: 'Indicadores', cols: true, items: [
-          { icono: 'chart-column', color: C.time, etiqueta: '% aprobados / a revisar' },
-          { icono: 'gauge', color: C.time, etiqueta: 'Tiempo medio de ciclo' },
+        { titulo: I18N.t('triaje.indicadores'), cols: true, items: [
+          { icono: 'chart-column', color: C.time, etiqueta: I18N.t('triaje.aprobados_a_revisar') },
+          { icono: 'gauge', color: C.time, etiqueta: I18N.t('triaje.tiempo_medio_de_ciclo') },
         ] },
       ],
-      cierre: 'El objetivo es <strong>maximizar el porcentaje automatizado</strong> manteniendo el <strong>control humano</strong> sobre los casos dudosos.',
+      cierre: I18N.t('triaje.el_objetivo_es_maximizar'),
       motores: ['logica'],
     },
   };
@@ -1722,8 +1733,8 @@
     const item = (it) => (it.reglas ? reglas(it) : `<li>${ico(it)}<span>${it.etiqueta}${it.detalle ? ` <small>— ${it.detalle}</small>` : ''}</span></li>`);
     const seccion = (sec) => `<h4>${escapeHtml(sec.titulo)}</h4><ul class="phase-list${sec.cols ? ' cols' : ''}">${sec.items.map(item).join('')}</ul>`;
     const BADGE = {
-      ia: `<span class="phase-badge phase-badge-ia">${lucide('sparkles')} IA generativa</span>`,
-      logica: `<span class="phase-badge phase-badge-logica">${lucide('workflow')} Lógica de negocio</span>`,
+      ia: `<span class="phase-badge phase-badge-ia">${lucide('sparkles')} ${I18N.t('triaje.ia_generativa')}</span>`,
+      logica: `<span class="phase-badge phase-badge-logica">${lucide('workflow')} ${I18N.t('triaje.logica_de_negocio')}</span>`,
     };
     const badges = (info.motores || []).map((m) => BADGE[m] || '').join(' ');
     return `<h3>${escapeHtml(info.titulo)}</h3><p class="phase-desc">${escapeHtml(info.descripcion)}</p>${info.secciones.map(seccion).join('')}<p class="phase-cierre">${info.cierre}</p>${badges}`;

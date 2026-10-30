@@ -3,8 +3,8 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>FNOL — Introducción</title>
-  <meta name="description" content="Introducción a la demo en cinco partes: la idea (ver para controlar), el problema (FNOL y gobierno de la IA), la solución, los actores y el recorrido de la demo.">
+  <title data-i18n="intro.pagina.fnol_introduccion"></title>
+  <meta name="description" data-i18n-attr="content:intro.pagina.introduccion_a_la_demo">
   <link rel="stylesheet" href="styles.css?v=36">
   <link rel="stylesheet" href="header.css?v=44">
   <link rel="stylesheet" href="intro.css?v=12">
@@ -14,29 +14,29 @@
     <div class="brand">
       <span class="brand-icon" aria-hidden="true"><svg class="lucide-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" focusable="false"><path d="M3 7V5a2 2 0 0 1 2-2h2" /><path d="M17 3h2a2 2 0 0 1 2 2v2" /><path d="M21 17v2a2 2 0 0 1-2 2h-2" /><path d="M7 21H5a2 2 0 0 1-2-2v-2" /><path d="M7 8h8" /><path d="M7 12h10" /><path d="M7 16h6" /></svg></span>
       <div>
-        <h1>Triaje FNOL con agentes de IA gobernados</h1>
-        <p class="brand-sub" id="intro-sub">Introducción · 1 de 5 · Intro</p>
+        <h1 data-i18n="intro.pagina.triaje_fnol_con_agentes"></h1>
+        <p class="brand-sub" id="intro-sub" data-i18n="intro.intro_sub.introduccion_1_de_5"></p>
       </div>
     </div>
     <div class="row topbar-actions">
       <div class="topbar-buttons">
-        <a href="index.html" class="btn btn-topbar"><span data-lucide="play" aria-hidden="true"></span> Ir a la demo</a>
+        <a href="index.html" class="btn btn-topbar"><span data-lucide="play" aria-hidden="true"></span> <span data-i18n="intro.pagina.ir_a_la_demo"></span></a>
       </div>
     </div>
   </header>
 
   <div class="shell" id="shell" data-pagina="intro">
-    <nav class="sidenav" aria-label="Introducción y demo">
+    <nav class="sidenav" data-i18n-attr="aria-label:intro.shell.introduccion_y_demo">
       <div class="sidenav-body">
-        <div class="nav-grupo">Introducción</div>
-        <a class="nav-item is-active" href="#intro" data-sec="intro" aria-current="page" title="1 · Intro"><span data-lucide="eye" aria-hidden="true"></span><span class="lbl">1 · Intro</span></a>
-        <a class="nav-item" href="#problema" data-sec="problema" title="2 · El problema"><span data-lucide="triangle-alert" aria-hidden="true"></span><span class="lbl">2 · El problema</span></a>
-        <a class="nav-item" href="#solucion" data-sec="solucion" title="3 · La solución"><span data-lucide="workflow" aria-hidden="true"></span><span class="lbl">3 · La solución</span></a>
-        <a class="nav-item" href="#actores" data-sec="actores" title="4 · Los actores"><span data-lucide="users" aria-hidden="true"></span><span class="lbl">4 · Los actores</span></a>
-        <a class="nav-item" href="#demo" data-sec="demo" title="5 · La demo"><span data-lucide="route" aria-hidden="true"></span><span class="lbl">5 · La demo</span></a>
-        <div class="nav-grupo">Demo</div>
-        <a class="nav-item" href="index.html" title="Triaje FNOL"><span data-lucide="inbox" aria-hidden="true"></span><span class="lbl">Triaje FNOL</span></a>
-        <a class="nav-item" href="gobierno.html" title="Gobierno de Agentes"><span data-lucide="shield-check" aria-hidden="true"></span><span class="lbl">Gobierno de Agentes</span></a>
+        <div class="nav-grupo" data-i18n="intro.shell.introduccion"></div>
+        <a class="nav-item is-active" href="#intro" data-sec="intro" aria-current="page" data-i18n-attr="title:intro.shell.1_intro"><span data-lucide="eye" aria-hidden="true"></span><span class="lbl" data-i18n="intro.shell.1_intro"></span></a>
+        <a class="nav-item" href="#problema" data-sec="problema" data-i18n-attr="title:intro.shell.2_el_problema"><span data-lucide="triangle-alert" aria-hidden="true"></span><span class="lbl" data-i18n="intro.shell.2_el_problema"></span></a>
+        <a class="nav-item" href="#solucion" data-sec="solucion" data-i18n-attr="title:intro.shell.3_la_solucion"><span data-lucide="workflow" aria-hidden="true"></span><span class="lbl" data-i18n="intro.shell.3_la_solucion"></span></a>
+        <a class="nav-item" href="#actores" data-sec="actores" data-i18n-attr="title:intro.shell.4_los_actores"><span data-lucide="users" aria-hidden="true"></span><span class="lbl" data-i18n="intro.shell.4_los_actores"></span></a>
+        <a class="nav-item" href="#demo" data-sec="demo" data-i18n-attr="title:intro.shell.5_la_demo"><span data-lucide="route" aria-hidden="true"></span><span class="lbl" data-i18n="intro.shell.5_la_demo"></span></a>
+        <div class="nav-grupo" data-i18n="intro.shell.demo"></div>
+        <a class="nav-item" href="index.html" data-i18n-attr="title:intro.shell.triaje_fnol"><span data-lucide="inbox" aria-hidden="true"></span><span class="lbl" data-i18n="intro.shell.triaje_fnol"></span></a>
+        <a class="nav-item" href="gobierno.html" data-i18n-attr="title:intro.shell.gobierno_de_agentes"><span data-lucide="shield-check" aria-hidden="true"></span><span class="lbl" data-i18n="intro.shell.gobierno_de_agentes"></span></a>
       </div>
       <div class="sidenav-foot"></div>
     </nav>
@@ -45,455 +45,453 @@
       <main class="intro">
 
         <!-- 1 · Intro -->
-        <section class="intro-sec" id="sec-intro" data-sec="intro" data-titulo="Intro" aria-labelledby="t-intro">
+        <section class="intro-sec" id="sec-intro" data-sec="intro" aria-labelledby="t-intro" data-i18n-attr="data-titulo:intro.sec_intro.intro">
           <section class="card intro-hero apilado">
             <div class="hero-titulo">
-              <span class="kicker"><span class="step-n">1</span> Intro</span>
-              <h2 id="t-intro">Observabilidad y Gobierno</h2>
+              <span class="kicker"><span class="step-n">1</span> <span data-i18n="intro.sec_intro.intro"></span></span>
+              <h2 id="t-intro" data-i18n="intro.t_intro.observabilidad_y_gobierno"></h2>
             </div>
-            <p class="lead">Son la clave para que un proyecto de IA generativa salga bien. Si sabemos por qué decide cada agente, cuántos tokens gasta y cómo razona, podemos ponerle límites y ajustarlo al negocio. Así controlamos el gasto, evitamos malas experiencias a los clientes y cumplimos la normativa.</p>
+            <p class="lead" data-i18n="intro.sec_intro.son_la_clave_para"></p>
           </section>
 
-          <section class="card" aria-label="De ver a controlar y a ganar">
+          <section class="card" data-i18n-attr="aria-label:intro.sec_intro.de_ver_a_controlar">
             <ol class="eje">
               <li class="eje-paso">
                 <span class="eje-n">1</span>
                 <div class="eje-cuerpo">
-                  <h3 class="eje-t">Trazabilidad y Observabilidad</h3>
-                  <p>Sabemos todo lo que pasa, absolutamente todo lo que pasa, que es la base del control.</p>
+                  <h3 class="eje-t" data-i18n="intro.sec_intro.trazabilidad_y_observabilidad"></h3>
+                  <p data-i18n="intro.sec_intro.sabemos_todo_lo_que"></p>
                 </div>
               </li>
               <li class="eje-paso">
                 <span class="eje-n">2</span>
                 <div class="eje-cuerpo">
-                  <h3 class="eje-t">Gobierno y Control</h3>
-                  <p class="con-ico"><span data-lucide="scan-eye" aria-hidden="true"></span> Seguimiento, alertas, límites, guardarraíles, normas, etc..</p>
+                  <h3 class="eje-t" data-i18n="intro.sec_intro.gobierno_y_control"></h3>
+                  <p class="con-ico"><span data-lucide="scan-eye" aria-hidden="true"></span> <span data-i18n="intro.sec_intro.seguimiento_alertas_limites_guardarraile"></span></p>
                   <div class="eje-cols">
-                    <div class="eje-caja c-agentes"><b><span data-lucide="bot" aria-hidden="true"></span> Sobre la IA (agentes)</b><span>Cuánto deciden solos y si aciertan.</span></div>
-                    <div class="eje-caja c-dinero"><b><span data-lucide="wallet" aria-hidden="true"></span> Sobre los costes</b><span>Cuánto gasta la IA y quién lo gasta.</span></div>
-                    <div class="eje-caja c-fraude"><b><span data-lucide="shield-alert" aria-hidden="true"></span> Sobre fraude</b><span>Control y anticipación al fraude.</span></div>
-                    <div class="eje-caja c-normas"><b><span data-lucide="scale" aria-hidden="true"></span> Sobre la normativa</b><span>Si cumplimos RGPD, AI Act, DORA y EIOPA.</span></div>
+                    <div class="eje-caja c-agentes"><b><span data-lucide="bot" aria-hidden="true"></span> <span data-i18n="intro.sec_intro.sobre_la_ia_agentes"></span></b><span data-i18n="intro.sec_intro.cuanto_deciden_solos_y"></span></div>
+                    <div class="eje-caja c-dinero"><b><span data-lucide="wallet" aria-hidden="true"></span> <span data-i18n="intro.sec_intro.sobre_los_costes"></span></b><span data-i18n="intro.sec_intro.cuanto_gasta_la_ia"></span></div>
+                    <div class="eje-caja c-fraude"><b><span data-lucide="shield-alert" aria-hidden="true"></span> <span data-i18n="intro.sec_intro.sobre_fraude"></span></b><span data-i18n="intro.sec_intro.control_y_anticipacion_al"></span></div>
+                    <div class="eje-caja c-normas"><b><span data-lucide="scale" aria-hidden="true"></span> <span data-i18n="intro.sec_intro.sobre_la_normativa"></span></b><span data-i18n="intro.sec_intro.si_cumplimos_rgpd_ai"></span></div>
                   </div>
                 </div>
               </li>
               <li class="eje-paso">
                 <span class="eje-n">3</span>
                 <div class="eje-cuerpo">
-                  <h3 class="eje-t">Beneficios</h3>
-                  <p>Todos ganan.</p>
+                  <h3 class="eje-t" data-i18n="intro.sec_intro.beneficios"></h3>
+                  <p data-i18n="intro.sec_intro.todos_ganan"></p>
                   <div class="eje-cols">
-                    <div class="eje-caja c-agentes"><b><span data-lucide="thumbs-up" aria-hidden="true"></span> Clientes contentos</b><span>Los agentes responden bien. El cliente queda contento y no se va.</span><span class="eje-chips"><span class="chip">satisfacción ↑</span><span class="chip">bajas ↓</span></span></div>
-                    <div class="eje-caja c-dinero"><b><span data-lucide="euro" aria-hidden="true"></span> Sin sustos en la factura</b><span>Si un agente se dispara, lo vemos y lo frenamos. Cada departamento sabe lo que gasta.</span><span class="eje-chips"><span class="chip">sin imprevistos</span><span class="chip">gasto por departamento</span></span></div>
-                    <div class="eje-caja c-fraude"><b><span data-lucide="search-check" aria-hidden="true"></span> Anticipación al fraude</b><span>Los indicios se ven en cuanto llega el aviso y el caso va a investigación antes de pagar.</span><span class="eje-chips"><span class="chip">pagos retenidos</span><span class="chip">menos fraude pagado</span></span></div>
-                    <div class="eje-caja c-normas"><b><span data-lucide="badge-check" aria-hidden="true"></span> Sin multas</b><span>Podemos enseñar cómo se decidió cada caso. Evitamos sanciones y el daño a nuestra imagen.</span><span class="eje-chips"><span class="chip">sin sanciones</span><span class="chip">sin mala prensa</span></span></div>
+                    <div class="eje-caja c-agentes"><b><span data-lucide="thumbs-up" aria-hidden="true"></span> <span data-i18n="intro.sec_intro.clientes_contentos"></span></b><span data-i18n="intro.sec_intro.los_agentes_responden_bien"></span><span class="eje-chips"><span class="chip" data-i18n="intro.sec_intro.satisfaccion"></span><span class="chip" data-i18n="intro.sec_intro.bajas"></span></span></div>
+                    <div class="eje-caja c-dinero"><b><span data-lucide="euro" aria-hidden="true"></span> <span data-i18n="intro.sec_intro.sin_sustos_en_la"></span></b><span data-i18n="intro.sec_intro.si_un_agente_se"></span><span class="eje-chips"><span class="chip" data-i18n="intro.sec_intro.sin_imprevistos"></span><span class="chip" data-i18n="intro.sec_intro.gasto_por_departamento"></span></span></div>
+                    <div class="eje-caja c-fraude"><b><span data-lucide="search-check" aria-hidden="true"></span> <span data-i18n="intro.sec_intro.anticipacion_al_fraude"></span></b><span data-i18n="intro.sec_intro.los_indicios_se_ven"></span><span class="eje-chips"><span class="chip" data-i18n="intro.sec_intro.pagos_retenidos"></span><span class="chip" data-i18n="intro.sec_intro.menos_fraude_pagado"></span></span></div>
+                    <div class="eje-caja c-normas"><b><span data-lucide="badge-check" aria-hidden="true"></span> <span data-i18n="intro.sec_intro.sin_multas"></span></b><span data-i18n="intro.sec_intro.podemos_ensenar_como_se"></span><span class="eje-chips"><span class="chip" data-i18n="intro.sec_intro.sin_sanciones"></span><span class="chip" data-i18n="intro.sec_intro.sin_mala_prensa"></span></span></div>
                   </div>
                 </div>
               </li>
             </ol>
           </section>
 
-          <nav class="intro-nav" aria-label="Navegación">
-            <span class="muted small">1 de 5</span>
+          <nav class="intro-nav" data-i18n-attr="aria-label:intro.sec_intro.navegacion">
+            <span class="muted small" data-i18n="intro.sec_intro.1_de_5"></span>
             <div class="derecha">
-              <a class="btn" href="index.html"><span data-lucide="play" aria-hidden="true"></span> Ir a la demo</a>
-              <a class="btn btn-primary" href="#problema">Siguiente: el problema <span data-lucide="arrow-right" aria-hidden="true"></span></a>
+              <a class="btn" href="index.html"><span data-lucide="play" aria-hidden="true"></span> <span data-i18n="intro.pagina.ir_a_la_demo"></span></a>
+              <a class="btn btn-primary" href="#problema"><span data-i18n="intro.sec_intro.siguiente_el_problema"></span> <span data-lucide="arrow-right" aria-hidden="true"></span></a>
             </div>
           </nav>
         </section>
 
         <!-- 2 · El problema -->
-        <section class="intro-sec" id="sec-problema" data-sec="problema" data-titulo="El problema" aria-labelledby="t-problema" hidden>
+        <section class="intro-sec" id="sec-problema" data-sec="problema" aria-labelledby="t-problema" hidden data-i18n-attr="data-titulo:intro.sec_problema.el_problema">
           <section class="card intro-hero con-puntos">
             <div class="hero-titulo">
-              <span class="kicker"><span class="step-n">2</span> El problema</span>
-              <h2 id="t-problema">Un proceso crítico (FNOL), y un buen gobierno de la IA</h2>
+              <span class="kicker"><span class="step-n">2</span> <span data-i18n="intro.sec_problema.el_problema"></span></span>
+              <h2 id="t-problema" data-i18n="intro.t_problema.un_proceso_critico_fnol"></h2>
             </div>
             <ul class="hero-puntos">
-              <li><b>Un proceso crítico.</b> Cada siniestro empieza con un mensaje del cliente que llega por cinco canales, con prisa y sin formato.</li>
-              <li><b>Se decide pronto.</b> Alguien tiene que leerlo, clasificarlo y teclearlo antes de que corra el plazo, y ahí se decide el ramo, los datos y el fraude.</li>
-              <li><b>Controlar la IA desde muchos ángulos.</b> La autonomía que damos a los agentes, la salud de las bases de conocimiento, la normativa y el gasto.</li>
+              <li data-i18n-html="intro.sec_problema.un_proceso_critico_cada"></li>
+              <li data-i18n-html="intro.sec_problema.se_decide_pronto_alguien"></li>
+              <li data-i18n-html="intro.sec_problema.controlar_la_ia_desde"></li>
             </ul>
           </section>
 
-          <section class="cifras" id="cifras-fnol" aria-label="Cifras del FNOL">
+          <section class="cifras" id="cifras-fnol" data-i18n-attr="aria-label:intro.cifras_fnol.cifras_del_fnol">
             <article class="card cifra primary">
-              <span class="v">11 M</span>
-              <span class="l">siniestros de Auto al año en España</span>
-              <span class="f">Fuente: UNESPA</span>
+              <span class="v" data-i18n="intro.cifras_fnol.11_m"></span>
+              <span class="l" data-i18n="intro.cifras_fnol.siniestros_de_auto_al"></span>
+              <span class="f" data-i18n="intro.cifras_fnol.fuente_unespa"></span>
             </article>
             <article class="card cifra primary">
-              <span class="v">3 s</span>
-              <span class="l">entre un siniestro de Auto y el siguiente</span>
-              <span class="f">Fuente: UNESPA</span>
+              <span class="v" data-i18n="intro.cifras_fnol.3_s"></span>
+              <span class="l" data-i18n="intro.cifras_fnol.entre_un_siniestro_de"></span>
+              <span class="f" data-i18n="intro.cifras_fnol.fuente_unespa"></span>
             </article>
             <article class="card cifra review">
-              <span class="v">7 días</span>
-              <span class="l">para comunicar el siniestro</span>
-              <span class="f">Ley de Contrato de Seguro, art. 16</span>
+              <span class="v" data-i18n="intro.cifras_fnol.7_dias"></span>
+              <span class="l" data-i18n="intro.cifras_fnol.para_comunicar_el_siniestro"></span>
+              <span class="f" data-i18n="intro.cifras_fnol.ley_de_contrato_de"></span>
             </article>
             <article class="card cifra">
-              <span class="v">≈10 %</span>
-              <span class="l">de la prima de Auto se va en gestionar siniestros</span>
-              <span class="f">EE. UU., 2023 · III con datos de NAIC</span>
+              <span class="v" data-i18n="intro.cifras.pct_aprox_10"></span>
+              <span class="l" data-i18n="intro.cifras_fnol.de_la_prima_de"></span>
+              <span class="f" data-i18n="intro.cifras_fnol.ee_uu_2023_iii"></span>
             </article>
           </section>
 
           <section class="card" id="canales">
-            <h2 class="bloque-t"><span data-lucide="messages-square" aria-hidden="true"></span> Cinco canales, un mismo aviso</h2>
-            <p class="bloque-sub">Fragmentos reales del Paquete A que vais a ver en la demo.</p>
+            <h2 class="bloque-t"><span data-lucide="messages-square" aria-hidden="true"></span> <span data-i18n="intro.canales.cinco_canales_un_mismo"></span></h2>
+            <p class="bloque-sub" data-i18n="intro.canales.fragmentos_reales_del_paquete"></p>
             <div class="canales">
               <article class="canal">
-                <span class="canal-h"><span data-lucide="mail" aria-hidden="true"></span> Email</span>
-                <small>Texto largo, con adjuntos</small>
-                <q>El coche de delante frenó en seco; le di un pequeño toque por detrás. No hubo heridos.</q>
-                <span class="msg">MSG-A-01</span>
+                <span class="canal-h"><span data-lucide="mail" aria-hidden="true"></span> <span data-i18n="intro.canales.email"></span></span>
+                <small data-i18n="intro.canales.texto_largo_con_adjuntos"></small>
+                <q data-i18n="intro.canales.el_coche_de_delante"></q>
+                <span class="msg" data-i18n="intro.canales.msg_a_01"></span>
               </article>
               <article class="canal">
-                <span class="canal-h"><span data-lucide="globe" aria-hidden="true"></span> Formulario web</span>
-                <small>Campos fijos y texto libre</small>
-                <q>Se rompió el latiguillo del agua fría bajo el fregadero y se inundó parte del salón.</q>
-                <span class="msg">MSG-A-02</span>
+                <span class="canal-h"><span data-lucide="globe" aria-hidden="true"></span> <span data-i18n="intro.canales.formulario_web"></span></span>
+                <small data-i18n="intro.canales.campos_fijos_y_texto"></small>
+                <q data-i18n="intro.canales.se_rompio_el_latiguillo"></q>
+                <span class="msg" data-i18n="intro.canales.msg_a_02"></span>
               </article>
               <article class="canal">
-                <span class="canal-h"><span data-lucide="message-circle" aria-hidden="true"></span> Chat</span>
-                <small>Conversación desde la web o la app</small>
-                <q>Me ha saltado una piedra de un camión que llevaba grava; me ha hecho una grieta grande en el parabrisas.</q>
-                <span class="msg">MSG-A-07</span>
+                <span class="canal-h"><span data-lucide="message-circle" aria-hidden="true"></span> <span data-i18n="intro.canales.chat"></span></span>
+                <small data-i18n="intro.canales.conversacion_desde_la_web"></small>
+                <q data-i18n="intro.canales.me_ha_saltado_una"></q>
+                <span class="msg" data-i18n="intro.canales.msg_a_07"></span>
               </article>
               <article class="canal">
-                <span class="canal-h"><span data-lucide="phone" aria-hidden="true"></span> Teléfono</span>
-                <small>Llamada transcrita</small>
-                <q>Llamo en nombre de mi marido. Está ingresado con fractura de clavícula y dos costillas.</q>
-                <span class="msg">MSG-A-08</span>
+                <span class="canal-h"><span data-lucide="phone" aria-hidden="true"></span> <span data-i18n="intro.canales.telefono"></span></span>
+                <small data-i18n="intro.canales.llamada_transcrita"></small>
+                <q data-i18n="intro.canales.llamo_en_nombre_de"></q>
+                <span class="msg" data-i18n="intro.canales.msg_a_08"></span>
               </article>
               <article class="canal">
-                <span class="canal-h"><span data-lucide="messages-square" aria-hidden="true"></span> WhatsApp</span>
-                <small>Corto, informal, con emojis</small>
-                <q>Hola!! os escribo por aquí porque no me aclaro con la app 😅</q>
-                <span class="msg">MSG-A-11</span>
+                <span class="canal-h"><span data-lucide="messages-square" aria-hidden="true"></span> <span data-i18n="intro.canales.whatsapp"></span></span>
+                <small data-i18n="intro.canales.corto_informal_con_emojis"></small>
+                <q data-i18n="intro.canales.hola_os_escribo_por"></q>
+                <span class="msg" data-i18n="intro.canales.msg_a_11"></span>
               </article>
             </div>
           </section>
 
           <section class="card" id="decide">
-            <h2 class="bloque-t"><span data-lucide="scale" aria-hidden="true"></span> Lo que se decide en los mensajes FNOL</h2>
+            <h2 class="bloque-t"><span data-lucide="scale" aria-hidden="true"></span> <span data-i18n="intro.decide.lo_que_se_decide"></span></h2>
             <ul class="puntos">
-              <li class="punto"><span class="ico"><span data-lucide="tags" aria-hidden="true"></span></span><b>El ramo</b><span>Si se asigna mal, el expediente da vueltas entre equipos.</span></li>
-              <li class="punto"><span class="ico"><span data-lucide="file-search" aria-hidden="true"></span></span><b>Los datos</b><span>Si falta la póliza o la fecha, hay que volver a llamar al cliente.</span></li>
-              <li class="punto"><span class="ico"><span data-lucide="shield-alert" aria-hidden="true"></span></span><b>El indicio de fraude</b><span>Aquí es más barato verlo. Después, el pago ya ha salido.</span></li>
-              <li class="punto"><span class="ico"><span data-lucide="user" aria-hidden="true"></span></span><b>La experiencia del cliente</b><span>Es su primer contacto con la aseguradora, y en un mal día.</span></li>
+              <li class="punto"><span class="ico"><span data-lucide="tags" aria-hidden="true"></span></span><b data-i18n="intro.decide.el_ramo"></b><span data-i18n="intro.decide.si_se_asigna_mal"></span></li>
+              <li class="punto"><span class="ico"><span data-lucide="file-search" aria-hidden="true"></span></span><b data-i18n="intro.decide.los_datos"></b><span data-i18n="intro.decide.si_falta_la_poliza"></span></li>
+              <li class="punto"><span class="ico"><span data-lucide="shield-alert" aria-hidden="true"></span></span><b data-i18n="intro.decide.el_indicio_de_fraude"></b><span data-i18n="intro.decide.aqui_es_mas_barato"></span></li>
+              <li class="punto"><span class="ico"><span data-lucide="user" aria-hidden="true"></span></span><b data-i18n="intro.decide.la_experiencia_del_cliente"></b><span data-i18n="intro.decide.es_su_primer_contacto"></span></li>
             </ul>
           </section>
 
           <section class="card" id="hoy">
-            <h2 class="bloque-t"><span data-lucide="user-check" aria-hidden="true"></span> Cómo se hace hoy</h2>
+            <h2 class="bloque-t"><span data-lucide="user-check" aria-hidden="true"></span> <span data-i18n="intro.hoy.como_se_hace_hoy"></span></h2>
             <div class="cadena">
-              <div class="eslabon"><span class="t"><span data-lucide="eye" aria-hidden="true"></span> Leer</span><small>Una persona abre cada mensaje, canal por canal</small></div>
+              <div class="eslabon"><span class="t"><span data-lucide="eye" aria-hidden="true"></span> <span data-i18n="intro.hoy.leer"></span></span><small data-i18n="intro.hoy.una_persona_abre_cada"></small></div>
               <span class="flecha" aria-hidden="true"><span data-lucide="chevron-right"></span></span>
-              <div class="eslabon"><span class="t"><span data-lucide="tags" aria-hidden="true"></span> Clasificar</span><small>Decide el ramo y a qué equipo va</small></div>
+              <div class="eslabon"><span class="t"><span data-lucide="tags" aria-hidden="true"></span> <span data-i18n="intro.hoy.clasificar"></span></span><small data-i18n="intro.hoy.decide_el_ramo_y"></small></div>
               <span class="flecha" aria-hidden="true"><span data-lucide="chevron-right"></span></span>
-              <div class="eslabon"><span class="t"><span data-lucide="pencil" aria-hidden="true"></span> Teclear</span><small>Pasa los datos del texto al sistema</small></div>
+              <div class="eslabon"><span class="t"><span data-lucide="pencil" aria-hidden="true"></span> <span data-i18n="intro.hoy.teclear"></span></span><small data-i18n="intro.hoy.pasa_los_datos_del"></small></div>
               <span class="flecha" aria-hidden="true"><span data-lucide="chevron-right"></span></span>
-              <div class="eslabon"><span class="t"><span data-lucide="list-checks" aria-hidden="true"></span> Decidir</span><small>Comprueba coberturas, plazos e importes</small></div>
+              <div class="eslabon"><span class="t"><span data-lucide="list-checks" aria-hidden="true"></span> <span data-i18n="intro.hoy.decidir"></span></span><small data-i18n="intro.hoy.comprueba_coberturas_plazos_e"></small></div>
             </div>
-            <p class="nota">Ahí se va el tiempo del tramitador y ahí se va el dinero.</p>
+            <p class="nota" data-i18n="intro.hoy.ahi_se_va_el"></p>
           </section>
 
           <section class="card" id="porque">
-            <h2 class="bloque-t"><span data-lucide="triangle-alert" aria-hidden="true"></span> Por qué el gobierno decide el éxito</h2>
+            <h2 class="bloque-t"><span data-lucide="triangle-alert" aria-hidden="true"></span> <span data-i18n="intro.porque.por_que_el_gobierno"></span></h2>
             <div class="porque">
               <div>
-                <div class="v">&gt;40 %</div>
-                <p class="f">de los proyectos de IA agéntica se cancelarán antes de que acabe 2027 por coste, valor poco claro o riesgo sin controlar · Gartner</p>
+                <div class="v" data-i18n="intro.cifras.pct_mas_40"></div>
+                <p class="f" data-i18n="intro.porque.de_los_proyectos_de"></p>
               </div>
               <div>
-                <p class="lead">Clasificar un mensaje con IA ya no diferencia a nadie. Los proyectos mueren cuando nadie sabe responder:</p>
+                <p class="lead" data-i18n="intro.porque.clasificar_un_mensaje_con"></p>
                 <ul class="preguntas">
-                  <li><span data-lucide="message-circle-question" aria-hidden="true"></span> ¿Por qué decidió eso?</li>
-                  <li><span data-lucide="user-round" aria-hidden="true"></span> ¿Quién lo controla?</li>
-                  <li><span data-lucide="euro" aria-hidden="true"></span> ¿Cuánto cuesta?</li>
+                  <li><span data-lucide="message-circle-question" aria-hidden="true"></span> <span data-i18n="intro.porque.por_que_decidio_eso"></span></li>
+                  <li><span data-lucide="user-round" aria-hidden="true"></span> <span data-i18n="intro.porque.quien_lo_controla"></span></li>
+                  <li><span data-lucide="euro" aria-hidden="true"></span> <span data-i18n="intro.porque.cuanto_cuesta"></span></li>
                 </ul>
               </div>
             </div>
           </section>
 
-          <nav class="intro-nav" aria-label="Navegación">
-            <a class="btn" href="#intro"><span data-lucide="arrow-left" aria-hidden="true"></span> Anterior: intro</a>
+          <nav class="intro-nav" data-i18n-attr="aria-label:intro.sec_intro.navegacion">
+            <a class="btn" href="#intro"><span data-lucide="arrow-left" aria-hidden="true"></span> <span data-i18n="intro.sec_problema.anterior_intro"></span></a>
             <div class="derecha">
-              <span class="muted small">2 de 5</span>
-              <a class="btn btn-primary" href="#solucion">Siguiente: la solución <span data-lucide="arrow-right" aria-hidden="true"></span></a>
+              <span class="muted small" data-i18n="intro.sec_problema.2_de_5"></span>
+              <a class="btn btn-primary" href="#solucion"><span data-i18n="intro.sec_problema.siguiente_la_solucion"></span> <span data-lucide="arrow-right" aria-hidden="true"></span></a>
             </div>
           </nav>
         </section>
 
         <!-- 3 · La solución -->
-        <section class="intro-sec" id="sec-solucion" data-sec="solucion" data-titulo="La solución" aria-labelledby="t-solucion" hidden>
+        <section class="intro-sec" id="sec-solucion" data-sec="solucion" aria-labelledby="t-solucion" hidden data-i18n-attr="data-titulo:intro.sec_solucion.la_solucion">
           <section class="card intro-hero con-puntos">
             <div class="hero-titulo">
-              <span class="kicker"><span class="step-n">3</span> La solución</span>
-              <h2 id="t-solucion">La solución: una plataforma multicanal, orquestada por 4 agentes y con un buen gobierno de la IA</h2>
+              <span class="kicker"><span class="step-n">3</span> <span data-i18n="intro.sec_solucion.la_solucion"></span></span>
+              <h2 id="t-solucion" data-i18n="intro.t_solucion.la_solucion_una_plataforma"></h2>
             </div>
             <ul class="hero-puntos">
-              <li><b>Los beneficios de la IA.</b> Cuatro agentes reciben el aviso, deciden el ramo, extraen los datos y aplican las reglas de la aseguradora.</li>
-              <li><b>Una buena interfaz de usuario.</b> El tramitador recibe el caso preparado, con una propuesta y su justificación.</li>
-              <li><b>Una buena trazabilidad.</b> Una traza por decisión que une la parte técnica con el proceso de negocio.</li>
-              <li><b>Un gobierno completo, desde todos los ángulos.</b> Autonomía, gasto, fraude, conocimiento y cumplimiento.</li>
+              <li data-i18n-html="intro.sec_solucion.los_beneficios_de_la"></li>
+              <li data-i18n-html="intro.sec_solucion.una_buena_interfaz_de"></li>
+              <li data-i18n-html="intro.sec_solucion.una_buena_trazabilidad_una"></li>
+              <li data-i18n-html="intro.sec_solucion.un_gobierno_completo_desde"></li>
             </ul>
           </section>
 
           <section class="card" id="logicalis">
-            <h2 class="bloque-t"><span data-lucide="lightbulb" aria-hidden="true"></span> Lo que hemos aprendido implantando gobierno de IA</h2>
+            <h2 class="bloque-t"><span data-lucide="lightbulb" aria-hidden="true"></span> <span data-i18n="intro.logicalis.lo_que_hemos_aprendido"></span></h2>
             <ul class="bloque-sub bloque-lista">
-              <li>Esta plataforma reúne en un solo caso lo que Logicalis ha implantado en gobierno y observabilidad de IA en clientes de distintas industrias.</li>
-              <li>Cambia el sector; el objetivo es siempre el mismo.</li>
+              <li data-i18n="intro.logicalis.esta_plataforma_reune_en"></li>
+              <li data-i18n="intro.logicalis.cambia_el_sector_el"></li>
             </ul>
             <ul class="puntos">
-              <li class="punto"><span class="ico"><span data-lucide="gauge" aria-hidden="true"></span></span><b>Mejores resultados</b><span>Control sobre lo que deciden los agentes y con qué calidad.</span></li>
-              <li class="punto"><span class="ico"><span data-lucide="user" aria-hidden="true"></span></span><b>Mejor servicio al cliente</b><span>Respuestas rápidas y explicables, y una persona donde hace falta criterio.</span></li>
-              <li class="punto"><span class="ico"><span data-lucide="wallet" aria-hidden="true"></span></span><b>Gasto controlado</b><span>Coste de cada decisión al momento, con topes que actúan solos.</span></li>
-              <li class="punto"><span class="ico"><span data-lucide="scale" aria-hidden="true"></span></span><b>Cumplimiento</b><span>Evidencia por decisión para el DPO, el auditor y el supervisor.</span></li>
+              <li class="punto"><span class="ico"><span data-lucide="gauge" aria-hidden="true"></span></span><b data-i18n="intro.logicalis.mejores_resultados"></b><span data-i18n="intro.logicalis.control_sobre_lo_que"></span></li>
+              <li class="punto"><span class="ico"><span data-lucide="user" aria-hidden="true"></span></span><b data-i18n="intro.logicalis.mejor_servicio_al_cliente"></b><span data-i18n="intro.logicalis.respuestas_rapidas_y_explicables"></span></li>
+              <li class="punto"><span class="ico"><span data-lucide="wallet" aria-hidden="true"></span></span><b data-i18n="intro.logicalis.gasto_controlado"></b><span data-i18n="intro.logicalis.coste_de_cada_decision"></span></li>
+              <li class="punto"><span class="ico"><span data-lucide="scale" aria-hidden="true"></span></span><b data-i18n="intro.logicalis.cumplimiento"></b><span data-i18n="intro.logicalis.evidencia_por_decision_para"></span></li>
             </ul>
           </section>
 
           <!-- Los 8 KPI del Resumen de gobierno.html, copiados con el panel recién abierto (allí se recalculan) -->
-          <section class="kpis-intro" id="kpis-resumen" aria-label="Indicadores del Resumen del panel de gobierno">
+          <section class="kpis-intro" id="kpis-resumen" data-i18n-attr="aria-label:intro.kpis_resumen.indicadores_del_resumen_del">
             <div class="cifras">
-              <article class="card cifra primary"><span class="l"><span data-lucide="activity" aria-hidden="true"></span> Mensajes procesados</span><span class="v">16.720</span><span class="f">14 días · 1.194 / día de media</span></article>
-              <article class="card cifra ok"><span class="l"><span data-lucide="zap" aria-hidden="true"></span> Autonomía efectiva</span><span class="v">81 %</span><span class="f">13.540 decisiones sin intervención humana</span></article>
-              <article class="card cifra review"><span class="l"><span data-lucide="user-check" aria-hidden="true"></span> Escalados a humano</span><span class="v">19 %</span><span class="f">3.180 · 62 % por importe (G-02), 20 % por lesionados (G-04)</span></article>
-              <article class="card cifra"><span class="l"><span data-lucide="repeat" aria-hidden="true"></span> Overrides humanos</span><span class="v">2,1 %</span><span class="f">67 decisiones cambiadas · objetivo ≤ 3 %</span></article>
-              <article class="card cifra review"><span class="l"><span data-lucide="euro" aria-hidden="true"></span> Coste del periodo</span><span class="v">215 €</span><span class="f">43 % del cap mensual (500 €) · 0,0128 € por mensaje</span></article>
-              <article class="card cifra crit"><span class="l"><span data-lucide="bell" aria-hidden="true"></span> Alertas activas</span><span class="v">11</span><span class="f">3 críticas · 8 avisos</span></article>
-              <article class="card cifra review"><span class="l"><span data-lucide="thermometer" aria-hidden="true"></span> Cumplimiento</span><span class="v">87 %</span><span class="f">cobertura de controles · 9 parciales</span></article>
-              <article class="card cifra crit"><span class="l"><span data-lucide="book-open" aria-hidden="true"></span> Knowledge Bases</span><span class="v">5 / 9</span><span class="f">knowledge bases sanas · 1 crítica</span></article>
+              <article class="card cifra primary"><span class="l"><span data-lucide="activity" aria-hidden="true"></span> <span data-i18n="intro.kpis_resumen.mensajes_procesados"></span></span><span class="v" data-i18n="intro.cifras.num_16720"></span><span class="f" data-i18n="intro.kpis_resumen.14_dias_1_194"></span></article>
+              <article class="card cifra ok"><span class="l"><span data-lucide="zap" aria-hidden="true"></span> <span data-i18n="intro.kpis_resumen.autonomia_efectiva"></span></span><span class="v" data-i18n="intro.cifras.pct_81"></span><span class="f" data-i18n="intro.kpis_resumen.13_540_decisiones_sin"></span></article>
+              <article class="card cifra review"><span class="l"><span data-lucide="user-check" aria-hidden="true"></span> <span data-i18n="intro.kpis_resumen.escalados_a_humano"></span></span><span class="v" data-i18n="intro.cifras.pct_19"></span><span class="f" data-i18n="intro.kpis_resumen.3_180_62_por"></span></article>
+              <article class="card cifra"><span class="l"><span data-lucide="repeat" aria-hidden="true"></span> <span data-i18n="intro.kpis_resumen.overrides_humanos"></span></span><span class="v" data-i18n="intro.cifras.pct_2_1"></span><span class="f" data-i18n="intro.kpis_resumen.67_decisiones_cambiadas_objetivo"></span></article>
+              <article class="card cifra review"><span class="l"><span data-lucide="euro" aria-hidden="true"></span> <span data-i18n="intro.kpis_resumen.coste_del_periodo"></span></span><span class="v" data-i18n="intro.cifras.eur_215"></span><span class="f" data-i18n="intro.kpis_resumen.43_del_cap_mensual"></span></article>
+              <article class="card cifra crit"><span class="l"><span data-lucide="bell" aria-hidden="true"></span> <span data-i18n="intro.kpis_resumen.alertas_activas"></span></span><span class="v">11</span><span class="f" data-i18n="intro.kpis_resumen.3_criticas_8_avisos"></span></article>
+              <article class="card cifra review"><span class="l"><span data-lucide="thermometer" aria-hidden="true"></span> <span data-i18n="intro.logicalis.cumplimiento"></span></span><span class="v" data-i18n="intro.cifras.pct_87"></span><span class="f" data-i18n="intro.kpis_resumen.cobertura_de_controles_9"></span></article>
+              <article class="card cifra crit"><span class="l"><span data-lucide="book-open" aria-hidden="true"></span> <span data-i18n="intro.kpis_resumen.knowledge_bases"></span></span><span class="v" data-i18n="intro.cifras.kb_5_de_9"></span><span class="f" data-i18n="intro.kpis_resumen.knowledge_bases_sanas_1"></span></article>
             </div>
-            <p class="kpis-nota muted small">Últimos 14 días · los mismos indicadores del Resumen del <a href="gobierno.html">panel de gobierno</a></p>
+            <p class="kpis-nota muted small" data-i18n-html="intro.kpis_resumen.ultimos_14_dias_los"></p>
           </section>
 
           <section class="card" id="agentes">
-            <h2 class="bloque-t"><span data-lucide="bot" aria-hidden="true"></span> Cuatro agentes especialistas</h2>
-            <p class="bloque-sub">Cada uno con su modelo, su versión de prompt, su responsable y su nivel de autonomía.</p>
+            <h2 class="bloque-t"><span data-lucide="bot" aria-hidden="true"></span> <span data-i18n="intro.agentes.cuatro_agentes_especialistas"></span></h2>
+            <p class="bloque-sub" data-i18n="intro.agentes.cada_uno_con_su"></p>
             <div class="cadena agentes">
               <article class="agente">
-                <span class="t"><span data-lucide="inbox" aria-hidden="true"></span> Multicanalidad</span>
-                <p>Recibe por los cinco canales, transcribe las llamadas y normaliza el mensaje.</p>
-                <span class="meta"><span class="chip">gpt-5-nano + voz</span><span class="chip l3">L3 · Autónomo</span></span>
+                <span class="t"><span data-lucide="inbox" aria-hidden="true"></span> <span data-i18n="intro.agentes.multicanalidad"></span></span>
+                <p data-i18n="intro.agentes.recibe_por_los_cinco"></p>
+                <span class="meta"><span class="chip" data-i18n="intro.agentes.gpt_5_nano_voz"></span><span class="chip l3" data-i18n="intro.agentes.l3_autonomo"></span></span>
               </article>
               <span class="flecha" aria-hidden="true"><span data-lucide="chevron-right"></span></span>
               <article class="agente">
-                <span class="t"><span data-lucide="tags" aria-hidden="true"></span> Clasificación</span>
-                <p>Asigna Auto, Hogar o Salud citando los indicios del texto.</p>
-                <span class="meta"><span class="chip">gpt-5-nano</span><span class="chip l3">L3 · Autónomo</span></span>
+                <span class="t"><span data-lucide="tags" aria-hidden="true"></span> <span data-i18n="intro.agentes.clasificacion"></span></span>
+                <p data-i18n="intro.agentes.asigna_auto_hogar_o"></p>
+                <span class="meta"><span class="chip" data-i18n="intro.agentes.gpt_5_nano"></span><span class="chip l3" data-i18n="intro.agentes.l3_autonomo"></span></span>
               </article>
               <span class="flecha" aria-hidden="true"><span data-lucide="chevron-right"></span></span>
               <article class="agente">
-                <span class="t"><span data-lucide="file-search" aria-hidden="true"></span> Extracción</span>
-                <p>Convierte el texto en 10 campos. Si un dato no está, queda vacío.</p>
-                <span class="meta"><span class="chip">gpt-5-mini</span><span class="chip l2">L2 · Supervisado</span></span>
+                <span class="t"><span data-lucide="file-search" aria-hidden="true"></span> <span data-i18n="intro.agentes.extraccion"></span></span>
+                <p data-i18n="intro.agentes.convierte_el_texto_en"></p>
+                <span class="meta"><span class="chip" data-i18n="intro.agentes.gpt_5_mini"></span><span class="chip l2" data-i18n="intro.agentes.l2_supervisado"></span></span>
               </article>
               <span class="flecha" aria-hidden="true"><span data-lucide="chevron-right"></span></span>
               <article class="agente">
-                <span class="t"><span data-lucide="list-checks" aria-hidden="true"></span> Reglas de negocio</span>
-                <p>Aplica las 25 reglas de Auto, Hogar y Salud de la aseguradora.</p>
-                <span class="meta"><span class="chip">gpt-5</span><span class="chip l2">L2 · Supervisado</span></span>
+                <span class="t"><span data-lucide="list-checks" aria-hidden="true"></span> <span data-i18n="intro.agentes.reglas_de_negocio"></span></span>
+                <p data-i18n="intro.agentes.aplica_las_25_reglas"></p>
+                <span class="meta"><span class="chip" data-i18n="intro.agentes.gpt_5"></span><span class="chip l2" data-i18n="intro.agentes.l2_supervisado"></span></span>
               </article>
               <span class="flecha" aria-hidden="true"><span data-lucide="chevron-right"></span></span>
               <div class="decision">
-                <span class="pill-ok"><span data-lucide="thumbs-up" aria-hidden="true"></span> Aprobado</span>
-                <span class="pill-review"><span data-lucide="user-check" aria-hidden="true"></span> A revisar</span>
+                <span class="pill-ok"><span data-lucide="thumbs-up" aria-hidden="true"></span> <span data-i18n="intro.agentes.aprobado"></span></span>
+                <span class="pill-review"><span data-lucide="user-check" aria-hidden="true"></span> <span data-i18n="intro.agentes.a_revisar"></span></span>
               </div>
             </div>
           </section>
 
           <section class="card" id="trazabilidad">
-            <h2 class="bloque-t"><span data-lucide="route" aria-hidden="true"></span> La trazabilidad es la base del gobierno</h2>
+            <h2 class="bloque-t"><span data-lucide="route" aria-hidden="true"></span> <span data-i18n="intro.trazabilidad.la_trazabilidad_es_la"></span></h2>
             <div class="pilares">
               <article class="pilar">
-                <span class="t"><span data-lucide="sliders-horizontal" aria-hidden="true"></span> Autonomía</span>
-                <span class="v">L0 → L3</span>
-                <p>Cada agente tiene un nivel que se gana y se pierde con datos. Reglas bajó a L2 cuando los tramitadores corrigieron el 4,1 % de sus decisiones.</p>
+                <span class="t"><span data-lucide="sliders-horizontal" aria-hidden="true"></span> <span data-i18n="intro.trazabilidad.autonomia"></span></span>
+                <span class="v" data-i18n="intro.trazabilidad.l0_l3"></span>
+                <p data-i18n="intro.trazabilidad.cada_agente_tiene_un"></p>
               </article>
               <article class="pilar">
-                <span class="t"><span data-lucide="wallet" aria-hidden="true"></span> Gasto</span>
-                <span class="v">Al segundo</span>
-                <p>El proveedor de IA informa del gasto cada 8 horas. Aquí cada decisión suma su coste al momento y los topes actúan solos: si se agota, cambia a un modelo más barato y sigue.</p>
+                <span class="t"><span data-lucide="wallet" aria-hidden="true"></span> <span data-i18n="intro.trazabilidad.gasto"></span></span>
+                <span class="v" data-i18n="intro.trazabilidad.al_segundo"></span>
+                <p data-i18n="intro.trazabilidad.el_proveedor_de_ia"></p>
               </article>
               <article class="pilar">
-                <span class="t"><span data-lucide="shield-alert" aria-hidden="true"></span> Fraude</span>
-                <span class="v">3 de 13</span>
-                <p>IA, histórico y reglas buscan los patrones que la compañía ya conoce. El indicio prioriza y decide una persona.</p>
+                <span class="t"><span data-lucide="shield-alert" aria-hidden="true"></span> <span data-i18n="intro.trazabilidad.fraude"></span></span>
+                <span class="v" data-i18n="intro.trazabilidad.3_de_13"></span>
+                <p data-i18n="intro.trazabilidad.ia_historico_y_reglas"></p>
               </article>
               <article class="pilar">
-                <span class="t"><span data-lucide="thermometer" aria-hidden="true"></span> Cumplimiento</span>
-                <span class="v">87 %</span>
-                <p>RGPD, DORA y EIOPA en vigor; el Reglamento de IA, como buena práctica. Cada decisión lleva su prueba.</p>
+                <span class="t"><span data-lucide="thermometer" aria-hidden="true"></span> <span data-i18n="intro.logicalis.cumplimiento"></span></span>
+                <span class="v" data-i18n="intro.cifras.pct_87"></span>
+                <p data-i18n="intro.trazabilidad.rgpd_dora_y_eiopa"></p>
               </article>
             </div>
             <div class="base" id="base">
-              <div class="lado"><b><span data-lucide="cpu" aria-hidden="true"></span> Traza técnica</b><small>Modelo, tokens, latencia y coste de cada llamada. La ofrecen los proveedores de IA, y es necesaria.</small></div>
+              <div class="lado"><b><span data-lucide="cpu" aria-hidden="true"></span> <span data-i18n="intro.base.traza_tecnica"></span></b><small data-i18n="intro.base.modelo_tokens_latencia_y"></small></div>
               <span class="mas" aria-hidden="true">+</span>
-              <div class="lado"><b><span data-lucide="landmark" aria-hidden="true"></span> Proceso de negocio</b><small>Ramo, reglas, plazos, importes, guardrails y quién revisa. Lo que la traza técnica no sabe.</small></div>
-              <div class="base-pie"><span data-lucide="route" aria-hidden="true"></span> Una traza por decisión que une los dos mundos: sobre ella se construye todo lo demás</div>
+              <div class="lado"><b><span data-lucide="landmark" aria-hidden="true"></span> <span data-i18n="intro.base.proceso_de_negocio"></span></b><small data-i18n="intro.base.ramo_reglas_plazos_importes"></small></div>
+              <div class="base-pie"><span data-lucide="route" aria-hidden="true"></span> <span data-i18n="intro.base.una_traza_por_decision"></span></div>
             </div>
           </section>
 
-          <nav class="intro-nav" aria-label="Navegación">
-            <a class="btn" href="#problema"><span data-lucide="arrow-left" aria-hidden="true"></span> Anterior: el problema</a>
+          <nav class="intro-nav" data-i18n-attr="aria-label:intro.sec_intro.navegacion">
+            <a class="btn" href="#problema"><span data-lucide="arrow-left" aria-hidden="true"></span> <span data-i18n="intro.sec_solucion.anterior_el_problema"></span></a>
             <div class="derecha">
-              <span class="muted small">3 de 5</span>
-              <a class="btn btn-primary" href="#actores">Siguiente: los actores <span data-lucide="arrow-right" aria-hidden="true"></span></a>
+              <span class="muted small" data-i18n="intro.sec_solucion.3_de_5"></span>
+              <a class="btn btn-primary" href="#actores"><span data-i18n="intro.sec_solucion.siguiente_los_actores"></span> <span data-lucide="arrow-right" aria-hidden="true"></span></a>
             </div>
           </nav>
         </section>
 
         <!-- 4 · Los actores -->
-        <section class="intro-sec" id="sec-actores" data-sec="actores" data-titulo="Los actores" aria-labelledby="t-actores" hidden>
+        <section class="intro-sec" id="sec-actores" data-sec="actores" aria-labelledby="t-actores" hidden data-i18n-attr="data-titulo:intro.sec_actores.los_actores">
           <section class="card intro-hero con-puntos">
             <div class="hero-titulo">
-              <span class="kicker"><span class="step-n">4</span> Los actores</span>
-              <h2 id="t-actores">Los actores: el tramitador y los equipos de IT, Finanzas, Compliance, etc.</h2>
+              <span class="kicker"><span class="step-n">4</span> <span data-i18n="intro.sec_actores.los_actores"></span></span>
+              <h2 id="t-actores" data-i18n="intro.t_actores.los_actores_el_tramitador"></h2>
             </div>
             <ul class="hero-puntos">
-              <li><b>El tramitador de FNOL.</b> Una interfaz muy ágil donde ve el detalle de cada mensaje, cómo y por qué se clasificó, por qué decidió la IA y los indicios de fraude.</li>
-              <li><b>Los equipos que gobiernan la IA.</b> IT, Finanzas, Compliance, Riesgos, Auditoría y DPO, con un panel de control: si los agentes deciden bien, con qué conocimiento, cuánto cuestan y si cumplen.</li>
+              <li data-i18n-html="intro.sec_actores.el_tramitador_de_fnol"></li>
+              <li data-i18n-html="intro.sec_actores.los_equipos_que_gobiernan"></li>
             </ul>
           </section>
 
-          <section class="dos" id="usuarios" aria-label="Los dos actores">
+          <section class="dos" id="usuarios" data-i18n-attr="aria-label:intro.usuarios.los_dos_actores">
             <article class="card usuario-card">
-              <h2 class="t"><span data-lucide="user-check" aria-hidden="true"></span> El tramitador</h2>
-              <p class="quien">Pantalla de triaje</p>
+              <h2 class="t"><span data-lucide="user-check" aria-hidden="true"></span> <span data-i18n="intro.usuarios.el_tramitador"></span></h2>
+              <p class="quien" data-i18n="intro.usuarios.pantalla_de_triaje"></p>
               <ul>
-                <li>Recibe cada aviso clasificado y con los datos extraídos</li>
-                <li>Ve los detalles del mensaje y cómo y por qué se clasificó</li>
-                <li>Ve por qué se aprobó o por qué le ha llegado, regla a regla</li>
-                <li>Ve los indicios de fraude y la frase del cliente que los justifica</li>
-                <li>Dedica su tiempo a los casos que necesitan criterio</li>
+                <li data-i18n="intro.usuarios.recibe_cada_aviso_clasificado"></li>
+                <li data-i18n="intro.usuarios.ve_los_detalles_del"></li>
+                <li data-i18n="intro.usuarios.ve_por_que_se"></li>
+                <li data-i18n="intro.usuarios.ve_los_indicios_de"></li>
+                <li data-i18n="intro.usuarios.dedica_su_tiempo_a"></li>
               </ul>
-              <a class="btn" href="index.html"><span data-lucide="inbox" aria-hidden="true"></span> Triaje FNOL</a>
+              <a class="btn" href="index.html"><span data-lucide="inbox" aria-hidden="true"></span> <span data-i18n="intro.shell.triaje_fnol"></span></a>
             </article>
             <article class="card usuario-card">
-              <h2 class="t"><span data-lucide="shield-check" aria-hidden="true"></span> IT, Finanzas, Compliance…</h2>
-              <p class="quien">Comité de IA, IT, Riesgos, Auditoría, Compliance, DPO y Finanzas · panel de gobierno</p>
+              <h2 class="t"><span data-lucide="shield-check" aria-hidden="true"></span> <span data-i18n="intro.usuarios.it_finanzas_compliance"></span></h2>
+              <p class="quien" data-i18n="intro.usuarios.comite_de_ia_it"></p>
               <ul>
-                <li>Ve si los agentes deciden bien y con qué conocimiento</li>
-                <li>Controla cuánto deciden solos y cuánto cuestan</li>
-                <li>Puede demostrar ante un auditor cómo se decidió cada caso</li>
-                <li>Ve si algún agente está consumiendo de más</li>
-                <li>Compara el gasto de cada agente con su presupuesto</li>
-                <li>Entiende los posibles fraudes y en qué indicios se apoyan</li>
-                <li>Sabe si cumplimos con RGPD, DORA y las guías de EIOPA</li>
-                <li>Comprueba qué datos personales usa cada agente</li>
-                <li>Recibe una alerta cuando un agente pasa de su umbral</li>
+                <li data-i18n="intro.usuarios.ve_si_los_agentes"></li>
+                <li data-i18n="intro.usuarios.controla_cuanto_deciden_solos"></li>
+                <li data-i18n="intro.usuarios.puede_demostrar_ante_un"></li>
+                <li data-i18n="intro.usuarios.ve_si_algun_agente"></li>
+                <li data-i18n="intro.usuarios.compara_el_gasto_de"></li>
+                <li data-i18n="intro.usuarios.entiende_los_posibles_fraudes"></li>
+                <li data-i18n="intro.usuarios.sabe_si_cumplimos_con"></li>
+                <li data-i18n="intro.usuarios.comprueba_que_datos_personales"></li>
+                <li data-i18n="intro.usuarios.recibe_una_alerta_cuando"></li>
               </ul>
-              <a class="btn" href="gobierno.html"><span data-lucide="shield-check" aria-hidden="true"></span> Gobierno de Agentes</a>
+              <a class="btn" href="gobierno.html"><span data-lucide="shield-check" aria-hidden="true"></span> <span data-i18n="intro.shell.gobierno_de_agentes"></span></a>
             </article>
           </section>
 
-          <nav class="intro-nav" aria-label="Navegación">
-            <a class="btn" href="#solucion"><span data-lucide="arrow-left" aria-hidden="true"></span> Anterior: la solución</a>
+          <nav class="intro-nav" data-i18n-attr="aria-label:intro.sec_intro.navegacion">
+            <a class="btn" href="#solucion"><span data-lucide="arrow-left" aria-hidden="true"></span> <span data-i18n="intro.sec_actores.anterior_la_solucion"></span></a>
             <div class="derecha">
-              <span class="muted small">4 de 5</span>
-              <a class="btn btn-primary" href="#demo">Siguiente: la demo <span data-lucide="arrow-right" aria-hidden="true"></span></a>
+              <span class="muted small" data-i18n="intro.sec_actores.4_de_5"></span>
+              <a class="btn btn-primary" href="#demo"><span data-i18n="intro.sec_actores.siguiente_la_demo"></span> <span data-lucide="arrow-right" aria-hidden="true"></span></a>
             </div>
           </nav>
         </section>
 
         <!-- 5 · La demo -->
-        <section class="intro-sec" id="sec-demo" data-sec="demo" data-titulo="La demo" aria-labelledby="t-demo" hidden>
+        <section class="intro-sec" id="sec-demo" data-sec="demo" aria-labelledby="t-demo" hidden data-i18n-attr="data-titulo:intro.sec_demo.la_demo">
           <section class="card intro-hero apilado">
             <div class="hero-titulo">
-              <span class="kicker"><span class="step-n">5</span> La demo</span>
-              <h2 id="t-demo" class="entero">Asistente autónomo de tramitación de FNOLes</h2>
+              <span class="kicker"><span class="step-n">5</span> <span data-i18n="intro.sec_demo.la_demo"></span></span>
+              <h2 id="t-demo" class="entero" data-i18n="intro.t_demo.asistente_autonomo_de_tramitacion"></h2>
             </div>
             <div class="viaje" id="viaje">
-              <h3 class="bloque-t"><span data-lucide="route" aria-hidden="true"></span> El viaje de un FNOL, de principio a fin</h3>
+              <h3 class="bloque-t"><span data-lucide="route" aria-hidden="true"></span> <span data-i18n="intro.viaje.el_viaje_de_un"></span></h3>
               <ol class="viaje-pasos">
                 <li class="viaje-paso">
-                  <span class="t"><span data-lucide="inbox" aria-hidden="true"></span> Llega el mensaje</span>
+                  <span class="t"><span data-lucide="inbox" aria-hidden="true"></span> <span data-i18n="intro.viaje.llega_el_mensaje"></span></span>
                   <ul>
-                    <li>13 avisos del Paquete A por email, web, chat, teléfono y WhatsApp</li>
-                    <li>Multicanalidad transcribe las llamadas y normaliza el formato</li>
-                    <li>Los datos personales se seudonimizan antes de ir al modelo</li>
+                    <li data-i18n="intro.viaje.13_avisos_del_paquete"></li>
+                    <li data-i18n="intro.viaje.multicanalidad_transcribe_las_llamadas"></li>
+                    <li data-i18n="intro.viaje.los_datos_personales_se"></li>
                   </ul>
-                  <a class="ir" href="index.html">Ver en el triaje <span data-lucide="arrow-right" aria-hidden="true"></span></a>
+                  <a class="ir" href="index.html"><span data-i18n="intro.viaje.ver_en_el_triaje"></span> <span data-lucide="arrow-right" aria-hidden="true"></span></a>
                 </li>
                 <li class="viaje-paso">
-                  <span class="t"><span data-lucide="bot" aria-hidden="true"></span> Análisis</span>
+                  <span class="t"><span data-lucide="bot" aria-hidden="true"></span> <span data-i18n="intro.viaje.analisis"></span></span>
                   <ul>
-                    <li>Clasificación: Auto, Hogar o Salud, citando los indicios del texto</li>
-                    <li>Extracción: 10 campos; si un dato no está, queda vacío</li>
-                    <li>Reglas: 25 reglas de negocio y una propuesta, Aprobado o A revisar</li>
-                    <li>Indicios de fraude: IA, histórico y reglas</li>
+                    <li data-i18n="intro.viaje.clasificacion_auto_hogar_o"></li>
+                    <li data-i18n="intro.viaje.extraccion_10_campos_si"></li>
+                    <li data-i18n="intro.viaje.reglas_25_reglas_de"></li>
+                    <li data-i18n="intro.viaje.indicios_de_fraude_ia"></li>
                   </ul>
-                  <a class="ir" href="index.html">Ver en el triaje <span data-lucide="arrow-right" aria-hidden="true"></span></a>
+                  <a class="ir" href="index.html"><span data-i18n="intro.viaje.ver_en_el_triaje"></span> <span data-lucide="arrow-right" aria-hidden="true"></span></a>
                 </li>
                 <li class="viaje-paso">
-                  <span class="t"><span data-lucide="user-check" aria-hidden="true"></span> Tramitador</span>
+                  <span class="t"><span data-lucide="user-check" aria-hidden="true"></span> <span data-i18n="intro.viaje.tramitador"></span></span>
                   <ul>
-                    <li>10 avisos aprobados solos y 3 a revisar, cada uno con su motivo</li>
-                    <li>Ficha de cada decisión: mensaje, datos, reglas y razonamiento</li>
-                    <li>La frase del cliente que justifica cada regla incumplida</li>
+                    <li data-i18n="intro.viaje.10_avisos_aprobados_solos"></li>
+                    <li data-i18n="intro.viaje.ficha_de_cada_decision"></li>
+                    <li data-i18n="intro.viaje.la_frase_del_cliente"></li>
                   </ul>
-                  <a class="ir" href="index.html">Ver en el triaje <span data-lucide="arrow-right" aria-hidden="true"></span></a>
+                  <a class="ir" href="index.html"><span data-i18n="intro.viaje.ver_en_el_triaje"></span> <span data-lucide="arrow-right" aria-hidden="true"></span></a>
                 </li>
                 <li class="viaje-paso">
-                  <span class="t"><span data-lucide="file-search" aria-hidden="true"></span> Evidencias</span>
+                  <span class="t"><span data-lucide="file-search" aria-hidden="true"></span> <span data-i18n="intro.viaje.evidencias"></span></span>
                   <ul>
-                    <li>Lo que recibió el modelo y lo que respondió</li>
-                    <li>Datos personales detectados, explicación de la decisión y sello SHA-256</li>
-                    <li>Cadena de hashes: si se altera un registro, se detecta</li>
+                    <li data-i18n="intro.viaje.lo_que_recibio_el"></li>
+                    <li data-i18n="intro.viaje.datos_personales_detectados_explicacion"></li>
+                    <li data-i18n="intro.viaje.cadena_de_hashes_si"></li>
                   </ul>
-                  <a class="ir" href="index.html">Ver en el triaje <span data-lucide="arrow-right" aria-hidden="true"></span></a>
+                  <a class="ir" href="index.html"><span data-i18n="intro.viaje.ver_en_el_triaje"></span> <span data-lucide="arrow-right" aria-hidden="true"></span></a>
                 </li>
                 <li class="viaje-paso">
-                  <span class="t"><span data-lucide="shield-check" aria-hidden="true"></span> Panel de control</span>
+                  <span class="t"><span data-lucide="shield-check" aria-hidden="true"></span> <span data-i18n="intro.viaje.panel_de_control"></span></span>
                   <ul>
-                    <li>Resumen, agentes y autonomía de L0 a L3</li>
-                    <li>Trazas, guardrails, revisión humana y fraude</li>
-                    <li>Replay, knowledge bases, cumplimiento, gasto, medidas e histórico</li>
+                    <li data-i18n="intro.viaje.resumen_agentes_y_autonomia"></li>
+                    <li data-i18n="intro.viaje.trazas_guardrails_revision_humana"></li>
+                    <li data-i18n="intro.viaje.replay_knowledge_bases_cumplimiento"></li>
                   </ul>
-                  <a class="ir" href="gobierno.html">Ver en el panel <span data-lucide="arrow-right" aria-hidden="true"></span></a>
+                  <a class="ir" href="gobierno.html"><span data-i18n="intro.viaje.ver_en_el_panel"></span> <span data-lucide="arrow-right" aria-hidden="true"></span></a>
                 </li>
               </ol>
             </div>
           </section>
 
           <section class="card" id="preguntas-panel">
-            <h2 class="bloque-t"><span data-lucide="message-circle-question" aria-hidden="true"></span> Lo que responde el panel de gobierno</h2>
+            <h2 class="bloque-t"><span data-lucide="message-circle-question" aria-hidden="true"></span> <span data-i18n="intro.preguntas_panel.lo_que_responde_el"></span></h2>
             <ul class="puntos">
-              <li class="punto"><span class="ico"><span data-lucide="bot" aria-hidden="true"></span></span><b>Qué agentes intervinieron</b><span>Qué hizo cada uno, cómo y con qué nivel de autonomía.</span></li>
-              <li class="punto"><span class="ico"><span data-lucide="shield-alert" aria-hidden="true"></span></span><b>Qué límites tenían</b><span>Guardrails, revisión humana e indicios de fraude.</span></li>
-              <li class="punto"><span class="ico"><span data-lucide="brain" aria-hidden="true"></span></span><b>Qué razonamiento hay debajo</b><span>El replay de cada traza, paso a paso.</span></li>
-              <li class="punto"><span class="ico"><span data-lucide="book-open" aria-hidden="true"></span></span><b>Qué conocimiento utilizaron</b><span>Las bases de conocimiento y su salud.</span></li>
-              <li class="punto"><span class="ico"><span data-lucide="scale" aria-hidden="true"></span></span><b>Cómo de compliance es</b><span>Termómetro normativo y prueba por decisión.</span></li>
-              <li class="punto"><span class="ico"><span data-lucide="wallet" aria-hidden="true"></span></span><b>Cuándo gasta y por qué</b><span>El coste de cada decisión al segundo, con topes.</span></li>
-              <li class="punto"><span class="ico"><span data-lucide="sparkles" aria-hidden="true"></span></span><b>Cómo mejorarlo todo</b><span>Medidas con su evidencia y su ahorro.</span></li>
+              <li class="punto"><span class="ico"><span data-lucide="bot" aria-hidden="true"></span></span><b data-i18n="intro.preguntas_panel.que_agentes_intervinieron"></b><span data-i18n="intro.preguntas_panel.que_hizo_cada_uno"></span></li>
+              <li class="punto"><span class="ico"><span data-lucide="shield-alert" aria-hidden="true"></span></span><b data-i18n="intro.preguntas_panel.que_limites_tenian"></b><span data-i18n="intro.preguntas_panel.guardrails_revision_humana_e"></span></li>
+              <li class="punto"><span class="ico"><span data-lucide="brain" aria-hidden="true"></span></span><b data-i18n="intro.preguntas_panel.que_razonamiento_hay_debajo"></b><span data-i18n="intro.preguntas_panel.el_replay_de_cada"></span></li>
+              <li class="punto"><span class="ico"><span data-lucide="book-open" aria-hidden="true"></span></span><b data-i18n="intro.preguntas_panel.que_conocimiento_utilizaron"></b><span data-i18n="intro.preguntas_panel.las_bases_de_conocimiento"></span></li>
+              <li class="punto"><span class="ico"><span data-lucide="scale" aria-hidden="true"></span></span><b data-i18n="intro.preguntas_panel.como_de_compliance_es"></b><span data-i18n="intro.preguntas_panel.termometro_normativo_y_prueba"></span></li>
+              <li class="punto"><span class="ico"><span data-lucide="wallet" aria-hidden="true"></span></span><b data-i18n="intro.preguntas_panel.cuando_gasta_y_por"></b><span data-i18n="intro.preguntas_panel.el_coste_de_cada"></span></li>
+              <li class="punto"><span class="ico"><span data-lucide="sparkles" aria-hidden="true"></span></span><b data-i18n="intro.preguntas_panel.como_mejorarlo_todo"></b><span data-i18n="intro.preguntas_panel.medidas_con_su_evidencia"></span></li>
             </ul>
           </section>
 
-          <nav class="intro-nav" aria-label="Navegación">
-            <a class="btn" href="#actores"><span data-lucide="arrow-left" aria-hidden="true"></span> Anterior: los actores</a>
+          <nav class="intro-nav" data-i18n-attr="aria-label:intro.sec_intro.navegacion">
+            <a class="btn" href="#actores"><span data-lucide="arrow-left" aria-hidden="true"></span> <span data-i18n="intro.sec_demo.anterior_los_actores"></span></a>
             <div class="derecha">
-              <a class="btn" href="gobierno.html"><span data-lucide="shield-check" aria-hidden="true"></span> Panel de gobierno</a>
-              <a class="btn btn-primary" id="empezar-demo" href="index.html"><span data-lucide="play" aria-hidden="true"></span> Empezar la demo</a>
+              <a class="btn" href="gobierno.html"><span data-lucide="shield-check" aria-hidden="true"></span> <span data-i18n="intro.sec_demo.panel_de_gobierno"></span></a>
+              <a class="btn btn-primary" id="empezar-demo" href="index.html"><span data-lucide="play" aria-hidden="true"></span> <span data-i18n="intro.empezar_demo.empezar_la_demo"></span></a>
             </div>
           </nav>
         </section>
 
       </main>
-      <footer class="pie">
-        <span>Demo estática · HTML + JavaScript · sin backend · datos solo en esta sesión</span>
-        <a href="https://github.com/nachoenjuto/fnol-triage" target="_blank" rel="noopener">Código en GitHub</a>
-      </footer>
+      <footer class="pie" data-i18n-html="intro.shell.demo_estatica_html_javascript"></footer>
     </div>
   </div>
   <script src="locales/idiomas.js?v=1"></script>
-  <script src="locales/i18n.js?v=1"></script>
-  <script src="locales/cargar.js?v=1"></script>
+  <script src="locales/i18n.js?v=3"></script>
+  <script src="locales/cargar.js?v=3"></script>
   <script src="icons.js?v=40"></script>
   <script src="data/recorrido.js?v=45"></script>
-  <script src="shell.js?v=52"></script>
-  <script src="intro.js?v=4"></script>
+  <script src="shell.js?v=53"></script>
+  <script src="locales/traducir-datos.js?v=1"></script>
+  <script src="intro.js?v=5"></script>
 </body>
 </html>

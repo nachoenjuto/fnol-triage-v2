@@ -1,4 +1,5 @@
 // Pruebas de fraude.js (motor de indicadores) sin dependencias: `node tests/fraude.test.js` (o `make test`).
+require('../locales/node.js')();
 const assert = require('assert');
 const fs = require('fs');
 const path = require('path');

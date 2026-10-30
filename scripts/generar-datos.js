@@ -2,6 +2,7 @@
 // y «Reproducir desde archivo» (triaje) muestren lo mismo que la demo: `node scripts/generar-datos.js` (o `make datos`).
 //   data/gobierno-paquete-A.json        ← GOBIERNO_DEMO (data/gobierno.js) + FRAUDE_DEMO (data/fraude.js)
 //   data/triage-registro-paquete-A.json ← Paquete A + resultados guardados, con el mismo formato que «Exportar JSON»
+require('../locales/node.js')();
 const fs = require('fs');
 const path = require('path');
 const C = require('../cumplimiento.js');

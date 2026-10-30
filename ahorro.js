@@ -17,9 +17,9 @@
   };
 
   const ESCENARIOS = [
-    { id: 'conservador', nombre: 'Conservador', minutos_mensaje: 6 },
-    { id: 'base', nombre: 'Base', minutos_mensaje: 8 },
-    { id: 'optimista', nombre: 'Optimista', minutos_mensaje: 12 },
+    { id: 'conservador', nombre: I18N.t('ahorro.conservador'), minutos_mensaje: 6 },
+    { id: 'base', nombre: I18N.t('ahorro.base'), minutos_mensaje: 8 },
+    { id: 'optimista', nombre: I18N.t('ahorro.optimista'), minutos_mensaje: 12 },
   ];
 
   // Coste de tramitar un mensaje a mano a partir de las hipótesis

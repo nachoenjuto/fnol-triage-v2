@@ -28,9 +28,11 @@
 
   // Misma versión de caché que este script (?v=N)
   const v = (document.currentScript && new URL(document.currentScript.src).searchParams.get('v')) || '1';
-  const ficheros = ['ui.js'];
   const idiomas = idioma === BASE ? [BASE] : [BASE, idioma];   // el base siempre, para lo que falte por traducir
-  idiomas.forEach((i) => ficheros.forEach((f) => document.write(`<script src="locales/${i}/${f}?v=${v}"><\/script>`)));
+  idiomas.forEach((i) => I18N.FICHEROS.forEach((f) => document.write(`<script src="locales/${i}/${f}?v=${v}"><\/script>`)));
+  if (idioma !== BASE) I18N.FICHEROS_DATOS.forEach((f) => document.write(`<script src="locales/${idioma}/${f}?v=${v}"><\/script>`));
 
-  document.addEventListener('DOMContentLoaded', () => I18N.aplicar());
+  // Los scripts van al final del <body>: el HTML ya está leído. Se rellena en cuanto llegan los textos y antes de
+  // que arranquen app.js, gobierno.js o intro.js, que leen parte de ese texto (títulos de sección, opciones…).
+  document.write('<script>I18N.aplicar()<\/script>');
 })();

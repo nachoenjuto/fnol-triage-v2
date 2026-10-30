@@ -177,13 +177,13 @@
     for (const c of entry.criterios_ramo || []) {
       const citas = citasDeTexto(c);
       const resto = String(c).replace(/["“«][^"”»]*["”»]\s*:?\s*/, '').trim();
-      if (citas.length) { citas.forEach((q) => add('ramo', q, resto || 'Indicio del ramo')); continue; }
+      if (citas.length) { citas.forEach((q) => add('ramo', q, resto || I18N.t('evid.indicio_del_ramo'))); continue; }
       const local = String(c).match(/^(Auto|Hogar|Salud): (.+) \(\d+\)$/);
-      if (local && local[1] === entry.ramo && !/sin indicios/.test(local[2])) local[2].split(', ').slice(0, 3).forEach((w) => add('ramo', w, `Indicio de ${entry.ramo}`));
+      if (local && local[1] === entry.ramo && !/sin indicios/.test(local[2])) local[2].split(', ').slice(0, 3).forEach((w) => add('ramo', w, I18N.t('evid.indicio_de', { ramo: entry.ramo })));
     }
 
-    if (datos.numero_poliza) add('numero_poliza', String(datos.numero_poliza), 'Póliza identificada');
-    if (datos.fecha_hecho) { for (const re of PATRON_FECHA) { const f = buscar(re); if (f) { add('fecha_hecho', f, 'Fecha del hecho'); break; } } }
+    if (datos.numero_poliza) add('numero_poliza', String(datos.numero_poliza), I18N.t('evid.poliza_identificada'));
+    if (datos.fecha_hecho) { for (const re of PATRON_FECHA) { const f = buscar(re); if (f) { add('fecha_hecho', f, I18N.t('evid.fecha_del_hecho')); break; } } }
     if (datos.importe_estimado_eur != null) {
       PATRON_IMPORTE.lastIndex = 0;
       let n = 0;
@@ -192,17 +192,17 @@
     if (datos.lugar) {
       const l = String(datos.lugar); const partes = [l, l.split(',')[0], l.replace(/^.*?\b(?:de|del|en)\s+(?=[A-ZÁÉÍÓÚ])/, '')];
       const hallada = partes.find((p) => p && localizar(t, p));
-      if (hallada) add('lugar', hallada, 'Lugar del hecho');
+      if (hallada) add('lugar', hallada, I18N.t('evid.lugar_del_hecho'));
     }
     // Hora, vehículo, centro sanitario y lesiones: suman evidencias cuando el modelo cita poco
-    const hora = buscar(PATRON_HORA); if (hora && datos.fecha_hecho) add('fecha_hecho', hora, 'Hora del hecho');
-    if (entry.ramo === 'Auto') { const v = buscar(PATRON_VEHICULO); if (v) add('ramo', v, 'Vehículo asegurado'); }
-    if (entry.ramo === 'Salud') { const h = buscar(PATRON_CENTRO); if (h) add('lugar', h, 'Centro sanitario'); }
-    if (datos.lesionados) { const l = buscar(PATRON_LESION); if (l) add('lesionados', l, 'Lesión mencionada'); }
-    else { const l = buscar(PATRON_SIN_LESION); if (l) add('lesionados', l, 'Sin lesionados'); }
+    const hora = buscar(PATRON_HORA); if (hora && datos.fecha_hecho) add('fecha_hecho', hora, I18N.t('evid.hora_del_hecho'));
+    if (entry.ramo === 'Auto') { const v = buscar(PATRON_VEHICULO); if (v) add('ramo', v, I18N.t('evid.vehiculo_asegurado')); }
+    if (entry.ramo === 'Salud') { const h = buscar(PATRON_CENTRO); if (h) add('lugar', h, I18N.t('evid.centro_sanitario')); }
+    if (datos.lesionados) { const l = buscar(PATRON_LESION); if (l) add('lesionados', l, I18N.t('evid.lesion_mencionada')); }
+    else { const l = buscar(PATRON_SIN_LESION); if (l) add('lesionados', l, I18N.t('evid.sin_lesionados')); }
     PATRON_DOCS.lastIndex = 0;
     const vistos = new Set();
-    for (const m of t.matchAll(PATRON_DOCS)) { const k = m[0].toLowerCase(); if (vistos.has(k) || vistos.size >= 3) continue; vistos.add(k); add('documentacion_mencionada', m[0].trim(), 'Documentación mencionada'); }
+    for (const m of t.matchAll(PATRON_DOCS)) { const k = m[0].toLowerCase(); if (vistos.has(k) || vistos.size >= 3) continue; vistos.add(k); add('documentacion_mencionada', m[0].trim(), I18N.t('evid.documentacion_mencionada')); }
 
     for (const c of entry.criterios || []) {
       if (c.resultado === 'no_aplica') continue;
@@ -237,45 +237,45 @@
   // Siguiente paso recomendado: tabla fija por regla incumplida (más fiable y barata que pedirlo al modelo)
   // ---------------------------------------------------------------------------
   const ACCIONES = {
-    A1: ['Verificar vigencia y pago de la póliza', 'Comprobar con Cartera si la póliza estaba vigente y al corriente en la fecha del hecho.', []],
-    A2: ['Pedir justificación del retraso', 'La comunicación supera los 7 días del art. 16 LCS: solicitar la causa del retraso.', ['motivo del retraso en la comunicación']],
-    A3: ['Confirmar quién conducía', 'Comprobar si el conductor está declarado en la póliza o valorar su inclusión.', ['datos del conductor (DNI y fecha de nacimiento)']],
-    A4: ['Valorar circunstancias agravantes', 'Reunir el atestado o informe antes de decidir.', ['atestado o informe policial']],
-    A5: ['Derivar a daños corporales', 'Hay lesionados o faltan documentos de terceros: gestión especializada.', ['atestado o parte amistoso firmado', 'datos del otro conductor']],
-    A6: ['Encargar peritación del vehículo', 'El importe supera el umbral de despeje directo.', ['presupuesto detallado del taller']],
-    A7: ['Reunir la documentación del despeje directo', 'Falta documentación para aprobar de forma automática.', ['fotos de los daños', 'presupuesto del taller']],
-    A8: ['Revisar la coherencia del relato', 'Hay incoherencias o siniestralidad previa: revisar con un tramitador senior.', []],
-    H1: ['Verificar vigencia de la póliza', 'Comprobar que la vivienda estaba asegurada en la fecha del hecho.', []],
-    H2: ['Pedir justificación del plazo', 'El daño puede ser anterior a los 7 días de plazo.', ['fecha en que se conoció el daño']],
-    H3: ['Enviar perito al domicilio', 'Confirmar si el daño por agua fue súbito o una filtración progresiva.', ['fotos y factura del fontanero']],
-    H4: ['Pedir denuncia y relación de objetos; enviar perito', 'El robo requiere denuncia y signos de fuerza; falta información esencial.', ['denuncia policial', 'relación valorada de los objetos sustraídos', 'fotos de los accesos forzados']],
-    H5: ['Pedir informe técnico', 'Necesario para el despeje directo por sobretensión o cristales.', ['informe técnico o presupuesto']],
-    H6: ['Pedir denuncia o fecha verificable', 'Vandalismo o fenómeno atmosférico sin denuncia o con importe alto.', ['denuncia o parte meteorológico']],
-    H7: ['Revisar la antigüedad de la póliza', 'Póliza reciente con un siniestro de importe alto.', []],
-    H8: ['Verificar si la vivienda estaba habitada', 'La condición de vivienda deshabitada limita la cobertura.', ['periodo de ocupación de la vivienda']],
-    H9: ['Peritación obligatoria', 'El importe supera los 10.000 €.', ['presupuesto detallado']],
-    S1: ['Verificar al asegurado', 'Comprobar que la persona atendida figura en la póliza y está al corriente.', []],
-    S2: ['Comprobar el periodo de carencia', 'La prestación podría estar dentro del periodo de carencia.', []],
-    S3: ['Revisar preexistencias', 'Comparar con el cuestionario de salud de la contratación.', ['informe médico previo']],
-    S4: ['Gestionar la autorización previa', 'La prestación requería autorización y no consta.', ['informe y prescripción médica']],
-    S5: ['Verificar el cuadro médico', 'El centro no consta en el cuadro: comprobar la modalidad de reembolso.', ['factura del centro']],
-    S6: ['Reunir la documentación', 'Falta documentación para el despeje directo.', []],
-    S7: ['Valorar el reembolso o la exclusión', 'Importe alto o prestación posiblemente excluida.', ['facturas originales']],
-    S8: ['Coordinar con el otro seguro', 'Corresponde primero al seguro del vehículo o a la mutua laboral.', ['parte del accidente']],
+    A1: [I18N.t('evid.verificar_vigencia_y_pago'), I18N.t('evid.comprobar_con_cartera_si'), []],
+    A2: [I18N.t('evid.pedir_justificacion_del_retraso'), I18N.t('evid.la_comunicacion_supera_los'), [I18N.t('evid.motivo_del_retraso_en')]],
+    A3: [I18N.t('evid.confirmar_quien_conducia'), I18N.t('evid.comprobar_si_el_conductor'), [I18N.t('evid.datos_del_conductor_dni')]],
+    A4: [I18N.t('evid.valorar_circunstancias_agravantes'), I18N.t('evid.reunir_el_atestado_o'), [I18N.t('evid.atestado_o_informe_policial')]],
+    A5: [I18N.t('evid.derivar_a_danos_corporales'), I18N.t('evid.hay_lesionados_o_faltan'), [I18N.t('evid.atestado_o_parte_amistoso'), I18N.t('evid.datos_del_otro_conductor')]],
+    A6: [I18N.t('evid.encargar_peritacion_del_vehiculo'), I18N.t('evid.el_importe_supera_el'), [I18N.t('evid.presupuesto_detallado_del_taller')]],
+    A7: [I18N.t('evid.reunir_la_documentacion_del'), I18N.t('evid.falta_documentacion_para_aprobar'), [I18N.t('evid.fotos_de_los_danos'), I18N.t('evid.presupuesto_del_taller')]],
+    A8: [I18N.t('evid.revisar_la_coherencia_del'), I18N.t('evid.hay_incoherencias_o_siniestralidad'), []],
+    H1: [I18N.t('evid.verificar_vigencia_de_la'), I18N.t('evid.comprobar_que_la_vivienda'), []],
+    H2: [I18N.t('evid.pedir_justificacion_del_plazo'), I18N.t('evid.el_dano_puede_ser'), [I18N.t('evid.fecha_en_que_se')]],
+    H3: [I18N.t('evid.enviar_perito_al_domicilio'), I18N.t('evid.confirmar_si_el_dano'), [I18N.t('evid.fotos_y_factura_del')]],
+    H4: [I18N.t('evid.pedir_denuncia_y_relacion'), I18N.t('evid.el_robo_requiere_denuncia'), [I18N.t('evid.denuncia_policial'), I18N.t('evid.relacion_valorada_de_los'), I18N.t('evid.fotos_de_los_accesos')]],
+    H5: [I18N.t('evid.pedir_informe_tecnico'), I18N.t('evid.necesario_para_el_despeje'), [I18N.t('evid.informe_tecnico_o_presupuesto')]],
+    H6: [I18N.t('evid.pedir_denuncia_o_fecha'), I18N.t('evid.vandalismo_o_fenomeno_atmosferico'), [I18N.t('evid.denuncia_o_parte_meteorologico')]],
+    H7: [I18N.t('evid.revisar_la_antiguedad_de'), I18N.t('evid.poliza_reciente_con_un'), []],
+    H8: [I18N.t('evid.verificar_si_la_vivienda'), I18N.t('evid.la_condicion_de_vivienda'), [I18N.t('evid.periodo_de_ocupacion_de')]],
+    H9: [I18N.t('evid.peritacion_obligatoria'), I18N.t('evid.el_importe_supera_los'), [I18N.t('evid.presupuesto_detallado')]],
+    S1: [I18N.t('evid.verificar_al_asegurado'), I18N.t('evid.comprobar_que_la_persona'), []],
+    S2: [I18N.t('evid.comprobar_el_periodo_de'), I18N.t('evid.la_prestacion_podria_estar'), []],
+    S3: [I18N.t('evid.revisar_preexistencias'), I18N.t('evid.comparar_con_el_cuestionario'), [I18N.t('evid.informe_medico_previo')]],
+    S4: [I18N.t('evid.gestionar_la_autorizacion_previa'), I18N.t('evid.la_prestacion_requeria_autorizacion'), [I18N.t('evid.informe_y_prescripcion_medica')]],
+    S5: [I18N.t('evid.verificar_el_cuadro_medico'), I18N.t('evid.el_centro_no_consta'), [I18N.t('evid.factura_del_centro')]],
+    S6: [I18N.t('evid.reunir_la_documentacion'), I18N.t('evid.falta_documentacion_para_el'), []],
+    S7: [I18N.t('evid.valorar_el_reembolso_o'), I18N.t('evid.importe_alto_o_prestacion'), [I18N.t('evid.facturas_originales')]],
+    S8: [I18N.t('evid.coordinar_con_el_otro'), I18N.t('evid.corresponde_primero_al_seguro'), [I18N.t('evid.parte_del_accidente')]],
   };
 
   function siguientePaso(entry = {}) {
     const incumplidas = (entry.criterios || []).filter((c) => c.resultado === 'incumple');
     if (entry.decision === 'DESPEJADO') {
-      return { tono: 'ok', icono: 'circle-check', titulo: 'Tramitar con normalidad', detalle: 'No incumple ninguna regla y hay información suficiente: abrir el expediente y confirmar la recepción al cliente.', pedir: [], reglas: [] };
+      return { tono: 'ok', icono: 'circle-check', titulo: I18N.t('evid.tramitar_con_normalidad'), detalle: I18N.t('evid.no_incumple_ninguna_regla'), pedir: [], reglas: [] };
     }
     if (entry.ramo === 'Indeterminado') {
-      return { tono: 'review', icono: 'user-check', titulo: 'Asignar el ramo manualmente', detalle: 'No se pudo determinar el ramo con suficiente confianza: un tramitador debe clasificarlo.', pedir: ['confirmación del tipo de siniestro'], reglas: [] };
+      return { tono: 'review', icono: 'user-check', titulo: I18N.t('evid.asignar_el_ramo_manualmente'), detalle: I18N.t('evid.no_se_pudo_determinar'), pedir: [I18N.t('evid.confirmacion_del_tipo_de')], reglas: [] };
     }
     const [primera, ...resto] = incumplidas;
     const a = primera && ACCIONES[primera.regla];
     if (a) return { tono: 'review', icono: 'user-check', titulo: a[0], detalle: a[1], pedir: [...new Set(incumplidas.flatMap((c) => (ACCIONES[c.regla] || [])[2] || []))], reglas: incumplidas.map((c) => c.regla), otras: resto.map((c) => (ACCIONES[c.regla] || [])[0]).filter(Boolean) };
-    return { tono: 'review', icono: 'user-check', titulo: 'Revisión por un tramitador', detalle: entry.motivo || 'Falta información o hay indicios que requieren una persona.', pedir: [], reglas: incumplidas.map((c) => c.regla) };
+    return { tono: 'review', icono: 'user-check', titulo: I18N.t('evid.revision_por_un_tramitador'), detalle: entry.motivo || I18N.t('evid.falta_informacion_o_hay'), pedir: [], reglas: incumplidas.map((c) => c.regla) };
   }
 
   // Borrador del mensaje al cliente pidiendo lo que falta
@@ -284,7 +284,7 @@
     const poliza = entry.datos_extraidos && entry.datos_extraidos.numero_poliza;
     const lista = (paso && paso.pedir) || [];
     if (!lista.length) return '';
-    return `Hola${nombre ? ` ${nombre.split(' ')[0]}` : ''}, hemos recibido su aviso${poliza ? ` (póliza ${poliza})` : ''}. Para poder tramitarlo necesitamos que nos envíe:\n${lista.map((x) => `- ${x}`).join('\n')}\nGracias, quedamos a su disposición.`;
+    return I18N.t('evid.hola_hemos_recibido_su', { split: nombre ? ` ${nombre.split(' ')[0]}` : '', poliza: poliza ? I18N.t('evid.poliza', { poliza }) : '', lista: lista.map((x) => `- ${x}`).join('\n') });
   }
 
   const API = { MAX_EVIDENCIAS, validar, normalizar, localizar, anclar, resolver, segmentos, respaldo, construir, siguientePaso, borradorSolicitud, ACCIONES };

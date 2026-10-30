@@ -5,6 +5,7 @@ const fs = require('fs');
 const path = require('path');
 
 const cargar = (f, exportar) => new Function(`${fs.readFileSync(path.join(__dirname, '..', f), 'utf8')}\nreturn ${exportar};`)();
+require('../locales/node.js')();
 globalThis.RECORRIDO_DEMO = cargar('data/recorrido.js', 'RECORRIDO_DEMO');
 require('../shell.js');
 const R = globalThis.Shell.Recorrido;

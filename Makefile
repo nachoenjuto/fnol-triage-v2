@@ -1,5 +1,5 @@
 # Flujos de trabajo habituales (la demo es estática: no hay build)
-.PHONY: run test test-ia datos recorrido guion-docx capturas i18n-check i18n-estado i18n-marcar
+.PHONY: run test test-ia datos recorrido guion-docx capturas i18n-check i18n-estado i18n-marcar i18n-instantanea
 
 run: ## Sirve la demo en http://localhost:8792
 	python3 -m http.server 8792
@@ -23,6 +23,9 @@ i18n-estado: ## Qué falta para poner al día cada idioma (IDIOMA=en para uno so
 
 i18n-marcar: ## Tras poner al día un idioma: lo valida en estricto y guarda el commit actual en locales/<idioma>/estado.json (IDIOMA obligatorio)
 	IDIOMA=$(IDIOMA) node scripts/i18n-estado.js --marcar
+
+i18n-instantanea: ## Guarda el texto visible de la demo en ~700 estados (SALIDA=fichero.json, IDIOMA=es); compara dos con node scripts/i18n-instantanea.mjs --comparar a.json b.json (requiere make run y Chrome)
+	node scripts/i18n-instantanea.mjs $(SALIDA) $(IDIOMA)
 
 test-ia: ## Mide las evidencias con un modelo real (variables TRIAGE_*, ver tests/ia-real.js)
 	N=$(N) node tests/ia-real.js

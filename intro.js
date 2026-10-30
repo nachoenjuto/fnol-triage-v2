@@ -24,7 +24,7 @@
       if (activo) a.setAttribute('aria-current', 'page'); else a.removeAttribute('aria-current');
     });
     const titulo = secciones[n].dataset.titulo;
-    if (sub) sub.textContent = `Introducción · ${n + 1} de ${ids.length} · ${titulo}`;
+    if (sub) sub.textContent = I18N.t('intro.introduccion_de', { v: n + 1, ids: ids.length, titulo });
     document.title = `FNOL — ${titulo}`;
     // «#demo=N» (llegada desde otra página del recorrido) lo consume shell.js: no se pisa
     if (location.hash !== `#${id}` && !/demo=\d+/.test(location.hash)) history.replaceState(null, '', `#${id}`);

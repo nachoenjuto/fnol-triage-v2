@@ -3,8 +3,8 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Gobierno, Observabilidad y FinOps de Agentes IA para FNOL</title>
-  <meta name="description" content="Panel de control agéntico del triaje de seguros: trazabilidad y observabilidad de los agentes, Reasoning & Replay, Autonomy engine y FinOps con caps de consumo.">
+  <title data-i18n="gob.pagina.gobierno_observabilidad_y_finops"></title>
+  <meta name="description" data-i18n-attr="content:gob.pagina.panel_de_control_agentico">
   <link rel="stylesheet" href="gobierno.css?v=38">
   <link rel="stylesheet" href="header.css?v=44">
   <link rel="stylesheet" href="cumplimiento.css?v=37">
@@ -14,21 +14,21 @@
   <div class="brand">
     <span class="brand-icon" aria-hidden="true"><svg class="lucide-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" focusable="false"><path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z" /><path d="m9 12 2 2 4-4" /></svg></span>
     <div>
-      <h1>Gobierno, Observabilidad y FinOps de Agentes IA para FNOL</h1>
-      <p class="brand-sub">Control total, auditoría en tiempo real y optimización de costes en la automatización de siniestros FNOL.</p>
+      <h1 data-i18n="gob.pagina.gobierno_observabilidad_y_finops"></h1>
+      <p class="brand-sub" data-i18n="gob.pagina.control_total_auditoria_en"></p>
     </div>
   </div>
   <div class="right">
-    <label class="f" style="color:rgba(255,255,255,.85)">Fuente
-      <select id="fuente" aria-label="Fuente de datos" style="background:rgba(255,255,255,.14);color:#fff;border-color:rgba(255,255,255,.3)">
-        <option value="demo">Demo · Paquete A + 14 días</option>
-        <option value="sesion">Sesión actual (registro del triaje)</option>
-        <option value="archivo" disabled>Archivo JSON cargado</option>
+    <label class="f" style="color:rgba(255,255,255,.85)"><span data-i18n="gob.pagina.fuente"></span>
+      <select id="fuente" style="background:rgba(255,255,255,.14);color:#fff;border-color:rgba(255,255,255,.3)" data-i18n-attr="aria-label:gob.fuente.fuente_de_datos">
+        <option value="demo" data-i18n="gob.fuente.demo_paquete_a_14"></option>
+        <option value="sesion" data-i18n="gob.fuente.sesion_actual_registro_del"></option>
+        <option value="archivo" disabled data-i18n="gob.fuente.archivo_json_cargado"></option>
       </select>
     </label>
-    <label class="f" style="color:rgba(255,255,255,.85)">Periodo
-      <select id="periodo" aria-label="Periodo" style="background:rgba(255,255,255,.14);color:#fff;border-color:rgba(255,255,255,.3)">
-        <option value="14">Últimos 14 días</option><option value="7">Últimos 7 días</option><option value="1">Hoy</option>
+    <label class="f" style="color:rgba(255,255,255,.85)"><span data-i18n="gob.pagina.periodo"></span>
+      <select id="periodo" style="background:rgba(255,255,255,.14);color:#fff;border-color:rgba(255,255,255,.3)" data-i18n-attr="aria-label:gob.pagina.periodo">
+        <option value="14" data-i18n="gob.periodo.ultimos_14_dias"></option><option value="7" data-i18n="gob.periodo.ultimos_7_dias"></option><option value="1" data-i18n="gob.periodo.hoy"></option>
       </select>
     </label>
     <input id="file-json" type="file" accept="application/json,.json" hidden>
@@ -40,7 +40,7 @@
 <div class="tip" id="tip"></div>
 <!-- Marco común con index.html (shell.js): menú lateral plegable (plegado, solo iconos) con usuario y botón al pie -->
 <div class="shell" id="shell" data-pagina="gobierno">
-<nav class="sidenav" aria-label="Secciones">
+<nav class="sidenav" data-i18n-attr="aria-label:gob.shell.secciones">
   <div id="tabs" class="sidenav-body" role="tablist" aria-orientation="vertical"></div>
   <div class="sidenav-foot"></div>
 </nav>
@@ -57,39 +57,39 @@
 <section class="view" data-view="resumen">
   <div class="kpis" id="kpis"></div>
   <div class="card">
-    <div class="card-head"><h2 id="h-agentes"></h2><span class="muted small">Estado en vivo · nivel de autonomía · consumo del día frente al cap · interruptor de pausa por agente · clic en un agente para ver su ficha completa en «Agentes»</span></div>
+    <div class="card-head"><h2 id="h-agentes"></h2><span class="muted small" data-i18n="gob.shell.estado_en_vivo_nivel"></span></div>
     <div class="agents" id="agents"></div>
   </div>
   <div class="two">
     <div class="card">
-      <div class="card-head"><h2 id="h-coste"></h2><span class="muted small" id="coste-sub">€/día · línea discontinua = cap diario</span><button class="btn btn-sm" type="button" data-kpi-fin="coste-cap" id="btn-coste-cap"></button></div>
-      <div id="chart-coste" class="chart-click" data-kpi-fin="coste-cap" role="button" tabindex="0" aria-haspopup="dialog" title="Ampliar el gráfico"></div>
+      <div class="card-head"><h2 id="h-coste"></h2><span class="muted small" id="coste-sub" data-i18n="gob.coste_sub.dia_linea_discontinua_cap"></span><button class="btn btn-sm" type="button" data-kpi-fin="coste-cap" id="btn-coste-cap"></button></div>
+      <div id="chart-coste" class="chart-click" data-kpi-fin="coste-cap" role="button" tabindex="0" aria-haspopup="dialog" data-i18n-attr="title:gob.chart_coste.ampliar_el_grafico"></div>
       <div class="legend" id="legend-coste"></div>
     </div>
     <div class="card">
-      <div class="card-head"><h2 id="h-alertas"></h2><button class="btn btn-sm" type="button" data-goto="historico">Ver histórico</button></div>
+      <div class="card-head"><h2 id="h-alertas"></h2><button class="btn btn-sm" type="button" data-goto="historico" data-i18n="gob.shell.ver_historico"></button></div>
       <div class="alerts" id="alerts"></div>
     </div>
   </div>
   <div class="two">
     <div class="card">
-      <div class="card-head"><h2 id="h-res-cmp"></h2><button class="btn btn-sm" type="button" data-goto="cumplimiento">Abrir el termómetro</button></div>
+      <div class="card-head"><h2 id="h-res-cmp"></h2><button class="btn btn-sm" type="button" data-goto="cumplimiento" data-i18n="gob.shell.abrir_el_termometro"></button></div>
       <div id="res-cumplimiento"></div>
     </div>
     <div class="card">
-      <div class="card-head"><h2 id="h-res-kb"></h2><button class="btn btn-sm" type="button" data-goto="knowledge">Abrir knowledge bases</button></div>
+      <div class="card-head"><h2 id="h-res-kb"></h2><button class="btn btn-sm" type="button" data-goto="knowledge" data-i18n="gob.shell.abrir_knowledge_bases"></button></div>
       <div id="res-conocimiento"></div>
     </div>
   </div>
   <div class="card">
-    <div class="card-head"><h2 id="h-ultimas"></h2><span class="muted small">Clic en una traza para abrir su ficha explicada</span><button class="btn btn-sm" type="button" data-goto="trazas">Abrir trazabilidad</button></div>
-    <div class="tw"><table><thead><tr><th>Traza</th><th>Hora</th><th>Mensaje</th><th>Canal</th><th>Ramo</th><th>Decisión</th><th>Autonomía</th><th>Ciclo</th><th>Coste</th><th>Datos pers.</th><th>KB</th></tr></thead><tbody id="ultimas"></tbody></table></div>
+    <div class="card-head"><h2 id="h-ultimas"></h2><span class="muted small" data-i18n="gob.shell.clic_en_una_traza"></span><button class="btn btn-sm" type="button" data-goto="trazas" data-i18n="gob.shell.abrir_trazabilidad"></button></div>
+    <div class="tw"><table><thead><tr><th data-i18n="gob.shell.traza"></th><th data-i18n="gob.shell.hora"></th><th data-i18n="gob.shell.mensaje"></th><th data-i18n="gob.shell.canal"></th><th data-i18n="gob.shell.ramo"></th><th data-i18n="gob.shell.decision"></th><th data-i18n="gob.shell.autonomia"></th><th data-i18n="gob.shell.ciclo"></th><th data-i18n="gob.shell.coste"></th><th data-i18n="gob.shell.datos_pers"></th><th data-i18n="gob.shell.kb"></th></tr></thead><tbody id="ultimas"></tbody></table></div>
   </div>
 </section>
 
 <!-- ───────────── AGENTES ───────────── -->
 <section class="view" data-view="agentes">
-  <div class="ag-tabs" id="ag-tabs" role="tablist" aria-label="Agentes en el orden de la cadena"></div>
+  <div class="ag-tabs" id="ag-tabs" role="tablist" data-i18n-attr="aria-label:gob.ag_tabs.agentes_en_el_orden"></div>
   <div class="ag-ficha" id="ag-ficha"></div>
 </section>
 
@@ -100,14 +100,14 @@
     <div class="card-head">
       <h2 id="h-trazas"></h2>
       <div class="row">
-        <label class="f">Agente<select id="t-agente"><option value="">Todos</option><option value="multicanal">Multicanalidad</option><option value="clasificacion">Clasificación</option><option value="extraccion">Extracción</option><option value="reglas">Reglas</option></select></label>
-        <label class="f">Canal<select id="t-canal"><option value="">Todos</option><option value="email">Email</option><option value="web">Formulario web</option><option value="chat">Chat</option><option value="telefono">Teléfono</option><option value="whatsapp">WhatsApp</option></select></label>
-        <label class="f">Decisión<select id="t-dec"><option value="">Todas</option><option value="DESPEJADO">Aprobado</option><option value="REVISION">A revisar</option></select></label>
-        <label class="f">Resultado<select id="t-res"><option value="">Todos</option><option value="auto">Autónomo</option><option value="persona">Con intervención humana</option><option value="humano">Escalado a humano</option><option value="override">Con override</option><option value="incidencia">Con incidencia</option></select></label>
+        <label class="f"><span data-i18n="gob.shell.agente"></span><select id="t-agente"><option value="" data-i18n="gob.t_agente.todos"></option><option value="multicanal" data-i18n="gob.t_agente.multicanalidad"></option><option value="clasificacion" data-i18n="gob.t_agente.clasificacion"></option><option value="extraccion" data-i18n="gob.t_agente.extraccion"></option><option value="reglas" data-i18n="gob.t_agente.reglas"></option></select></label>
+        <label class="f"><span data-i18n="gob.shell.canal"></span><select id="t-canal"><option value="" data-i18n="gob.t_agente.todos"></option><option value="email" data-i18n="gob.t_canal.email"></option><option value="web" data-i18n="gob.t_canal.formulario_web"></option><option value="chat" data-i18n="gob.t_canal.chat"></option><option value="telefono" data-i18n="gob.t_canal.telefono"></option><option value="whatsapp" data-i18n="gob.t_canal.whatsapp"></option></select></label>
+        <label class="f"><span data-i18n="gob.shell.decision"></span><select id="t-dec"><option value="" data-i18n="gob.t_dec.todas"></option><option value="DESPEJADO" data-i18n="gob.t_dec.aprobado"></option><option value="REVISION" data-i18n="gob.t_dec.a_revisar"></option></select></label>
+        <label class="f"><span data-i18n="gob.shell.resultado"></span><select id="t-res"><option value="" data-i18n="gob.t_agente.todos"></option><option value="auto" data-i18n="gob.t_res.autonomo"></option><option value="persona" data-i18n="gob.t_res.con_intervencion_humana"></option><option value="humano" data-i18n="gob.t_res.escalado_a_humano"></option><option value="override" data-i18n="gob.t_res.con_override"></option><option value="incidencia" data-i18n="gob.t_res.con_incidencia"></option></select></label>
       </div>
       <button class="btn btn-sm" type="button" id="btn-export-trazas"></button>
     </div>
-    <div class="tw"><table><thead><tr><th>Traza</th><th>Hora</th><th>Mensaje</th><th>Canal</th><th>Ramo</th><th>Decisión</th><th>Autonomía</th><th>Conf.</th><th>Ciclo</th><th>Tokens</th><th>Coste</th><th>Incidencias</th></tr></thead><tbody id="t-trazas"></tbody></table></div>
+    <div class="tw"><table><thead><tr><th data-i18n="gob.shell.traza"></th><th data-i18n="gob.shell.hora"></th><th data-i18n="gob.shell.mensaje"></th><th data-i18n="gob.shell.canal"></th><th data-i18n="gob.shell.ramo"></th><th data-i18n="gob.shell.decision"></th><th data-i18n="gob.shell.autonomia"></th><th data-i18n="gob.shell.conf"></th><th data-i18n="gob.shell.ciclo"></th><th data-i18n="gob.shell.tokens"></th><th data-i18n="gob.shell.coste"></th><th data-i18n="gob.shell.incidencias"></th></tr></thead><tbody id="t-trazas"></tbody></table></div>
   </div>
 </section>
 
@@ -121,20 +121,20 @@
           <span class="muted small" id="r-summary-sel"></span>
         </div>
         <div class="row" style="margin-bottom:.5rem">
-          <label class="f">Agente<select id="r-agente"><option value="">Todos</option><option value="multicanal">Multicanalidad</option><option value="clasificacion">Clasificación</option><option value="extraccion">Extracción</option><option value="reglas">Reglas</option></select></label>
-          <label class="f">Canal<select id="r-canal"><option value="">Todos</option><option value="email">Email</option><option value="web">Formulario web</option><option value="chat">Chat</option><option value="telefono">Teléfono</option><option value="whatsapp">WhatsApp</option></select></label>
-          <label class="f">Decisión<select id="r-dec"><option value="">Todas</option><option value="DESPEJADO">Aprobado</option><option value="REVISION">A revisar</option></select></label>
-          <label class="f">Resultado<select id="r-res"><option value="">Todos</option><option value="auto">Autónomo</option><option value="persona">Con intervención humana</option><option value="humano">Escalado a humano</option><option value="override">Con override</option><option value="incidencia">Con incidencia</option></select></label>
+          <label class="f"><span data-i18n="gob.shell.agente"></span><select id="r-agente"><option value="" data-i18n="gob.t_agente.todos"></option><option value="multicanal" data-i18n="gob.t_agente.multicanalidad"></option><option value="clasificacion" data-i18n="gob.t_agente.clasificacion"></option><option value="extraccion" data-i18n="gob.t_agente.extraccion"></option><option value="reglas" data-i18n="gob.t_agente.reglas"></option></select></label>
+          <label class="f"><span data-i18n="gob.shell.canal"></span><select id="r-canal"><option value="" data-i18n="gob.t_agente.todos"></option><option value="email" data-i18n="gob.t_canal.email"></option><option value="web" data-i18n="gob.t_canal.formulario_web"></option><option value="chat" data-i18n="gob.t_canal.chat"></option><option value="telefono" data-i18n="gob.t_canal.telefono"></option><option value="whatsapp" data-i18n="gob.t_canal.whatsapp"></option></select></label>
+          <label class="f"><span data-i18n="gob.shell.decision"></span><select id="r-dec"><option value="" data-i18n="gob.t_dec.todas"></option><option value="DESPEJADO" data-i18n="gob.t_dec.aprobado"></option><option value="REVISION" data-i18n="gob.t_dec.a_revisar"></option></select></label>
+          <label class="f"><span data-i18n="gob.shell.resultado"></span><select id="r-res"><option value="" data-i18n="gob.t_agente.todos"></option><option value="auto" data-i18n="gob.t_res.autonomo"></option><option value="persona" data-i18n="gob.t_res.con_intervencion_humana"></option><option value="humano" data-i18n="gob.t_res.escalado_a_humano"></option><option value="override" data-i18n="gob.t_res.con_override"></option><option value="incidencia" data-i18n="gob.t_res.con_incidencia"></option></select></label>
         </div>
-        <span class="muted small" style="margin-bottom:.5rem">Clic en una traza para cargar su razonamiento y su replay</span>
-        <div class="tw pane-scroll"><table><thead><tr><th>Traza</th><th>Hora</th><th>Mensaje</th><th>Canal</th><th>Ramo</th><th>Decisión</th><th>Autonomía</th><th>Conf.</th><th>Ciclo</th><th>Tokens</th><th>Coste</th><th>Incidencias</th></tr></thead><tbody id="r-trazas"></tbody></table></div>
+        <span class="muted small" style="margin-bottom:.5rem" data-i18n="gob.r_lista.clic_en_una_traza"></span>
+        <div class="tw pane-scroll"><table><thead><tr><th data-i18n="gob.shell.traza"></th><th data-i18n="gob.shell.hora"></th><th data-i18n="gob.shell.mensaje"></th><th data-i18n="gob.shell.canal"></th><th data-i18n="gob.shell.ramo"></th><th data-i18n="gob.shell.decision"></th><th data-i18n="gob.shell.autonomia"></th><th data-i18n="gob.shell.conf"></th><th data-i18n="gob.shell.ciclo"></th><th data-i18n="gob.shell.tokens"></th><th data-i18n="gob.shell.coste"></th><th data-i18n="gob.shell.incidencias"></th></tr></thead><tbody id="r-trazas"></tbody></table></div>
       </div>
     </div>
-    <div class="resize-handle" id="reasoning-resizer" role="separator" aria-orientation="vertical" aria-label="Redimensionar trazas y razonamiento" tabindex="0"><i data-lucide="grip-vertical"></i></div>
+    <div class="resize-handle" id="reasoning-resizer" role="separator" aria-orientation="vertical" tabindex="0" data-i18n-attr="aria-label:gob.reasoning_resizer.redimensionar_trazas_y_razonamiento"><i data-lucide="grip-vertical"></i></div>
     <div class="resizable-pane">
       <div class="card">
         <div class="card-head"><h2 id="h-reasoning"></h2><span class="muted small" id="r-traza-sel"></span></div>
-        <p class="muted small" style="margin-bottom:.8rem">Lo que registró cada agente: la cadena de principio a fin, las frases del mensaje que usó como evidencia, sus pasos por tipo (cita, inferencia, regla, dato protegido, decisión) y un gráfico de su resultado. No es la cadena de pensamiento cruda del modelo: es el registro estructurado que devuelve cada agente.</p>
+        <p class="muted small" style="margin-bottom:.8rem" data-i18n="gob.reasoning_row.lo_que_registro_cada"></p>
         <div class="steps pane-scroll" id="steps"></div>
       </div>
     </div>
@@ -143,16 +143,16 @@
     <div class="card" id="card-replay">
       <div class="card-head"><h2 id="h-replay"></h2></div>
       <div class="row" style="margin-bottom:.8rem">
-        <label class="f">Modo<select id="rp-modo"><option value="identico">Idéntico — mismos prompts y modelos (verificación determinista)</option><option value="whatif">What-if — cambiar modelo o versión de prompt</option></select></label>
-        <label class="f">Modelo de Reglas<select id="rp-modelo"><option>gpt-5 (actual)</option><option>gpt-5-mini</option><option>gpt-5-nano</option></select></label>
-        <label class="f">Prompt Reglas<select id="rp-prompt"><option>v2.3 (actual)</option><option>v2.4 (candidata)</option><option>v2.2</option></select></label>
+        <label class="f"><span data-i18n="gob.card_replay.modo"></span><select id="rp-modo"><option value="identico" data-i18n="gob.rp_modo.identico_mismos_prompts_y"></option><option value="whatif" data-i18n="gob.rp_modo.what_if_cambiar_modelo"></option></select></label>
+        <label class="f"><span data-i18n="gob.card_replay.modelo_de_reglas"></span><select id="rp-modelo"><option value="gpt-5 (actual)" data-i18n="gob.rp_modelo.gpt_5_actual"></option><option value="gpt-5-mini" data-i18n="gob.rp_modelo.gpt_5_mini"></option><option value="gpt-5-nano" data-i18n="gob.rp_modelo.gpt_5_nano"></option></select></label>
+        <label class="f"><span data-i18n="gob.card_replay.prompt_reglas"></span><select id="rp-prompt"><option value="v2.3 (actual)" data-i18n="gob.rp_prompt.v2_3_actual"></option><option value="v2.4 (candidata)" data-i18n="gob.rp_prompt.v2_4_candidata"></option><option value="v2.2" data-i18n="gob.rp_prompt.v2_2"></option></select></label>
         <button class="btn btn-primary btn-sm" type="button" id="btn-replay"></button>
       </div>
       <div class="diff" id="rp-diff"></div>
     </div>
     <div class="card">
       <div class="card-head"><h2 id="h-replays"></h2></div>
-      <div class="tw"><table><thead><tr><th>Replay</th><th>Fecha</th><th>Traza</th><th>Modo</th><th>Cambio</th><th>Ramo</th><th>Decisión</th><th>Δ coste</th><th>Δ latencia</th><th>Usuario</th></tr></thead><tbody id="replays"></tbody></table></div>
+      <div class="tw"><table><thead><tr><th data-i18n="gob.shell.replay"></th><th data-i18n="gob.shell.fecha"></th><th data-i18n="gob.shell.traza"></th><th data-i18n="gob.card_replay.modo"></th><th data-i18n="gob.shell.cambio"></th><th data-i18n="gob.shell.ramo"></th><th data-i18n="gob.shell.decision"></th><th data-i18n="gob.shell.coste_2"></th><th data-i18n="gob.shell.latencia"></th><th data-i18n="gob.shell.usuario"></th></tr></thead><tbody id="replays"></tbody></table></div>
     </div>
   </div>
 </section>
@@ -161,12 +161,12 @@
 <section class="view" data-view="autonomia">
   <div class="kpis" id="kpis-aut"></div>
   <div class="card">
-    <div class="card-head"><h2 id="h-niveles"></h2><span class="muted small">De rojo (manual) a verde (autónomo)</span></div>
+    <div class="card-head"><h2 id="h-niveles"></h2><span class="muted small" data-i18n="gob.shell.de_rojo_manual_a"></span></div>
     <div class="levels" id="levels"></div>
   </div>
   <div class="card">
-    <div class="card-head"><h2 id="h-cambios"></h2><span class="muted small">Cambios de nivel, de modelo y de guardrails con su motivo y quién los aprobó · clic en una fila para ver el registro completo</span></div>
-    <div class="tw"><table><thead><tr><th>Fecha</th><th>Agente</th><th>Cambio</th><th>Motivo</th><th>Usuario</th></tr></thead><tbody id="cambios"></tbody></table></div>
+    <div class="card-head"><h2 id="h-cambios"></h2><span class="muted small" data-i18n="gob.shell.cambios_de_nivel_de"></span></div>
+    <div class="tw"><table><thead><tr><th data-i18n="gob.shell.fecha"></th><th data-i18n="gob.shell.agente"></th><th data-i18n="gob.shell.cambio"></th><th data-i18n="gob.shell.motivo"></th><th data-i18n="gob.shell.usuario"></th></tr></thead><tbody id="cambios"></tbody></table></div>
   </div>
 </section>
 
@@ -174,12 +174,12 @@
 <section class="view" data-view="guardrails">
   <div class="kpis" id="kpis-gr"></div>
   <div class="card">
-    <div class="card-head"><h2 id="h-guardrails"></h2><span class="muted small">Condiciones que limitan la autonomía de cada agente · clic en una fila para ver su detalle · pasa el ratón por un código (G-04, CAP-03) para ver su descripción</span><button class="btn btn-sm" type="button" id="btn-new-policy"></button></div>
-    <div class="tw"><table><thead><tr><th>Id</th><th>Agente</th><th>Condición</th><th>Acción</th><th>Severidad</th><th style="min-width:150px">Disparos 14 d</th><th>Estado</th></tr></thead><tbody id="policies"></tbody></table></div>
+    <div class="card-head"><h2 id="h-guardrails"></h2><span class="muted small" data-i18n="gob.shell.condiciones_que_limitan_la"></span><button class="btn btn-sm" type="button" id="btn-new-policy"></button></div>
+    <div class="tw"><table><thead><tr><th data-i18n="gob.shell.id"></th><th data-i18n="gob.shell.agente"></th><th data-i18n="gob.shell.condicion"></th><th data-i18n="gob.shell.accion"></th><th data-i18n="gob.shell.severidad"></th><th style="min-width:150px" data-i18n="gob.shell.disparos_14_d"></th><th data-i18n="gob.shell.estado"></th></tr></thead><tbody id="policies"></tbody></table></div>
   </div>
   <div class="card">
     <div class="card-head"><h2 id="h-disparos"></h2></div>
-    <div class="tw"><table><thead><tr><th>Fecha</th><th>Guardrail</th><th>Agente</th><th>Traza</th><th>Resultado</th></tr></thead><tbody id="disparos"></tbody></table></div>
+    <div class="tw"><table><thead><tr><th data-i18n="gob.shell.fecha"></th><th data-i18n="gob.shell.guardrail"></th><th data-i18n="gob.shell.agente"></th><th data-i18n="gob.shell.traza"></th><th data-i18n="gob.shell.resultado"></th></tr></thead><tbody id="disparos"></tbody></table></div>
   </div>
 </section>
 
@@ -187,22 +187,22 @@
 <section class="view" data-view="hitl">
   <div class="kpis" id="kpis-hitl"></div>
   <div class="card">
-    <div class="card-head"><h2 id="h-hitl-mec"></h2><span class="muted small">Cómo interviene una persona en el sistema y dónde se configura cada mecanismo · clic para ir a su sección</span></div>
+    <div class="card-head"><h2 id="h-hitl-mec"></h2><span class="muted small" data-i18n="gob.shell.como_interviene_una_persona"></span></div>
     <div class="hitl-mec" id="hitl-mec"></div>
   </div>
   <div class="card">
-    <div class="card-head"><h2 id="h-hitl-cola"></h2><span class="muted small">Trazas del periodo que pasaron por una persona · clic en una fila para abrir su ficha</span><button class="btn btn-sm" type="button" id="btn-hitl-trazas"></button></div>
-    <div class="tw"><table><thead><tr><th>Traza</th><th>Llegada</th><th>Mensaje</th><th>Ramo</th><th>Agente</th><th>Por qué se escaló</th><th>Estado</th><th>Revisor</th><th>Tiempo</th></tr></thead><tbody id="hitl-cola"></tbody></table></div>
+    <div class="card-head"><h2 id="h-hitl-cola"></h2><span class="muted small" data-i18n="gob.shell.trazas_del_periodo_que"></span><button class="btn btn-sm" type="button" id="btn-hitl-trazas"></button></div>
+    <div class="tw"><table><thead><tr><th data-i18n="gob.shell.traza"></th><th data-i18n="gob.shell.llegada"></th><th data-i18n="gob.shell.mensaje"></th><th data-i18n="gob.shell.ramo"></th><th data-i18n="gob.shell.agente"></th><th data-i18n="gob.shell.por_que_se_escalo"></th><th data-i18n="gob.shell.estado"></th><th data-i18n="gob.shell.revisor"></th><th data-i18n="gob.shell.tiempo"></th></tr></thead><tbody id="hitl-cola"></tbody></table></div>
   </div>
   <div class="card anim-vista" id="hitl-escalados"></div>
   <div class="card anim-vista" id="hitl-overrides"></div>
   <div class="card anim-vista" id="hitl-calidad"></div>
   <div class="card">
     <div class="card-head"><h2 id="h-hitl-agentes"></h2></div>
-    <div class="tw"><table><thead><tr><th>Agente</th><th>Nivel</th><th>Umbral de confianza</th><th>Escalado 14 d</th><th>Override 14 d</th><th></th></tr></thead><tbody id="hitl-agentes"></tbody></table></div>
+    <div class="tw"><table><thead><tr><th data-i18n="gob.shell.agente"></th><th data-i18n="gob.shell.nivel"></th><th data-i18n="gob.shell.umbral_de_confianza"></th><th data-i18n="gob.shell.escalado_14_d"></th><th data-i18n="gob.shell.override_14_d"></th><th></th></tr></thead><tbody id="hitl-agentes"></tbody></table></div>
   </div>
   <div class="card">
-    <div class="card-head"><h2 id="h-hitl-med"></h2><button class="btn btn-sm" type="button" data-goto="medidas">Abrir medidas correctivas</button></div>
+    <div class="card-head"><h2 id="h-hitl-med"></h2><button class="btn btn-sm" type="button" data-goto="medidas" data-i18n="gob.shell.abrir_medidas_correctivas"></button></div>
     <div class="alerts" id="hitl-med"></div>
   </div>
 </section>
@@ -210,46 +210,46 @@
 <!-- ───────────── INDICADORES DE FRAUDE ───────────── -->
 <section class="view" data-view="fraude">
   <div class="card fr-hero">
-    <div><h2 id="h-fraude"></h2><p class="small muted">Indicadores de comportamiento predefinidos que el motor calcula sin IA cruzando cada mensaje con el resto del lote y con el histórico de pólizas y siniestros. El indicio no acusa, prioriza: un score alto lleva el caso a la Unidad de Investigación de Siniestros (SIU), nunca rechaza un siniestro y no se comunica al cliente.</p></div>
+    <div><h2 id="h-fraude"></h2><p class="small muted" data-i18n="gob.shell.indicadores_de_comportamiento_predefinid"></p></div>
     <div class="fr-niveles" id="fr-niveles"></div>
   </div>
   <div class="kpis" id="kpis-fr"></div>
   <div class="card">
-    <div class="card-head"><h2 id="h-fr-lote"></h2><span class="muted small">Score antifraude de cada mensaje frente a la decisión del triaje · clic en una fila para ver el desglose, las citas y el seguimiento</span></div>
-    <div class="tw"><table><thead><tr><th>Mensaje</th><th>Canal</th><th>Triaje</th><th style="min-width:170px">Score</th><th>Nivel</th><th>Escenario</th><th>Pago</th><th>Qué pasa</th></tr></thead><tbody id="fr-lote"></tbody></table></div>
+    <div class="card-head"><h2 id="h-fr-lote"></h2><span class="muted small" data-i18n="gob.shell.score_antifraude_de_cada"></span></div>
+    <div class="tw"><table><thead><tr><th data-i18n="gob.shell.mensaje"></th><th data-i18n="gob.shell.canal"></th><th data-i18n="gob.shell.triaje"></th><th style="min-width:170px" data-i18n="gob.shell.score"></th><th data-i18n="gob.shell.nivel"></th><th data-i18n="gob.shell.escenario"></th><th data-i18n="gob.shell.pago"></th><th data-i18n="gob.shell.que_pasa"></th></tr></thead><tbody id="fr-lote"></tbody></table></div>
   </div>
   <div class="card">
-    <div class="card-head"><h2 id="h-fr-escenarios"></h2><span class="muted small">Combinaciones de indicadores con su narrativa, su umbral, la acción y los falsos positivos típicos · las que aparecen en el lote llevan «Ver en el lote»</span></div>
+    <div class="card-head"><h2 id="h-fr-escenarios"></h2><span class="muted small" data-i18n="gob.shell.combinaciones_de_indicadores_con"></span></div>
     <div class="fr-esc-grid" id="fr-escenarios"></div>
   </div>
   <div class="card">
-    <div class="card-head"><h2 id="h-fr-mapa"></h2><span class="muted small">Qué une a los casos del lote entre sí y con el histórico · clic en un caso para ver su ficha</span></div>
+    <div class="card-head"><h2 id="h-fr-mapa"></h2><span class="muted small" data-i18n="gob.shell.que_une_a_los"></span></div>
     <div id="fr-mapa"></div>
   </div>
   <div class="card">
-    <div class="card-head"><h2 id="h-fr-siu"></h2><span class="muted small">Casos del lote con indicios o pago retenido y expedientes anteriores · decide siempre una persona</span></div>
-    <div class="tw"><table><thead><tr><th>Caso</th><th>Escenario</th><th>Score</th><th>Estado</th><th>Responsable</th><th>Nota</th></tr></thead><tbody id="fr-siu"></tbody></table></div>
+    <div class="card-head"><h2 id="h-fr-siu"></h2><span class="muted small" data-i18n="gob.shell.casos_del_lote_con"></span></div>
+    <div class="tw"><table><thead><tr><th data-i18n="gob.shell.caso"></th><th data-i18n="gob.shell.escenario"></th><th data-i18n="gob.shell.score"></th><th data-i18n="gob.shell.estado"></th><th data-i18n="gob.shell.responsable"></th><th data-i18n="gob.shell.nota"></th></tr></thead><tbody id="fr-siu"></tbody></table></div>
   </div>
   <div class="card">
-    <div class="card-head"><h2 id="h-fr-cat"></h2><span class="muted small">Interruptor y peso de cada indicador · los cambios recalculan el score del lote en esta sesión · falsos positivos = casos que la SIU cerró como no fraude</span><div class="row"><button class="btn btn-sm" type="button" id="btn-fr-reset"></button><button class="btn btn-sm" type="button" id="btn-fr-nuevo"></button></div></div>
-    <div class="tw"><table><thead><tr><th>Activo</th><th>Indicador</th><th>Grupo</th><th>Señal</th><th>Fuente</th><th>Peso</th><th>Disparos 14 d</th><th style="min-width:130px">Falsos positivos</th><th>En el lote</th></tr></thead><tbody id="fr-cat"></tbody></table></div>
+    <div class="card-head"><h2 id="h-fr-cat"></h2><span class="muted small" data-i18n="gob.shell.interruptor_y_peso_de"></span><div class="row"><button class="btn btn-sm" type="button" id="btn-fr-reset"></button><button class="btn btn-sm" type="button" id="btn-fr-nuevo"></button></div></div>
+    <div class="tw"><table><thead><tr><th data-i18n="gob.shell.activo"></th><th data-i18n="gob.shell.indicador"></th><th data-i18n="gob.shell.grupo"></th><th data-i18n="gob.shell.senal"></th><th data-i18n="gob.pagina.fuente"></th><th data-i18n="gob.shell.peso"></th><th data-i18n="gob.shell.disparos_14_d"></th><th style="min-width:130px" data-i18n="gob.shell.falsos_positivos"></th><th data-i18n="gob.shell.en_el_lote"></th></tr></thead><tbody id="fr-cat"></tbody></table></div>
   </div>
   <div class="card">
-    <div class="card-head"><h2 id="h-fr-limites"></h2><span class="muted small">Los mismos que en Guardrails y FinOps · clic para ver la ficha</span></div>
-    <div class="tw"><table><thead><tr><th>Id</th><th>Qué limita</th><th>Límite o condición</th><th>Hoy</th><th>Acción</th></tr></thead><tbody id="fr-limites"></tbody></table></div>
+    <div class="card-head"><h2 id="h-fr-limites"></h2><span class="muted small" data-i18n="gob.shell.los_mismos_que_en"></span></div>
+    <div class="tw"><table><thead><tr><th data-i18n="gob.shell.id"></th><th data-i18n="gob.shell.que_limita"></th><th data-i18n="gob.shell.limite_o_condicion"></th><th data-i18n="gob.periodo.hoy"></th><th data-i18n="gob.shell.accion"></th></tr></thead><tbody id="fr-limites"></tbody></table></div>
   </div>
   <div class="two">
     <div class="card">
-      <div class="card-head"><h2 id="h-fr-evol"></h2><span class="muted small">Mensajes con indicios y escalados a la SIU por día</span></div>
+      <div class="card-head"><h2 id="h-fr-evol"></h2><span class="muted small" data-i18n="gob.shell.mensajes_con_indicios_y"></span></div>
       <div id="fr-evol"></div>
     </div>
     <div class="card">
-      <div class="card-head"><h2 id="h-fr-canales"></h2><span class="muted small">Alertas por cada 100 mensajes y confirmación de la SIU, por canal</span></div>
+      <div class="card-head"><h2 id="h-fr-canales"></h2><span class="muted small" data-i18n="gob.shell.alertas_por_cada_100"></span></div>
       <div id="fr-canales"></div>
     </div>
   </div>
   <div class="card">
-    <div class="card-head"><h2 id="h-fr-gob"></h2><span class="muted small">Cómo se gobierna el propio motor: supervisión humana, transparencia, proporcionalidad y base jurídica</span></div>
+    <div class="card-head"><h2 id="h-fr-gob"></h2><span class="muted small" data-i18n="gob.shell.como_se_gobierna_el"></span></div>
     <div id="fr-gob"></div>
   </div>
 </section>
@@ -259,46 +259,46 @@
   <div class="kpis" id="kpis-fin"></div>
   <div class="two" id="fin-graf">
     <div class="card">
-      <div class="card-head"><h2 id="h-fin-agentes"></h2><span class="muted small">€/día de cada agente · línea discontinua = su cap diario · clic en una fila para abrir el agente</span></div>
+      <div class="card-head"><h2 id="h-fin-agentes"></h2><span class="muted small" data-i18n="gob.fin_graf.dia_de_cada_agente"></span></div>
       <div id="fin-agentes"></div>
     </div>
     <div class="card">
-      <div class="card-head"><h2 id="h-fin-porque"></h2><div class="seg" id="fin-modo"></div><span class="muted small">Coste de 14 días por tipo de token · la salida y el razonamiento se pagan a precio de salida</span></div>
+      <div class="card-head"><h2 id="h-fin-porque"></h2><div class="seg" id="fin-modo"></div><span class="muted small" data-i18n="gob.fin_graf.coste_de_14_dias"></span></div>
       <div id="fin-porque"></div>
       <div class="legend" id="legend-porque"></div>
     </div>
   </div>
   <div class="card" id="card-correctivas" hidden>
-    <div class="card-head"><h2 id="h-correctivas"></h2><button class="btn btn-sm" type="button" data-goto="medidas">Ver todas las medidas correctivas</button><span class="muted small">Qué ha pasado y cuándo · qué cap la disparó y qué hizo solo · qué acción sugerimos («Aplicar» y «Deshacer» son simulados y quedan en el Histórico)</span></div>
+    <div class="card-head"><h2 id="h-correctivas"></h2><button class="btn btn-sm" type="button" data-goto="medidas" data-i18n="gob.card_correctivas.ver_todas_las_medidas"></button><span class="muted small" data-i18n="gob.card_correctivas.que_ha_pasado_y"></span></div>
     <div class="alerts" id="correctivas"></div>
   </div>
   <div class="card">
-    <div class="card-head"><h2 id="h-caps"></h2><span class="muted small">Las reglas de consumo · clic en un cap para ver su detalle, los agentes implicados y su histórico · la columna «Alertas» lleva a las alertas que ha generado</span><button class="btn btn-sm" type="button" id="btn-new-cap"></button></div>
-    <div class="tw"><table><thead><tr><th>Cap</th><th>Ámbito</th><th>Tipo</th><th>Límite</th><th>Consumo</th><th style="min-width:180px">Uso</th><th>Acción al superar</th><th>Alertas</th><th>Estado</th></tr></thead><tbody id="caps"></tbody></table></div>
+    <div class="card-head"><h2 id="h-caps"></h2><span class="muted small" data-i18n="gob.shell.las_reglas_de_consumo"></span><button class="btn btn-sm" type="button" id="btn-new-cap"></button></div>
+    <div class="tw"><table><thead><tr><th data-i18n="gob.shell.cap"></th><th data-i18n="gob.shell.ambito"></th><th data-i18n="gob.shell.tipo"></th><th data-i18n="gob.shell.limite"></th><th data-i18n="gob.shell.consumo"></th><th style="min-width:180px" data-i18n="gob.shell.uso"></th><th data-i18n="gob.shell.accion_al_superar"></th><th data-i18n="gob.shell.alertas"></th><th data-i18n="gob.shell.estado"></th></tr></thead><tbody id="caps"></tbody></table></div>
   </div>
   <div class="two">
     <div class="card">
-      <div class="card-head"><h2 id="h-coste-ag"></h2><span class="muted small">€/día apilado por agente · clic en la leyenda para ocultar o mostrar un agente</span></div>
+      <div class="card-head"><h2 id="h-coste-ag"></h2><span class="muted small" data-i18n="gob.shell.dia_apilado_por_agente"></span></div>
       <div id="chart-stack"></div>
       <div class="legend" id="legend-stack"></div>
     </div>
     <div class="card">
-      <div class="card-head"><h2 id="h-tokens"></h2><span class="muted small">Lote actual · miles de tokens · clic en la leyenda para filtrar</span></div>
+      <div class="card-head"><h2 id="h-tokens"></h2><span class="muted small" data-i18n="gob.shell.lote_actual_miles_de"></span></div>
       <div id="chart-tokens"></div>
       <div class="legend" id="legend-tokens"></div>
     </div>
   </div>
   <div class="card">
-    <div class="card-head"><h2 id="h-modelos"></h2><span class="muted small">Consumo y éxito de cada modelo en los agentes que lo usan · 14 días</span></div>
-    <div class="tw"><table><thead><tr><th>Modelo</th><th>Proveedor</th><th>Precio in / out</th><th>Agentes</th><th>Llamadas</th><th>Tokens in · out · razonamiento</th><th>Coste 14 d</th><th style="min-width:120px">% del coste</th><th>p95</th><th>JSON válido</th><th>Sin reintento</th><th>Estable en replay</th><th>Precisión</th></tr></thead><tbody id="modelos"></tbody></table></div>
+    <div class="card-head"><h2 id="h-modelos"></h2><span class="muted small" data-i18n="gob.shell.consumo_y_exito_de"></span></div>
+    <div class="tw"><table><thead><tr><th data-i18n="gob.shell.modelo"></th><th data-i18n="gob.shell.proveedor"></th><th data-i18n="gob.shell.precio_in_out"></th><th data-i18n="gob.shell.agentes"></th><th data-i18n="gob.shell.llamadas"></th><th data-i18n="gob.shell.tokens_in_out_razonamiento"></th><th data-i18n="gob.shell.coste_14_d"></th><th style="min-width:120px" data-i18n="gob.shell.del_coste"></th><th data-i18n="gob.shell.p95"></th><th data-i18n="gob.shell.json_valido"></th><th data-i18n="gob.shell.sin_reintento"></th><th data-i18n="gob.shell.estable_en_replay"></th><th data-i18n="gob.shell.precision"></th></tr></thead><tbody id="modelos"></tbody></table></div>
     <div class="two" style="margin-top:1rem">
       <div>
-        <h3 style="margin-bottom:.5rem">Coste por modelo y agente</h3>
+        <h3 style="margin-bottom:.5rem" data-i18n="gob.shell.coste_por_modelo_y"></h3>
         <div id="chart-modelos"></div>
         <div class="legend" id="legend-modelos"></div>
       </div>
       <div>
-        <h3 style="margin-bottom:.5rem">Tokens por modelo</h3>
+        <h3 style="margin-bottom:.5rem" data-i18n="gob.shell.tokens_por_modelo"></h3>
         <div id="chart-modelos-tok"></div>
         <div class="legend" id="legend-modelos-tok"></div>
       </div>
@@ -313,7 +313,7 @@
 <!-- ───────────── MEDIDAS CORRECTIVAS ───────────── -->
 <section class="view" data-view="medidas">
   <div class="card med-hero">
-    <div><h2 id="h-med"></h2><p class="small muted">Lo que hay que hacer para que el sistema esté sano: sin sobrecostes, sin riesgos normativos, con las knowledge bases sanas y los agentes rindiendo bien. Cada problema sale de otra sección y trae sus alternativas; al verificar una medida, el Termómetro se actualiza.</p></div>
+    <div><h2 id="h-med"></h2><p class="small muted" data-i18n="gob.shell.lo_que_hay_que"></p></div>
     <div id="med-termo"></div>
   </div>
   <div class="kpis" id="kpis-med"></div>
@@ -336,12 +336,12 @@
   <div class="kpis" id="kpis-kb"></div>
   <div class="card">
     <div class="card-head"><h2 id="h-kb"></h2><div class="chips" id="kb-filtro"></div></div>
-    <p class="muted small" style="margin-bottom:.8rem">Índices RAG alimentados desde SharePoint o Google Drive, documentos Markdown, runbooks deterministas, tablas de referencia y plantillas. Salud evaluada de forma continua contra rúbricas · clic en una tarjeta para ver su ficha. Solo «Reglas de negocio» es real en la demo; el resto está simulado.</p>
+    <p class="muted small" style="margin-bottom:.8rem" data-i18n="gob.shell.indices_rag_alimentados_desde"></p>
     <div class="kb-grid" id="kb-lista"></div>
   </div>
   <div class="card">
-    <div class="card-head"><h2 id="h-rub"></h2><span class="muted small">Se ejecutan cada noche, en cada reindexado y en cada cambio de configuración · clic para editar</span></div>
-    <div class="tw"><table><thead><tr><th>Rúbrica</th><th>Nombre</th><th>KB</th><th>Versión</th><th>Criterios</th><th>Preguntas</th><th>Acuerdo juez-humano</th><th>Responsable</th><th>Actualizada</th><th></th></tr></thead><tbody id="rub-lista"></tbody></table></div>
+    <div class="card-head"><h2 id="h-rub"></h2><span class="muted small" data-i18n="gob.shell.se_ejecutan_cada_noche"></span></div>
+    <div class="tw"><table><thead><tr><th data-i18n="gob.shell.rubrica"></th><th data-i18n="gob.shell.nombre"></th><th data-i18n="gob.shell.kb"></th><th data-i18n="gob.shell.version"></th><th data-i18n="gob.shell.criterios"></th><th data-i18n="gob.shell.preguntas"></th><th data-i18n="gob.shell.acuerdo_juez_humano"></th><th data-i18n="gob.shell.responsable"></th><th data-i18n="gob.shell.actualizada"></th><th></th></tr></thead><tbody id="rub-lista"></tbody></table></div>
   </div>
 </section>
 
@@ -351,20 +351,20 @@
   <div class="cmp-termos" id="cmp-termos"></div>
   <div class="card">
     <div class="card-head"><h2 id="h-cmp-matriz"></h2><div class="row"><div class="chips" id="cmp-filtro"></div><div class="chips" id="cmp-filtro-estado"></div></div></div>
-    <div class="tw"><table class="cmp-tabla"><thead><tr><th>Estado</th><th>Norma</th><th>Qué exige</th><th>Cómo lo resuelve la solución</th><th>Medida</th><th>Fuente</th><th>Trazas</th></tr></thead><tbody id="cmp-matriz"></tbody></table></div>
+    <div class="tw"><table class="cmp-tabla"><thead><tr><th data-i18n="gob.shell.estado"></th><th data-i18n="gob.shell.norma"></th><th data-i18n="gob.shell.que_exige"></th><th data-i18n="gob.shell.como_lo_resuelve_la"></th><th data-i18n="gob.shell.medida"></th><th data-i18n="gob.pagina.fuente"></th><th data-i18n="gob.shell.trazas"></th></tr></thead><tbody id="cmp-matriz"></tbody></table></div>
   </div>
   <div class="card">
-    <div class="card-head"><h2 id="h-cmp-ciclo"></h2><span class="muted small">Qué le pasa a una traza desde que llega el mensaje hasta que se suprime, y qué norma rige cada paso</span></div>
+    <div class="card-head"><h2 id="h-cmp-ciclo"></h2><span class="muted small" data-i18n="gob.shell.que_le_pasa_a"></span></div>
     <div class="ciclo" id="cmp-ciclo"></div>
   </div>
   <div class="card">
-    <div class="card-head"><h2 id="h-cmp-inv"></h2><span class="muted small">Detectados por la plataforma en cada mensaje · clic en una fila para ver el texto, los hallazgos y su bloque _gobernanza</span></div>
-    <div class="tw"><table><thead><tr><th>Traza</th><th>Mensaje</th><th>Ramo</th><th>Datos personales detectados</th><th>Salud</th><th>Menores</th><th>Terceros</th><th>No usados para decidir</th><th>Valor en la traza (muestra)</th></tr></thead><tbody id="cmp-inv"></tbody></table></div>
+    <div class="card-head"><h2 id="h-cmp-inv"></h2><span class="muted small" data-i18n="gob.shell.detectados_por_la_plataforma"></span></div>
+    <div class="tw"><table><thead><tr><th data-i18n="gob.shell.traza"></th><th data-i18n="gob.shell.mensaje"></th><th data-i18n="gob.shell.ramo"></th><th data-i18n="gob.shell.datos_personales_detectados"></th><th data-i18n="gob.shell.salud"></th><th data-i18n="gob.shell.menores"></th><th data-i18n="gob.shell.terceros"></th><th data-i18n="gob.shell.no_usados_para_decidir"></th><th data-i18n="gob.shell.valor_en_la_traza"></th></tr></thead><tbody id="cmp-inv"></tbody></table></div>
   </div>
   <div class="two">
     <div class="card">
       <div class="card-head"><h2 id="h-cmp-cadena"></h2><button class="btn btn-sm" type="button" id="btn-cmp-alterar"></button></div>
-      <p class="muted small" style="margin-bottom:.6rem">Cada eslabón es el SHA-256 del anterior más el sello de la traza (hash de entrada, de salida y hora). Si alguien cambia una sola letra de una traza ya registrada, la cadena se rompe a partir de ella.</p>
+      <p class="muted small" style="margin-bottom:.6rem" data-i18n="gob.shell.cada_eslabon_es_el"></p>
       <div class="cadena" id="cmp-cadena"></div>
     </div>
     <div class="card">
@@ -375,58 +375,55 @@
 </section>
 
 </main>
-<footer class="pie">
-  <span>Panel «Gobierno de Agentes» · demo estática · datos de demostración inventados y coherentes con el Paquete A del triaje</span>
-  <a href="https://github.com/nachoenjuto/fnol-triage" target="_blank" rel="noopener">Código en GitHub</a>
-</footer>
+<footer class="pie" data-i18n-html="gob.shell.panel_gobierno_de_agentes"></footer>
 </div>
 </div>
 
 <!-- Ficha de una medida correctiva -->
 <!-- Nuevo indicador de fraude -->
 <dialog id="modal-fr-nuevo" class="modal wide" aria-labelledby="modal-fr-nuevo-title">
-  <div class="modal-head"><h2 id="modal-fr-nuevo-title"></h2><button class="btn btn-sm" type="button" data-close="modal-fr-nuevo" aria-label="Cerrar"></button></div>
+  <div class="modal-head"><h2 id="modal-fr-nuevo-title"></h2><button class="btn btn-sm" type="button" data-close="modal-fr-nuevo" data-i18n-attr="aria-label:gob.modal_fr_nuevo.cerrar"></button></div>
   <div class="modal-body" id="modal-fr-nuevo-body"></div>
 </dialog>
 
 <!-- Ficha de un indicador de fraude -->
 <dialog id="modal-fr-ind" class="modal wide" aria-labelledby="modal-fr-ind-title">
-  <div class="modal-head"><h2 id="modal-fr-ind-title"></h2><button class="btn btn-sm" type="button" data-close="modal-fr-ind" aria-label="Cerrar"></button></div>
+  <div class="modal-head"><h2 id="modal-fr-ind-title"></h2><button class="btn btn-sm" type="button" data-close="modal-fr-ind" data-i18n-attr="aria-label:gob.modal_fr_nuevo.cerrar"></button></div>
   <div class="modal-body" id="modal-fr-ind-body"></div>
 </dialog>
 
 <!-- Ficha de un caso antifraude -->
 <dialog id="modal-fraude" class="modal wide" aria-labelledby="modal-fraude-title">
-  <div class="modal-head"><h2 id="modal-fraude-title"></h2><button class="btn btn-sm" type="button" data-close="modal-fraude" aria-label="Cerrar"></button></div>
+  <div class="modal-head"><h2 id="modal-fraude-title"></h2><button class="btn btn-sm" type="button" data-close="modal-fraude" data-i18n-attr="aria-label:gob.modal_fr_nuevo.cerrar"></button></div>
   <div class="modal-body" id="modal-fraude-body"></div>
 </dialog>
 
 <dialog id="modal-med" class="modal wide" aria-labelledby="modal-med-title">
-  <div class="modal-head"><h2 id="modal-med-title"></h2><button class="btn btn-sm" type="button" data-close="modal-med" aria-label="Cerrar"></button></div>
+  <div class="modal-head"><h2 id="modal-med-title"></h2><button class="btn btn-sm" type="button" data-close="modal-med" data-i18n-attr="aria-label:gob.modal_fr_nuevo.cerrar"></button></div>
   <div class="modal-body" id="modal-med-body"></div>
 </dialog>
 
 <!-- Ficha de una base de conocimiento -->
 <dialog id="modal-kb" class="modal wide" aria-labelledby="modal-kb-title">
-  <div class="modal-head"><h2 id="modal-kb-title"></h2><button class="btn btn-sm" type="button" data-close="modal-kb" aria-label="Cerrar"></button></div>
+  <div class="modal-head"><h2 id="modal-kb-title"></h2><button class="btn btn-sm" type="button" data-close="modal-kb" data-i18n-attr="aria-label:gob.modal_fr_nuevo.cerrar"></button></div>
   <div class="modal-body" id="modal-kb-body"></div>
 </dialog>
 
 <!-- Editor de una rúbrica -->
 <dialog id="modal-rub" class="modal wide" aria-labelledby="modal-rub-title">
-  <div class="modal-head"><h2 id="modal-rub-title"></h2><button class="btn btn-sm" type="button" data-close="modal-rub" aria-label="Cerrar"></button></div>
+  <div class="modal-head"><h2 id="modal-rub-title"></h2><button class="btn btn-sm" type="button" data-close="modal-rub" data-i18n-attr="aria-label:gob.modal_fr_nuevo.cerrar"></button></div>
   <div class="modal-body" id="modal-rub-body"></div>
 </dialog>
 
 <!-- Ficha de cumplimiento de una traza -->
 <dialog id="modal-cmp" class="modal wide" aria-labelledby="modal-cmp-title">
-  <div class="modal-head"><h2 id="modal-cmp-title"></h2><button class="btn btn-sm" type="button" data-close="modal-cmp" aria-label="Cerrar"></button></div>
+  <div class="modal-head"><h2 id="modal-cmp-title"></h2><button class="btn btn-sm" type="button" data-close="modal-cmp" data-i18n-attr="aria-label:gob.modal_fr_nuevo.cerrar"></button></div>
   <div class="modal-body" id="modal-cmp-body"></div>
 </dialog>
 
 <!-- Ficha de una traza (Resumen) -->
 <dialog id="modal-traza" class="modal" aria-labelledby="modal-traza-title">
-  <div class="modal-head"><h2 id="modal-traza-title"></h2><button class="btn btn-sm" type="button" data-close="modal-traza" aria-label="Cerrar"></button></div>
+  <div class="modal-head"><h2 id="modal-traza-title"></h2><button class="btn btn-sm" type="button" data-close="modal-traza" data-i18n-attr="aria-label:gob.modal_fr_nuevo.cerrar"></button></div>
   <div class="modal-body" id="modal-traza-body"></div>
 </dialog>
 
@@ -434,55 +431,56 @@
 
 <!-- Detalle de un KPI de FinOps -->
 <dialog id="modal-kpi-fin" class="modal wide" aria-labelledby="modal-kpi-fin-title">
-  <div class="modal-head"><h2 id="modal-kpi-fin-title"></h2><button class="btn btn-sm" type="button" data-close="modal-kpi-fin" aria-label="Cerrar"></button></div>
+  <div class="modal-head"><h2 id="modal-kpi-fin-title"></h2><button class="btn btn-sm" type="button" data-close="modal-kpi-fin" data-i18n-attr="aria-label:gob.modal_fr_nuevo.cerrar"></button></div>
   <div class="modal-body" id="modal-kpi-fin-body"></div>
 </dialog>
 
 <!-- Ficha de un cap (FinOps) -->
 <dialog id="modal-cap" class="modal wide" aria-labelledby="modal-cap-title">
-  <div class="modal-head"><h2 id="modal-cap-title"></h2><button class="btn btn-sm" type="button" data-close="modal-cap" aria-label="Cerrar"></button></div>
+  <div class="modal-head"><h2 id="modal-cap-title"></h2><button class="btn btn-sm" type="button" data-close="modal-cap" data-i18n-attr="aria-label:gob.modal_fr_nuevo.cerrar"></button></div>
   <div class="modal-body" id="modal-cap-body"></div>
 </dialog>
 
 <!-- Nuevo cap (FinOps) -->
 <dialog id="modal-cap-nuevo" class="modal wide" aria-labelledby="modal-cap-nuevo-title">
-  <div class="modal-head"><h2 id="modal-cap-nuevo-title"></h2><button class="btn btn-sm" type="button" data-close="modal-cap-nuevo" aria-label="Cerrar"></button></div>
+  <div class="modal-head"><h2 id="modal-cap-nuevo-title"></h2><button class="btn btn-sm" type="button" data-close="modal-cap-nuevo" data-i18n-attr="aria-label:gob.modal_fr_nuevo.cerrar"></button></div>
   <div class="modal-body" id="modal-cap-nuevo-body"></div>
 </dialog>
 
 <!-- Registro de un cambio de nivel (Autonomía · auditoría) -->
 <dialog id="modal-cambio" class="modal wide" aria-labelledby="modal-cambio-title">
-  <div class="modal-head"><h2 id="modal-cambio-title"></h2><button class="btn btn-sm" type="button" data-close="modal-cambio" aria-label="Cerrar"></button></div>
+  <div class="modal-head"><h2 id="modal-cambio-title"></h2><button class="btn btn-sm" type="button" data-close="modal-cambio" data-i18n-attr="aria-label:gob.modal_fr_nuevo.cerrar"></button></div>
   <div class="modal-body" id="modal-cambio-body"></div>
 </dialog>
 
 <!-- Ficha de un guardrail -->
 <dialog id="modal-gr" class="modal wide" aria-labelledby="modal-gr-title">
-  <div class="modal-head"><h2 id="modal-gr-title"></h2><button class="btn btn-sm" type="button" data-close="modal-gr" aria-label="Cerrar"></button></div>
+  <div class="modal-head"><h2 id="modal-gr-title"></h2><button class="btn btn-sm" type="button" data-close="modal-gr" data-i18n-attr="aria-label:gob.modal_fr_nuevo.cerrar"></button></div>
   <div class="modal-body" id="modal-gr-body"></div>
 </dialog>
 
 <!-- Nuevo guardrail -->
 <dialog id="modal-gr-nuevo" class="modal wide" aria-labelledby="modal-gr-nuevo-title">
-  <div class="modal-head"><h2 id="modal-gr-nuevo-title"></h2><button class="btn btn-sm" type="button" data-close="modal-gr-nuevo" aria-label="Cerrar"></button></div>
+  <div class="modal-head"><h2 id="modal-gr-nuevo-title"></h2><button class="btn btn-sm" type="button" data-close="modal-gr-nuevo" data-i18n-attr="aria-label:gob.modal_fr_nuevo.cerrar"></button></div>
   <div class="modal-body" id="modal-gr-nuevo-body"></div>
 </dialog>
   <script src="locales/idiomas.js?v=1"></script>
-  <script src="locales/i18n.js?v=1"></script>
-  <script src="locales/cargar.js?v=1"></script>
+  <script src="locales/i18n.js?v=3"></script>
+  <script src="locales/cargar.js?v=3"></script>
   <script src="icons.js?v=40"></script>
   <script src="data/recorrido.js?v=45"></script>
-  <script src="shell.js?v=52"></script>
+  <script src="shell.js?v=53"></script>
   <script src="data/mensajes.js?v=37"></script>
   <script src="data/resultados.js?v=37"></script>
-  <script src="prompts.js?v=36"></script>
-  <script src="evidencias.js?v=36"></script>
-  <script src="cumplimiento.js?v=40"></script>
-  <script src="data/gobierno.js?v=43"></script>
-  <script src="data/fraude.js?v=36"></script>
+  <script src="prompts.js?v=37"></script>
+  <script src="evidencias.js?v=37"></script>
+  <script src="cumplimiento.js?v=41"></script>
+  <script src="data/gobierno.js?v=44"></script>
+  <script src="data/fraude.js?v=37"></script>
+  <script src="locales/traducir-datos.js?v=1"></script>
   <script src="fechas.js?v=36"></script>
-  <script src="fraude.js?v=36"></script>
-  <script src="ahorro.js?v=1"></script>
-  <script src="gobierno.js?v=43"></script>
+  <script src="fraude.js?v=37"></script>
+  <script src="ahorro.js?v=2"></script>
+  <script src="gobierno.js?v=44"></script>
 </body>
 </html>

@@ -3,11 +3,11 @@
 const fs = require('fs');
 const path = require('path');
 const IDIOMAS = require('../locales/idiomas.js');
-const I18N = require('../locales/i18n.js');
+const I18N = require('../locales/node.js')();   // con los textos del idioma base: prompts.js y otros los usan al cargar
 
 const raiz = path.join(__dirname, '..');
 const BASE = I18N.BASE;
-const FICHEROS = ['ui.js'];   // ficheros de texto por idioma; las fases siguientes añaden los de contenido
+const FICHEROS = I18N.FICHEROS;
 
 // Ejecuta locales/<idioma>/<fichero> con un I18N falso que solo recoge lo registrado
 function cargarTabla(idioma, fichero) {
@@ -34,4 +34,35 @@ function comparar(base, trad) {
   return r;
 }
 
-module.exports = { fs, path, raiz, IDIOMAS, I18N, BASE, FICHEROS, cargarTabla, comparar };
+// Textos traducibles de los datos en el idioma base, por fichero de tabla: { 'datos-mensajes.js': Map(huella → texto) }
+const FUENTES_DATOS = {
+  'datos-mensajes.js': [['data/mensajes.js', 'PAQUETES']],
+  'datos-resultados.js': [['data/resultados.js', 'RESULTADOS_GUARDADOS'], ['data/resultados.js', 'REGLA_DESC']],
+  'datos-gobierno.js': [['data/gobierno.js', 'GOBIERNO_DEMO']],
+  'datos-fraude.js': [['data/fraude.js', 'FRAUDE_DEMO']],
+  'datos-prompts.js': [['prompts.js', 'PROMPT_BLOQUES']],
+};
+function textosDatos() {
+  const out = {};
+  for (const [fichero, fuentes] of Object.entries(FUENTES_DATOS)) {
+    const m = new Map();
+    for (const [f, exportar] of fuentes) {
+      const obj = new Function(`${fs.readFileSync(path.join(raiz, f), 'utf8')}\nreturn ${exportar};`)();
+      I18N.recorrerDatos(obj, (texto) => m.set(I18N.huella(texto), texto));
+    }
+    out[fichero] = m;
+  }
+  return out;
+}
+function cargarTablaDatos(idioma, fichero) {
+  const f = path.join(raiz, 'locales', idioma, fichero);
+  if (!fs.existsSync(f)) return null;
+  const tabla = {};
+  new Function('I18N', fs.readFileSync(f, 'utf8'))({ registrarDatos: (i, t) => Object.assign(tabla, t) });
+  return tabla;
+}
+// Las cifras de un texto y de su traducción tienen que ser las mismas (importes, fechas, horas, matrículas,
+// teléfonos…): grupos de dígitos en el mismo orden, sin contar separadores de miles o decimales
+const cifras = (s) => (String(s).match(/\d+/g) || []).join(' ');
+
+module.exports = { fs, path, raiz, IDIOMAS, I18N, BASE, FICHEROS, cargarTabla, comparar, textosDatos, cargarTablaDatos, cifras };

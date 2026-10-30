@@ -3,50 +3,15 @@
 //   make capturas     (o: node scripts/capturas.mjs [nombre …] para repetir solo algunas)
 // Guarda PNG a 2× (1440×900 CSS) en _docs/img/observabilidad/. Las compuestas (dos capturas apiladas) las monta
 // scripts/componer-capturas.py. Variables: CHROME (ruta del ejecutable), BASE (URL de la demo).
-import { spawn } from 'node:child_process';
 import fs from 'node:fs';
-import os from 'node:os';
 import path from 'node:path';
+import { abrirDemo, espera, cerrarModales, seccion, clic, LOTE_A } from './demo-cdp.mjs';
 
 const RAIZ = path.resolve(path.dirname(new URL(import.meta.url).pathname), '..');
 const OUT = path.join(RAIZ, '_docs', 'img', 'observabilidad');
-const CHROME = process.env.CHROME || '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome';
-const BASE = process.env.BASE || 'http://localhost:8792';
-const PUERTO = 9333;
 const W = 1440; const H = 900;
-const espera = (ms) => new Promise((r) => setTimeout(r, ms));
 
-// ── Cliente CDP mínimo ──
-async function abrirChrome() {
-  const perfil = fs.mkdtempSync(path.join(os.tmpdir(), 'capturas-'));
-  const proc = spawn(CHROME, ['--headless=new', `--remote-debugging-port=${PUERTO}`, `--user-data-dir=${perfil}`, `--window-size=${W},${H}`, '--hide-scrollbars', '--no-first-run', '--no-default-browser-check', 'about:blank'], { stdio: 'ignore' });
-  for (let i = 0; i < 50; i++) {
-    try { const r = await fetch(`http://127.0.0.1:${PUERTO}/json/list`); const l = await r.json(); const p = l.find((t) => t.type === 'page'); if (p) return { proc, ws: p.webSocketDebuggerUrl, perfil }; } catch { /* aún arrancando */ }
-    await espera(200);
-  }
-  throw new Error('Chrome no arrancó');
-}
-function conectar(url) {
-  const ws = new WebSocket(url); let id = 0; const pend = new Map(); const oyentes = [];
-  ws.onmessage = (ev) => { const m = JSON.parse(ev.data); if (m.id && pend.has(m.id)) { const { ok, ko } = pend.get(m.id); pend.delete(m.id); m.error ? ko(new Error(m.error.message)) : ok(m.result); } else oyentes.forEach((f) => f(m)); };
-  const send = (method, params = {}) => new Promise((ok, ko) => { const i = ++id; pend.set(i, { ok, ko }); ws.send(JSON.stringify({ id: i, method, params })); });
-  const evento = (nombre) => new Promise((ok) => { const f = (m) => { if (m.method === nombre) { oyentes.splice(oyentes.indexOf(f), 1); ok(m.params); } }; oyentes.push(f); });
-  return new Promise((ok) => { ws.onopen = () => ok({ send, evento, cerrar: () => ws.close() }); });
-}
-
-let cdp; let urlActual = '';
-async function ir(url, { forzar = false } = {}) {
-  if (url === urlActual && !forzar) return;
-  const cargado = cdp.evento('Page.loadEventFired');
-  // Fechas congeladas en el día ancla del dataset (fechas.js): las capturas no cambian según el día en que se hagan
-  await cdp.send('Page.navigate', { url: `${BASE}/${url}${url.includes('?') ? '&' : '?'}fecha=ancla` });
-  await cargado; await espera(900); urlActual = url;
-}
-async function js(codigo) {
-  const r = await cdp.send('Runtime.evaluate', { expression: `(async () => { ${codigo} })()`, awaitPromise: true, returnByValue: true });
-  if (r.exceptionDetails) throw new Error(`${r.exceptionDetails.text} ${(r.exceptionDetails.exception || {}).description || ''}`);
-  return r.result.value;
-}
+let cdp; let ir; let js;
 // sel: expresión JS que devuelve el elemento (o null para la ventana completa); recorte opcional en px CSS
 async function captura(nombre, sel, { alto } = {}) {
   let clip;
@@ -70,19 +35,7 @@ async function captura(nombre, sel, { alto } = {}) {
   fs.writeFileSync(path.join(OUT, nombre), Buffer.from(data, 'base64'));
   console.log(`  ${nombre}  ${Math.round(clip.width * 2)}×${Math.round(clip.height * 2)}`);
 }
-const cerrarModales = "document.querySelectorAll('dialog[open]').forEach((d) => d.close());";
-const seccion = (v) => `${cerrarModales} { const t = document.getElementById('tip'); if (t) t.style.display = 'none'; } document.querySelector('.tab[data-view="${v}"]').click(); await new Promise((r) => setTimeout(r, 400));`;
-const clic = (sel, ms = 400) => `{ const el = document.querySelector(${JSON.stringify(sel)}); if (!el) throw new Error('No encuentro ${sel.replace(/'/g, '')}'); el.click(); await new Promise((r) => setTimeout(r, ${ms})); }`;
 const porTitulo = (raiz, texto, cierre = '.card') => `[...document.querySelectorAll('${raiz} h2, ${raiz} h3')].find((h) => h.textContent.includes(${JSON.stringify(texto)}))?.closest('${cierre}')`;
-
-// Registro del triaje del Paquete A (como «Resultados guardados»), para no esperar los 13 mensajes
-const LOTE_A = `const A = PAQUETES[0].mensajes; const t0 = Date.parse('2026-09-17T09:02:11Z');
-  const log = A.map((m, i) => { const r = expandirResultadoGuardado(RESULTADOS_GUARDADOS[m.id]); const { usage, ...json } = r;
-    const { mensaje: env, mapa } = Cumplimiento.seudonimizarMensaje(m);
-    const seudonimizacion = Cumplimiento.resumenSeudonimizacion({ asunto: env.asunto, remitente: env.remitente.nombre + ' (' + env.remitente.contacto + ')', texto: env.texto }, mapa, { simulada: true });
-    const e = { id: m.id, asunto: m.asunto, paquete: 'A', ramo: r.ramo, importe: r.datos_extraidos.importe_estimado_eur ?? null, decision: r.decision, motivo: r.motivo, confianza: r.confianza, origen: 'IA (guardado)', criterios: r.criterios, criterios_ramo: r.criterios_ramo, pasos: null, datos_extraidos: r.datos_extraidos, evidencias: r.evidencias, raw: Cumplimiento.seudonimizarTexto(JSON.stringify(json, null, 2), mapa), seudonimizacion, usage, duracion_ms: 3400 + ((i * 397) % 1400), timestamp: new Date(t0 + i * 7000).toISOString(), esperado: m.esperado, mensaje: m, gob_opts: { traza_id: TRAZA_DEMO[m.id], modelo: 'gpt-5', prompt: PROMPT_VERSION } };
-    e.gobernanza = Cumplimiento.gobernanza(e, e.gob_opts); return e; }).reverse();
-  sessionStorage.setItem('triage.log', JSON.stringify(log)); sessionStorage.setItem('triage.motor', JSON.stringify('guardado')); sessionStorage.setItem('triage.paquete', JSON.stringify('A'));`;
 
 // ── Lista de capturas: [nombre, página, preparación (JS), elemento (JS) | null, opciones] ──
 const CAPTURAS = [
@@ -145,12 +98,8 @@ const CAPTURAS = [
 async function main() {
   const filtro = process.argv.slice(2);
   fs.mkdirSync(OUT, { recursive: true });
-  try { await fetch(`${BASE}/index.html`); } catch { throw new Error(`No responde ${BASE}: arranca antes «make run»`); }
-  const chrome = await abrirChrome();
-  cdp = await conectar(chrome.ws);
-  await cdp.send('Page.enable'); await cdp.send('Runtime.enable');
-  await cdp.send('Emulation.setDeviceMetricsOverride', { width: W, height: H, deviceScaleFactor: 2, mobile: false });
-  await cdp.send('Emulation.setEmulatedMedia', { features: [{ name: 'prefers-color-scheme', value: 'light' }, { name: 'prefers-reduced-motion', value: 'reduce' }] });
+  const demo = await abrirDemo({ W, H });
+  ({ cdp, ir, js } = demo);
   // Estado de partida: menú desplegado, sin modo presentador, Paquete A procesado en el triaje
   await ir('index.html');
   await js(`localStorage.setItem('shell.nav', '1'); localStorage.setItem('demo.presentador', '0'); sessionStorage.clear(); ${LOTE_A}`);
@@ -166,8 +115,7 @@ async function main() {
       await captura(nombre, sel, opts);
     }
   } finally {
-    cdp.cerrar(); chrome.proc.kill(); await espera(800);
-    try { fs.rmSync(chrome.perfil, { recursive: true, force: true }); } catch { /* Chrome aún cerrando: se queda en la carpeta temporal */ }
+    await demo.cerrar();
   }
 }
 main().catch((e) => { console.error(e.message); process.exit(1); });

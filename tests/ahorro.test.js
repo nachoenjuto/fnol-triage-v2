@@ -1,4 +1,5 @@
 // Pruebas de ahorro.js sin dependencias: `node tests/ahorro.test.js` (o `make test`).
+require('../locales/node.js')();
 const assert = require('assert');
 const fs = require('fs');
 const path = require('path');

@@ -1,4 +1,5 @@
 // Pruebas de los adjuntos (adjuntos.js, MSG-A-01 y su bloque _gobernanza.adjuntos) sin dependencias: `node tests/adjuntos.test.js` (o `make test`).
+require('../locales/node.js')();
 const assert = require('assert');
 const crypto = require('crypto');
 const fs = require('fs');

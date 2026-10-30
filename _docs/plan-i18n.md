@@ -1,8 +1,11 @@
 # Plan · Demo en español, inglés y alemán
 
-Estado: **fase 0 aplicada** · 30/10/2026 · repo `fnol-triage/v2` · añadido el modo de trabajo: español primero y actualización de EN y DE por lotes (sección 8) · variable `IDIOMA` (no `LANG`, que choca con el locale del sistema)
+Estado: **fases 0 y 1 aplicadas** · 30/10/2026 · repo `fnol-triage/v2` · añadido el modo de trabajo: español primero y actualización de EN y DE por lotes (sección 8) · variable `IDIOMA` (no `LANG`, que choca con el locale del sistema)
 
 Objetivo: la demo funciona igual en ES, EN y DE. Cambia la lengua y nada más: mismos mensajes, mismas decisiones, mismos números en el panel de gobierno, mismo recorrido. Ningún texto visible en los HTML. Añadir un cuarto idioma se reduce a crear una carpeta y pasar un validador.
+
+
+> **Cambio en la fase 1 (datos):** en lugar de partir los datos en `data/base/` + texto por idioma, el español de `data/*.js` y `prompts.js` hace de base y es la única copia de los hechos. Cada idioma aporta tablas `{ huella del texto español: traducción }` (`locales/<idioma>/datos-*.js`) que `locales/traducir-datos.js` aplica sobre esos objetos al cargar, antes de `fechas.js`. Mismo resultado (los números no se duplican; si cambia un texto español, su traducción queda pendiente) sin reestructurar 134 KB de datos. El validador comprueba además que cada traducción lleva las mismas cifras que su original.
 
 ---
 
