@@ -95,8 +95,10 @@
     'prompt', 'modelo', 'generado', 'dni', 'matricula', 'iban', 'permiso', 'nivel', 'severidad', 'esfuerzo', 'estado', 'sev',
     'tipo', 'ambito', 'origen', 'agente', 'agentes', 'traza', 'mensaje', 'regla', 'resultado', 'dim', 'fuente', 'version']);
   const ES_CLAVE = /^[a-z0-9_.:-]+$/;   // 'aviso', 'gpt-5', 'v2.3', 'kb-02'…
-  const esTraducible = (s, campo) => typeof s === 'string' && !NO_TRADUCIR.has(campo) && /\p{L}/u.test(s) && !ES_CLAVE.test(s)
-    && !/^[A-Z]{1,5}-[\w-]+$/.test(s) && !/^\d{4}-\d\d-\d\d/.test(s);
+  // Un importe suelto («1.350 €») también se traduce: su formato cambia con el idioma
+  const esTraducible = (s, campo) => typeof s === 'string' && !NO_TRADUCIR.has(campo) && (/\p{L}/u.test(s) || /\d\s?€|€\s?\d/.test(s)) && !ES_CLAVE.test(s)
+    && !/^[A-Z]{1,5}-[\w-]+$/.test(s) && !/^\d{4}-\d\d-\d\d/.test(s)
+    && !/^[A-Z]{1,3}\d{1,2}$/.test(s) && !/^regla:/.test(s);   // códigos de regla: A1, H9, regla:A3
 
   function registrarDatos(idioma, tabla) { tablasDatos[idioma] = Object.assign(tablasDatos[idioma] || {}, tabla); }
 
