@@ -749,9 +749,9 @@
     const faltan = DATOS_ESENCIALES.filter((k) => (entry.datos_extraidos || {})[k] == null && !ev.lista.some((e) => e.ref === k));
     const r = ev.resumen;
     const resumen = !r.total && !faltan.length ? I18N.t('triaje.sin_evidencias_para_este')
-      : I18N.t('triaje.fragmento_del_mensaje_resaltado', { resaltadas: r.resaltadas, resaltadas2: r.resaltadas === 1 ? '' : 's' })
+      : I18N.t('triaje.fragmento_del_mensaje_resaltado', { n: r.resaltadas })
         + (r.pedidas ? I18N.t('triaje.el_modelo_cito_y', { pedidas: r.pedidas, modelo: r.modelo }) : '')
-        + (r.respaldo ? I18N.t('triaje.reconstruida_a_partir_de', { respaldo: r.respaldo, respaldo2: r.respaldo === 1 ? '' : 's' }) : '');
+        + (r.respaldo ? I18N.t('triaje.reconstruida_a_partir_de', { n: r.respaldo }) : '');
     const lista = ev.lista.map((e) => {
       const info = refInfo(e.ref, entry);
       const tag = !e.verificada ? I18N.t('triaje.no_localizada')
