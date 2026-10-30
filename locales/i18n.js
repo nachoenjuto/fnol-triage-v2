@@ -98,7 +98,8 @@
   // Un importe suelto («1.350 €») también se traduce: su formato cambia con el idioma
   const esTraducible = (s, campo) => typeof s === 'string' && !NO_TRADUCIR.has(campo) && (/\p{L}/u.test(s) || /\d\s?€|€\s?\d/.test(s)) && !ES_CLAVE.test(s)
     && !/^[A-Z]{1,5}-[\w-]+$/.test(s) && !/^\d{4}-\d\d-\d\d/.test(s)
-    && !/^[A-Z]{1,3}\d{1,2}$/.test(s) && !/^regla:/.test(s);   // códigos de regla: A1, H9, regla:A3
+    && !/^[A-Z]{1,3}\d{1,2}$/.test(s) && !/^regla:/.test(s)   // códigos de regla: A1, H9, regla:A3
+    && !/^[A-Z_]{4,}$/.test(s);   // valores en mayúsculas que compara el código: DESPEJADO, REVISION
 
   function registrarDatos(idioma, tabla) { tablasDatos[idioma] = Object.assign(tablasDatos[idioma] || {}, tabla); }
 
