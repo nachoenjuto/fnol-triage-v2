@@ -42,10 +42,13 @@ const FUENTES_DATOS = {
   'datos-fraude.js': [['data/fraude.js', 'FRAUDE_DEMO']],
   'datos-prompts.js': [['prompts.js', 'PROMPT_BLOQUES']],
   'datos-recorrido.js': [['data/recorrido.js', 'RECORRIDO_DEMO']],
+  // Guiones de _docs (no se cargan en el navegador): una unidad por línea con texto, ver scripts/guion.js
+  'datos-guion.js': () => require('./guion.js').textos(I18N),
 };
 function textosDatos() {
   const out = {};
   for (const [fichero, fuentes] of Object.entries(FUENTES_DATOS)) {
+    if (typeof fuentes === 'function') { out[fichero] = fuentes(); continue; }
     const m = new Map();
     for (const [f, exportar] of fuentes) {
       const obj = new Function(`${fs.readFileSync(path.join(raiz, f), 'utf8')}\nreturn ${exportar};`)();

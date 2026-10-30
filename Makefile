@@ -1,5 +1,5 @@
 # Flujos de trabajo habituales (la demo es estática: no hay build)
-.PHONY: run test test-ia datos recorrido guion-docx capturas i18n-check i18n-estado i18n-marcar i18n-importar i18n-instantanea
+.PHONY: run test test-ia datos recorrido guion guion-docx capturas i18n-check i18n-estado i18n-marcar i18n-importar i18n-instantanea
 
 run: ## Sirve la demo en http://localhost:8792
 	python3 -m http.server 8792
@@ -39,6 +39,9 @@ datos: ## Regenera los JSON de ejemplo de data/ desde las fuentes JS (tras cambi
 
 recorrido: ## Regenera los pasos y subtítulos del Recorrido de la demo (data/recorrido.js) desde _docs/guion-demo.md
 	node scripts/generar-recorrido.js
+
+guion: ## Escribe los guiones en otro idioma (_docs/<idioma>/) con sus traducciones: make guion IDIOMA=en
+	node scripts/guion.js $(IDIOMA)
 
 guion-docx: ## Genera los Word de los guiones (_docs/guion-demo.md y guion-demo-corto.md, texto para decir en verde); instala docx en una carpeta temporal
 	npm install --silent --prefix "$${TMPDIR:-/tmp}/fnol-docx" docx@9 >/dev/null

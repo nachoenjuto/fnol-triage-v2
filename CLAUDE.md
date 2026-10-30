@@ -20,7 +20,7 @@ Se trabaja en español. EN y DE se ponen al día por lotes:
 
 1. `make i18n-estado` dice, por idioma, qué falta, qué está desactualizado (huella del texto español) y qué ha cambiado desde la última puesta al día.
 2. Se traduce todo lo pendiente. Formato en las traducciones: `'clave': ['Text', '<huella>']`; la huella sale en el informe.
-3. `make i18n-check IDIOMA=en,de` en estricto hasta que pasa. Si ha cambiado un mensaje o `locales/es/motor.js`, se ajusta `locales/<idioma>/motor.js` hasta que pasa `node tests/motores-idioma.test.js`.
+3. `make i18n-check IDIOMA=en,de` en estricto hasta que pasa. Si ha cambiado el guion, `make recorrido` y `make guion IDIOMA=en` (los guiones de `_docs/<idioma>/` se generan desde `locales/<idioma>/datos-guion.js`, no se editan a mano). Si ha cambiado un mensaje o `locales/es/motor.js`, se ajusta `locales/<idioma>/motor.js` hasta que pasa `node tests/motores-idioma.test.js`.
 4. Commit y `make i18n-marcar IDIOMA=en,de` (guarda el commit de referencia en `locales/<idioma>/estado.json`).
 
 Antes de enseñar la demo en un idioma distinto del español, ese idioma tiene que estar al día y pasar en estricto.
