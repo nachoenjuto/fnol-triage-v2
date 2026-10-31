@@ -456,4 +456,7 @@ I18N.registrar('es', {
   'prompt.asunto': 'Asunto: {asunto}',
   'cumpl.n_elementos': { one: '{n} elemento', other: '{n} elementos' },
   'cumpl.n_claves': { one: '{n} clave', other: '{n} claves' },
+  'cumpl.marcador_menor': '[menor de edad]',
+  'cumpl.marcador_salud': '[dato de salud cifrado]',
+  'cumpl.marcador_firma': '[firma manuscrita: no se extrae]',
 });

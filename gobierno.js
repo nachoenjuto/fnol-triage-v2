@@ -58,7 +58,9 @@
   const SEV_ICON = { crit: 'triangle-alert', warn: 'circle-alert', info: 'info', ok: 'circle-check' };
 
   // Guardrails y caps: tooltip con la descripción en cualquier referencia (G-04, CAP-03)
-  const grTip = (id) => { const p = POL[id]; if (!p) return ''; return p.tipo ? I18N.t('gob.limite', { id, tipo: I18N.dato(p.tipo), ambito: I18N.dato(p.ambito), limite: p.limite, unidad: p.unidad, accion: p.accion }) : `${id} · ${p.condicion} → ${p.accion}${p.descripcion ? `. ${p.descripcion}` : ''}`; };
+  // Unidad de un cap tal como se ve: las palabras se traducen; '€', 'msg', 'req', 'tok' no
+  const unidadCap = (u) => (u === 'casos' || u === 'consultas' ? I18N.t(`gob.unidad_${u}`) : u);
+  const grTip = (id) => { const p = POL[id]; if (!p) return ''; return p.tipo ? I18N.t('gob.limite', { id, tipo: I18N.dato(p.tipo), ambito: I18N.dato(p.ambito), limite: p.limite, unidad: unidadCap(p.unidad), accion: p.accion }) : `${id} · ${p.condicion} → ${p.accion}${p.descripcion ? `. ${p.descripcion}` : ''}`; };
   const grRef = (id) => (POL[id] ? `<span class="gr" data-tip="${esc(grTip(id))}">${esc(id)}</span>` : esc(id));
   // Aplica sobre texto YA escapado: envuelve los códigos de guardrail / cap
   const conGuardrails = (html) => String(html).replace(/\b(G-\d{2}|CAP-\d{2})\b/g, (m) => grRef(m));
@@ -406,7 +408,7 @@
     const pasa = (s) => {
       if (s.agente === 'multicanal') { const m = String(s.entrada).match(/([\d.]+) caracteres/); return m ? `texto · ${m[1]} car.` : I18N.t('gob.texto_normalizado'); }
       if (s.agente === 'clasificacion') return conf(s);
-      if (s.agente === 'extraccion' && r) { const v = Object.values(r.datos_extraidos || {}); return `${v.length} campos · ${v.filter(rzNulo).length} nulos`; }
+      if (s.agente === 'extraccion' && r) { const v = Object.values(r.datos_extraidos || {}); return I18N.t('gob.campos_nulos', { campos: v.length, nulos: v.filter(rzNulo).length }); }
       return PASA[s.agente] || '';
     };
     const nodos = steps.map((s, i) => {
@@ -679,7 +681,7 @@
           ${caja(I18N.t('gob.latencia_p50_p95'), `${ms(D.p50)} / ${ms(D.p95)}`, `p95 declarado ${ms(a.p95_ms || 0)}`)}
           ${caja(I18N.t('gob.coste_hoy_cap'), `${eur(a.coste_hoy || 0)} / ${eur(a.cap_hoy || 0, 0)}`, `<span class="meter" style="--c:${uso >= 1 ? 'var(--crit)' : uso >= 0.8 ? 'var(--warn)' : 'var(--ok)'}"><i style="width:${Math.min(100, uso * 100)}%"></i></span>`)}
           ${caja(I18N.t('gob.coste_medio_por_traza'), eur(D.spans.length ? D.coste / D.spans.length : 0, 4))}
-          ${caja(I18N.t('gob.escalado_14_d'), esc(a.escalado_14d || '—'), I18N.t('gob.por_sus_guardrails', { escaladas: D.escaladas.length, trazas: D.escaladas.length === 1 ? 'traza' : 'trazas' }))}
+          ${caja(I18N.t('gob.escalado_14_d'), esc(a.escalado_14d || '—'), I18N.t('gob.por_sus_guardrails', { escaladas: D.escaladas.length, trazas: I18N.t('gob.w.traza', { n: D.escaladas.length }) }))}
           ${caja(I18N.t('gob.override_14_d'), esc(a.override_14d || '—'))}
         </div>
       </div>
@@ -734,7 +736,7 @@
     const disparos = P.reduce((a, p) => a + (p.disparos || 0), 0);
     const escaladosGr = P.filter((p) => p.severidad === 'humano').reduce((a, p) => a + (p.disparos || 0), 0);
     $('kpis-gr').innerHTML = [
-      kpi({ cls: 'ok', icono: 'shield-check', etiqueta: I18N.t('gob.guardrails_activos'), valor: `${activos} / ${P.length}`, sub: `${P.length - activos} inactivo${P.length - activos === 1 ? '' : 's'}` }),
+      kpi({ cls: 'ok', icono: 'shield-check', etiqueta: I18N.t('gob.guardrails_activos'), valor: `${activos} / ${P.length}`, sub: I18N.t('gob.w.n_inactivos', { n: P.length - activos }) }),
       kpi({ cls: 'review', icono: 'bell', etiqueta: I18N.t('gob.disparos_en_14_dias'), valor: num(disparos), sub: I18N.t('gob.escalados_a_persona_resto', { escaladosGr: num(escaladosGr) }) }),
       conGoto(kpi({ cls: 'time', icono: 'user-check', etiqueta: I18N.t('gob.escalan_a_una_persona'), valor: I18N.t('gob.de_2', { humano: P.filter((p) => p.severidad === 'humano').length, P: P.length }), sub: I18N.t('gob.guardrails_que_pasa_despues') }), 'hitl'),
       kpi({ cls: 'primary', icono: 'gauge', etiqueta: I18N.t('gob.mas_disparado'), valor: [...P].sort((x, y) => y.disparos - x.disparos)[0]?.id || '—', sub: [...P].sort((x, y) => y.disparos - x.disparos)[0]?.condicion || '' }),
@@ -917,7 +919,7 @@
   // FinOps: KPI, caps, modelos, recomendaciones
   // ---------------------------------------------------------------------------
   const CAP_ESTADO = { ok: ['pill-ok', 'check', I18N.t('gob.dentro')], aviso: ['pill-warn', 'circle-alert', I18N.t('gob.aviso_80')], superado: ['pill-crit', 'triangle-alert', I18N.t('gob.superado')] };
-  const capRow = (c) => { const u = c.consumo / c.limite; const [pc, pi, pl] = CAP_ESTADO[c.estado] || CAP_ESTADO.ok; const f = (v) => (c.unidad === '€' ? eur(v, v < 1 ? 3 : 2) : `${num(v)} ${esc(c.unidad)}`); return `<tr class="clickable" data-cap="${esc(c.id)}" tabindex="0" title="${I18N.t('gob.ver_el_detalle_de', { id: esc(c.id) })}"><td class="mono"><b>${esc(c.id)}</b>${c.nuevo ? I18N.t('gob.nuevo') : ''}</td><td>${ambitoHtml(c)}</td><td>${esc(I18N.dato(c.tipo))}</td><td class="tnum">${f(c.limite)}</td><td class="tnum">${f(c.consumo)}</td><td><div class="meter" style="--c:${u >= 1 ? 'var(--crit)' : u >= .8 ? 'var(--warn)' : 'var(--ok)'};margin:0"><i style="width:${Math.min(100, u * 100)}%"></i></div><span class="small muted tnum">${Math.round(u * 100)} %</span></td><td class="wrap">${conGuardrails(esc(c.accion))}</td><td>${((n) => (n ? `<button class="pill pill-warn cap-chip" type="button" data-ir-alerta="${esc(c.id)}" title="${I18N.t('gob.ver_la_alerta_de', { id: esc(c.id) })}">${ic('bell')} ${n}</button>` : '<span class="muted">—</span>'))(alertasDeCap(c.id).length)}</td><td><span class="pill ${pc}">${ic(pi)} ${pl}</span></td></tr>`; };
+  const capRow = (c) => { const u = c.consumo / c.limite; const [pc, pi, pl] = CAP_ESTADO[c.estado] || CAP_ESTADO.ok; const f = (v) => (c.unidad === '€' ? eur(v, v < 1 ? 3 : 2) : `${num(v)} ${esc(unidadCap(c.unidad))}`); return `<tr class="clickable" data-cap="${esc(c.id)}" tabindex="0" title="${I18N.t('gob.ver_el_detalle_de', { id: esc(c.id) })}"><td class="mono"><b>${esc(c.id)}</b>${c.nuevo ? I18N.t('gob.nuevo') : ''}</td><td>${ambitoHtml(c)}</td><td>${esc(I18N.dato(c.tipo))}</td><td class="tnum">${f(c.limite)}</td><td class="tnum">${f(c.consumo)}</td><td><div class="meter" style="--c:${u >= 1 ? 'var(--crit)' : u >= .8 ? 'var(--warn)' : 'var(--ok)'};margin:0"><i style="width:${Math.min(100, u * 100)}%"></i></div><span class="small muted tnum">${Math.round(u * 100)} %</span></td><td class="wrap">${conGuardrails(esc(c.accion))}</td><td>${((n) => (n ? `<button class="pill pill-warn cap-chip" type="button" data-ir-alerta="${esc(c.id)}" title="${I18N.t('gob.ver_la_alerta_de', { id: esc(c.id) })}">${ic('bell')} ${n}</button>` : '<span class="muted">—</span>'))(alertasDeCap(c.id).length)}</td><td><span class="pill ${pc}">${ic(pi)} ${pl}</span></td></tr>`; };
   // Escenario de ahorro (ahorro.js): hipótesis del dataset (`kpis.negocio`), editables en la ficha sin guardarse
   let ahorroEdit = {};
   const ahorroParams = () => ({ ...((G.kpis && G.kpis.negocio) || {}), ...ahorroEdit });
@@ -1308,7 +1310,7 @@
     ].join('');
     titulo('h-hitl-mec', 'shield-check', I18N.t('gob.mecanismos_de_supervision'));
     const mec = [
-      ['guardrails', 'shield-check', I18N.t('gob.escalado_por_guardrail_o'), I18N.t('gob.guardrails_envian_la_decision', { grHumano: grHumano.length, grInact: grInact ? ` (${grInact} inactivo${grInact === 1 ? '' : 's'})` : '' }), I18N.t('gob.guardrails')],
+      ['guardrails', 'shield-check', I18N.t('gob.escalado_por_guardrail_o'), I18N.t('gob.guardrails_envian_la_decision', { grHumano: grHumano.length, grInact: grInact ? ` (${I18N.t('gob.w.n_inactivos', { n: grInact })})` : '' }), I18N.t('gob.guardrails')],
       ['autonomia', 'sliders-horizontal', I18N.t('gob.override_y_nivel_de'), I18N.t('gob.si_el_override_de'), I18N.t('gob.autonomia')],
       ['resumen', 'power', I18N.t('gob.interruptor_de_pausa_kill'), I18N.t('gob.de_agentes_activos_al', { activos, ags: ags.length }), I18N.t('gob.resumen')],
       ['cumplimiento', 'scale', I18N.t('gob.control_normativo'), ctl ? `${ctl.exige}: ${ctl.medida}.` : I18N.t('gob.supervision_humana_efectiva_ai'), I18N.t('gob.termometro')],
@@ -1345,7 +1347,7 @@
   // [origen (id interno de la alerta), color, icono, vista, sección, nombre dentro de una frase, título del grupo]
   const ORIGENES_AL = [['coste', 'var(--primary)', 'coins', 'finops', I18N.t('gob.finops_2'), 'coste', I18N.t('gob.coste')], ['autonomia', 'var(--review)', 'sliders-horizontal', 'autonomia', I18N.t('gob.autonomia'), 'autonomía', I18N.t('gob.autonomia')], ['fraude', 'var(--crit)', 'shield-alert', 'fraude', I18N.t('gob.fraude'), 'fraude', I18N.t('gob.fraude')], ['kb', 'var(--time)', 'book-open', 'knowledge', I18N.t('gob.knowledge_bases'), 'conocimiento', I18N.t('gob.knowledge_bases')], ['cumplimiento', 'var(--warn)', 'thermometer', 'cumplimiento', I18N.t('gob.cumplimiento'), 'cumplimiento', I18N.t('gob.cumplimiento')]];
   const tituloOrigen = (o) => (ORIGENES_AL.find((x) => x[0] === o) || [])[6] || o;
-  const origenesTexto = (al) => { const n = ORIGENES_AL.filter(([o]) => al.some((a) => a.origen === o)).map((x) => x[5]); return n.length > 1 ? I18N.t('gob.y', { v: n.slice(0, -1).join(', '), v2: n[n.length - 1] }) : n[0] || I18N.t('gob.sin_alertas'); };
+  const origenesTexto = (al) => { const n = ORIGENES_AL.filter(([o]) => al.some((a) => a.origen === o)).map((x) => I18N.t(`gob.origen_texto.${x[0]}`)); return n.length > 1 ? I18N.t('gob.y', { v: n.slice(0, -1).join(', '), v2: n[n.length - 1] }) : n[0] || I18N.t('gob.sin_alertas'); };
 
   KPI_FIN['res-alertas'] = {
     icono: 'bell', titulo: I18N.t('gob.alertas_activas'),
@@ -1358,7 +1360,7 @@
       return `<p class="small muted">${I18N.t('gob.situaciones_que_requieren_atencion')}</p>
         <div class="kpi-mini">${kmini('bell', I18N.t('gob.alertas_activas'), cnt(act.length), origenesTexto(act))}${kmini('triangle-alert', I18N.t('gob.criticas'), `<span style="color:var(--crit)">${cnt(nCrit)}</span>`)}${kmini('circle-alert', I18N.t('gob.avisos'), `<span style="color:var(--warn)">${cnt(nWarn)}</span>`)}${kmini('shield-alert', I18N.t('gob.de_fraude'), cnt(act.filter((a) => a.origen === 'fraude').length), I18N.t('gob.siu_y_pagos_retenidos'))}${kmini('history', I18N.t('gob.eventos_en_14_dias'), cnt(evs.length), I18N.t('gob.alertas_e_incidentes'))}</div>
         <div class="two"><div><h3>${I18N.t('gob.por_severidad')}</h3>${anilloConLeyenda([[I18N.t('gob.critica'), nCrit, 'var(--crit)'], [I18N.t('gob.aviso'), nWarn, 'var(--warn)'], [I18N.t('gob.informativa'), act.length - nCrit - nWarn, 'var(--time)']].filter((x) => x[1] > 0), String(act.length), 'activas')}</div>
-        <div><h3>${I18N.t('gob.por_origen')}</h3>${anilloConLeyenda(grupos.map((g) => [g.titulo, g.al.length, g.color]), String(grupos.length), grupos.length === 1 ? 'fuente' : 'fuentes')}</div></div>
+        <div><h3>${I18N.t('gob.por_origen')}</h3>${anilloConLeyenda(grupos.map((g) => [g.titulo, g.al.length, g.color]), String(grupos.length), I18N.t('gob.w.fuente', { n: grupos.length }))}</div></div>
         <div><h3>${I18N.t('gob.alertas_activas_por_origen')}</h3>${grupos.map((g) => `<div class="al-grupo"><div class="al-grupo-h"><span style="color:${g.color}">${ic(g.icono)}</span><b>${esc(g.titulo)}</b><span class="pill pill-muted">${g.al.length}</span><button class="btn btn-sm" type="button" data-goto="${g.vista}">${ic('arrow-right')} ${I18N.t('gob.ir_a', { dest: esc(g.dest) })}</button></div><div class="alerts">${g.al.map(alertaHtml).join('')}</div></div>`).join('') || I18N.t('gob.sin_alertas_activas')}</div>
         <div><h3>${I18N.t('gob.alertas_e_incidentes_por')}</h3>${chartApilada(series, fechasEv, { H: 180, fmt: (v) => String(Math.round(v)), aria: I18N.t('gob.alertas_por_dia_y') })}${leyenda(series.map((s) => [s.label, s.color]))}
         <div class="row" style="margin-top:.6rem"><button class="btn btn-sm" type="button" data-goto="historico">${ic('history')} ${I18N.t('gob.ver_el_historico')}</button></div></div>`;
@@ -1407,7 +1409,7 @@
       { label: I18N.t('gob.escalados_tiempo_ahorrado'), color: 'var(--ag-extraccion)', vals: d.dias.map((x) => x[1] * (1 - fa) * cm * p.ahorro_escalados) },
     ];
     const escs = Ahorro.ESCENARIOS.map((e) => [e, ahorroDe(d.dias, { ...p, minutos_mensaje: e.minutos_mensaje })]);
-    return `<div class="kpi-mini">${kmini('banknote', I18N.t('gob.ahorro_neto_del_periodo'), eur(a.neto, 0), `${d.n} ${d.n === 1 ? 'día' : 'días'}`)}${kmini('calendar', I18N.t('gob.proyeccion_anual'), meur(a.anual), I18N.t('gob.al_ritmo_del_periodo'))}${kmini('coins', I18N.t('gob.retorno_por_de_ia'), `${num(Math.round(a.retorno))} €`, I18N.t('gob.coste_evitado_coste_ia'))}${kmini('scale', I18N.t('gob.coste_por_mensaje'), `${eur(a.mensaje)} a mano`, I18N.t('gob.con_ia', { costeIAMensaje: eur(a.costeIAMensaje, 4) }))}</div>
+    return `<div class="kpi-mini">${kmini('banknote', I18N.t('gob.ahorro_neto_del_periodo'), eur(a.neto, 0), I18N.t('gob.w.n_dias', { n: d.n }))}${kmini('calendar', I18N.t('gob.proyeccion_anual'), meur(a.anual), I18N.t('gob.al_ritmo_del_periodo'))}${kmini('coins', I18N.t('gob.retorno_por_de_ia'), `${num(Math.round(a.retorno))} €`, I18N.t('gob.coste_evitado_coste_ia'))}${kmini('scale', I18N.t('gob.coste_por_mensaje'), `${eur(a.mensaje)} a mano`, I18N.t('gob.con_ia', { costeIAMensaje: eur(a.costeIAMensaje, 4) }))}</div>
       <div><h3>${I18N.t('gob.como_se_calcula')}</h3><div class="tw"><table><thead><tr><th>${I18N.t('gob.paso')}</th><th>${I18N.t('gob.dato')}</th><th>${I18N.t('gob.calculo')}</th><th>${I18N.t('gob.resultado')}</th></tr></thead><tbody>${pasos.map(([l, m, c, v]) => `<tr><td>${l}</td><td>${origen(m)}</td><td class="small muted">${c}</td><td class="tnum">${v}</td></tr>`).join('')}<tr class="ahorro-total"><td colspan="3"><b>${I18N.t('gob.ahorro_neto')}</b></td><td class="tnum"><b>${eur(a.neto, 0)}</b></td></tr></tbody></table></div></div>
       <div><h3>${I18N.t('gob.coste_de_un_tramitador')}</h3><div class="tw"><table><tbody>${tramitador.map(([l, v]) => `<tr><td>${l}</td><td class="tnum">${v}</td></tr>`).join('')}</tbody></table></div></div>
       <div><h3>${I18N.t('gob.coste_evitado_por_dia_2')}</h3>${chartApilada(series, d.fechas, { fmt: (v) => eur(v, 0), aria: I18N.t('gob.coste_evitado_por_dia') })}${leyenda(series.map((s) => [s.label, s.color]))}</div>
@@ -1521,7 +1523,7 @@
     grNuevos.forEach((p) => { if (!G.politicas.some((x) => x.id === p.id)) G.politicas.push(p); });
   };
   const capUso = (c) => c.consumo / c.limite;
-  const capFmt = (c, v) => (c.unidad === '€' ? eur(v, v < 1 ? 3 : 2) : `${num(Math.round(v * 10) / 10)} ${esc(c.unidad)}`);
+  const capFmt = (c, v) => (c.unidad === '€' ? eur(v, v < 1 ? 3 : 2) : `${num(Math.round(v * 10) / 10)} ${esc(unidadCap(c.unidad))}`);
   const capEstadoDe = (c) => (c.consumo >= c.limite ? 'superado' : c.consumo >= c.limite * ((c.aviso_pct || 80) / 100) ? 'aviso' : 'ok');
   const agenteDeAmbito = (ambito) => G.agentes.find((a) => a.nombre === ambito);
   const ambitoHtml = (c) => { const a = agenteDeAmbito(c.ambito); return a ? agTag(a.id) : esc(I18N.dato(c.ambito)); };
@@ -1625,7 +1627,7 @@
     const out = (G.alertas || []).map((a) => ({ ...a, caps: capsDeTexto(a.titulo).length ? capsDeTexto(a.titulo) : capsDeTexto(a.detalle) }));
     const cubiertos = new Set(out.flatMap((a) => a.caps.map((c) => c.id)));
     G.caps.filter((c) => (c.estado === 'superado' || c.estado === 'aviso') && !cubiertos.has(c.id)).forEach((c) => out.push({
-      sev: c.estado === 'superado' ? 'crit' : 'warn', titulo: `${c.id} ${c.estado === 'superado' ? 'superado' : I18N.t('gob.en_aviso')} · ${c.tipo}: ${capFmt(c, c.consumo)} / ${capFmt(c, c.limite)}`,
+      sev: c.estado === 'superado' ? 'crit' : 'warn', titulo: `${c.id} ${c.estado === 'superado' ? I18N.t('gob.cap_superado_min') : I18N.t('gob.en_aviso')} · ${I18N.dato(c.tipo)}: ${capFmt(c, c.consumo)} / ${capFmt(c, c.limite)}`,
       detalle: I18N.t('gob.accion_configurada', { accion: c.accion }), cuando: c.nuevo ? I18N.t('gob.cap_creado_en_esta') : I18N.t('gob.periodo_actual'), caps: [c],
     }));
     const orden = { crit: 0, warn: 1, info: 2 };
@@ -1674,7 +1676,7 @@
         <div class="box"><span class="muted small">${ic('scale')} ${I18N.t('gob.limite_2')}</span><b>${capFmt(c, c.limite)}</b></div>
         <div class="box"><span class="muted small">${ic('coins')} ${I18N.t('gob.consumo_actual')}</span><b>${capFmt(c, c.consumo)}</b></div>
         <div class="box"><span class="muted small">${ic('gauge')} ${margen >= 0 ? I18N.t('gob.margen_restante') : I18N.t('gob.exceso_sobre_el_limite')}</span><b style="color:var(--${margen >= 0 ? 'ok' : 'crit'})">${margen >= 0 ? '' : '+'}${capFmt(c, Math.abs(margen))}</b></div>
-        <div class="box"><span class="muted small">${ic('triangle-alert')} ${I18N.t('gob.superaciones')}</span><b>${nSup}</b><span class="muted small">${I18N.t('gob.aviso_3', { nAv, nAv2: nAv === 1 ? '' : 's' })}</span></div>
+        <div class="box"><span class="muted small">${ic('triangle-alert')} ${I18N.t('gob.superaciones')}</span><b>${nSup}</b><span class="muted small">${I18N.t('gob.aviso_3', { n: nAv })}</span></div>
         <div class="box"><span class="muted small">${ic('calendar')} ${I18N.t('gob.activo_desde')}</span><b>${c.desde ? new Date(c.desde).toLocaleDateString(I18N.locale, { day: '2-digit', month: 'short' }) : '—'}</b><span class="muted small">${esc(c.propietario || I18N.t('gob.gobierno_ia'))}</span></div>
       </div>
       <div class="cap-hero">
@@ -1771,7 +1773,7 @@
     const dup = G.caps.find((x) => x.ambito === ambito && x.tipo === t.v);
     $('nc-preview').innerHTML = `<h3>${I18N.t('gob.vista_previa')}</h3>
       ${ok ? `<div class="cap-gauge">${gaugeSvg(u, aviso / 100)}</div>
-        <p class="small"><span class="pill pill-${est[0]}">${est[1]}</span> ${I18N.t('gob.con_este_limite_el', { consumo: capFmt(c, base.consumo) })} <b>${Math.round(u * 100)} %</b>${I18N.t('gob.en_los_ultimos_14')} <b>${dias}</b> ${I18N.t('gob.y_saltado_el_aviso', { veces: dias === 1 ? 'vez' : 'veces', avisos, veces2: avisos === 1 ? 'vez' : 'veces' })}</p>
+        <p class="small"><span class="pill pill-${est[0]}">${est[1]}</span> ${I18N.t('gob.con_este_limite_el', { consumo: capFmt(c, base.consumo) })} <b>${Math.round(u * 100)} %</b>${I18N.t('gob.en_los_ultimos_14')} <b>${dias}</b> ${I18N.t('gob.y_saltado_el_aviso', { veces: I18N.t('gob.w.vez', { n: dias }), avisos, veces2: I18N.t('gob.w.vez', { n: avisos }) })}</p>
         ${chartCapSerie(c, base.serie, fechasSerie(), 170)}` : I18N.t('gob.introduce_un_limite_mayor')}
       ${dup ? `<p class="small" style="margin-top:.5rem">${ic('info')} ${I18N.t('gob.ya_existe')} <b>${esc(dup.id)}</b> ${I18N.t('gob.con_el_mismo_ambito')}</p>` : ''}`;
   }
@@ -1804,7 +1806,7 @@
     const pico = D.indexOf(max); const c = agColor(p.agente);
     return `<svg class="chart" viewBox="0 0 ${W} ${H}" role="img" aria-label="${I18N.t('gob.disparos_de_por_dia', { id: esc(p.id) })}">
       <g class="grid">${[0, 0.5, 1].map((f) => `<line x1="${pl}" x2="${W - pr}" y1="${ys(ymax * f)}" y2="${ys(ymax * f)}"/><text x="${pl - 6}" y="${ys(ymax * f) + 4}" text-anchor="end">${Math.round(ymax * f)}</text>`).join('')}</g>
-      ${D.map((v, i) => `<rect x="${xs(i) - bw / 2}" y="${ys(v)}" width="${bw}" height="${Math.max(0, ys(0) - ys(v))}" rx="3" fill="${c}" opacity="${i === n - 1 ? 1 : 0.7}" data-tip="${I18N.t('gob.disparo', { fechas: fecha(fechas[i]), v, v2: v === 1 ? '' : 's', pico_del_periodo_2: i === pico && max > 0 ? I18N.t('gob.pico_del_periodo_2') : '' })}"/><text x="${xs(i)}" y="${ys(v) - 5}" text-anchor="middle" style="fill:var(--text);font-weight:${i === pico && max > 0 ? 800 : 500}">${v}</text>`).join('')}
+      ${D.map((v, i) => `<rect x="${xs(i) - bw / 2}" y="${ys(v)}" width="${bw}" height="${Math.max(0, ys(0) - ys(v))}" rx="3" fill="${c}" opacity="${i === n - 1 ? 1 : 0.7}" data-tip="${I18N.t('gob.disparo', { fechas: fecha(fechas[i]), n: v, pico_del_periodo_2: i === pico && max > 0 ? I18N.t('gob.pico_del_periodo_2') : '' })}"/><text x="${xs(i)}" y="${ys(v) - 5}" text-anchor="middle" style="fill:var(--text);font-weight:${i === pico && max > 0 ? 800 : 500}">${v}</text>`).join('')}
       <line x1="${pl}" x2="${W - pr}" y1="${ys(media)}" y2="${ys(media)}" stroke="var(--time)" stroke-width="1.4" stroke-dasharray="5 4"/>
       <text x="${pl + 4}" y="${ys(media) - 5}" style="fill:var(--time);font-weight:700">${I18N.t('gob.media_dia', { replace: dec(media, 1) })}</text>
       ${fechas.map((d, i) => `<text x="${xs(i)}" y="${H - 8}" text-anchor="middle">${fecha(d)}</text>`).join('')}
@@ -1815,7 +1817,7 @@
     const W = 760, H = 150, pl = 30, pr = 16, pt = 12, pb = 24, max = Math.max(1, ...horas);
     const bw = (W - pl - pr) / 24, ys = (v) => pt + (1 - v / max) * (H - pt - pb);
     return `<svg class="chart" viewBox="0 0 ${W} ${H}" role="img" aria-label="${I18N.t('gob.disparos_por_hora_del')}">
-      ${horas.map((v, h) => `<rect x="${pl + h * bw + 2}" y="${ys(v)}" width="${bw - 4}" height="${Math.max(0, ys(0) - ys(v))}" rx="2" fill="${color}" opacity="${0.35 + 0.65 * (v / max)}" data-tip="${I18N.t('gob.00_59_disparo', { padStart: String(h).padStart(2, '0'), v, v2: v === 1 ? '' : 's' })}"/>${h % 3 === 0 ? `<text x="${pl + h * bw + bw / 2}" y="${H - 7}" text-anchor="middle">${I18N.t('gob.h', { padStart: String(h).padStart(2, '0') })}</text>` : ''}`).join('')}
+      ${horas.map((v, h) => `<rect x="${pl + h * bw + 2}" y="${ys(v)}" width="${bw - 4}" height="${Math.max(0, ys(0) - ys(v))}" rx="2" fill="${color}" opacity="${0.35 + 0.65 * (v / max)}" data-tip="${I18N.t('gob.00_59_disparo', { padStart: String(h).padStart(2, '0'), n: v })}"/>${h % 3 === 0 ? `<text x="${pl + h * bw + bw / 2}" y="${H - 7}" text-anchor="middle">${I18N.t('gob.h', { padStart: String(h).padStart(2, '0') })}</text>` : ''}`).join('')}
     </svg>`;
   }
 
@@ -1974,7 +1976,7 @@
     const dir = c.de === c.a ? 'igual' : c.a > c.de ? 'sube' : 'baja';
     const auditId = `AUD-${c.fecha.slice(0, 10).replace(/-/g, '')}-${String(orden).padStart(2, '0')}`;
     const rol = /Comité/.test(c.usuario) ? I18N.t('gob.organo_colegiado_acta_del') : /Sistema/.test(c.usuario) ? I18N.t('gob.automatico_guardrail_del_sistema') : /Gobierno/.test(c.usuario) ? I18N.t('gob.equipo_de_gobierno_ia') : I18N.t('gob.equipo_tecnico');
-    const vigente = sig ? I18N.t('gob.dia_hasta', { fecha: diasEntre(c.fecha, sig[0].fecha), fecha2: diasEntre(c.fecha, sig[0].fecha) === 1 ? '' : 's', fecha3: fechaHora(sig[0].fecha) }) : I18N.t('gob.dias_hasta_hoy', { hoyIso: diasEntre(c.fecha, hoyIso()) });
+    const vigente = sig ? I18N.t('gob.dia_hasta', { n: diasEntre(c.fecha, sig[0].fecha), fecha3: fechaHora(sig[0].fecha) }) : I18N.t('gob.dias_hasta_hoy', { hoyIso: diasEntre(c.fecha, hoyIso()) });
     const hist = [...(a.historial || [])].sort((x, y) => x.fecha.localeCompare(y.fecha));
     const vigenteEn = (tipoH) => { const hs = hist.filter((h) => h.tipo === tipoH); const antes = hs.filter((h) => h.fecha <= c.fecha); return antes.length ? antes[antes.length - 1].a : hs.length ? hs[0].de : '—'; };
     const modelo = vigenteEn('modelo') !== '—' ? vigenteEn('modelo') : a.modelo; const prompt = vigenteEn('prompt') !== '—' ? vigenteEn('prompt') : a.prompt;
@@ -2148,7 +2150,7 @@
           <p class="small" style="margin-top:.6rem">${s.motivos.length ? `<b>${I18N.t('gob.motivos')}</b> ${esc(s.motivos.join(' · '))}` : I18N.t('gob.todas_las_metricas_dentro')}</p>
           <p class="small muted" style="margin-top:.4rem">${I18N.t('gob.agentes_que_la_consumen', { agTag: (k.agentes || []).map(agTag).join(' '), responsable: esc(k.responsable) })}</p></div></div>`;
     } else if (secActual === 'config') {
-      cuerpo = tabla([[I18N.t('gob.estrategia_de_chunking'), esc(c.chunking)], [I18N.t('gob.tamano_de_chunk'), c.chunk != null ? `${esc(String(c.chunk))}${typeof c.chunk === 'number' ? ' tokens' : ''}` : null], [I18N.t('gob.solapamiento_overlap'), c.overlap != null ? `${c.overlap} %` : null], [I18N.t('gob.modelo_de_embeddings'), c.embeddings && esc(c.embeddings)], [I18N.t('gob.indice_y_metrica'), c.indice && esc(c.indice)], ['top-k', c.top_k], [I18N.t('gob.umbral_de_similitud'), c.umbral != null ? dec2(c.umbral) : null], [I18N.t('gob.busqueda_hibrida'), c.hibrida && esc(c.hibrida)], [I18N.t('gob.reranker'), c.reranker && esc(c.reranker)], [I18N.t('gob.filtros_por_metadatos'), c.filtros && esc(c.filtros)], [I18N.t('gob.clave_de_consulta'), c.clave && esc(c.clave)], [I18N.t('gob.pasos'), c.pasos], [I18N.t('gob.plantillas'), c.plantillas], [I18N.t('gob.versiones_del_indice_retenidas'), c.versiones]])
+      cuerpo = tabla([[I18N.t('gob.estrategia_de_chunking'), esc(c.chunking)], [I18N.t('gob.tamano_de_chunk'), c.chunk != null ? `${esc(String(c.chunk))}${typeof c.chunk === 'number' ? ' tokens' : ''}` : null], [I18N.t('gob.solapamiento_overlap'), c.overlap != null ? `${c.overlap} %` : null], [I18N.t('gob.modelo_de_embeddings'), c.embeddings && esc(c.embeddings)], [I18N.t('gob.indice_y_metrica'), c.indice && esc(c.indice)], ['top-k', c.top_k], [I18N.t('gob.umbral_de_similitud'), c.umbral != null ? dec2(c.umbral) : null], [I18N.t('gob.busqueda_hibrida'), c.hibrida && esc(c.hibrida)], [I18N.t('gob.reranker'), c.reranker && esc(c.reranker)], [I18N.t('gob.filtros_por_metadatos'), c.filtros && esc(c.filtros === 'ramo' ? I18N.t('gob.filtro_ramo') : c.filtros)], [I18N.t('gob.clave_de_consulta'), c.clave && esc(c.clave)], [I18N.t('gob.pasos'), c.pasos], [I18N.t('gob.plantillas'), c.plantillas], [I18N.t('gob.versiones_del_indice_retenidas'), c.versiones]])
         + `<p class="muted small" style="margin-top:.5rem">${I18N.t('gob.cambiar_el_modelo_de')}</p>`;
     } else if (secActual === 'comparativa') {
       const cmp = k.comparativa; const mx = Math.max(...cmp.map((x) => x.recall));
@@ -2371,7 +2373,7 @@
     $('med-termo').innerHTML = `<div class="med-termo" style="--c:${colorPct(T.global)}" data-goto="cumplimiento" role="button" tabindex="0" title="${I18N.t('gob.termometro_de_cumplimiento_cambia')}"><span class="v">${T.global}<small>%</small></span><span class="l">${I18N.t('gob.cumplimiento_2')}</span></div>`;
     $('kpis-med').innerHTML = [
       { cls: ab.some((m) => m.sev === 'crit') ? 'crit' : 'warn', icono: 'wrench', etiqueta: I18N.t('gob.medidas_abiertas'), valor: String(ab.length), sub: I18N.t('gob.en_total', { crit: I18N.t('gob.n_criticas', { n: ab.filter((m) => m.sev === 'crit').length }), M: M.length }) },
-      { cls: 'ok', icono: 'euro', etiqueta: I18N.t('gob.ahorro_conseguido'), valor: `${num(AH.conseguido)} €/mes`, sub: I18N.t('gob.de_mes_posibles_aplica', { total: num(AH.total), pendiente: AH.pendiente ? I18N.t('gob.pendientes_de_aprobacion', { pendiente: num(AH.pendiente) }) : '' }), medidor: AH.total ? (AH.conseguido / AH.total) * 100 : 0, id: null },
+      { cls: 'ok', icono: 'euro', etiqueta: I18N.t('gob.ahorro_conseguido'), valor: I18N.t('gob.eur_mes', { importe: num(AH.conseguido) }), sub: I18N.t('gob.de_mes_posibles_aplica', { total: num(AH.total), pendiente: AH.pendiente ? I18N.t('gob.pendientes_de_aprobacion', { pendiente: num(AH.pendiente) }) : '' }), medidor: AH.total ? (AH.conseguido / AH.total) * 100 : 0, id: null },
       { cls: 'warn', icono: 'scale', etiqueta: I18N.t('gob.riesgos_normativos'), valor: String(ab.filter((m) => (m.controles || []).length).length), sub: I18N.t('gob.controles_del_termometro_por') },
       { cls: 'review', icono: 'book-open', etiqueta: I18N.t('gob.kb_por_sanear'), valor: String(ab.filter((m) => m.kb).length), sub: I18N.t('gob.knowledge_bases_con_medida') },
       { cls: 'time', icono: 'circle-check', etiqueta: I18N.t('gob.aplicadas_y_verificadas'), valor: `${M.length - ab.length}`, sub: `${M.filter((m) => estadoMedida(m) === 'verificada').length} verificadas` },
@@ -2386,7 +2388,7 @@
       return `<article class="card med${est === 'verificada' ? ' med-ok' : ''}" data-medida="${esc(m.id)}">
         <div class="med-cab"><span class="pill ${sc}">${sl}</span><span class="muted small">${ic(di)} ${esc(dl)}${m.agente ? ` · ${agTag(m.agente)}` : ''}</span>${rapida(m) ? `<span class="pill pill-ok">${ic('zap')} ${I18N.t('gob.victoria_rapida')}</span>` : ''}<span class="med-num muted small"><span class="pill ${MED_EST[est][0]}">${esc(MED_EST[est][1])}</span> · #${i + 1} · ${esc(m.id)}</span></div>
         <h3 class="med-tit">${esc(m.titulo)}</h3>
-        <p class="small muted">${esc(m.detalle)} <a href="#" data-goto="${esc(m.origen[0])}">${esc(m.origen[1])} →</a></p>
+        <p class="small muted">${esc(m.detalle)} <a href="#" data-goto="${esc(m.origen[0])}">${esc(I18N.dato(m.origen[1]))} →</a></p>
         <div class="med-alts" style="--n:${m.alternativas.length}">${m.alternativas.map((a, k) => altHtml(m, a, k, true)).join('')}</div>
         ${est !== 'abierta' ? `<button type="button" class="med-reabrir" data-med-acc="reabrir:${m.id}:0">${ic('rotate-ccw')} ${I18N.t('gob.reabrir')}</button>` : ''}
       </article>`;
@@ -2398,7 +2400,7 @@
     const est = estadoMedida(m); const [sc, sl] = MED_SEV[m.sev];
     $('modal-med-title').innerHTML = `${ic('wrench')} ${esc(m.id)} · ${esc(m.titulo)}`;
     $('modal-med-body').innerHTML = `<div class="row"><span class="pill ${sc}">${sl}</span><span class="pill ${MED_EST[est][0]}">${esc(MED_EST[est][1])}</span><span class="muted small">${I18N.t('gob.prioridad_2', { dim: esc(MED_DIM[m.dim][1]), agente: m.agente ? ` · ${agLbl(m.agente)}` : '', prioridad: dec2(prioridad(m)) })}</span></div>
-      <div><h3>${I18N.t('gob.que_pasa')}</h3><p class="small">${esc(m.detalle)}</p><p class="small" style="margin-top:.4rem"><button class="btn btn-sm" type="button" data-goto="${esc(m.origen[0])}">${ic('arrow-right')} ${esc(m.origen[1])}</button>${(m.controles || []).length ? ` <span class="muted">${I18N.t('gob.al_verificarla_corrige_en', { span: m.controles.map((c) => `<span class="mono">${esc(c)}</span>`).join(', ') })}</span>` : ''}</p></div>
+      <div><h3>${I18N.t('gob.que_pasa')}</h3><p class="small">${esc(m.detalle)}</p><p class="small" style="margin-top:.4rem"><button class="btn btn-sm" type="button" data-goto="${esc(m.origen[0])}">${ic('arrow-right')} ${esc(I18N.dato(m.origen[1]))}</button>${(m.controles || []).length ? ` <span class="muted">${I18N.t('gob.al_verificarla_corrige_en', { span: m.controles.map((c) => `<span class="mono">${esc(c)}</span>`).join(', ') })}</span>` : ''}</p></div>
       <div><h3>${I18N.t('gob.alternativas')}</h3><div class="med-alts" style="--n:${m.alternativas.length}">${m.alternativas.map((a, k) => altHtml(m, a, k, false)).join('')}</div></div>`;
     if (!$('modal-med').open) $('modal-med').showModal();
   }
@@ -2412,7 +2414,7 @@
   function alertasTodas() {
     const out = (G.alertas || []).map((a) => ({ ...a, origen: 'coste', goto: 'finops' }));
     (G.alertas_autonomia || []).forEach((a) => out.push(a));
-    estadoKB().filter(({ s }) => s.estado !== 'ok').filter(({ k, s }) => s.estado === 'rojo' || k.metricas.obsoletos > 10 || k.metricas.pii).forEach(({ k, s }) => out.push({ sev: s.estado === 'rojo' ? 'crit' : 'warn', titulo: `${k.id} · ${k.nombre}: ${s.estado === 'rojo' ? 'crítica' : 'degradada'}`, detalle: k.nota || s.motivos.slice(0, 2).join(' · '), cuando: 'conocimiento', origen: 'kb', goto: 'knowledge', kb: k.id }));
+    estadoKB().filter(({ s }) => s.estado !== 'ok').filter(({ k, s }) => s.estado === 'rojo' || k.metricas.obsoletos > 10 || k.metricas.pii).forEach(({ k, s }) => out.push({ sev: s.estado === 'rojo' ? 'crit' : 'warn', titulo: `${k.id} · ${k.nombre}: ${s.estado === 'rojo' ? I18N.t('gob.kb_critica') : I18N.t('gob.kb_degradada')}`, detalle: k.nota || s.motivos.slice(0, 2).join(' · '), cuando: 'conocimiento', origen: 'kb', goto: 'knowledge', kb: k.id }));
     alertasFraude().forEach((a) => out.push(a));
     const { T, cadena } = estadoCumplimiento();
     if (cadena.roto !== null) out.push({ sev: 'crit', titulo: I18N.t('gob.cadena_de_integridad_del'), detalle: I18N.t('gob.la_traza_no_coincide', { traza_id: cadena.items[cadena.roto].traza_id }), cuando: 'cumplimiento', origen: 'cumplimiento', goto: 'cumplimiento' });
@@ -2432,10 +2434,10 @@
       const imp = ret.reduce((a, v) => a + (v.importe || 0), 0); const c11 = (G.caps || []).find((c) => c.id === 'CAP-11');
       out.push({ sev: 'warn', titulo: I18N.t('gob.pendientes_de_verificar', { ret: ret.length, pagos_retenidos: ret.length === 1 ? I18N.t('gob.pago_retenido') : I18N.t('gob.pagos_retenidos'), imp: eur(imp, 0) }), detalle: I18N.t('gob.indicio_en_vigilancia_o', { id: ret.map((v) => v.id).join(', '), limite: c11 ? I18N.t('gob.cap_11_al', { limite: Math.round((imp / c11.limite) * 100) }) : '' }), cuando: 'fraude', origen: 'fraude', goto: 'fraude' });
     }
-    (G.caps || []).filter((c) => c.ambito === 'Antifraude' && c.id !== 'CAP-11' && c.estado !== 'ok').forEach((c) => out.push({ sev: c.estado === 'superado' ? 'crit' : 'warn', titulo: `${c.id} ${c.estado === 'superado' ? 'superado' : I18N.t('gob.en_aviso')} · ${c.tipo}: ${num(c.consumo)} / ${num(c.limite)} ${c.unidad}`, detalle: I18N.t('gob.accion_configurada', { accion: c.accion }), cuando: 'fraude', origen: 'fraude', goto: 'fraude' }));
+    (G.caps || []).filter((c) => c.ambito === 'Antifraude' && c.id !== 'CAP-11' && c.estado !== 'ok').forEach((c) => out.push({ sev: c.estado === 'superado' ? 'crit' : 'warn', titulo: `${c.id} ${c.estado === 'superado' ? I18N.t('gob.cap_superado_min') : I18N.t('gob.en_aviso')} · ${I18N.dato(c.tipo)}: ${num(c.consumo)} / ${num(c.limite)} ${unidadCap(c.unidad)}`, detalle: I18N.t('gob.accion_configurada', { accion: c.accion }), cuando: 'fraude', origen: 'fraude', goto: 'fraude' }));
     return out;
   }
-  const alertaHtml = (a) => `<div class="alert ${a.sev} alert-link" ${a.frCaso ? `data-fr-caso="${esc(a.frCaso)}"` : `data-goto="${esc(a.goto)}"`} role="button" tabindex="0" title="${a.frCaso ? I18N.t('gob.abrir_el_caso', { frCaso: esc(a.frCaso) }) : I18N.t('gob.ir_a', { dest: esc(tituloOrigen(a.origen)) })}"><span class="ico">${ic(SEV_ICON[a.sev] || 'info')}</span><div><b>${conGuardrails(esc(a.titulo))}</b><small>${conGuardrails(esc(a.detalle))}</small></div><span class="muted small alert-meta"><span class="pill pill-muted">${esc(I18N.dato(a.origen))}</span>${a.cuando && !['conocimiento', 'cumplimiento', 'fraude'].includes(a.cuando) ? `<br>${esc(a.cuando)}` : ''}</span></div>`;
+  const alertaHtml = (a) => `<div class="alert ${a.sev} alert-link" ${a.frCaso ? `data-fr-caso="${esc(a.frCaso)}"` : `data-goto="${esc(a.goto)}"`} role="button" tabindex="0" title="${a.frCaso ? I18N.t('gob.abrir_el_caso', { frCaso: esc(a.frCaso) }) : I18N.t('gob.ir_a', { dest: esc(tituloOrigen(a.origen)) })}"><span class="ico">${ic(SEV_ICON[a.sev] || 'info')}</span><div><b>${conGuardrails(esc(a.titulo))}</b><small>${conGuardrails(esc(a.detalle))}</small></div><span class="muted small alert-meta"><span class="pill pill-muted">${esc(ORIGENES_AL.some((x) => x[0] === a.origen) ? I18N.t(`gob.origen_pill.${a.origen}`) : I18N.dato(a.origen))}</span>${a.cuando && !['conocimiento', 'cumplimiento', 'fraude'].includes(a.cuando) ? `<br>${esc(a.cuando)}` : ''}</span></div>`;
   const conGoto = (html, vista) => html.replace('<article class="card kpi', `<article data-goto="${vista}" role="button" tabindex="0" class="card kpi kpi-goto`);
 
   // Bloques de cumplimiento y conocimiento del Resumen
@@ -2517,7 +2519,7 @@
     $('kpis-fr').innerHTML = [
       kpi({ cls: 'primary', icono: 'scan-eye', etiqueta: I18N.t('gob.mensajes_analizados'), valor: num(R.analizados), sub: I18N.t('gob.del_lote_motor_sin') }),
       kpi({ cls: R.siu ? 'crit' : R.con_indicios ? 'warn' : 'ok', icono: 'shield-alert', etiqueta: I18N.t('gob.con_indicios'), valor: String(R.con_indicios), sub: I18N.t('gob.en_vigilancia_en_la', { vigilancia: R.vigilancia, siu: R.siu }) }),
-      kpi({ cls: R.retenidos ? 'warn' : 'ok', icono: 'banknote', etiqueta: I18N.t('gob.pagos_retenidos_2'), valor: eur(R.importe_retenido, 0), sub: I18N.t('gob.a_la_espera_de', { retenidos: R.retenidos, pagos: R.retenidos === 1 ? 'pago' : 'pagos', CAP: cap('CAP-11') ? I18N.t('gob.cap_11_al_2', { CAP: Math.round(capUso(cap('CAP-11')) * 100) }) : '' }) }),
+      kpi({ cls: R.retenidos ? 'warn' : 'ok', icono: 'banknote', etiqueta: I18N.t('gob.pagos_retenidos_2'), valor: eur(R.importe_retenido, 0), sub: I18N.t('gob.a_la_espera_de', { retenidos: R.retenidos, pagos: I18N.t('gob.w.pago', { n: R.retenidos }), CAP: cap('CAP-11') ? I18N.t('gob.cap_11_al_2', { CAP: Math.round(capUso(cap('CAP-11')) * 100) }) : '' }) }),
       kpi({ cls: 'review', icono: 'search-check', etiqueta: I18N.t('gob.escalados_a_la_siu'), valor: num(siu14), sub: I18N.t('gob.en_14_dias_hoy', { hoy: hoy[3] ?? 0, limite: cap('CAP-10') ? cap('CAP-10').limite : 15 }) }),
       kpi({ cls: 'time', icono: 'badge-check', etiqueta: I18N.t('gob.confirmados_por_la_siu'), valor: `${Math.round((conf / (casos || 1)) * 100)} %`, sub: I18N.t('gob.de_casos_de_los', { conf, casos }) }),
       kpi({ cls: fp > 0.7 ? 'warn' : 'ok', icono: 'circle-x', etiqueta: I18N.t('gob.falsos_positivos'), valor: `${Math.round(fp * 100)} %`, sub: I18N.t('gob.de_los_disparos_de') }),
@@ -2670,7 +2672,7 @@
     $('modal-fraude-body').innerHTML = `
       <div class="kpi-mini">
         <div class="box"><span class="muted small">${ic('gauge')} ${I18N.t('gob.score_antifraude')}</span><b style="color:${NIVEL_FR[v.nivel][3]}">${v.score}</b><span class="muted small">${I18N.t('gob.vigilancia_40_siu_70')}</span></div>
-        <div class="box"><span class="muted small">${ic('list-checks')} ${I18N.t('gob.triaje')}</span><b>${e.decision_triaje === 'REVISION' ? I18N.t('gob.a_revisar') : I18N.t('gob.aprobado')}</b><span class="muted small">${e.override ? `override: ${e.override.a === 'DESPEJADO' ? 'aprobado' : I18N.t('gob.a_revisar_3')}` : e.revision ? `revisado: ${e.revision.a === 'DESPEJADO' ? 'aprobado' : I18N.t('gob.a_revisar_3')}` : I18N.t('gob.no_cambia_por_el')}</span></div>
+        <div class="box"><span class="muted small">${ic('list-checks')} ${I18N.t('gob.triaje')}</span><b>${e.decision_triaje === 'REVISION' ? I18N.t('gob.a_revisar') : I18N.t('gob.aprobado')}</b><span class="muted small">${e.override ? `override: ${e.override.a === 'DESPEJADO' ? I18N.t('gob.aprobado_min') : I18N.t('gob.a_revisar_3')}` : e.revision ? I18N.t('gob.revisado_a', { a: e.revision.a === 'DESPEJADO' ? I18N.t('gob.aprobado_min') : I18N.t('gob.a_revisar_3') }) : I18N.t('gob.no_cambia_por_el')}</span></div>
         <div class="box"><span class="muted small">${ic('banknote')} ${I18N.t('gob.pago')}</span><b>${PAGO_FR[v.pago][2]}</b><span class="muted small">${v.importe != null ? eur(v.importe, 0) : I18N.t('gob.sin_importe')}</span></div>
         <div class="box"><span class="muted small">${ic('route')} ${I18N.t('gob.escenario')}</span><b>${esc0 ? esc(esc0.id) : '—'}</b><span class="muted small">${esc0 ? esc(esc0.nombre) : I18N.t('gob.no_encaja_en_ninguno')}</span></div>
         <div class="box"><span class="muted small">${ic('search-check')} ${I18N.t('gob.seguimiento')}</span><b>${(EST_SIU[s.estado] || EST_SIU.registrado)[2]}</b><span class="muted small">${esc(s.responsable || '—')}</span></div>
@@ -2797,19 +2799,19 @@
     // Por sección: [pregunta, cifra grande, texto bajo la cifra, estado, normas]
     const nCritAl = I18N.t('gob.n_criticas', { n: crit });
     const F = {
-      resumen: [I18N.t('gob.va_bien_el_sistema'), String(alertas.length), `alertas activas · ${nCritAl}`, crit ? 'crit' : avisos ? 'warn' : 'ok', ['ai-14', 'eiopa']],
-      agentes: [I18N.t('gob.quien_es_que_hace'), I18N.t('gob.de_7', { noActivos: ags.length - noActivos.length, ags: ags.length }), `agentes activos${noActivos.length ? ` · ${noActivos.map((a) => `${a.nombre}: ${(ESTADO[estadoAgente(a)] || ESTADO.activo)[2].replace(/ \(.*\)/, '').toLowerCase()}`).join(', ')}` : ''}`, noActivos.length ? 'warn' : 'ok', ['dora-9', 'ai-14']],
+      resumen: [I18N.t('gob.va_bien_el_sistema'), String(alertas.length), I18N.t('gob.alertas_activas_criticas', { criticas: nCritAl }), crit ? 'crit' : avisos ? 'warn' : 'ok', ['ai-14', 'eiopa']],
+      agentes: [I18N.t('gob.quien_es_que_hace'), I18N.t('gob.de_7', { noActivos: ags.length - noActivos.length, ags: ags.length }), I18N.t('gob.agentes_activos', { detalle: noActivos.length ? ` · ${noActivos.map((a) => `${a.nombre}: ${(ESTADO[estadoAgente(a)] || ESTADO.activo)[2].replace(/ \(.*\)/, '').toLowerCase()}`).join(', ')}` : '' }), noActivos.length ? 'warn' : 'ok', ['dora-9', 'ai-14']],
       trazas: [I18N.t('gob.que_paso_con_este'), num(G.trazas.length), I18N.t('gob.trazas_con_incidencia_con', { incidencias: G.trazas.filter((t) => (t.incidencias || []).length).length, auto: G.trazas.filter((t) => t.resultado !== 'auto').length }), G.trazas.some((t) => (t.incidencias || []).length) ? 'warn' : 'ok', ['ai-12', 'rgpd-5']],
-      replay: [I18N.t('gob.por_que_decidio_eso'), String(repl.length), I18N.t('gob.replays_de_decision', { cambios, cambios2: cambios === 1 ? 'cambio' : 'cambios' }), cambios ? 'warn' : 'ok', ['rgpd-15', 'ai-15']],
+      replay: [I18N.t('gob.por_que_decidio_eso'), String(repl.length), I18N.t('gob.replays_de_decision', { cambios, cambios2: I18N.t('gob.w.cambio', { n: cambios }) }), cambios ? 'warn' : 'ok', ['rgpd-15', 'ai-15']],
       autonomia: [I18N.t('gob.cuanta_libertad_tiene_cada'), G.kpis.resumen[0].valor, I18N.t('gob.autonomia_efectiva_2', { niveles: niveles || '—' }), 'ok', ['ai-14', 'rgpd-22']],
       guardrails: [I18N.t('gob.que_limites_frenan_a'), I18N.t('gob.de_8', { activos, pol: pol.length }), I18N.t('gob.activos_disparos_en_14', { disparos: num(pol.reduce((a, p) => a + (p.disparos || 0), 0)) }), activos < pol.length ? 'warn' : 'ok', ['ai-9', 'ai-14']],
-      hitl: (() => { const d = datosResumen(); const pend = colaHitl().filter((c) => c.estado === 'pendiente').length; return [I18N.t('gob.que_hacen_las_personas'), String(pend), I18N.t('gob.de_revision_override', { pendientes: pend === 1 ? 'pendiente' : 'pendientes', replace: dec(d.pOvr, 1) }), d.pOvr > 3 ? 'crit' : pend ? 'warn' : 'ok', ['ai-14', 'rgpd-22']]; })(),
-      knowledge: [I18N.t('gob.con_que_conocimiento_deciden'), I18N.t('gob.de_9', { kbOk, E: E.length }), I18N.t('gob.sanas_2', { ninguna_critica: kbCrit.length ? `${kbCrit.map(({ k }) => k.id).join(', ')} ${kbCrit.length === 1 ? 'crítica' : 'críticas'}` : I18N.t('gob.ninguna_critica') }), kbCrit.length ? 'crit' : kbOk < E.length ? 'warn' : 'ok', ['ai-10', 'rgpd-17']],
+      hitl: (() => { const d = datosResumen(); const pend = colaHitl().filter((c) => c.estado === 'pendiente').length; return [I18N.t('gob.que_hacen_las_personas'), String(pend), I18N.t('gob.de_revision_override', { pendientes: I18N.t('gob.w.pendiente', { n: pend }), replace: dec(d.pOvr, 1) }), d.pOvr > 3 ? 'crit' : pend ? 'warn' : 'ok', ['ai-14', 'rgpd-22']]; })(),
+      knowledge: [I18N.t('gob.con_que_conocimiento_deciden'), I18N.t('gob.de_9', { kbOk, E: E.length }), I18N.t('gob.sanas_2', { ninguna_critica: kbCrit.length ? `${kbCrit.map(({ k }) => k.id).join(', ')} ${I18N.t('gob.w.critica', { n: kbCrit.length })}` : I18N.t('gob.ninguna_critica') }), kbCrit.length ? 'crit' : kbOk < E.length ? 'warn' : 'ok', ['ai-10', 'rgpd-17']],
       cumplimiento: [I18N.t('gob.podemos_demostrar_que_cumplimos'), `${T.global} %`, I18N.t('gob.cobertura_de_controles_parciales_2', { rojo: T.marcos.reduce((a, m) => a + m.cuenta.ambar + m.cuenta.rojo, 0) }), T.global >= 90 ? 'ok' : 'warn', ['ai-12', 'rgpd-5']],
       finops: [I18N.t('gob.cuanto_cuesta_y_estamos'), eur(coste, 0), I18N.t('gob.en_el_periodo_2', { capsSup, caps_superados_2: capsSup === 1 ? I18N.t('gob.cap_superado') : I18N.t('gob.caps_superados_2') }), capsSup ? 'crit' : 'ok', ['sii-41']],
       medidas: (() => { const ab = medidas().filter(abiertaMed); const cr = ab.filter((m) => m.sev === 'crit').length; const AH = ahorroMedidas(); return [I18N.t('gob.que_hay_que_hacer'), String(ab.length), I18N.t('gob.texto_4', { medidas_abiertas_2: ab.length === 1 ? I18N.t('gob.medida_abierta') : I18N.t('gob.medidas_abiertas_2'), cr, criticas: cr === 1 ? I18N.t('gob.medidas.critica') : I18N.t('gob.medidas.criticas'), posible: AH.conseguido ? I18N.t('gob.de_mes_ahorrados', { conseguido: num(AH.conseguido), total: num(AH.total) }) : I18N.t('gob.mes_de_ahorro_posible', { posible: num(AH.posible) }) }), cr ? 'crit' : ab.length ? 'warn' : 'ok', ['ai-9', 'rgpd-5']]; })(),
-      fraude: (() => { const r = Fraude.resumen(FR); return [I18N.t('gob.hay_indicios_de_fraude'), String(r.con_indicios), I18N.t('gob.con_indicios_en_la', { casos: r.con_indicios === 1 ? 'caso' : 'casos', siu: r.siu, retenidos: r.retenidos, pagos_retenidos: r.retenidos === 1 ? I18N.t('gob.pago_retenido') : I18N.t('gob.pagos_retenidos') }), r.siu ? 'warn' : 'ok', ['rgpd-22', 'rgpd-c47']]; })(),
-      historico: [I18N.t('gob.que_ha_cambiado_cuando'), num(ev.length), `eventos${ev.length ? I18N.t('gob.ultimo', { fecha: fechaHora(ev.reduce((a, e) => (e.fecha > a ? e.fecha : a), ev[0].fecha)) }) : ''}`, 'ok', ['ai-12', 'rgpd-5']],
+      fraude: (() => { const r = Fraude.resumen(FR); return [I18N.t('gob.hay_indicios_de_fraude'), String(r.con_indicios), I18N.t('gob.con_indicios_en_la', { casos: r.con_indicios === 1 ? I18N.t('gob.caso') : I18N.t('gob.casos'), siu: r.siu, retenidos: r.retenidos, pagos_retenidos: r.retenidos === 1 ? I18N.t('gob.pago_retenido') : I18N.t('gob.pagos_retenidos') }), r.siu ? 'warn' : 'ok', ['rgpd-22', 'rgpd-c47']]; })(),
+      historico: [I18N.t('gob.que_ha_cambiado_cuando'), num(ev.length), `${I18N.t('gob.w.evento', { n: ev.length })}${ev.length ? I18N.t('gob.ultimo', { fecha: fechaHora(ev.reduce((a, e) => (e.fecha > a ? e.fecha : a), ev[0].fecha)) }) : ''}`, 'ok', ['ai-12', 'rgpd-5']],
     };
     // Resumen, Trazabilidad y Razonamiento son vistas de consulta, y Guardrails solo enumera límites (un guardrail
     // inactivo no es una incidencia): sin etiqueta de estado
@@ -3312,7 +3314,7 @@
     $('btn-new-policy').addEventListener('click', abrirModalGrNuevo);
     document.querySelectorAll('dialog.modal').forEach((d) => d.addEventListener('click', (e) => { if (e.target === d) d.close(); }));
     $('btn-back').innerHTML = I18N.t('gob.volver_al_triaje', { left: ic('arrow-left') });
-    $('btn-json').innerHTML = `${ic('upload')} Cargar JSON`;
+    $('btn-json').innerHTML = I18N.t('gob.cargar_json', { icono: ic('upload') });
     $('btn-json').addEventListener('click', () => $('file-json').click());
     $('file-json').addEventListener('change', () => { const f = $('file-json').files[0]; if (f) cargarArchivo(f); $('file-json').value = ''; });
     $('fuente').addEventListener('change', () => setFuente($('fuente').value));
@@ -3320,7 +3322,7 @@
     const H = { 'h-fin-agentes': ['activity', I18N.t('gob.como_va_el_gasto')], 'h-fin-porque': ['coins', I18N.t('gob.donde_se_va_el')], 'h-agentes': ['cpu', I18N.t('gob.agentes')], 'h-coste': ['euro', I18N.t('gob.coste_diario_frente_al')], 'h-alertas': ['bell', I18N.t('gob.alertas_activas')], 'h-reasoning': ['brain', I18N.t('gob.razonamiento_registrado')], 'h-replay': ['repeat', I18N.t('gob.replay')], 'h-replays': ['history', I18N.t('gob.replays_anteriores')], 'h-niveles': ['sliders-horizontal', I18N.t('gob.niveles_de_autonomia')], 'h-correctivas': ['bell', I18N.t('gob.alertas_de_coste')], 'h-guardrails': ['shield-check', I18N.t('gob.guardrails')], 'h-cambios': ['history', I18N.t('gob.cambios_de_nivel_auditoria')], 'h-caps': ['scale', I18N.t('gob.caps_configurados')], 'h-coste-ag': ['euro', I18N.t('gob.coste_diario_por_agente')], 'h-tokens': ['cpu', I18N.t('gob.tokens_por_agente')], 'h-modelos': ['database', I18N.t('gob.modelos')], 'h-reco': ['lightbulb', I18N.t('gob.recomendaciones_de_ahorro')], 'h-hist': ['history', I18N.t('gob.historico_de_gobierno')], 'h-med': ['wrench', I18N.t('gob.medidas_correctivas')] };
     Object.entries(H).forEach(([id, [i, t]]) => titulo(id, i, t));
     document.querySelectorAll('[data-close]').forEach((b) => { b.innerHTML = ic('x'); });
-    $('btn-export-trazas').innerHTML = `${ic('download')} Exportar trazas`;
+    $('btn-export-trazas').innerHTML = I18N.t('gob.exportar_trazas', { icono: ic('download') });
     $('btn-export-trazas').addEventListener('click', () => {
       const url = URL.createObjectURL(new Blob([JSON.stringify(G, null, 2)], { type: 'application/json' }));
       const a = Object.assign(document.createElement('a'), { href: url, download: `gobierno-agentes-${new Date().toISOString().slice(0, 10)}.json` });

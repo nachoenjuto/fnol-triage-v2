@@ -366,7 +366,7 @@
   // ---------------------------------------------------------------------------
   function renderPaquete() {
     const sel = $('sel-paquete');
-    sel.replaceChildren(...PAQUETES.map((p) => Object.assign(document.createElement('option'), { value: p.id, textContent: `${p.nombre} — ${p.mensajes.length} mensajes` })));
+    sel.replaceChildren(...PAQUETES.map((p) => Object.assign(document.createElement('option'), { value: p.id, textContent: I18N.t('triaje.paquete_mensajes', { nombre: p.nombre, n: p.mensajes.length }) })));
     sel.value = state.paqueteId;
     const p = paqueteActual();
     $('paquete-desc').textContent = p.descripcion;
@@ -853,9 +853,10 @@
     const texto = `Asunto: ${e.asunto}\nRemitente: ${e.remitente}\n\n${e.texto}${bloqueAdj}`;
     $('modal-raw').innerHTML = escapeHtml(texto).replace(/\[[A-Z_]+_\d+\]/g, (t) => `<mark class="raw-tok">${t}</mark>`);
     modalState.rawTexto = texto;
-    const NOMBRE_TIPO = { nombre: ['nombre', 'nombres'], nombre_tercero: [I18N.t('triaje.nombre_de_tercero'), I18N.t('triaje.nombres_de_terceros')], dni: ['DNI', 'DNI'], nie: ['NIE', 'NIE'], email: ['email', 'emails'], telefono: ['teléfono', 'teléfonos'], iban: ['IBAN', 'IBAN'], tarjeta_sanitaria: [I18N.t('triaje.tarjeta_sanitaria'), I18N.t('triaje.tarjetas_sanitarias')], poliza: ['póliza', 'pólizas'], matricula: ['matrícula', 'matrículas'], expediente: ['expediente', 'expedientes'], direccion: ['dirección', 'direcciones'] };
-    const tipos = Object.entries(sd.por_tipo || {}).map(([k, n]) => `${n} ${(NOMBRE_TIPO[k] || [k, k])[n === 1 ? 0 : 1]}`).join(', ');
-    $('raw-nota').textContent = I18N.t('triaje.datos_personales_sustituidos_por', { reproduccion_de_una_resp: sd.simulada ? I18N.t('triaje.reproduccion_de_una_respuesta') : '', sustituidos: sd.sustituidos, ninguno: tipos || 'ninguno' })
+    const NOMBRE_TIPO = { nombre_tercero: [I18N.t('triaje.nombre_de_tercero'), I18N.t('triaje.nombres_de_terceros')], tarjeta_sanitaria: [I18N.t('triaje.tarjeta_sanitaria'), I18N.t('triaje.tarjetas_sanitarias')] };
+    const PII_SIMPLE = ['nombre', 'dni', 'nie', 'email', 'telefono', 'iban', 'poliza', 'matricula', 'expediente', 'direccion'];
+    const tipos = Object.entries(sd.por_tipo || {}).map(([k, n]) => `${n} ${PII_SIMPLE.includes(k) ? I18N.t(`triaje.pii.${k}`, { n }) : (NOMBRE_TIPO[k] || [k, k])[n === 1 ? 0 : 1]}`).join(', ');
+    $('raw-nota').textContent = I18N.t('triaje.datos_personales_sustituidos_por', { reproduccion_de_una_resp: sd.simulada ? I18N.t('triaje.reproduccion_de_una_respuesta') : '', sustituidos: sd.sustituidos, ninguno: tipos || I18N.t('triaje.ninguno') })
       + I18N.t('triaje.la_tabla_de_correspondencias')
       + (adj.length && entry.adjuntos_origen !== 'guardado' ? I18N.t('triaje.la_seudonimizacion_solo_se') : '');
   }

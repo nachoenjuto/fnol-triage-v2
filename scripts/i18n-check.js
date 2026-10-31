@@ -35,7 +35,7 @@ for (const fichero of FICHEROS) {
     const ok = (typeof v === 'string' && v.trim()) || (v && typeof v === 'object' && !Array.isArray(v) && typeof v.other === 'string');
     if (!ok) error(`${BASE}: «${clave}» vacía o con formato no válido (texto o { one, other })`);
     // I18N.t solo sustituye {nombre} con letras ASCII: un {críticas} se quedaría tal cual en pantalla
-    if (/\{[^{}\s]*[^\x00-\x7F][^{}\s]*\}/.test(JSON.stringify(v))) error(`${BASE}: «${clave}» tiene un marcador con letras no ASCII`);
+    if ((typeof v === 'string' ? [v] : Object.values(v || {})).some((x) => /\{[^{}\s]*[^\x00-\x7F][^{}\s]*\}/.test(String(x)))) error(`${BASE}: «${clave}» tiene un marcador con letras no ASCII`);
   }
   // Una clave repetida en el mismo fichero se pisa en silencio (gana la última)
   const repetidas = (fs.readFileSync(path.join(raiz, 'locales', BASE, fichero), 'utf8').match(/^\s*'[^']+':/gm) || []).filter((k, i, a) => a.indexOf(k) !== i);

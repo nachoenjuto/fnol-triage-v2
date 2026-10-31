@@ -186,8 +186,8 @@
       case 'tarjeta_sanitaria': return tok('TSI');
       case 'expediente': return tok('EXP');
       case 'direccion': return /Madrid/.test(c) ? I18N.t('cumpl.madrid_municipio') : I18N.t('cumpl.municipio_generalizado');
-      case 'menor': return '[menor de edad]';
-      case 'salud': return '[dato de salud cifrado]';
+      case 'menor': return I18N.t('cumpl.marcador_menor');
+      case 'salud': return I18N.t('cumpl.marcador_salud');
       default: return '•••';
     }
   }
@@ -384,7 +384,7 @@
           hallazgos.push({ adjunto: a.id, campo: `${k}.${campo}`, categoria, tipo, valor_en_traza: enmascarar({ cita: String(v), tipo }) });
         });
       });
-      if (d.firmado_ambos) hallazgos.push({ adjunto: a.id, campo: 'firmas', categoria: 'identificativo', tipo: 'firma', valor_en_traza: '[firma manuscrita: no se extrae]' });
+      if (d.firmado_ambos) hallazgos.push({ adjunto: a.id, campo: 'firmas', categoria: 'identificativo', tipo: 'firma', valor_en_traza: I18N.t('cumpl.marcador_firma') });
     });
     const ia = /^IA/.test(entry.origen || '');
     return {

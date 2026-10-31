@@ -449,4 +449,7 @@ I18N.registrar('de', {
   "prompt.asunto": ["Betreff: {asunto}","0d61596b"],
   "cumpl.n_elementos": [{"one":"{n} Element","other":"{n} Elemente"},"3a63b0d0"],
   "cumpl.n_claves": [{"one":"{n} Schlüssel","other":"{n} Schlüssel"},"dce85302"],
+  "cumpl.marcador_menor": ["[minderjährig]","176809cd"],
+  "cumpl.marcador_salud": ["[verschlüsselte Gesundheitsangabe]","878fa94f"],
+  "cumpl.marcador_firma": ["[handschriftliche Unterschrift: nicht extrahiert]","1a487f37"],
 });
