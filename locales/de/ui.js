@@ -71,7 +71,7 @@ I18N.registrar('de', {
   "shell.ir_al_paso": ["Zu Schritt {avisoIr}","204c8483"],
   "shell.min": ["{min} Min · {pagina}","ab4b959a"],
   "shell.anterior": ["Zurück","7f5df705"],
-  "shell.ir": ["Los","4ce8dba2"],
+  "shell.ir": ["Aufrufen","4ce8dba2"],
   "shell.siguiente": ["Weiter","28b1c3f4"],
   "shell.empezar_de_nuevo": ["Von vorn beginnen","b6f2b66b"],
   "shell.ir_al_subtitulo": ["Zu Untertitel {v}","f7de9848"],

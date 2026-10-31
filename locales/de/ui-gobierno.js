@@ -1467,7 +1467,7 @@ I18N.registrar('de', {
   "gob.peso_puntos": ["Gewicht (Punkte)","3623b6da"],
   "gob.de_100": ["von 100","931858bd"],
   "gob.frases_que_lo_activan": ["Auslösende Sätze (einer pro Zeile; ohne Groß-/Kleinschreibung)","32696985"],
-  "gob.en_efectivo_10_a": ["en efectivo&#10;a nombre de mi cuñado","cc6fec8e"],
+  "gob.en_efectivo_10_a": ["in bar&#10;auf den Namen meines Schwagers","cc6fec8e"],
   "gob.senal_que_detecta": ["Signal (was er erkennt)","1156d19b"],
   "gob.el_cliente_pide_cobrar": ["Der Kunde will die Zahlung außerhalb des Kontos der Police erhalten","ba0a3fd5"],
   "gob.ramos": ["Sparten","484f2d55"],
