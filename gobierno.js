@@ -141,6 +141,14 @@
     const k = t.override ? 'override' : 'revision'; const a = t[k];
     return { [k]: { ...a, fecha: new Date(new Date(inicio).getTime() + (new Date(a.fecha) - new Date(t.inicio))).toISOString() } };
   }
+  // Razonamiento registrado de la sesión: con el motor «guardado» la traza reproduce la respuesta de la demo con el mismo
+  // id y el mismo mensaje, así que lleva su mismo razonamiento. Las de la IA en vivo o del motor local no lo tienen.
+  function razonamientoDeDemo(trazas) {
+    const raz = GOBIERNO_DEMO.razonamiento || {};
+    return Object.fromEntries(trazas
+      .filter((t) => raz[t.id] && /\(guardado\)/.test(t.origen || '') && (GOBIERNO_DEMO.trazas || []).some((x) => x.id === t.id && x.mensaje === t.mensaje))
+      .map((t) => [t.id, raz[t.id]]));
+  }
   // Eventos del histórico y efecto en la autonomía de lo que se hizo en la sesión: cada override suma a la tasa de Reglas
   // (overrides entre aprobaciones automáticas); por encima del 3 % se propone bajarle un nivel, pendiente de que lo apruebe una persona.
   const UMBRAL_OVERRIDE = 3;
@@ -167,7 +175,7 @@
       const agentes = [...GOBIERNO_DEMO.agentes, ...extra];
       const ses = efectoSesion(trazas, agentes);
       const alertas = ses.propuesta ? [{ sev: 'warn', titulo: I18N.t('gob.override_de_reglas_en', { replace: dec(ses.tasa, 1), UMBRAL_OVERRIDE }), detalle: I18N.t('gob.se_propone_bajar_reglas', { de: ses.propuesta.de, propuesta: ses.propuesta.a }), cuando: 'sesión', origen: 'autonomia', goto: 'autonomia' }] : [];
-      G = { ...GOBIERNO_DEMO, agentes, precios: { ...GOBIERNO_DEMO.precios, local: { in: 0, out: 0 } }, trazas, razonamiento: {},
+      G = { ...GOBIERNO_DEMO, agentes, precios: { ...GOBIERNO_DEMO.precios, local: { in: 0, out: 0 } }, trazas, razonamiento: razonamientoDeDemo(trazas),
         eventos: [...ses.eventos.sort((a, b) => b.fecha.localeCompare(a.fecha)), ...(GOBIERNO_DEMO.eventos || [])],
         cambios_autonomia: [...(ses.propuesta ? [ses.propuesta] : []), ...(GOBIERNO_DEMO.cambios_autonomia || [])],
         sesion: ses, alertas_autonomia: alertas };
