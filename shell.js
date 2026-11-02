@@ -205,7 +205,7 @@
   // ---------------------------------------------------------------------------
   const PAGINA_URL = { intro: 'intro.html', triaje: 'index.html', gobierno: 'gobierno.html' };
   const PAGINA_LBL = { intro: I18N.t('shell.introduccion'), triaje: I18N.t('shell.triaje'), gobierno: I18N.t('shell.gobierno') };
-  // Tipos de subtítulo (data/recorrido.js, generado desde _docs/guion-demo.md): cada uno se puede mostrar u ocultar
+  // Tipos de subtítulo (data/recorrido.js, generado desde _docs/demo/es/guion-demo.md): cada uno se puede mostrar u ocultar
   const TIPOS = { intro: ['message-circle', I18N.t('shell.introduccion')], para: ['lightbulb', I18N.t('shell.para_que_sirve')], que: ['cpu', I18N.t('shell.que_es_y_que')], valor: ['shield-check', I18N.t('shell.valor')] };
   const CPS = 15; const CUE_MIN = 4000;   // velocidad de lectura (caracteres por segundo) y tiempo mínimo por subtítulo
   const PASOS = (typeof RECORRIDO_DEMO !== 'undefined' ? RECORRIDO_DEMO : root.RECORRIDO_DEMO || { pasos: [] }).pasos;
@@ -220,7 +220,7 @@
   const MAX_SUBS = 40; const MAX_TXT = 400;
   const ESPERA_MAX = 180000;   // un paso que espera (el lote) empieza a contar como mucho a los 3 minutos
   // Versión del guion: los textos editados se guardan por número de paso. La 3 rehace el recorrido desde
-  // _docs/guion-demo.md (22 pasos, subtítulos con tipo): los textos editados con versiones anteriores se descartan.
+  // _docs/demo/es/guion-demo.md (22 pasos, subtítulos con tipo): los textos editados con versiones anteriores se descartan.
   // La 4 parte la introducción en cuatro secciones de intro.html (24 pasos): los números de paso se desplazan.
   const GUION = 4;
   const TIPOS_DEF = Object.fromEntries(Object.keys(TIPOS).map((k) => [k, true]));

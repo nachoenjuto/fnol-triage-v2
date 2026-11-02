@@ -28,10 +28,10 @@ const test = async (nombre, fn) => { try { await fn(); n++; console.log(`  ok   
     assert.deepStrictEqual(R.PASOS.slice(0, 4).map((p) => p.accion), ['sec:problema', 'sec:solucion', 'sec:actores', 'sec:demo']);
     assert.ok(['intro', 'para', 'que', 'valor'].every((t) => R.PASOS.some((p) => p.subtitulos.some((s) => s.tipo === t))), 'hay subtítulos de los cuatro tipos');
   });
-  await test('data/recorrido.js está al día con _docs/guion-demo.md', () => {
+  await test('data/recorrido.js está al día con _docs/demo/es/guion-demo.md', () => {
     const { execFileSync } = require('child_process');
     const actual = fs.readFileSync(path.join(__dirname, '..', 'data', 'recorrido.js'), 'utf8');
-    execFileSync(process.execPath, [path.join(__dirname, '..', 'scripts', 'generar-recorrido.js')], { stdio: 'ignore' });
+    execFileSync(process.execPath, [path.join(__dirname, '..', 'scripts', 'generators', 'generar-recorrido.js')], { stdio: 'ignore' });
     const nuevo = fs.readFileSync(path.join(__dirname, '..', 'data', 'recorrido.js'), 'utf8');
     if (nuevo !== actual) fs.writeFileSync(path.join(__dirname, '..', 'data', 'recorrido.js'), actual);
     assert.strictEqual(nuevo, actual, 'regenera con «make recorrido» tras cambiar el guion');

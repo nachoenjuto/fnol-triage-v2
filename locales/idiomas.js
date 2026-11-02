@@ -1,6 +1,6 @@
 // Registro de idiomas de la demo. Añadir uno: carpeta locales/<código>/ con los mismos ficheros que es/, su
 // locales/<código>/estado.json y una entrada aquí. El selector de la cabecera (shell.js), el cargador
-// (locales/cargar.js) y el validador (scripts/i18n-check.js) lo recogen solos.
+// (locales/cargar.js) y el validador (scripts/i18n/i18n-check.js) lo recogen solos.
 // `nombre` va en el propio idioma (no se traduce). `bandera`: SVG 3:2 que muestra el selector de la cabecera. `base`: idioma de referencia; el resto se traduce desde él y,
 // si le falta una clave, muestra la del idioma base.
 (function (root) {

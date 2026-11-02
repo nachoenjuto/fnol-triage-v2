@@ -1,6 +1,6 @@
 // Núcleo de idiomas: textos por clave, plurales, formatos de número y fecha y rellenado de los HTML.
 // Lógica pura salvo `aplicar` (DOM): funciona en el navegador (global `I18N`) y en Node (tests/i18n.test.js,
-// scripts/i18n-check.js).
+// scripts/i18n/i18n-check.js).
 //
 // Formato de los textos (locales/<idioma>/ui.js):
 //   idioma base (es):  'clave': 'Texto con {variable}'
@@ -12,7 +12,7 @@
 
   const IDIOMAS = root.IDIOMAS || (typeof require !== 'undefined' ? require('./idiomas.js') : {});
   const BASE = Object.keys(IDIOMAS).find((c) => IDIOMAS[c].base) || 'es';
-  // Ficheros de textos de cada idioma (locales/<idioma>/…): los carga cargar.js y los compara scripts/i18n-check.js
+  // Ficheros de textos de cada idioma (locales/<idioma>/…): los carga cargar.js y los compara scripts/i18n/i18n-check.js
   const FICHEROS = ['ui.js', 'ui-triaje.js', 'ui-gobierno.js', 'ui-intro.js'];
   // Tablas de traducción de los datos (solo en los idiomas que no son el base: ver traducirDatos)
   const FICHEROS_DATOS = ['datos-mensajes.js', 'datos-resultados.js', 'datos-gobierno.js', 'datos-fraude.js', 'datos-prompts.js', 'datos-recorrido.js'];

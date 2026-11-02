@@ -1,5 +1,5 @@
 // Los motores que leen el texto de los datos dan lo mismo en cada idioma que en español: `node tests/motores-idioma.test.js`
-// (o `make test`). Cada idioma corre en su propio proceso (scripts/motores-idioma.js) porque I18N es global.
+// (o `make test`). Cada idioma corre en su propio proceso (tests/helpers/motores-idioma.js) porque I18N es global.
 const assert = require('assert');
 const path = require('path');
 const { execFileSync } = require('child_process');
@@ -8,7 +8,7 @@ const IDIOMAS = require('../locales/idiomas.js');
 
 let n = 0;
 const test = (nombre, fn) => { try { fn(); n++; console.log(`  ok   ${nombre}`); } catch (e) { console.error(`  FALLA ${nombre}\n       ${e.message}`); process.exitCode = 1; } };
-const resultados = (idioma) => JSON.parse(execFileSync(process.execPath, [path.join(__dirname, '../scripts/motores-idioma.js'), idioma], { encoding: 'utf8' }));
+const resultados = (idioma) => JSON.parse(execFileSync(process.execPath, [path.join(__dirname, 'helpers/motores-idioma.js'), idioma], { encoding: 'utf8' }));
 
 const B = resultados(I18N.BASE);
 const base = B.mensajes;

@@ -1,4 +1,4 @@
-// Traducción de los guiones de _docs (scripts/guion.js): { huella de la línea en español: texto }.
+// Traducción de los guiones de _docs (scripts/i18n/guion.js): { huella de la línea en español: texto }.
 // Pendientes: make i18n-estado IDIOMA=en · Guiones: make guion IDIOMA=en
 I18N.registrarDatos('en', {
   "10023703": "FinOps, Agents",
