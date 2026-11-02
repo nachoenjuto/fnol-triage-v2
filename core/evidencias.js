@@ -150,8 +150,9 @@
       const citas = citasDeTexto(c);
       const resto = String(c).replace(/["“«][^"”»]*["”»]\s*:?\s*/, '').trim();
       if (citas.length) { citas.forEach((q) => add('ramo', q, resto || I18N.t('evid.indicio_del_ramo'))); continue; }
-      const local = String(c).match(/^(Auto|Hogar|Salud): (.+) \((\d+)\)$/);
-      if (local && local[1] === entry.ramo && +local[3] > 0) palabrasRamo.push(...local[2].split(', ').filter((w) => w.toLowerCase() !== String(datos.numero_poliza || '').toLowerCase() && localizar(t, w)).slice(0, 3));
+      // El motor local escribe «<etiqueta del ramo>: palabras (n)» (core/motor-local.js)
+      const local = String(c).match(/^(.+?): (.+) \((\d+)\)$/);
+      if (local && local[1] === I18N.etiqueta('ramo', entry.ramo) && +local[3] > 0) palabrasRamo.push(...local[2].split(', ').filter((w) => w.toLowerCase() !== String(datos.numero_poliza || '').toLowerCase() && localizar(t, w)).slice(0, 3));
     }
 
     if (datos.numero_poliza) add('numero_poliza', String(datos.numero_poliza), I18N.t('evid.poliza_identificada'));

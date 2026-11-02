@@ -18,7 +18,7 @@
     const scores = hits.map(([r, words]) => [r, words.length]).sort((a, b) => b[1] - a[1]);
     const [best, second] = scores;
     const ramo = best[1] === 0 || best[1] === second[1] ? 'Indeterminado' : best[0];
-    const criterios = hits.map(([r, words]) => `${r}: ${words.length ? words.join(', ') : root.I18N.t('triaje.sin_indicios')} (${words.length})`);
+    const criterios = hits.map(([r, words]) => `${root.I18N.etiqueta('ramo', r)}: ${words.length ? words.join(', ') : root.I18N.t('triaje.sin_indicios')} (${words.length})`);
     return { ramo, criterios };
   }
 
@@ -112,7 +112,7 @@
     } else if (incumplidas.length) {
       decision = DECISION.REVIEW; motivo = root.I18N.t('triaje.motor.incumple', { reglas: incumplidas.map((c) => `${c.regla} (${c.descripcion})`).join(', ') });
     } else {
-      decision = DECISION.CLEARED; motivo = root.I18N.t('triaje.ramo_sin_incumplimientos_en', { ramo, importe_estimado_eur: fmtEur(datos.importe_estimado_eur) });
+      decision = DECISION.CLEARED; motivo = root.I18N.t('triaje.ramo_sin_incumplimientos_en', { ramo: root.I18N.etiqueta('ramo', ramo), importe_estimado_eur: fmtEur(datos.importe_estimado_eur) });
     }
     return { ramo, criterios_ramo, datos_extraidos: datos, criterios, decision, motivo, confianza: ramo === 'Indeterminado' ? 0.3 : 0.6 + Math.min(0.25, criterios.length * 0.04) };
   }

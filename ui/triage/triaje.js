@@ -41,6 +41,7 @@
   const daysBetween = (a, b) => Math.round((new Date(b) - new Date(a)) / 86400000);
   const fmtEur = (n) => (n == null || Number.isNaN(Number(n)) ? '—' : Number(n).toLocaleString(I18N.locale, { style: 'currency', currency: 'EUR', maximumFractionDigits: 0, useGrouping: 'always' }));
   const fmtMs = (ms) => (ms >= 1000 ? `${(ms / 1000).toFixed(2)} s` : `${Math.round(ms)} ms`);
+  const usoTokens = (u) => I18N.t('triaje.tokens.uso', { entrada: u?.input ?? '?', salida: u?.output ?? '?' }) + (u?.reasoning != null ? I18N.t('triaje.tokens.razonamiento', { n: u.reasoning }) : '');
   const escapeHtml = (s) => String(s ?? '').replace(/[&<>"']/g, (ch) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[ch]));
   const ssGet = (k, fallback) => { try { const v = sessionStorage.getItem(k); return v ? JSON.parse(v) : fallback; } catch { return fallback; } };
   const ssSet = (k, v) => { try { sessionStorage.setItem(k, JSON.stringify(v)); } catch { /* sin almacenamiento */ } };
@@ -269,8 +270,7 @@
     const { mensaje, mapa } = Cumplimiento.seudonimizarMensaje(msg);
     return { envio: mensaje, mapa, seud: true };
   }
-  const resumenEnvio = (envio, mapa, extra) => Cumplimiento.resumenSeudonimizacion(
-    { asunto: envio.asunto, remitente: `${envio.remitente.nombre} (${envio.remitente.contacto})`, texto: envio.texto }, mapa, extra);
+  const resumenEnvio = Registro.resumenEnvio;
 
   async function aiTriage(msg, cfg, onProgress) {
     const { envio, mapa, seud } = prepararEnvio(msg);
@@ -386,8 +386,8 @@
     $('paquete-desc').textContent = p.descripcion;
     renderPaqueteLista();
     $('btn-run').innerHTML = state.motor === 'archivo' && state.archivo
-      ? `${lucide('play')} Reproducir archivo (${state.archivo.entradas.length})`
-      : `${lucide('play')} Procesar ${escapeHtml(p.nombre)} (${p.mensajes.length})`;
+      ? `${lucide('play')} ${I18N.t('triaje.btn_run.reproducir_archivo', { n: state.archivo.entradas.length })}`
+      : `${lucide('play')} ${I18N.t('triaje.btn_run.procesar', { nombre: escapeHtml(p.nombre), n: p.mensajes.length })}`;
     $('sel-estrategia').value = state.estrategia;
     $('chk-seud').checked = state.seudonimizar;
     syncEstrategiaUI();
@@ -1001,7 +1001,7 @@
     const esperado = entry.esperado || {};
     $('modal-kpis').innerHTML = `
       ${tarjetaDecision(entry, inc)}
-      <div class="kpi-tile ico" style="--tc:${ramoColor}"><span class="kpi-ico">${lucide(ramoIcon)}</span><div class="txt"><span class="l">${I18N.t('triaje.ramo')}</span><span class="v">${escapeHtml(I18N.etiqueta('ramo', entry.ramo))}</span><span class="s">${esperado.ramo ? (esperado.ramo === entry.ramo ? I18N.t('triaje.coincide_con_el_esperado') : `esperado ${escapeHtml(esperado.ramo)}`) : escapeHtml(entry.origen.startsWith('IA') ? I18N.t('triaje.asignado_por_el_modelo') : I18N.t('triaje.asignado_por_reglas_locales'))}</span></div></div>
+      <div class="kpi-tile ico" style="--tc:${ramoColor}"><span class="kpi-ico">${lucide(ramoIcon)}</span><div class="txt"><span class="l">${I18N.t('triaje.ramo')}</span><span class="v">${escapeHtml(I18N.etiqueta('ramo', entry.ramo))}</span><span class="s">${esperado.ramo ? (esperado.ramo === entry.ramo ? I18N.t('triaje.coincide_con_el_esperado') : I18N.t('triaje.esperado', { ramo: escapeHtml(I18N.etiqueta('ramo', esperado.ramo)) })) : escapeHtml(entry.origen.startsWith('IA') ? I18N.t('triaje.asignado_por_el_modelo') : I18N.t('triaje.asignado_por_reglas_locales'))}</span></div></div>
       <div class="kpi-tile ico conf" style="--tc:${entry.confianza >= 0.85 ? 'var(--ok)' : entry.confianza >= 0.7 ? 'var(--review)' : 'var(--error)'}"><span class="kpi-ico">${lucide('gauge')}</span><div class="txt"><span class="l">${I18N.t('triaje.confianza')}</span><span class="v" style="color:var(--tc)">${entry.confianza >= 0.85 ? I18N.t('triaje.alta') : entry.confianza >= 0.7 ? I18N.t('triaje.media') : I18N.t('triaje.baja')}</span><span class="s">${I18N.t('triaje.del_modelo_en_su')}</span></div><svg class="ring" viewBox="0 0 64 64" role="img" aria-label="${I18N.t('triaje.confianza_por_ciento', { confianza: Math.round(entry.confianza * 100) })}"><circle class="pista" cx="32" cy="32" r="26"/><circle class="valor" cx="32" cy="32" r="26" stroke-dasharray="${(entry.confianza * 163.36).toFixed(1)} 999"/><text x="32" y="37" text-anchor="middle">${Math.round(entry.confianza * 100)}%</text></svg></div>`;
     pintarFormRevision(entry);
   }
@@ -1069,8 +1069,10 @@
       [I18N.t('triaje.confianza'), `${Math.round(entry.confianza * 100)} %`],
       [I18N.t('triaje.origen'), escapeHtml(origenTexto(entry.origen))],
       [I18N.t('triaje.ciclo'), fmtMs(entry.duracion_ms)],
-      [I18N.t('triaje.tokens'), entry.usage ? `${entry.usage.input ?? '?'} entrada · ${entry.usage.output ?? '?'} salida${entry.usage.reasoning != null ? ` (${entry.usage.reasoning} razonamiento)` : ''}` : undefined],
-      ...(entry.pasos && entry.pasos.length > 1 ? entry.pasos.map((p) => [`${lucide('corner-down-right')} ${escapeHtml(p.nombre)}`, `${p.duracion_ms != null ? `${fmtMs(p.duracion_ms)} · ` : ''}${p.usage?.input ?? '?'} entrada · ${p.usage?.output ?? '?'} salida${p.usage?.reasoning != null ? ` (${p.usage.reasoning} razonamiento)` : ''}`]) : []),
+      [I18N.t('triaje.tokens'), entry.usage ? usoTokens(entry.usage) : undefined],
+      ...(entry.pasos && entry.pasos.length > 1 ? entry.pasos.map((p) => [`${lucide('corner-down-right')} ${escapeHtml(p.nombre)}`, `${p.duracion_ms != null ? `${fmtMs(p.duracion_ms)} · ` : ''}${usoTokens(p.usage)}`]) : []),
+      // La respuesta de un modelo en vivo no se rehace al cambiar de idioma (core/registro.js)
+      [I18N.t('triaje.idioma_ficha'), entry.idioma && entry.idioma !== I18N.idioma ? I18N.t('triaje.idioma_ficha.sin_traducir', { nombre: escapeHtml((I18N.IDIOMAS[entry.idioma] || {}).nombre || entry.idioma) }) : undefined],
       [I18N.t('triaje.referencia_demo'), esperado.ramo ? `${esperado.revision ? I18N.t('triaje.a_revisar_esperado') : I18N.t('triaje.aprobado_esperado')}${esperado.nota ? ` — ${escapeHtml(esperado.nota)}` : ''}` : undefined],
     ]);
     pintarRaw(entry);
@@ -1118,13 +1120,8 @@
       const guardado = RESULTADOS_GUARDADOS[msg.id];
       await simulateModelWait(onProgress);
       if (!guardado) return { ...localTriage(msg), origen: 'reglas locales (sin ficha guardada)' };
-      const r = expandirResultadoGuardado(guardado);
-      const { usage, ...json } = r;
-      const raw = JSON.stringify(json, null, 2);
-      const { envio, mapa, seud } = prepararEnvio(msg);
       // Reproducción: se muestra la salida tal y como la habría devuelto el modelo con el mensaje seudonimizado
-      if (seud) return { ...r, raw: Cumplimiento.seudonimizarTexto(raw, mapa), origen: 'IA (guardado)', seudonimizacion: resumenEnvio(envio, mapa, { simulada: true }) };
-      return { ...r, raw, origen: 'IA (guardado)' };
+      return Registro.resultadoGuardado(msg, guardado, { expandir: expandirResultadoGuardado, seudonimizar: state.seudonimizar });
     }
     if (state.motor === 'archivo') {
       const e = msg.__entrada; // entrada del archivo asociada a este mensaje
@@ -1152,7 +1149,7 @@
   function setRunButtons() {
     $('btn-run').disabled = state.running;
     $('btn-pause').disabled = !state.running;
-    $('btn-pause').innerHTML = state.paused ? `${lucide('play')} Continuar` : `${lucide('pause')} Pausar`;
+    $('btn-pause').innerHTML = state.paused ? `${lucide('play')} ${I18N.t('triaje.btn_pause.continuar')}` : `${lucide('pause')} ${I18N.t('triaje.btn_pause.pausar')}`;
     $('sel-paquete').disabled = state.running;
   }
 
@@ -1176,7 +1173,7 @@
     state.running = true; state.paused = false; state.cancelled = false;
     setRunButtons();
     setProgress(0, mensajes.length);
-    setStatus('run-status', `Procesando 0/${mensajes.length}…`);
+    setStatus('run-status', I18N.t('triaje.procesando', { i: 0, n: mensajes.length }));
 
     try {
       for (let i = 0; i < mensajes.length; i++) {
@@ -1217,6 +1214,7 @@
           timestamp: new Date().toISOString(),
           esperado: msg.esperado,
           mensaje: mensajeLimpio,
+          idioma: I18N.idioma,
           gob_opts: {
             // En «Resultados guardados» del Paquete A se usa la misma traza que el panel de gobierno
             // (y al reproducir un archivo exportado, la traza y el modelo que se registraron entonces)
@@ -1228,7 +1226,7 @@
         gobDe(state.log[0]);
         persistLog();
         setProgress(i + 1, mensajes.length);
-        if (!state.paused) setStatus('run-status', `Procesando ${i + 1}/${mensajes.length}…`);
+        if (!state.paused) setStatus('run-status', I18N.t('triaje.procesando', { i: i + 1, n: mensajes.length }));
         renderCounters();
         renderLog();
       }
@@ -1792,6 +1790,11 @@
   addEventListener('hashchange', () => { if (!/demo=\d+/.test(location.hash)) mostrarVista(location.hash.slice(1)); });
   updateAiDot();
   setRunButtons();
+  // Fichas triadas en otro idioma: se rehacen las que salen de los datos de la demo (core/registro.js)
+  if (Registro.rehacerEnIdioma(state.log, { idioma: I18N.idioma, mensajes: PAQUETES.flatMap((p) => p.mensajes), guardados: RESULTADOS_GUARDADOS, expandir: expandirResultadoGuardado, fmtEur })) {
+    state.log.forEach(gobDe);
+    persistLog();
+  }
   renderCounters();
   renderLog();
   medirTopH();

@@ -25,6 +25,12 @@
   const ic = (name, cls = 'i') => lucide(name, cls);
   const ssGet = (k, fallback) => { try { const v = sessionStorage.getItem(k); return v ? JSON.parse(v) : fallback; } catch { return fallback; } };
   const ssSet = (k, v) => { try { sessionStorage.setItem(k, JSON.stringify(v)); } catch { /* sin almacenamiento */ } };
+  // El registro del triaje en el idioma de la página: las fichas triadas en otro idioma que salen de los datos de la
+  // demo se rehacen aquí también, por si se cambia de idioma en este panel (core/registro.js)
+  (function rehacerRegistro() {
+    const log = ssGet('triage.log', []);
+    if (Array.isArray(log) && Registro.rehacerEnIdioma(log, { idioma: I18N.idioma, mensajes: PAQUETES.flatMap((p) => p.mensajes), guardados: RESULTADOS_GUARDADOS, expandir: expandirResultadoGuardado })) ssSet('triage.log', log);
+  }());
 
   // ---------------------------------------------------------------------------
   // Estado

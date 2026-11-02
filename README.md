@@ -134,6 +134,7 @@ core/                lógica pura, la misma en navegador y en Node (es lo que pr
   fechas.js          desplaza las fechas de la demo hasta hoy
   ahorro.js          escenario de ahorro de FinOps
   motor-local.js     triaje sin IA (palabras clave, expresiones regulares y reglas heurísticas)
+  registro.js        resultado guardado de un mensaje y fichas triadas rehechas al cambiar de idioma
   adjuntos.js        parte amistoso en PDF con pdf-lib, visor y SHA-256 de los adjuntos
   prompts.js         prompt base y bloques de reglas Auto / Hogar / Salud
   i18n/              motor de idiomas: i18n.js, cargar.js (navegador), traducir-datos.js, node.js (pruebas y scripts)

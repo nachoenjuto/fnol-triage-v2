@@ -300,7 +300,7 @@
     return RAMOS.filter((r) => r !== entry.ramo).map((r) => {
       const ind = indicios(texto, r);
       // Si el propio criterio del modelo menciona el ramo alternativo, esa es la explicación más fiel
-      const cr = (entry.criterios_ramo || []).find((c) => new RegExp(`\\b${r}\\b`).test(c));
+      const cr = (entry.criterios_ramo || []).find((c) => new RegExp(`\\b(${r}|${I18N.etiqueta('ramo', r)})\\b`).test(c));
       const motivo = cr || (ind.length
         ? I18N.t('cumpl.hay_indicios_de_pero', { v: I18N.etiqueta('ramo', r), ind: ind.slice(0, 3).join(', '), ramo: I18N.etiqueta('ramo', entry.ramo) })
         : I18N.t('cumpl.sin_indicios_de_en', { v: I18N.etiqueta('ramo', r) }));
