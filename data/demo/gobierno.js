@@ -370,11 +370,12 @@ const GOBIERNO_DEMO = {
     { fecha: '2026-09-05T08:15:00', tipo: 'despliegue', sev: 'info', agente: 'multicanal', titulo: 'Canal WhatsApp activado en producción', detalle: 'Prompt Multicanalidad v1.2: normaliza abreviaturas y emojis del canal.', usuario: 'Equipo Canales' },
     { fecha: '2026-09-04T13:00:00', tipo: 'alerta', sev: 'ok', agente: 'clasificacion', titulo: 'Alerta de deriva cerrada: distribución de ramos estable', detalle: 'La proporción Hogar subió al 41 % por las tormentas del 1–3/09; vuelve al 33 %.', usuario: 'Sistema' },
   ],
+  // agentes: ids de los agentes a los que afecta cada recomendación (FinOps la enlaza desde la fila de su gasto)
   recomendaciones: [
-    { id: 'R-01', sev: 'crit', titulo: 'Reglas de negocio supera su cap diario (13,7 € / 12 €)', detalle: 'Gasta el 79 % del coste total. Opciones: bajar reasoning effort de «medium» a «low» (−35 % estimado) o aplicar R-02.' },
-    { id: 'R-02', sev: 'warn', titulo: 'Usar gpt-5-mini en Reglas para mensajes de despeje directo (A7 / H5 / S6)', detalle: 'El replay RP-0006 mantuvo la decisión con −82 % de coste. Estrategia por complejidad: gpt-5 solo cuando hay lesionados, terceros o importe > 3.000 €. Ahorro estimado: 7,9 €/día.' },
-    { id: 'R-03', sev: 'info', titulo: 'Estrategia en 2 pasos para Clasificación + Reglas', detalle: 'Enviar solo el bloque de reglas del ramo reduce ~40 % los tokens de entrada de Reglas (1.380 → ~830). Ahorro estimado: 1,1 €/día.' },
-    { id: 'R-04', sev: 'info', titulo: 'Cachear el prompt base y los bloques de reglas', detalle: 'Los 1.100 primeros tokens son idénticos en todas las llamadas: con prompt caching el coste de entrada baja un 90 % en ese tramo.' },
+    { id: 'R-01', sev: 'crit', agentes: ['reglas'], titulo: 'Reglas de negocio supera su cap diario (13,7 € / 12 €)', detalle: 'Gasta el 79 % del coste total. Opciones: bajar reasoning effort de «medium» a «low» (−35 % estimado) o aplicar R-02.' },
+    { id: 'R-02', sev: 'warn', agentes: ['reglas'], titulo: 'Usar gpt-5-mini en Reglas para mensajes de despeje directo (A7 / H5 / S6)', detalle: 'El replay RP-0006 mantuvo la decisión con −82 % de coste. Estrategia por complejidad: gpt-5 solo cuando hay lesionados, terceros o importe > 3.000 €. Ahorro estimado: 7,9 €/día.' },
+    { id: 'R-03', sev: 'info', agentes: ['clasificacion', 'reglas'], titulo: 'Estrategia en 2 pasos para Clasificación + Reglas', detalle: 'Enviar solo el bloque de reglas del ramo reduce ~40 % los tokens de entrada de Reglas (1.380 → ~830). Ahorro estimado: 1,1 €/día.' },
+    { id: 'R-04', sev: 'info', agentes: [], titulo: 'Cachear el prompt base y los bloques de reglas', detalle: 'Los 1.100 primeros tokens son idénticos en todas las llamadas: con prompt caching el coste de entrada baja un 90 % en ese tramo.' },
   ],
 };
 

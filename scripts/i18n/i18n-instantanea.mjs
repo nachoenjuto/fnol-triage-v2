@@ -5,6 +5,8 @@
 //   node scripts/i18n/i18n-instantanea.mjs --comparar antes.json despues.json [antes2.json]
 // Con antes2.json (otra instantánea del mismo código) las líneas que cambian entre ejecuciones (horas, duraciones
 // medidas) se comparan con los dígitos enmascarados.
+// Una pasada completa tarda unos 8 minutos. Mejor una detrás de otra: dos Chrome en paralelo (CDP_PUERTO distinto)
+// cargan tanto la máquina que alguna ficha puede pasar de los 20 s de límite y cortar la instantánea.
 import fs from 'node:fs';
 import { abrirDemo, cerrarModales, seccion, clic, LOTE_A } from '../browser/demo-cdp.mjs';
 
@@ -25,6 +27,8 @@ const EXTRAER = `const ATTR = ['title', 'aria-label', 'placeholder', 'alt', 'dat
 const texto = (raiz) => `${EXTRAER} const r = ${raiz}; if (!r) return null; walk(r); return out;`;
 const TEXTO_VENTANAS = texto("(() => { const d = [...document.querySelectorAll('dialog[open]')]; if (!d.length) return null; const f = document.createElement('div'); d.forEach((x) => f.append(x.cloneNode(true))); return f; })()");
 const TEXTO_PAGINA = texto('document.documentElement');
+// Ventanas abiertas o, si el clic abrió el detalle dentro de la página (filas de trazas, medidas…), la vista activa
+const TEXTO_VENTANAS_O_VISTA = texto("document.querySelector('dialog[open]') ? (() => { const f = document.createElement('div'); document.querySelectorAll('dialog[open]').forEach((x) => f.append(x.cloneNode(true))); return f; })() : document.querySelector('.view.is-active, .view:not([hidden])')");
 
 // Elementos que abren fichas o ventanas en el panel de gobierno (sin los que cambian datos: kill switch,
 // aplicar medidas, borrar…). Se recorren en orden de documento, uno por valor de atributo.
@@ -35,7 +39,7 @@ const PESTANAS = ['[data-ag-tab]', '[data-kb-sec]', '.ficha-tab[data-tab]', '[da
 const VISTA_GOB = ['[data-fin-modo]', '[data-med-dim]', '[data-med-orden]', '[data-kb-filtro]', '[data-ahorro-esc]'];
 // Clic que no falla si el elemento ya no está (algunos solo existen con otra ficha abierta): devuelve si lo hizo
 const clicSuave = (sel, ms = 350) => `{ const el = document.querySelector(${JSON.stringify(sel)}); if (!el) return false; el.dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true, view: window })); await new Promise((r) => setTimeout(r, ${ms})); } return true;`;
-const VISTAS = ['inicio', 'resumen', 'agentes', 'trazas', 'replay', 'autonomia', 'guardrails', 'hitl', 'fraude', 'finops', 'medidas', 'historico', 'knowledge', 'cumplimiento'];
+const VISTAS = ['inicio', 'resumen', 'agentes', 'trazas', 'replay', 'autonomia', 'guardrails', 'hitl', 'fraude', 'finops', 'medidas', 'historico', 'knowledge', 'cumplimiento', 'config'];
 
 // Lista de selectores únicos (uno por atributo+valor) de los elementos visibles que casan con `sels` dentro de `raiz`
 const objetivos = (sels, raiz = 'document') => `const vistos = new Set(); const out = [];
@@ -78,7 +82,11 @@ async function instantanea(salida, idioma) {
       await js(`const s = document.getElementById('sel-paquete'); s.value = ${JSON.stringify(p)}; s.dispatchEvent(new Event('change')); await new Promise((r) => setTimeout(r, 200));`);
       await guardar(`triaje/paquete/${p}`, texto("document.querySelector('.sidenav')"));
     }
-    await js(clic('#btn-toggle-config', 200)); await guardar('triaje/config', texto("document.getElementById('config-panel')"));
+    // Vistas del menú lateral (mensajes, paquetes, prompts, configuración); se vuelve a la de mensajes
+    for (const v of await js("return [...document.querySelectorAll('.nav-item[data-vista]')].map((a) => a.dataset.vista);")) {
+      await js(clic(`.nav-item[data-vista="${v}"]`, 250)); await guardar(`triaje/vista/${v}`, texto(`document.querySelector('.vista[data-vista="${v}"]')`));
+    }
+    await js(clic('.nav-item[data-vista="mensajes"]', 200));
 
     // ── Triaje con el motor local (sin IA): las decisiones y motivos los escribe ui/triage/triaje.js ──
     for (const p of ['A', 'B', 'C']) {
@@ -126,7 +134,7 @@ async function instantanea(salida, idioma) {
         for (const c of await js(objetivos(CLIC_GOB, "document.querySelector('.view:not([hidden]), main') || document"))) {
           if (process.env.DEBUG) console.log(`  gob/${v}/${c}`);
           if (!(await js(`${cerrarTodo} ${seccion(v)} ${clicSuave(c)}`))) continue;
-          await guardar(`gob/${v}/${c}`, TEXTO_VENTANAS); paso(`gob/${v}`);
+          await guardar(`gob/${v}/${c}`, TEXTO_VENTANAS_O_VISTA); paso(`gob/${v}`);
           for (const tab of await js(objetivos(PESTANAS, "(document.querySelector('dialog[open]') || document.createElement('div'))"))) {
             if (await js(clicSuave(tab, 200))) await guardar(`gob/${v}/${c}/${tab}`, TEXTO_VENTANAS);
           }

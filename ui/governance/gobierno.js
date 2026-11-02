@@ -662,7 +662,7 @@
     const hist = [...(a.historial || [])].sort((x, y) => y.fecha.localeCompare(x.fecha));
     const tl = (items) => (items.length ? `<ul class="mini-tl">${items.map((h) => `<li><span class="t">${fechaHora(h.fecha)}</span><span class="ico">${ic(CAMBIO_ICON[h.tipo] || 'info')}</span><div><b>${esc({ nivel: I18N.t('gob.nivel'), modelo: I18N.t('gob.modelo'), prompt: I18N.t('gob.prompt'), guardrail: I18N.t('gob.guardrail') }[h.tipo] || I18N.t('gob.incidencia'))}: ${conGuardrails(esc(h.de))} → ${conGuardrails(esc(h.a))}</b><small>${conGuardrails(esc(h.motivo))} · ${esc(h.usuario)}</small></div></li>`).join('')}</ul>` : I18N.t('gob.sin_registros'));
     const caja = (l, v, s) => `<div class="box"><span class="muted small">${l}</span><b>${v}</b>${s ? `<small class="muted">${s}</small>` : ''}</div>`;
-    const caps = G.caps.filter((c) => c.ambito === a.nombre || (a.id === 'reglas' && c.id === 'CAP-04'));
+    const caps = G.caps.filter((c) => agenteDeAmbito(c.ambito) === a || (a.id === 'reglas' && c.id === 'CAP-04'));
     const kbs = (G.knowledge || GOBIERNO_DEMO.knowledge || []).filter((k) => (k.agentes || []).includes(a.id));
     const recos = (G.recomendaciones || []).filter((r) => `${r.titulo} ${r.detalle}`.includes(a.nombre));
     // Datos personales que ve el agente: los dos primeros, el texto completo; Extracción y Reglas, solo los campos extraídos
@@ -906,7 +906,7 @@
       const [k0, l0] = tipos.reduce((m, t) => (c.tipos[t[0]] > c.tipos[m[0]] ? t : m), tipos[0]);
       const porque = I18N.t('gob.de_su_coste_2', { l0, suma: Math.round((c.tipos[k0] / suma) * 100), se_paga_por_minuto: c.tokens[k0] ? ` · ${dec(c.tokens[k0] / 1e6, 1)} M tokens` : k0 === 'voz' ? I18N.t('gob.se_paga_por_minuto') : '' });
       const palabra = a.nombre.split(' ')[0];
-      const chips = recos.filter((r) => `${r.titulo} ${r.detalle}`.includes(palabra)).map((r) => `<button class="pill pill-time fp-reco" type="button" data-ir-reco="${esc(r.id)}" title="${esc(r.titulo)}">${ic('lightbulb')} ${esc(r.id)}</button>`).join('');
+      const chips = recos.filter((r) => (r.agentes ? r.agentes.includes(a.id) : `${r.titulo} ${r.detalle}`.includes(palabra))).map((r) => `<button class="pill pill-time fp-reco" type="button" data-ir-reco="${esc(r.id)}" title="${esc(r.titulo)}">${ic('lightbulb')} ${esc(r.id)}</button>`).join('');
       return `<div class="fp-fila">
         <div class="fa-ag">${agLbl(a.id)}<span class="small muted mono">${c.modelos.map(esc).join(' + ')}</span></div>
         <div class="fp-bar">${segs}</div>
@@ -1533,7 +1533,8 @@
   const capUso = (c) => c.consumo / c.limite;
   const capFmt = (c, v) => (c.unidad === '€' ? eur(v, v < 1 ? 3 : 2) : `${num(Math.round(v * 10) / 10)} ${esc(unidadCap(c.unidad))}`);
   const capEstadoDe = (c) => (c.consumo >= c.limite ? 'superado' : c.consumo >= c.limite * ((c.aviso_pct || 80) / 100) ? 'aviso' : 'ok');
-  const agenteDeAmbito = (ambito) => G.agentes.find((a) => a.nombre === ambito);
+  // El ámbito de los datos está en el idioma base y se traduce al mostrarlo; el nombre del agente ya está traducido
+  const agenteDeAmbito = (ambito) => G.agentes.find((a) => a.nombre === ambito || a.nombre === I18N.dato(ambito));
   const ambitoHtml = (c) => { const a = agenteDeAmbito(c.ambito); return a ? agTag(a.id) : esc(I18N.dato(c.ambito)); };
   const fechasSerie = () => G.diario.slice(-14).map((d) => d[0]);
 
