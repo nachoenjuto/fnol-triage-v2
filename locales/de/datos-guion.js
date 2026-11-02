@@ -37,7 +37,7 @@ I18N.registrarDatos('de', {
   "d3bf108a": "In einem zweiten Tab `index.html` öffnen. Im Seitenmenü **Einstellungen → Triage-Engine → Gespeicherte Ergebnisse** (hängt nicht vom Netz ab) und **Pakete → Paket A**. Prüfen, dass «Vor dem Senden an das Modell pseudonymisieren» eingeschaltet ist.",
   "550688c3": "Den Stapel noch nicht verarbeiten: Das geschieht live in Schritt 2.",
   "1372fb53": "Wer Screenshots machen will, hängt `?fecha=2026-09-17` an die URL an. Ohne diesen Parameter werden die Daten in den Meldungen auf heute verschoben.",
-  "1264d0c5": "Optional: In `intro.html`, Seitenmenü → **Demo** → **Auto Tour**, den **Auto Tour** einschalten (Passwort `password`), um den Rundgang mit seiner Schaltfläche «Aufrufen» griffbereit zu haben.",
+  "f967a0e1": "Optional: In `intro.html`, Seitenmenü → **Demo** → **Auto Tour**, den **Auto Tour** einschalten (Passwort `password`), um die Tour mit ihrer Steuerung ▶ / ⏸ griffbereit zu haben.",
   "2c3fb8c2": "**Zeiten**",
   "2e9445f7": "Min.",
   "0d955b49": "Block",

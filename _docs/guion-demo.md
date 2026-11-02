@@ -19,7 +19,7 @@ Guion paso a paso para una sesión de 30-35 minutos: introducción en las cuatro
 2. En una segunda pestaña, abrir `index.html`. En el menú lateral, **Configuración → Motor de triaje → Resultados guardados** (no depende de red) y **Paquetes → Paquete A**. Comprobar que «Seudonimizar antes de enviar al modelo» está activada.
 3. No procesar el lote todavía: se hace en directo en el paso 2.
 4. Si se van a hacer capturas, añadir `?fecha=2026-09-17` a la URL. Sin ese parámetro las fechas de los mensajes se desplazan al día de hoy.
-5. Opcional: activar el **Auto Tour** en `intro.html`, menú lateral → **Demo** → **Auto Tour** (contraseña `password`), para tener a mano el Recorrido con su botón «Ir».
+5. Opcional: activar el **Auto Tour** en `intro.html`, menú lateral → **Demo** → **Auto Tour** (contraseña `password`), para tener a mano el Tour con su control ▶ / ⏸.
 
 **Tiempos**
 

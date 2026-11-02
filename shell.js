@@ -118,7 +118,7 @@
   const mmss = (ms) => { const s = Math.max(0, Math.ceil(ms / 1000)); return `${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')}`; };
 
   const leerRec = () => {
-    const g = ss.get(CLAVE_REC, {}); const r = { activo: false, paso: 0, vistos: [], min: false, reproduciendo: false, ...(g && typeof g === 'object' ? g : {}) };
+    const g = ss.get(CLAVE_REC, {}); const r = { activo: false, paso: 0, vistos: [], min: false, reproduciendo: false, enPausa: false, ...(g && typeof g === 'object' ? g : {}) };
     r.paso = clamp(Number(r.paso) || 0, 0, Math.max(0, PASOS.length - 1)); if (!Array.isArray(r.vistos)) r.vistos = [];
     return r;
   };
@@ -180,6 +180,9 @@
   // Inicio (ms) del subtítulo k dentro de un paso de duración D
   const inicioCue = (subs, k, D) => { const total = lectura(subs) || 1; let acc = 0; for (let j = 0; j < k; j++) acc += (pesoCue(subs[j]) / total) * D; return acc; };
   const enMarcha = () => ['contando', 'pausado', 'fin'].includes(reloj.fase);
+  // Estado del Tour para los botones: sin empezar · en marcha (contando o esperando a una acción) · en pausa · paso terminado
+  const estado = () => ({ esperando: 'marcha', contando: 'marcha', pausado: 'pausa', fin: 'fin' })[reloj.fase] || 'sin';
+  const esperandoLote = () => reloj.fase === 'esperando' || (reloj.fase === 'pausado' && reloj.previa === 'esperando');
 
   // ── Acciones de los subpasos ──
   // Comunes a todas las páginas: ver:SELECTOR[~texto] (scroll y resaltado), clic:SELECTOR[~texto], cerrar, arriba,
@@ -259,12 +262,13 @@
     },
     empezar() { const r = leerRec(); r.activo = true; r.min = false; guardarRec(r); this.pintar(); },
     cerrar() { const r = leerRec(); r.activo = false; r.reproduciendo = false; guardarRec(r); parar(); quitarFoco(); this.pintar(); },
-    ir(n) {
+    // Ejecuta el paso n. Con «pausa», abre su pantalla y se queda en pausa al principio (navegar estando en pausa)
+    ir(n, { pausa = false } = {}) {
       const p = PASOS[n]; if (!p) return;
       // Con el lote procesándose no se arranca un paso que lo necesita ni se cambia de página (cortaría el procesado)
       const l = this.acciones.lote ? this.acciones.lote() : null;
       if (l && l.procesando && p.accion !== 'procesar' && (p.requiere === 'lote' || p.pagina !== this.pagina)) return this.avisoEspera();
-      const r = leerRec(); r.activo = true; r.paso = n; if (!r.vistos.includes(n)) r.vistos.push(n); guardarRec(r);
+      const r = leerRec(); r.activo = true; r.paso = n; r.enPausa = pausa; if (!r.vistos.includes(n)) r.vistos.push(n); guardarRec(r);
       if (p.pagina !== this.pagina) { location.href = `${PAGINA_URL[p.pagina]}#demo=${n}`; return; }
       this.aviso = ''; this.avisoTipo = ''; this.avisoIr = null; parar(); quitarFoco();
       const [nombre, ...args] = p.accion.split(':');
@@ -279,6 +283,7 @@
         const l = p.requiere === 'lote' && this.acciones.lote ? this.acciones.lote() : null;
         if (l && !l.procesando && l.hechos < l.total) { this.aviso = I18N.t('shell.falta_procesar_el_paquete', { hechos: l.hechos, total: l.total }); this.avisoIr = PASOS.findIndex((x) => x.accion === 'procesar'); }
         this.arrancar(typeof o.listo === 'function' ? o.listo : null);
+        if (pausa) { reloj.previa = reloj.fase; reloj.fase = 'pausado'; }
         this.pintar();
       }, 0);
     },
@@ -293,18 +298,29 @@
       if (conf.alTerminar === 'repetir') { r.vistos = []; guardarRec(r); return this.ir(0); }
       r.reproduciendo = false; guardarRec(r); this.aviso = I18N.t('shell.fin_del_recorrido'); this.pintar();
     },
-    reproducir() {
-      const r = leerRec(); r.reproduciendo = true; guardarRec(r); this.aviso = '';
-      if (reloj.fase === 'pausado') { reloj.fase = reloj.previa; if (reloj.fase === 'contando') reloj.inicio = Date.now(); return this.pintar(); }
-      if (reloj.fase === 'contando' || reloj.fase === 'esperando') return this.pintar();
-      if (reloj.fase === 'fin') return this.avanzar();
-      this.ir(r.paso);
+    // ▶ / ⏸ (el mismo control en el panel, su cabecera, la barra minimizada y la sección Auto Tour):
+    // sin empezar, comienza el paso elegido; en marcha, pausa; en pausa, sigue; con el paso terminado, pasa al siguiente
+    alternar() {
+      const r = leerRec(); const e = estado();
+      if (e === 'marcha') return this.pausar('');
+      if (e === 'pausa') return this.seguir();
+      if (e === 'fin') return this.correrPaso(r.paso < PASOS.length - 1 ? r.paso + 1 : 0);
+      return this.correrPaso(r.paso);
+    },
+    // Arranca un paso; con la demo automática, además se reproduce (pasa sola al siguiente)
+    correrPaso(n) { const r = leerRec(); r.reproduciendo = leerConf().auto; guardarRec(r); this.ir(n); },
+    seguir() {
+      if (reloj.fase !== 'pausado') return;
+      const r = leerRec(); r.reproduciendo = leerConf().auto; r.enPausa = false; guardarRec(r); this.aviso = '';
+      reloj.fase = reloj.previa || 'contando';
+      if (reloj.fase === 'contando') reloj.inicio = Date.now(); else reloj.espera = Date.now();
+      this.pintar();
     },
     pausar(motivo = '') {
-      const r = leerRec(); if (!r.reproduciendo) return;
-      r.reproduciendo = false; guardarRec(r);
+      if (reloj.fase !== 'contando' && reloj.fase !== 'esperando') return;
+      const r = leerRec(); r.reproduciendo = false; r.enPausa = true; guardarRec(r);
       if (reloj.fase === 'contando') reloj.acumulado += Date.now() - reloj.inicio;
-      if (reloj.fase === 'contando' || reloj.fase === 'esperando') { reloj.previa = reloj.fase; reloj.fase = 'pausado'; }
+      reloj.previa = reloj.fase; reloj.fase = 'pausado';
       this.aviso = motivo; this.pintar();
     },
     // Mueve el reloj del paso a una fracción de su duración (tirador de la barra de progreso) y ajusta el subtítulo.
@@ -325,6 +341,7 @@
       if (reloj.fase === 'contando' && transcurrido() >= durMs(conf)) {
         reloj.acumulado = durMs(conf); reloj.fase = 'fin';
         if (r.reproduciendo) { this.avanzar(); return; }
+        this.pintar(); return;   // el control pasa a «Siguiente paso»
       }
       this.vivo(conf, r);
     },
@@ -422,28 +439,32 @@
       this.aviso = I18N.t('shell.espera_el_lote_se', { total: l && l.procesando ? ` (${l.hechos}/${l.total})` : '' }); this.avisoTipo = 'espera'; this.pintar();
     },
     // Subtítulo siguiente / anterior: dentro del paso; en el último pasa al primero del paso siguiente y en el primero,
-    // al último del anterior. Con el paso sin arrancar, lo arranca.
+    // al último del anterior. Sin empezar no hacen nada (sus botones están desactivados); en pausa, siguen en pausa.
     subSig() {
-      const r = leerRec(); const conf = leerConf();
-      if (reloj.fase === 'esperando') return this.avisoEspera();
-      if (!enMarcha()) return this.ir(r.paso);
+      const r = leerRec(); const conf = leerConf(); const e = estado();
+      if (e === 'sin') return;
+      if (esperandoLote()) return this.avisoEspera();
       const subs = subsVisibles(pasoDe(r.paso, conf), conf); const k = cueEn(subs, transcurrido(), durMs(conf));
       if (k < subs.length - 1) return this.irCue(k + 1);
-      if (r.paso < PASOS.length - 1) return this.ir(r.paso + 1);
+      if (r.paso < PASOS.length - 1) return this.ir(r.paso + 1, { pausa: e === 'pausa' });
     },
     subAnt() {
-      const r = leerRec(); const conf = leerConf();
-      if (reloj.fase === 'esperando') return this.avisoEspera();
-      if (!enMarcha()) return this.ir(r.paso);
+      const r = leerRec(); const conf = leerConf(); const e = estado();
+      if (e === 'sin') return;
+      if (esperandoLote()) return this.avisoEspera();
       const subs = subsVisibles(pasoDe(r.paso, conf), conf); const k = cueEn(subs, transcurrido(), durMs(conf));
       if (k > 0) return this.irCue(k - 1);
-      if (r.paso > 0) { r.cueDestino = 'ultimo'; guardarRec(r); return this.ir(r.paso - 1); }
+      if (r.paso > 0) { r.cueDestino = 'ultimo'; guardarRec(r); return this.ir(r.paso - 1, { pausa: e === 'pausa' }); }
     },
-    // Paso siguiente / anterior que se ejecuta (barra minimizada, teclas, demo en marcha); no avanza mientras se procesa el lote
-    pasoRel(d) {
-      const r = leerRec(); const n = r.paso + d; if (n < 0 || n >= PASOS.length) return;
-      if (d > 0 && reloj.fase === 'esperando') return this.avisoEspera();
-      return this.ir(n);
+    // Paso anterior / siguiente (‹ ›, la lista de pasos y Mayús + Av Pág / Re Pág), igual en el panel y en la barra:
+    // sin empezar solo elige el paso; en marcha lo ejecuta y el Tour sigue en marcha; en pausa lo abre y sigue en pausa.
+    // No avanza mientras se procesa el lote.
+    irPaso(n) {
+      const r = leerRec(); if (n < 0 || n >= PASOS.length || n === r.paso && estado() === 'sin') return;
+      const e = estado();
+      if (e === 'sin') { r.paso = n; guardarRec(r); this.aviso = ''; return this.pintar(); }
+      if (n > r.paso && esperandoLote()) return this.avisoEspera();
+      return this.ir(n, { pausa: e === 'pausa' });
     },
     pintarSubs(conf = leerConf(), r = leerRec()) {
       let s = byId('rec-subs');
@@ -480,11 +501,13 @@
       el.classList.toggle('min', !!r.min);
       const p = pasoDe(r.paso, conf); const N = PASOS.length;
       const marcas = this.marcasHtml(conf, r);
-      const play = conf.auto ? `<button type="button" class="rec-btn rec-play" data-rec="${r.reproduciendo ? 'pausa' : 'play'}" title="${r.reproduciendo ? I18N.t('shell.pausar_la_demo') : I18N.t('shell.reproducir_la_demo_automatica')}" aria-label="${r.reproduciendo ? I18N.t('shell.pausar') : I18N.t('shell.reproducir')}">${lucide(r.reproduciendo ? 'pause' : 'play')}</button>` : '';
+      const [ico, txt, tit] = this.control(r);
+      const play = `<button type="button" class="rec-btn rec-play" data-rec="alternar" title="${tit}" aria-label="${txt}">${lucide(ico)}</button>`;
+      const sinSub = estado() === 'sin' ? ' disabled' : '';
       if (r.min) {
         el.innerHTML = `<div class="rec-prog" role="slider" tabindex="0" aria-label="${I18N.t('shell.posicion_dentro_del_paso')}" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" title="${I18N.t('shell.arrastra_o_pulsa_para')}"><i></i>${marcas}<b class="rec-tirador"></b></div><div class="rec-cab rec-cab-min">
             <button type="button" class="rec-min-txt" data-rec="restaurar" title="${I18N.t('shell.desplegar_el_recorrido')}">${lucide('route')}<span class="rec-min-pos">${r.paso + 1}/${N}</span><span class="rec-min-t">${escR(p.titulo)}</span></button>
-            ${this.avisoTipo === 'espera' || reloj.fase === 'esperando' ? `<span class="rec-min-espera" title="${escR(this.aviso || I18N.t('shell.esperando_a_que_termine_3'))}">${lucide('hourglass')}</span>` : this.aviso ? `<span class="rec-min-aviso" title="${escR(this.aviso)}" role="img" aria-label="${escR(this.aviso)}">${lucide('circle-alert')}</span>` : ''}<span class="rec-cuenta"></span><span class="rec-subpos" title="${I18N.t('shell.subtitulo_del_paso')}"></span><button type="button" class="rec-btn rec-sub" data-rec="sub-ant" title="${I18N.t('shell.subtitulo_anterior_re_pag')}" aria-label="${I18N.t('shell.subtitulo_anterior')}">${lucide('rewind', 'lucide-svg rec-solid')}</button><button type="button" class="rec-btn" data-rec="ant" title="${I18N.t('shell.paso_anterior_mayus_re')}" aria-label="${I18N.t('shell.paso_anterior')}" ${r.paso ? '' : 'disabled'}>${lucide('chevron-left')}</button>${play}<button type="button" class="rec-btn" data-rec="sig" title="${I18N.t('shell.paso_siguiente_mayus_av')}" aria-label="${I18N.t('shell.paso_siguiente')}" ${r.paso < N - 1 ? '' : 'disabled'}>${lucide('chevron-right')}</button><button type="button" class="rec-btn rec-sub" data-rec="sub-sig" title="${I18N.t('shell.subtitulo_siguiente_av_pag')}" aria-label="${I18N.t('shell.subtitulo_siguiente')}">${lucide('fast-forward', 'lucide-svg rec-solid')}</button>
+            ${this.avisoTipo === 'espera' || reloj.fase === 'esperando' ? `<span class="rec-min-espera" title="${escR(this.aviso || I18N.t('shell.esperando_a_que_termine_3'))}">${lucide('hourglass')}</span>` : this.aviso ? `<span class="rec-min-aviso" title="${escR(this.aviso)}" role="img" aria-label="${escR(this.aviso)}">${lucide('circle-alert')}</span>` : ''}<span class="rec-cuenta"></span><span class="rec-subpos" title="${I18N.t('shell.subtitulo_del_paso')}"></span><button type="button" class="rec-btn rec-sub" data-rec="sub-ant" title="${I18N.t('shell.subtitulo_anterior_re_pag')}" aria-label="${I18N.t('shell.subtitulo_anterior')}"${sinSub}>${lucide('rewind', 'lucide-svg rec-solid')}</button><button type="button" class="rec-btn" data-rec="ant" title="${I18N.t('shell.paso_anterior_mayus_re')}" aria-label="${I18N.t('shell.paso_anterior')}" ${r.paso ? '' : 'disabled'}>${lucide('chevron-left')}</button>${play}<button type="button" class="rec-btn" data-rec="sig" title="${I18N.t('shell.paso_siguiente_mayus_av')}" aria-label="${I18N.t('shell.paso_siguiente')}" ${r.paso < N - 1 ? '' : 'disabled'}>${lucide('chevron-right')}</button><button type="button" class="rec-btn rec-sub" data-rec="sub-sig" title="${I18N.t('shell.subtitulo_siguiente_av_pag')}" aria-label="${I18N.t('shell.subtitulo_siguiente')}"${sinSub}>${lucide('fast-forward', 'lucide-svg rec-solid')}</button>
             <button type="button" class="rec-btn" data-rec="restaurar" title="${I18N.t('shell.desplegar')}" aria-label="${I18N.t('shell.desplegar')}">${lucide('chevron-up')}</button>
             <button type="button" class="rec-btn" data-rec="cerrar" title="${I18N.t('shell.cerrar_el_recorrido')}" aria-label="${I18N.t('shell.cerrar_el_recorrido')}">${lucide('x')}</button></div>`;
       } else {
@@ -493,16 +516,24 @@
             <button type="button" class="rec-btn" data-rec="minimizar" title="${I18N.t('shell.minimizar_al_pie')}" aria-label="${I18N.t('shell.minimizar')}">${lucide('minus')}</button>
             <button type="button" class="rec-btn" data-rec="cerrar" title="${I18N.t('shell.cerrar_el_recorrido')}" aria-label="${I18N.t('shell.cerrar_el_recorrido')}">${lucide('x')}</button></div>
           <div class="rec-prog" role="slider" tabindex="0" aria-label="${I18N.t('shell.posicion_dentro_del_paso')}" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" title="${I18N.t('shell.arrastra_o_pulsa_para')}"><i></i>${marcas}<b class="rec-tirador"></b></div><div class="rec-estado" aria-live="off"></div>
-          <div class="rec-cuerpo">${this.htmlPasos(conf, r, p)}</div>`;
+          <div class="rec-cuerpo">${this.htmlPasos(conf, r, p, sinSub)}</div>`;
         el.querySelector('.rec-cuerpo').scrollTop = scroll;
       }
       anclar(); this.posicionar(); this.vivo(conf, r);
     },
-    htmlPasos(conf, r, p) {
-      const N = PASOS.length;
+    // Icono, texto y descripción del control ▶ / ⏸ según el estado del Tour
+    control(r) {
+      const e = estado();
+      if (e === 'marcha') return ['pause', I18N.t('shell.ctl.pausar'), I18N.t('shell.ctl.pausar_t')];
+      if (e === 'pausa') return ['play', I18N.t('shell.ctl.seguir'), I18N.t('shell.ctl.seguir_t')];
+      if (e === 'fin') return r.paso < PASOS.length - 1 ? ['play', I18N.t('shell.ctl.siguiente_paso'), I18N.t('shell.ctl.siguiente_paso_t')] : ['rotate-ccw', I18N.t('shell.volver_a_empezar'), I18N.t('shell.ctl.volver_t')];
+      return ['play', I18N.t('shell.ctl.comenzar'), I18N.t('shell.ctl.comenzar_t')];
+    },
+    htmlPasos(conf, r, p, sinSub = '') {
+      const N = PASOS.length; const [ico, txt, tit] = this.control(r);
       const clics = p.clics || [];
-      return `<div class="rec-actual"><span class="rec-min">${I18N.t('shell.min', { min: escR(p.min), pagina: PAGINA_LBL[p.pagina] || '' })}</span><b>${escR(p.titulo)}</b><p>${escR(p.que)}</p><p class="rec-frase">«${escR(p.frase)}»</p>${clics.length ? `<details class="rec-clics"><summary>${lucide('list-ordered')} ${I18N.t('shell.clics', { clics: clics.length })}</summary><ol>${clics.map((c) => `<li>${escR(c)}</li>`).join('')}</ol></details>` : ''}${this.aviso ? `<p class="rec-aviso${this.avisoTipo === 'espera' ? ' espera' : ''}">${lucide(this.avisoTipo === 'espera' ? 'hourglass' : 'circle-alert')} ${escR(this.aviso)}${this.avisoIr != null && this.avisoIr >= 0 ? ` <button type="button" class="btn btn-sm" data-rec-ir="${this.avisoIr}">${I18N.t('shell.ir_al_paso', { avisoIr: this.avisoIr + 1 })}</button>` : ''}</p>` : ''}
-          <div class="rec-nav"><button type="button" class="rec-btn rec-sub" data-rec="sub-ant" title="${I18N.t('shell.subtitulo_anterior_re_pag')}" aria-label="${I18N.t('shell.subtitulo_anterior')}">${lucide('rewind', 'lucide-svg rec-solid')}</button><button type="button" class="btn btn-sm" data-rec="ant" ${r.paso ? '' : 'disabled'}>${lucide('chevron-left')} ${I18N.t('shell.anterior')}</button><button type="button" class="btn btn-sm btn-primary" data-rec-ir="${r.paso}">${lucide('play')} ${I18N.t('shell.ir')}</button><button type="button" class="btn btn-sm" data-rec="sig" ${r.paso < N - 1 ? '' : 'disabled'}>${I18N.t('shell.siguiente')} ${lucide('chevron-right')}</button><button type="button" class="rec-btn rec-sub" data-rec="sub-sig" title="${I18N.t('shell.subtitulo_siguiente_av_pag')}" aria-label="${I18N.t('shell.subtitulo_siguiente')}">${lucide('fast-forward', 'lucide-svg rec-solid')}</button></div>
+      return `<div class="rec-actual"><span class="rec-min">${I18N.t('shell.min', { min: escR(p.min), pagina: PAGINA_LBL[p.pagina] || '' })}</span><b>${escR(p.titulo)}</b><p>${escR(p.que)}</p><p class="rec-frase">«${escR(p.frase)}»</p>${clics.length ? `<details class="rec-clics"><summary>${lucide('list-ordered')} ${I18N.t('shell.clics', { clics: clics.length })}</summary><ol>${clics.map((c) => `<li>${escR(c)}</li>`).join('')}</ol></details>` : ''}${this.aviso ? `<p class="rec-aviso${this.avisoTipo === 'espera' ? ' espera' : ''}">${lucide(this.avisoTipo === 'espera' ? 'hourglass' : 'circle-alert')} ${escR(this.aviso)}${this.avisoIr != null && this.avisoIr >= 0 ? ` <button type="button" class="btn btn-sm" data-rec-ejecutar="${this.avisoIr}">${I18N.t('shell.ir_al_paso', { avisoIr: this.avisoIr + 1 })}</button>` : ''}</p>` : ''}
+          <div class="rec-nav"><button type="button" class="rec-btn rec-sub" data-rec="sub-ant" title="${I18N.t('shell.subtitulo_anterior_re_pag')}" aria-label="${I18N.t('shell.subtitulo_anterior')}"${sinSub}>${lucide('rewind', 'lucide-svg rec-solid')}</button><button type="button" class="btn btn-sm" data-rec="ant" ${r.paso ? '' : 'disabled'}>${lucide('chevron-left')} ${I18N.t('shell.anterior')}</button><button type="button" class="btn btn-sm btn-primary" data-rec="alternar" title="${tit}">${lucide(ico)} ${txt}</button><button type="button" class="btn btn-sm" data-rec="sig" ${r.paso < N - 1 ? '' : 'disabled'}>${I18N.t('shell.siguiente')} ${lucide('chevron-right')}</button><button type="button" class="rec-btn rec-sub" data-rec="sub-sig" title="${I18N.t('shell.subtitulo_siguiente_av_pag')}" aria-label="${I18N.t('shell.subtitulo_siguiente')}"${sinSub}>${lucide('fast-forward', 'lucide-svg rec-solid')}</button></div>
           ${this.subpasosHtml(conf, r)}</div>
         <ol class="rec-lista">${PASOS.map((x, i) => `<li class="${i === r.paso ? 'is-actual' : ''}${r.vistos.includes(i) ? ' is-visto' : ''}"><button type="button" data-rec-ir="${i}"><span class="rec-check">${r.vistos.includes(i) ? lucide('check') : i + 1}</span><span class="rec-t">${escR(x.titulo)}</span><span class="rec-m">${escR(x.min)}</span></button></li>`).join('')}</ol>
         <button type="button" class="rec-reset" data-rec="reiniciar">${lucide('rotate-ccw')} ${I18N.t('shell.empezar_de_nuevo')}</button>`;
@@ -550,7 +581,7 @@
     },
     htmlPresentador(on, r) {
       const botones = on
-        ? `<button type="button" class="btn btn-primary" data-rec="abrir">${lucide('route')} ${I18N.t(r.activo ? 'shell.cfg.recorrido_abierto' : 'shell.cfg.abrir_el_recorrido')}</button><button type="button" class="btn btn-ghost" data-rec="desactivar">${lucide('power')} ${I18N.t('shell.cfg.desactivar')}</button>`
+        ? `<button type="button" class="btn btn-primary" data-rec="abrir">${r.activo ? { sin: `${lucide('play')} ${I18N.t('shell.cfg.recorrido_abierto')}`, marcha: `${lucide('pause')} ${I18N.t('shell.cfg.pausar_el_tour')}` }[estado()] || `${lucide('play')} ${I18N.t('shell.cfg.seguir_con_el_tour')}` : `${lucide('route')} ${I18N.t('shell.cfg.abrir_el_recorrido')}`}</button><button type="button" class="btn btn-ghost" data-rec="desactivar">${lucide('power')} ${I18N.t('shell.cfg.desactivar')}</button>`
         : `<button type="button" class="btn btn-primary" data-rec="activar">${lucide('lock')} ${I18N.t('shell.activar_el_modo_presentador')}</button>`;
       return `<section class="card cfg-grupo">
         <div class="row wrap between vista-cab"><h2>${I18N.t('shell.cfg.modo_presentador')}</h2><span class="ai-estado"><span class="dot ${on ? 'dot-on' : 'dot-off'}" aria-hidden="true"></span> ${I18N.t(on ? 'shell.cfg.activado' : 'shell.cfg.desactivado')}</span></div>
@@ -625,34 +656,27 @@
       ls.del(CLAVE_PRES);   // la antigua preferencia permanente del modo presentador: ahora pide contraseña en cada sesión
       this.edPaso = leerRec().paso;   // el editor de textos de la Configuración empieza en el paso en curso
       document.addEventListener('click', (ev) => {
-        const ir = ev.target.closest('[data-rec-ir]'); if (ir) { this.ir(Number(ir.dataset.recIr)); return; }
+        const ir = ev.target.closest('[data-rec-ir]'); if (ir) { this.irPaso(Number(ir.dataset.recIr)); return; }
+        const ej = ev.target.closest('[data-rec-ejecutar]'); if (ej) { this.ir(Number(ej.dataset.recEjecutar)); return; }
         const cue = ev.target.closest('[data-rec-cue]');
-        if (cue) { const k = Number(cue.dataset.recCue); if (enMarcha()) this.irCue(k); else { const rr = leerRec(); rr.cueDestino = k; guardarRec(rr); this.ir(rr.paso); } return; }
+        if (cue) { const k = Number(cue.dataset.recCue); if (enMarcha()) this.irCue(k); else { const rr = leerRec(); rr.cueDestino = k; rr.reproduciendo = leerConf().auto; guardarRec(rr); this.ir(rr.paso); } return; }
         const b = ev.target.closest('[data-rec]'); if (!b) return;
         const r = leerRec(); const conf = leerConf(); const a = b.dataset.rec;
         if (a === 'cerrar') return this.cerrar();
         if (a === 'minimizar' || a === 'restaurar') { r.min = a === 'minimizar'; guardarRec(r); return this.pintar(); }
         if (a === 'activar') return this.setPresentador(true);
         if (a === 'desactivar') return this.setPresentador(false);
-        // «Abrir el Tour» muestra el panel; con el panel ya abierto, «Comenzar el Tour» lanza el paso en curso
-        // (con la demo automática, además empieza a reproducir)
+        // «Abrir el Tour» muestra el panel; con el panel abierto, el botón es el mismo control ▶ / ⏸ que el del panel
         if (a === 'abrir') {
           if (!r.activo) return this.empezar();
           if (r.min) { r.min = false; guardarRec(r); }
-          return conf.auto ? this.reproducir() : this.ir(r.paso);
+          return this.alternar();
         }
         if (a === 'ajustes') return this.irATextos();
-        if (a === 'play') return this.reproducir();
-        if (a === 'pausa') return this.pausar('');
+        if (a === 'alternar') return this.alternar();
         if (a === 'sub-sig') return this.subSig();
         if (a === 'sub-ant') return this.subAnt();
-        if (a === 'ant' || a === 'sig') {
-          const n = r.paso + (a === 'ant' ? -1 : 1); if (n < 0 || n >= PASOS.length) return;
-          // Reproduciendo, o desde la barra minimizada al pie: el paso se ejecuta y arranca solo (cuenta y subtítulos)
-          if (r.reproduciendo || r.min) return this.pasoRel(a === 'ant' ? -1 : 1);
-          if (reloj.fase === 'esperando') return this.avisoEspera();   // elegir otro paso cortaría la espera del lote
-          r.paso = n; guardarRec(r); this.aviso = ''; parar(); return this.pintar();
-        }
+        if (a === 'ant' || a === 'sig') return this.irPaso(r.paso + (a === 'ant' ? -1 : 1));
         if (a === 'reiniciar') { guardarRec({ activo: true, paso: 0, vistos: [], min: false, reproduciendo: false }); this.aviso = ''; parar(); return this.pintar(); }
         if (a === 'add-cue' || a === 'quitar-cue') {
           this.guardarTextos(); const c = leerConf(); const t = c.textos[this.edPaso] || { subtitulos: pasoDe(this.edPaso, c).subtitulos };
@@ -675,7 +699,7 @@
         const conf = leerConf(); const k = t.dataset.conf;
         conf[k] = t.type === 'checkbox' ? t.checked : t.type === 'number' ? Number(t.value) : t.value;
         guardarConf(conf);
-        if (k === 'auto' && !t.checked) this.pausar('');
+        if (k === 'auto' && estado() === 'marcha') { const r = leerRec(); r.reproduciendo = t.checked; guardarRec(r); }
         reloj.cue = -1; this.pintar();
       });
       // Arrastrar el panel por la cabecera (doble clic: vuelve a su sitio)
@@ -710,15 +734,16 @@
         if (ev.target && ev.target.closest && ev.target.closest('input, textarea, select, [contenteditable="true"]')) return;
         ev.preventDefault();
         const sig = ev.key === 'PageDown';
-        if (ev.shiftKey) this.pasoRel(sig ? 1 : -1); else if (sig) this.subSig(); else this.subAnt();
+        const r = leerRec();
+        if (ev.shiftKey) this.irPaso(r.paso + (sig ? 1 : -1)); else if (estado() === 'sin') this.alternar(); else if (sig) this.subSig(); else this.subAnt();
       });
       document.addEventListener('dblclick', (ev) => { if (ev.target.closest && ev.target.closest('#recorrido:not(.min) .rec-cab') && !ev.target.closest('button')) { ls.del(CLAVE_POS); this.posicionar(); } });
       addEventListener('resize', () => this.posicionar());
       // Pausar si el presentador toca la pantalla: solo interacciones reales (los clics que hace la propia demo no cuentan)
       const tocar = (ev) => {
-        if (!ev.isTrusted || !leerRec().reproduciendo || !leerConf().pausarAlTocar) return;
+        if (!ev.isTrusted || estado() !== 'marcha' || !leerConf().pausarAlTocar) return;
         if (ev.key === 'PageDown' || ev.key === 'PageUp') return;
-        if (ev.target && ev.target.closest && ev.target.closest('#recorrido, #rec-subs, #rec-clave')) return;
+        if (ev.target && ev.target.closest && ev.target.closest('#recorrido, #rec-subs, #rec-clave, #rec-config')) return;
         this.pausar(I18N.t('shell.en_pausa_porque_has'));
       };
       document.addEventListener('pointerdown', tocar, true); document.addEventListener('keydown', tocar, true);
@@ -727,7 +752,7 @@
       setInterval(() => this.tick(), 250);
       // Llegada desde la otra página con «#demo=N»: se ejecuta el paso cuando la página ya está pintada
       const m = location.hash.match(/demo=(\d+)/);
-      if (m) { history.replaceState(null, '', location.pathname + location.search); setTimeout(() => this.ir(Number(m[1])), 350); }
+      if (m) { history.replaceState(null, '', location.pathname + location.search); setTimeout(() => this.ir(Number(m[1]), { pausa: leerRec().enPausa }), 350); }
       else { const r = leerRec(); if (presentador() && r.activo && r.reproduciendo) this.arrancar(null); }
       this.pintar();
     },
