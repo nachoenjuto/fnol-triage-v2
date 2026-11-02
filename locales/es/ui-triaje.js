@@ -75,7 +75,6 @@ I18N.registrar('es', {
   'triaje.log_table.mensaje': 'Mensaje',
   'triaje.log_table.importe': 'Importe',
   'triaje.log_table.decision': 'Decisión',
-  'triaje.log_table.motivo': 'Motivo',
   'triaje.log_table.origen': 'Origen',
   'triaje.log_table.conf': 'Conf.',
   'triaje.log_table.ciclo': 'Ciclo',

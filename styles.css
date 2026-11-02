@@ -214,7 +214,8 @@ th[data-sort] { cursor: pointer; user-select: none; }
 th[data-sort]:hover { color: var(--text); }
 th[data-sort].sorted::after { content: ''; display: inline-block; width: .75em; height: .75em; margin-left: .25em; vertical-align: -.05em; background: currentColor; -webkit-mask: var(--icon-chevron-up) center / contain no-repeat; mask: var(--icon-chevron-up) center / contain no-repeat; }
 th[data-sort].sorted[data-dir="desc"]::after { transform: rotate(180deg); }
-td.motivo { white-space: normal; min-width: 260px; max-width: 480px; }
+#log-table td.log-id { width: 1%; }
+#log-table td.log-asunto { white-space: normal; min-width: 220px; max-width: 420px; }
 tbody tr { cursor: pointer; }
 tbody tr:hover { background: var(--bg); }
 tbody tr:focus { outline: 2px solid var(--primary); outline-offset: -2px; }

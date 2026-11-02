@@ -145,7 +145,7 @@ I18N.registrarDatos('de', {
   "f83511c9": "Auf **1 · Mehrkanal** klicken: die aufklappende Karte mit den fünf Kanälen und ihrer Vereinheitlichung in ein einziges Format.",
   "168ac349": "Auf **2 · Spartenzuordnung**, **3 · Datenextraktion** und **4 · Geschäftsregeln** klicken: auf jeder Karte unten das Etikett «Generative KI» oder «Geschäftslogik».",
   "83b91876": "Auf **5 · Nachvollziehbarkeit** und **6 · Automatisierung** klicken.",
-  "5d814f72": "Seitenmenü → **Pakete**: die Liste der 13 mit dem Symbol ihres Kanals. Auf MSG-A-11 (WhatsApp) und MSG-A-08 (Telefon) hinweisen.",
+  "370d5861": "Spalte **Kanal**: MSG-A-11 (WhatsApp) und MSG-A-08 (Telefon) haben denselben Prozess durchlaufen wie die E-Mails.",
   "afa7b083": "**Falls gefragt wird:** Und Anhänge oder Audio? Der Anruf wird mit einem Sprache-zu-Text-Modell transkribiert. Anhänge werden mit ihrem Fingerabdruck protokolliert, und ihre Daten werden mit dem Text abgeglichen: Wir sehen es in der Akte von MSG-A-01, die mit dem Unfallbericht und zwei Fotos kommt. Der Guardrail G-09 kann Transkripte mit geringer Konfidenz an einen Menschen eskalieren.",
   "f6479579": "Schritt 2 · Verarbeitung von Paket A (Min. 6:30-8:30)",
   "6d7b6cd7": "**Bildschirm:** `index.html`, Hauptbereich.",

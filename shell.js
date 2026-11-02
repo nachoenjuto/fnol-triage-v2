@@ -93,7 +93,6 @@
   const CLAVE_REC = 'demo.recorrido';           // sessionStorage: { activo, paso, vistos, min, reproduciendo }
   const CLAVE_CONF = 'demo.recorrido.config';   // localStorage: configuración y textos editados (solo este navegador)
   const CLAVE_POS = 'demo.recorrido.pos';       // localStorage: posición del panel arrastrado
-  const CLAVE_IR_TEXTOS = 'demo.recorrido.textos';   // sessionStorage: al llegar a intro.html#tour, bajar a «Textos del guion»
   // SHA-256 de la contraseña del modo presentador (no se guarda en claro). En una demo estática solo disuade:
   // quien abra las herramientas del navegador puede saltárselo. Protegerlo de verdad exige un servidor.
   const HASH_CLAVE = '5e884898da28047151d0e56f8dc6292773603d0d6aabbdd62a11ef721d1542d8';
@@ -268,7 +267,7 @@
       // Con el lote procesándose no se arranca un paso que lo necesita ni se cambia de página (cortaría el procesado)
       const l = this.acciones.lote ? this.acciones.lote() : null;
       if (l && l.procesando && p.accion !== 'procesar' && (p.requiere === 'lote' || p.pagina !== this.pagina)) return this.avisoEspera();
-      const r = leerRec(); r.activo = true; r.paso = n; r.enPausa = pausa; if (!r.vistos.includes(n)) r.vistos.push(n); guardarRec(r);
+      const r = leerRec(); r.activo = true; r.paso = n; r.enPausa = pausa; r.pausa = null; if (!r.vistos.includes(n)) r.vistos.push(n); guardarRec(r);
       if (p.pagina !== this.pagina) { location.href = `${PAGINA_URL[p.pagina]}#demo=${n}`; return; }
       this.aviso = ''; this.avisoTipo = ''; this.avisoIr = null; parar(); quitarFoco();
       const [nombre, ...args] = p.accion.split(':');
@@ -284,6 +283,9 @@
         if (l && !l.procesando && l.hechos < l.total) { this.aviso = I18N.t('shell.falta_procesar_el_paquete', { hechos: l.hechos, total: l.total }); this.avisoIr = PASOS.findIndex((x) => x.accion === 'procesar'); }
         this.arrancar(typeof o.listo === 'function' ? o.listo : null);
         if (pausa) { reloj.previa = reloj.fase; reloj.fase = 'pausado'; }
+        // «Seguir» pulsado en otra página: el paso sigue desde el punto en que se pausó
+        const rr = leerRec();
+        if (rr.reanudar != null) { if (reloj.fase === 'contando') { reloj.acumulado = clamp(rr.reanudar, 0, durMs(leerConf()) - 1); reloj.inicio = Date.now(); } delete rr.reanudar; guardarRec(rr); }
         this.pintar();
       }, 0);
     },
@@ -311,7 +313,10 @@
     correrPaso(n) { const r = leerRec(); r.reproduciendo = leerConf().auto; guardarRec(r); this.ir(n); },
     seguir() {
       if (reloj.fase !== 'pausado') return;
-      const r = leerRec(); r.reproduciendo = leerConf().auto; r.enPausa = false; guardarRec(r); this.aviso = '';
+      const r = leerRec(); r.reproduciendo = leerConf().auto; r.enPausa = false; r.pausa = null; guardarRec(r); this.aviso = '';
+      // En pausa en otra página (se tocó un enlace): se vuelve a la del paso y sigue desde donde se quedó
+      const p = PASOS[r.paso];
+      if (p && p.pagina !== this.pagina) { r.reanudar = reloj.acumulado; guardarRec(r); parar(); location.href = `${PAGINA_URL[p.pagina]}#demo=${r.paso}`; return; }
       reloj.fase = reloj.previa || 'contando';
       if (reloj.fase === 'contando') reloj.inicio = Date.now(); else reloj.espera = Date.now();
       this.pintar();
@@ -379,7 +384,8 @@
     // anteriores y la última pantalla, para que se vea lo que toca aunque se llegue desde cualquier sitio.
     momento(conf, r) {
       if (!enMarcha() || !presentador() || !r.activo) return;
-      const p = pasoDe(r.paso, conf); const subs = subsVisibles(p, conf); if (!subs.length) return;
+      const p = pasoDe(r.paso, conf); if (p.pagina !== this.pagina) return;   // en pausa en otra página: no se ejecuta nada aquí
+      const subs = subsVisibles(p, conf); if (!subs.length) return;
       const k = cueEn(subs, transcurrido(), durMs(conf)); if (k === reloj.cueAcc) return;
       const orig = (u) => p.subtitulos.indexOf(u); const hasta = orig(subs[k]);
       const seguido = (reloj.cueAcc === -1 && k === 0) || (reloj.cueAcc >= 0 && k === reloj.cueAcc + 1);
@@ -567,17 +573,13 @@
       if (act && host.contains(act) && act.matches('textarea, input[type="text"], input[type="number"]')) return;
       const on = presentador();
       host.innerHTML = this.htmlPresentador(on, leerRec()) + (on ? this.htmlAjustes(leerConf()) : '');
-      if (on && ss.get(CLAVE_IR_TEXTOS, false)) { ss.del(CLAVE_IR_TEXTOS); const t = host.querySelector('.rec-textos'); if (t) requestAnimationFrame(() => t.scrollIntoView({ block: 'start' })); }
     },
-    // Engranaje del panel: «Textos del guion» del Tour (intro.html#tour), con el paso en curso en el editor
-    irATextos() {
-      this.edPaso = leerRec().paso; ss.set(CLAVE_IR_TEXTOS, true);
-      // En la propia intro: primero cambia de sección (su hashchange sube arriba) y después se baja a los textos
-      if (byId('rec-config')) {
-        if (location.hash === '#tour') return this.pintar();
-        addEventListener('hashchange', () => this.pintar(), { once: true }); location.hash = '#tour';
-      }
-      else location.href = 'intro.html#tour';
+    // Engranaje del panel: la sección Auto Tour de la intro (intro.html#tour), arriba; el editor de textos, en el paso en curso
+    irATour() {
+      this.edPaso = leerRec().paso;
+      if (!byId('rec-config')) { location.href = 'intro.html#tour'; return; }
+      if (location.hash === '#tour') { this.pintar(); window.scrollTo({ top: 0 }); return; }
+      addEventListener('hashchange', () => this.pintar(), { once: true }); location.hash = '#tour';
     },
     htmlPresentador(on, r) {
       const botones = on
@@ -672,7 +674,7 @@
           if (r.min) { r.min = false; guardarRec(r); }
           return this.alternar();
         }
-        if (a === 'ajustes') return this.irATextos();
+        if (a === 'ajustes') return this.irATour();
         if (a === 'alternar') return this.alternar();
         if (a === 'sub-sig') return this.subSig();
         if (a === 'sub-ant') return this.subAnt();
@@ -750,10 +752,24 @@
       // Ventanas modales que se abren o se cierran: el panel y los subtítulos van con la de encima
       new MutationObserver(anclar).observe(document.documentElement, { subtree: true, attributes: true, attributeFilter: ['open'] });
       setInterval(() => this.tick(), 250);
+      // Salir de la página con el Tour en pausa o en marcha (un enlace, el engranaje, recargar): la pausa, su aviso y el
+      // punto del paso se guardan y el Tour llega en pausa a la otra página. Los pasos de otra página llegan con «#demo=N»,
+      // que vuelve a ejecutarlos y descarta esto.
+      addEventListener('pagehide', () => {
+        const r = leerRec(); if (!presentador() || !r.activo) return;
+        if (reloj.fase === 'pausado') r.pausa = { ms: reloj.acumulado, previa: reloj.previa, motivo: this.aviso };
+        else if (reloj.fase === 'contando' || reloj.fase === 'esperando') { r.pausa = { ms: transcurrido(), previa: reloj.fase, motivo: I18N.t('shell.en_pausa_al_cambiar') }; r.reproduciendo = false; r.enPausa = true; }
+        else r.pausa = null;
+        guardarRec(r);
+      });
       // Llegada desde la otra página con «#demo=N»: se ejecuta el paso cuando la página ya está pintada
       const m = location.hash.match(/demo=(\d+)/);
       if (m) { history.replaceState(null, '', location.pathname + location.search); setTimeout(() => this.ir(Number(m[1]), { pausa: leerRec().enPausa }), 350); }
-      else { const r = leerRec(); if (presentador() && r.activo && r.reproduciendo) this.arrancar(null); }
+      else {
+        const r = leerRec();
+        if (presentador() && r.activo && r.pausa) Object.assign(reloj, { fase: 'pausado', acumulado: Number(r.pausa.ms) || 0, previa: r.pausa.previa || 'contando' }), this.aviso = r.pausa.motivo || '';
+        else if (presentador() && r.activo && r.reproduciendo) this.arrancar(null);
+      }
       this.pintar();
     },
   };

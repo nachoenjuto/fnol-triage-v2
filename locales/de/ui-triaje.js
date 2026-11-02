@@ -65,7 +65,6 @@ I18N.registrar('de', {
   "triaje.log_table.mensaje": ["Meldung","06946982"],
   "triaje.log_table.importe": ["Betrag","e7aaa243"],
   "triaje.log_table.decision": ["Entscheidung","bd88674f"],
-  "triaje.log_table.motivo": ["Grund","8a089ae5"],
   "triaje.log_table.origen": ["Herkunft","ff89e7b3"],
   "triaje.log_table.conf": ["Konf.","57efe49b"],
   "triaje.log_table.ciclo": ["Zyklus","7001c6e3"],

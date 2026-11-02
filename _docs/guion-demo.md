@@ -191,7 +191,6 @@ Cinco ideas, una por bloque de la página:
 1. Clic en **1 · Multicanalidad**: la ficha emergente con los cinco canales y la unificación en un único formato.
 2. Clic en **2 · Clasificación por ramo**, **3 · Extracción de datos** y **4 · Reglas de negocio**: en cada ficha, la etiqueta «IA generativa» o «Lógica de negocio» al pie.
 3. Clic en **5 · Trazabilidad** y **6 · Automatización**.
-4. Menú lateral → **Paquetes**: la lista de los 13 con el icono de su canal. Señalar MSG-A-11 (WhatsApp) y MSG-A-08 (teléfono).
 
 **Si preguntan:** ¿y los adjuntos o los audios? La llamada se transcribe con un modelo de voz a texto. Los adjuntos se registran con su huella y sus datos se contrastan con el texto: lo veremos en la ficha de MSG-A-01, que trae el parte amistoso y dos fotos. El guardrail G-09 puede escalar a una persona las transcripciones con confianza baja.
 
@@ -226,10 +225,11 @@ Cinco ideas, una por bloque de la página:
 1. **Procesar paquete**. Mientras avanza, señalar los contadores (Aprobados, A revisar, Tiempo medio de ciclo) y el registro que se llena.
 2. A mitad de lote, **Pausar**. Explicar que no se pierde nada. **Continuar**.
 3. Al terminar: 10 aprobados y 3 a revisar. Señalar los chips por ramo.
-4. Columna **Ramo**: los ✔ frente al resultado esperado. Columnas **Origen** y **Conf.**
-5. Filtro **Solo a revisar**: quedan MSG-A-04, MSG-A-08 y MSG-A-13. Quitar el filtro.
-6. Señalar las etiquetas de fraude en el registro (MSG-A-13 en la SIU; MSG-A-09, MSG-A-11 y MSG-A-02 con el pago retenido).
-7. Opcional: **Exportar JSON**.
+4. Columna **Canal**: MSG-A-11 (WhatsApp) y MSG-A-08 (teléfono) han pasado por el mismo proceso que los emails.
+5. Columna **Ramo**: los ✔ frente al resultado esperado. Columnas **Origen** y **Conf.**
+6. Filtro **Solo a revisar**: quedan MSG-A-04, MSG-A-08 y MSG-A-13. Quitar el filtro.
+7. Señalar las etiquetas de fraude en el registro (MSG-A-13 en la SIU; MSG-A-09, MSG-A-11 y MSG-A-02 con el pago retenido).
+8. Opcional: **Exportar JSON**.
 
 **Si preguntan:** ¿cuánto tarda de verdad? Con el modelo real, entre 5 y 8 segundos por aviso en la demo; la traza más larga, MSG-A-08, 12,4 segundos. Una persona tarda minutos en leer y teclear el mismo aviso.
 

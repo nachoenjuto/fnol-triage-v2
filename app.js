@@ -559,7 +559,8 @@
     const { key, dir } = state.sort;
     const mul = dir === 'asc' ? 1 : -1;
     return rows.sort((a, b) => {
-      const va = a[key] ?? '', vb = b[key] ?? '';
+      const val = (e) => (key === 'canal' ? CANAL_LABEL[e.mensaje?.canal] || e.mensaje?.canal : e[key]) ?? '';
+      const va = val(a), vb = val(b);
       if (typeof va === 'number' || typeof vb === 'number') return ((Number(va) || 0) - (Number(vb) || 0)) * mul;
       return String(va).localeCompare(String(vb), I18N.locale) * mul;
     });
@@ -592,11 +593,12 @@
       tr.tabIndex = 0;
       const ramoMark = e.esperado?.ramo ? (e.esperado.ramo === e.ramo ? `<span class="mark ok" title="${I18N.t('triaje.coincide_con_el_ramo')}">${lucide('check')}</span>` : `<span class="mark ko" title="${I18N.t('triaje.esperado', { ramo: escapeHtml(I18N.etiqueta('ramo', e.esperado.ramo)) })}">${lucide('x')}</span>`) : '';
       tr.innerHTML = [
-        `<td><strong>${escapeHtml(e.id)}</strong><br><span class="muted small">${escapeHtml(e.asunto)}</span></td>`,
+        `<td class="log-id"><strong>${escapeHtml(e.id)}</strong></td>`,
+        `<td>${e.mensaje?.canal ? `${canalIcon(e.mensaje.canal)} ${escapeHtml(CANAL_LABEL[e.mensaje.canal] || e.mensaje.canal)}` : '—'}</td>`,
+        `<td class="log-asunto">${escapeHtml(e.asunto)}</td>`,
         `<td><span class="pill pill-ramo-${e.ramo.toLowerCase()}">${escapeHtml(I18N.etiqueta('ramo', e.ramo))}</span> ${ramoMark}</td>`,
         `<td>${fmtEur(e.importe)}</td>`,
         `<td>${pillDecision(e)}${chipFraude(FRv[e.id])}</td>`,
-        `<td class="motivo">${escapeHtml(e.motivo)}</td>`,
         `<td>${escapeHtml(origenTexto(e.origen))}</td>`,
         `<td>${Math.round(e.confianza * 100)} %</td>`,
         `<td>${fmtMs(e.duracion_ms)}</td>`,
@@ -1323,8 +1325,6 @@
         if (b && (pop.hidden || !b.classList.contains('is-active'))) b.click();
         return '';
       },
-      // Subpasos: abre la sección Paquetes, con la lista de mensajes del paquete
-      paquete: () => { mostrarVista('paquetes'); return ''; },
       // Estado del lote para los avisos de espera del recorrido
       lote: () => ({ total: ((PAQUETES.find((p) => p.id === 'A') || {}).mensajes || []).length, hechos: state.log.filter((e) => e.paquete === 'A').length, procesando: !!state.running }),
     });

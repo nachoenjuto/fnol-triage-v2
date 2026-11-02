@@ -41,10 +41,10 @@ const MAPA = [
   ] }],
   ['### Paso 1 ', { pagina: 'triaje', accion: 'fases', momentos: [
     ['Aquí veis las seis fases', 'fase:multicanal'], ['Las cuatro primeras', 'fase:reglas'], ['Las dos últimas', 'fase:registro'],
-    ['Para la aseguradora', 'fase:cerrar | paquete | ver:#paquete-lista tr.paq-fila~MSG-A-11 | ver:#paquete-lista tr.paq-fila~MSG-A-08'], ['Para el tramitador', 'fase:automatizacion'],
+    ['Para la aseguradora', 'fase:multicanal'], ['Para el tramitador', 'fase:automatizacion'],
   ] }],
   ['### Paso 2 ', { pagina: 'triaje', accion: 'procesar', momentos: [
-    ['Los contadores', 'ver:.counters'], ['cada aviso deja su traza', 'ver:#log-table'],
+    ['Los contadores', 'ver:.counters'], ['cada aviso deja su traza', 'ver:#log-table | ver:#log-body tr[data-id=MSG-A-11] | ver:#log-body tr[data-id=MSG-A-08]'],
     ['dedique su tiempo', 'ver:#log-body tr[data-id=MSG-A-04] | ver:#log-body tr[data-id=MSG-A-08] | ver:#log-body tr[data-id=MSG-A-13]'],
   ] }],
   ['### Paso 3 ', { pagina: 'triaje', accion: 'ficha:MSG-A-01:mensaje', requiere: 'lote', momentos: [

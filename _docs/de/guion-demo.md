@@ -191,7 +191,6 @@ Fünf Ideen, eine pro Block der Seite:
 1. Auf **1 · Mehrkanal** klicken: die aufklappende Karte mit den fünf Kanälen und ihrer Vereinheitlichung in ein einziges Format.
 2. Auf **2 · Spartenzuordnung**, **3 · Datenextraktion** und **4 · Geschäftsregeln** klicken: auf jeder Karte unten das Etikett «Generative KI» oder «Geschäftslogik».
 3. Auf **5 · Nachvollziehbarkeit** und **6 · Automatisierung** klicken.
-4. Seitenmenü → **Pakete**: die Liste der 13 mit dem Symbol ihres Kanals. Auf MSG-A-11 (WhatsApp) und MSG-A-08 (Telefon) hinweisen.
 
 **Falls gefragt wird:** Und Anhänge oder Audio? Der Anruf wird mit einem Sprache-zu-Text-Modell transkribiert. Anhänge werden mit ihrem Fingerabdruck protokolliert, und ihre Daten werden mit dem Text abgeglichen: Wir sehen es in der Akte von MSG-A-01, die mit dem Unfallbericht und zwei Fotos kommt. Der Guardrail G-09 kann Transkripte mit geringer Konfidenz an einen Menschen eskalieren.
 
@@ -226,10 +225,11 @@ Fünf Ideen, eine pro Block der Seite:
 1. **Paket verarbeiten**. Während es läuft, auf die Zähler (Freigegeben, Zu prüfen, Durchschnittliche Zykluszeit) und das sich füllende Protokoll hinweisen.
 2. In der Mitte des Stapels **Pausieren**. Erklären, dass nichts verloren geht. **Fortsetzen**.
 3. Am Ende: 10 freigegeben und 3 zu prüfen. Auf die Chips nach Sparte hinweisen.
-4. Spalte **Sparte**: das ✔ gegenüber dem erwarteten Ergebnis. Spalten **Herkunft** und **Konf.**
-5. Filter **Nur zu prüfen**: Es bleiben MSG-A-04, MSG-A-08 und MSG-A-13. Den Filter entfernen.
-6. Auf die Betrugsetiketten im Protokoll hinweisen (MSG-A-13 mit der SIU; MSG-A-09, MSG-A-11 und MSG-A-02 mit zurückgehaltener Zahlung).
-7. Optional: **JSON exportieren**.
+4. Spalte **Kanal**: MSG-A-11 (WhatsApp) und MSG-A-08 (Telefon) haben denselben Prozess durchlaufen wie die E-Mails.
+5. Spalte **Sparte**: das ✔ gegenüber dem erwarteten Ergebnis. Spalten **Herkunft** und **Konf.**
+6. Filter **Nur zu prüfen**: Es bleiben MSG-A-04, MSG-A-08 und MSG-A-13. Den Filter entfernen.
+7. Auf die Betrugsetiketten im Protokoll hinweisen (MSG-A-13 mit der SIU; MSG-A-09, MSG-A-11 und MSG-A-02 mit zurückgehaltener Zahlung).
+8. Optional: **JSON exportieren**.
 
 **Falls gefragt wird:** Wie lange dauert es wirklich? Mit dem echten Modell zwischen 5 und 8 Sekunden pro Meldung in der Demo; die längste Spur, MSG-A-08, 12,4 Sekunden. Ein Mensch braucht Minuten, um dieselbe Meldung zu lesen und abzutippen.
 

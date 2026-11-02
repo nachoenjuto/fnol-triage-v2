@@ -145,7 +145,7 @@ I18N.registrarDatos('en', {
   "f83511c9": "Click **1 · Multichannel**: the pop-up card with the five channels and their unification into a single format.",
   "168ac349": "Click **2 · Line-of-business classification**, **3 · Data extraction** and **4 · Business rules**: on each card, the «Generative AI» or «Business logic» label at the bottom.",
   "83b91876": "Click **5 · Traceability** and **6 · Automation**.",
-  "5d814f72": "Side menu → **Packages**: the list of the 13 with the icon of their channel. Point out MSG-A-11 (WhatsApp) and MSG-A-08 (phone).",
+  "370d5861": "**Channel** column: MSG-A-11 (WhatsApp) and MSG-A-08 (phone) have gone through the same process as the emails.",
   "afa7b083": "**If asked:** what about attachments or audio? The call is transcribed with a speech-to-text model. Attachments are recorded with their fingerprint and their data is checked against the text: we will see it in the record of MSG-A-01, which comes with the accident statement and two photos. Guardrail G-09 can escalate low-confidence transcripts to a person.",
   "f6479579": "Step 2 · Processing Package A (min 6:30-8:30)",
   "6d7b6cd7": "**Screen:** `index.html`, main panel.",

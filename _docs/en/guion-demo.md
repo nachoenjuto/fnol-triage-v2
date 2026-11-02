@@ -191,7 +191,6 @@ Five ideas, one per block of the page:
 1. Click **1 · Multichannel**: the pop-up card with the five channels and their unification into a single format.
 2. Click **2 · Line-of-business classification**, **3 · Data extraction** and **4 · Business rules**: on each card, the «Generative AI» or «Business logic» label at the bottom.
 3. Click **5 · Traceability** and **6 · Automation**.
-4. Side menu → **Packages**: the list of the 13 with the icon of their channel. Point out MSG-A-11 (WhatsApp) and MSG-A-08 (phone).
 
 **If asked:** what about attachments or audio? The call is transcribed with a speech-to-text model. Attachments are recorded with their fingerprint and their data is checked against the text: we will see it in the record of MSG-A-01, which comes with the accident statement and two photos. Guardrail G-09 can escalate low-confidence transcripts to a person.
 
@@ -226,10 +225,11 @@ Five ideas, one per block of the page:
 1. **Process package**. While it runs, point out the counters (Approved, To review, Average cycle time) and the log filling up.
 2. Halfway through the batch, **Pause**. Explain that nothing is lost. **Continue**.
 3. When it finishes: 10 approved and 3 to review. Point out the chips by line of business.
-4. **Line of business** column: the ✔ against the expected result. **Origin** and **Conf.** columns.
-5. **Only to review** filter: MSG-A-04, MSG-A-08 and MSG-A-13 remain. Remove the filter.
-6. Point out the fraud labels in the log (MSG-A-13 with the SIU; MSG-A-09, MSG-A-11 and MSG-A-02 with payment withheld).
-7. Optional: **Export JSON**.
+4. **Channel** column: MSG-A-11 (WhatsApp) and MSG-A-08 (phone) have gone through the same process as the emails.
+5. **Line of business** column: the ✔ against the expected result. **Origin** and **Conf.** columns.
+6. **Only to review** filter: MSG-A-04, MSG-A-08 and MSG-A-13 remain. Remove the filter.
+7. Point out the fraud labels in the log (MSG-A-13 with the SIU; MSG-A-09, MSG-A-11 and MSG-A-02 with payment withheld).
+8. Optional: **Export JSON**.
 
 **If asked:** how long does it really take? With the real model, between 5 and 8 seconds per notice in the demo; the longest trace, MSG-A-08, 12.4 seconds. A person takes minutes to read and type in the same notice.
 

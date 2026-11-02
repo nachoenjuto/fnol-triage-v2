@@ -79,17 +79,18 @@ Es el mismo menú que el del panel de gobierno (`shell.js`), con el mismo ancho 
 
 | Columna | Qué muestra |
 |---|---|
-| Mensaje | Id y canal (con su icono) |
+| Mensaje | Id del mensaje (MSG-A-13) |
+| Canal | Canal de entrada, con su icono |
+| Asunto | Asunto del mensaje |
 | Ramo | Ramo asignado y ✔/✖ frente al esperado |
 | Importe | Importe estimado extraído |
 | Decisión | Aprobado / A revisar |
-| Motivo | Razón resumida de la decisión |
 | Origen | Qué motor decidió (IA, reglas locales, guardado, fallback) |
 | Conf. | Confianza del modelo (0–1) |
 | Ciclo | Tiempo de proceso |
 | Hora | Momento de la decisión |
 
-Capacidades: **ordenar** por cualquier columna con cabecera, **filtrar** por ramo y por «Solo a revisar», **exportar a JSON o CSV** y **abrir la ficha** haciendo clic en una fila.
+Capacidades: **ordenar** por cualquier columna con cabecera, **filtrar** por ramo y por «Solo a revisar», **exportar a JSON o CSV** y **abrir la ficha** haciendo clic en una fila (el motivo de la decisión está en la ficha).
 
 ### 2.5 Ficha del mensaje (ventana modal)
 
@@ -207,7 +208,7 @@ Cada bloque muestra su nombre y su pregunta encima de sus fichas. Cada ficha lle
 - **Mando de presentación.** **Av Pág / Re Pág** pasan al subtítulo siguiente o anterior; con **Mayús**, al paso siguiente o anterior. Sin empezar, Av Pág / Re Pág comienzan el paso elegido. Siguen la regla de «Navegar sin parar el Tour» y no pausan.
 - **Marcas de los subpasos en la línea de progreso.** Desplegado o minimizado, la línea lleva una marca al principio de cada subtítulo, en su posición real dentro del paso: en el color de la cabecera las ya pasadas y en gris las que faltan. Al pasar el ratón por una marca sale su número, su tipo y el principio del texto; un clic salta a ese subpaso y ejecuta lo que toca.
 - **Línea de progreso con tirador.** Desplegado o minimizado, la línea muestra cuánto lleva el paso. Arrastrar el tirador (o pulsar en la línea) va hacia atrás o hacia delante dentro del paso y el subtítulo se ajusta; con el foco en la línea, las flechas saltan 5 s e Inicio vuelve al principio. Si la demo automática estaba en marcha, sigue.
-- **Ajustes (sección Tour de la introducción).** El engranaje del panel lleva a la sección Tour, al bloque **Textos del guion** con el paso en curso. *Demo automática*: al terminar cada paso pasa sola a la pantalla siguiente, también de una página a la otra. *Tiempo mínimo por pantalla*: uno para todas (45 s por defecto, de 10 a 600 s); con subtítulos, cada pantalla dura al menos lo que se tarda en leer los suyos (15 caracteres por segundo, mínimo 4 s por subtítulo). «Procesar el Paquete A» empieza a contar cuando termina el lote. *Al terminar*: parar o volver a empezar. *Pausar si toco la pantalla* (activado): cualquier clic o tecla del presentador fuera del panel, los subtítulos y la sección Auto Tour pausa el Tour, con o sin demo automática. *Subtítulos*: mostrar u ocultar, **qué tipos se muestran** (Introducción, Para qué sirve, Qué es y qué hace, Valor; cada uno con su número de subtítulos), al pie o arriba de la pantalla, tamaño normal o grande.
+- **Ajustes (sección Tour de la introducción).** El engranaje del panel lleva a la sección Auto Tour de la introducción, con el editor de **Textos del guion** en el paso en curso. *Demo automática*: al terminar cada paso pasa sola a la pantalla siguiente, también de una página a la otra. *Tiempo mínimo por pantalla*: uno para todas (45 s por defecto, de 10 a 600 s); con subtítulos, cada pantalla dura al menos lo que se tarda en leer los suyos (15 caracteres por segundo, mínimo 4 s por subtítulo). «Procesar el Paquete A» empieza a contar cuando termina el lote. *Al terminar*: parar o volver a empezar. *Pausar si toco la pantalla* (activado): cualquier clic o tecla del presentador fuera del panel, los subtítulos y la sección Auto Tour pausa el Tour, con o sin demo automática. Al salir de la página con el Tour en marcha o en pausa (un enlace de la cabecera, el engranaje, recargar), el Tour llega en pausa a la otra página con su aviso, y ▶ Seguir vuelve a la pantalla del paso y sigue desde donde se quedó. *Subtítulos*: mostrar u ocultar, **qué tipos se muestran** (Introducción, Para qué sirve, Qué es y qué hace, Valor; cada uno con su número de subtítulos), al pie o arriba de la pantalla, tamaño normal o grande.
 - **Subtítulos.** Son todo el texto para decir del guion (185 subtítulos), troceado en una o dos frases y etiquetado con su tipo; en la introducción de la solución, con el apartado del que sale. Cada subtítulo ocupa un tiempo proporcional a lo que se tarda en leerlo. Con una ventana modal abierta, el panel y los subtítulos se meten dentro de ella para seguir visibles y usables.
 - **Editar los textos.** En el bloque **Textos del guion** de la sección Tour de la introducción se elige el paso y se cambia su frase clave y sus subtítulos (añadir, quitar, editar). Los cambios **solo los ve quien los hace**: se guardan en su navegador. Cada subtítulo se edita con su tipo y su texto. «Restaurar este paso» y «Restaurar todos» vuelven al guion de `data/recorrido.js`, que se **genera desde `_docs/guion-demo.md`** con `make recorrido` (no se edita a mano); los textos editados con el guion anterior se descartan; «Exportar / Importar JSON» lleva la configuración y los textos a otro equipo.
 

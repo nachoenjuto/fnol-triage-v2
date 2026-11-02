@@ -345,8 +345,7 @@ const RECORRIDO_DEMO = {
       "clics": [
         "Clic en 1 · Multicanalidad: la ficha emergente con los cinco canales y la unificación en un único formato.",
         "Clic en 2 · Clasificación por ramo, 3 · Extracción de datos y 4 · Reglas de negocio: en cada ficha, la etiqueta «IA generativa» o «Lógica de negocio» al pie.",
-        "Clic en 5 · Trazabilidad y 6 · Automatización.",
-        "Menú lateral → Paquetes: la lista de los 13 con el icono de su canal. Señalar MSG-A-11 (WhatsApp) y MSG-A-08 (teléfono)."
+        "Clic en 5 · Trazabilidad y 6 · Automatización."
       ],
       "subtitulos": [
         {
@@ -378,10 +377,7 @@ const RECORRIDO_DEMO = {
           "tipo": "valor",
           "texto": "Para la aseguradora, esto significa que un aviso que llega por WhatsApp recibe exactamente el mismo criterio que uno que llega por email. El cliente elige el canal que le resulta más cómodo y la compañía no pierde la trazabilidad.",
           "accion": [
-            "fase:cerrar",
-            "paquete",
-            "ver:#paquete-lista tr.paq-fila~MSG-A-11",
-            "ver:#paquete-lista tr.paq-fila~MSG-A-08"
+            "fase:multicanal"
           ]
         },
         {
@@ -408,6 +404,7 @@ const RECORRIDO_DEMO = {
         "Procesar paquete. Mientras avanza, señalar los contadores (Aprobados, A revisar, Tiempo medio de ciclo) y el registro que se llena.",
         "A mitad de lote, Pausar. Explicar que no se pierde nada. Continuar.",
         "Al terminar: 10 aprobados y 3 a revisar. Señalar los chips por ramo.",
+        "Columna Canal: MSG-A-11 (WhatsApp) y MSG-A-08 (teléfono) han pasado por el mismo proceso que los emails.",
         "Columna Ramo: los ✔ frente al resultado esperado. Columnas Origen y Conf.",
         "Filtro Solo a revisar: quedan MSG-A-04, MSG-A-08 y MSG-A-13. Quitar el filtro.",
         "Señalar las etiquetas de fraude en el registro (MSG-A-13 en la SIU; MSG-A-09, MSG-A-11 y MSG-A-02 con el pago retenido).",
@@ -429,7 +426,9 @@ const RECORRIDO_DEMO = {
           "tipo": "que",
           "texto": "A la vez, cada aviso deja su traza en el momento: el modelo que ha usado cada agente, los tokens, el coste en euros y la decisión.",
           "accion": [
-            "ver:#log-table"
+            "ver:#log-table",
+            "ver:#log-body tr[data-id=MSG-A-11]",
+            "ver:#log-body tr[data-id=MSG-A-08]"
           ]
         },
         {

@@ -35,7 +35,7 @@ I18N.registrar('es', {
   'shell.ctl.siguiente_paso_t': 'Ejecutar el paso siguiente',
   'shell.ctl.volver_t': 'Volver al primer paso',
   'shell.cfg.desactivar': 'Desactivar',
-  'shell.cfg.ir_a_la_configuracion': 'Editar los textos del guion',
+  'shell.cfg.ir_a_la_configuracion': 'Ajustes del Auto Tour',
   'shell.introduccion': 'Introducción',
   'shell.triaje': 'Triaje',
   'shell.gobierno': 'Gobierno',
@@ -137,6 +137,7 @@ I18N.registrar('es', {
   'shell.restaurar_todos_los_textos': '¿Restaurar todos los textos del guion? Se pierden tus cambios.',
   'shell.todos_los_textos_restaurados': 'Todos los textos restaurados.',
   'shell.en_pausa_porque_has': 'En pausa porque has tocado la pantalla. Pulsa ▶ para seguir.',
+  'shell.en_pausa_al_cambiar': 'En pausa al cambiar de página. Pulsa ▶ para seguir.',
   // ── cumplimiento.js ──
   'cumpl.exigible_a_sistemas_de': 'Exigible a sistemas de alto riesgo desde el 02/12/2027 (Digital Omnibus); el triaje de siniestros no lo es, aquí se aplica como buena práctica.',
   'cumpl.norma.rgpd': 'RGPD',

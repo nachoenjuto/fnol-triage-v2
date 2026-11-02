@@ -113,6 +113,7 @@ I18N.registrar('en', {
   "shell.restaurar_todos_los_textos": ["Restore all the script texts? Your changes will be lost.","a20ee7ec"],
   "shell.todos_los_textos_restaurados": ["All texts restored.","536c04f2"],
   "shell.en_pausa_porque_has": ["Paused because you touched the screen. Press ▶ to continue.","b3fe63d2"],
+  "shell.en_pausa_al_cambiar": ["Paused when changing page. Press ▶ to continue.","aab6bc55"],
   "cumpl.exigible_a_sistemas_de": ["Required for high-risk systems from 02/12/2027 (Digital Omnibus); claims triage is not high-risk, so here it is applied as good practice.","9f2920db"],
   "cumpl.norma.rgpd": ["GDPR","c3d4b9a2"],
   "cumpl.norma.solvencia": ["Solvency II","38180881"],
@@ -467,5 +468,5 @@ I18N.registrar('en', {
   "shell.ctl.siguiente_paso_t": ["Run the next step","23d9abfd"],
   "shell.ctl.volver_t": ["Back to the first step","e3bcdc00"],
   "shell.cfg.desactivar": ["Turn off","147800e9"],
-  "shell.cfg.ir_a_la_configuracion": ["Edit the script texts","8b569d0e"],
+  "shell.cfg.ir_a_la_configuracion": ["Auto Tour settings","67ddd8e4"],
 });

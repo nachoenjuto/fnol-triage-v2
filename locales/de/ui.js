@@ -113,6 +113,7 @@ I18N.registrar('de', {
   "shell.restaurar_todos_los_textos": ["Alle Texte des Drehbuchs zurücksetzen? Ihre Änderungen gehen verloren.","a20ee7ec"],
   "shell.todos_los_textos_restaurados": ["Alle Texte zurückgesetzt.","536c04f2"],
   "shell.en_pausa_porque_has": ["Pausiert, weil Sie den Bildschirm berührt haben. Drücken Sie ▶, um fortzufahren.","b3fe63d2"],
+  "shell.en_pausa_al_cambiar": ["Pausiert beim Seitenwechsel. Drücken Sie ▶, um fortzufahren.","aab6bc55"],
   "cumpl.exigible_a_sistemas_de": ["Für Hochrisikosysteme ab dem 02/12/2027 verpflichtend (Digital Omnibus); die Schadentriage ist keines, hier wird es als gute Praxis angewandt.","9f2920db"],
   "cumpl.norma.rgpd": ["DSGVO","c3d4b9a2"],
   "cumpl.norma.solvencia": ["Solvency II","38180881"],
@@ -467,5 +468,5 @@ I18N.registrar('de', {
   "shell.ctl.siguiente_paso_t": ["Nächsten Schritt ausführen","23d9abfd"],
   "shell.ctl.volver_t": ["Zurück zum ersten Schritt","e3bcdc00"],
   "shell.cfg.desactivar": ["Deaktivieren","147800e9"],
-  "shell.cfg.ir_a_la_configuracion": ["Texte des Drehbuchs bearbeiten","8b569d0e"],
+  "shell.cfg.ir_a_la_configuracion": ["Einstellungen der Auto Tour","67ddd8e4"],
 });

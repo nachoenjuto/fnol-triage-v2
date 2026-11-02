@@ -85,7 +85,7 @@ I18N.registrarDatos('en', {
   "38f48b89": "Click 1 · Multichannel: the pop-up card with the five channels and their unification into a single format.",
   "2825eb3d": "Click 2 · Line-of-business classification, 3 · Data extraction and 4 · Business rules: on each card, the «Generative AI» or «Business logic» label at the bottom.",
   "54abe1de": "Click 5 · Traceability and 6 · Automation.",
-  "36ef6f3a": "Side menu → Packages: the list of the 13 with the icon of their channel. Point out MSG-A-11 (WhatsApp) and MSG-A-08 (phone).",
+  "9ad85e05": "Channel column: MSG-A-11 (WhatsApp) and MSG-A-08 (phone) have gone through the same process as the emails.",
   "963e8dae": "Here you can see the six phases of the process.",
   "35f3dd06": "The last two, traceability and automation, close the loop: they record everything that happens and turn the decision into a workflow.",
   "6e60d333": "Each phase has its card, which explains what it receives, what it delivers and whether it is handled by an AI model or a business rule.",

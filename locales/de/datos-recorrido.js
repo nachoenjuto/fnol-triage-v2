@@ -85,7 +85,7 @@ I18N.registrarDatos('de', {
   "38f48b89": "Klick 1 · Mehrkanal: die aufklappende Karte mit den fünf Kanälen und ihrer Vereinheitlichung in ein einziges Format.",
   "2825eb3d": "Klick 2 · Spartenzuordnung, 3 · Datenextraktion und 4 · Geschäftsregeln: auf jeder Karte unten das Etikett «Generative KI» oder «Geschäftslogik».",
   "54abe1de": "Klick 5 · Nachvollziehbarkeit und 6 · Automatisierung.",
-  "36ef6f3a": "Seitenmenü → Pakete: die Liste der 13 mit dem Symbol ihres Kanals. Auf MSG-A-11 (WhatsApp) und MSG-A-08 (Telefon) hinweisen.",
+  "9ad85e05": "Spalte Kanal: MSG-A-11 (WhatsApp) und MSG-A-08 (Telefon) haben denselben Prozess durchlaufen wie die E-Mails.",
   "963e8dae": "Hier sehen Sie die sechs Phasen des Prozesses.",
   "35f3dd06": "Die letzten beiden, Nachvollziehbarkeit und Automatisierung, schließen den Kreis: Sie protokollieren alles, was passiert, und machen aus der Entscheidung einen Arbeitsablauf.",
   "6e60d333": "Jede Phase hat ihre Karte, die erklärt, was sie empfängt, was sie liefert und ob ein KI-Modell oder eine Geschäftsregel sie übernimmt.",
