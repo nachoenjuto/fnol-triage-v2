@@ -3,6 +3,7 @@
 I18N.registrar('es', {
   'comun.idioma': 'Idioma',
   'comun.idioma.cambiar': 'Ver la demo en {nombre}',
+  'comun.idioma.actual': 'Idioma: {nombre}',
   'comun.ramo.Auto': 'Auto',
   'comun.ramo.Hogar': 'Hogar',
   'comun.ramo.Salud': 'Salud',
@@ -476,4 +477,6 @@ I18N.registrar('es', {
   'cumpl.marcador_menor': '[menor de edad]',
   'cumpl.marcador_salud': '[dato de salud cifrado]',
   'cumpl.marcador_firma': '[firma manuscrita: no se extrae]',
+  'shell.grupo_abrir': 'Abrir {grupo}',
+  'shell.grupo_cerrar': 'Cerrar {grupo}',
 });

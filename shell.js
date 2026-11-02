@@ -12,20 +12,28 @@
   const leer = () => { try { return localStorage.getItem(CLAVE) !== '0'; } catch { return true; } };
   const guardar = (abierto) => { try { localStorage.setItem(CLAVE, abierto ? '1' : '0'); } catch { /* sin almacenamiento */ } };
 
-  // Selector de idioma al final de la cabecera, generado desde locales/idiomas.js (un idioma nuevo aparece solo).
-  // Cambiar recarga la página en el idioma elegido (I18N.cambiar, locales/cargar.js).
+  // Selector de idioma al final de la cabecera, generado desde locales/idiomas.js (un idioma nuevo aparece solo):
+  // un botón con la bandera y el código del idioma actual que abre la lista de idiomas. Cambiar recarga la página
+  // en el idioma elegido (I18N.cambiar, locales/cargar.js).
   function initIdiomas() {
     const destino = document.querySelector('.topbar .topbar-actions');
     if (!destino || typeof I18N === 'undefined' || destino.querySelector('.idiomas')) return;
+    const actual = I18N.IDIOMAS[I18N.idioma];
     const grupo = document.createElement('div');
     grupo.className = 'idiomas';
-    grupo.setAttribute('role', 'group');
-    grupo.setAttribute('aria-label', I18N.t('comun.idioma'));
-    grupo.innerHTML = Object.entries(I18N.IDIOMAS).map(([cod, i]) => {
-      const txt = I18N.t('comun.idioma.cambiar', { nombre: i.nombre });
-      return `<button type="button" lang="${cod}" data-idioma="${cod}" aria-pressed="${cod === I18N.idioma}" title="${txt}" aria-label="${txt}">${i.bandera || i.corto}</button>`;
-    }).join('');
-    grupo.addEventListener('click', (ev) => { const b = ev.target.closest('[data-idioma]'); if (b) I18N.cambiar(b.dataset.idioma); });
+    grupo.innerHTML = `<button type="button" class="idiomas-boton" aria-haspopup="menu" aria-expanded="false" aria-controls="idiomas-menu" title="${I18N.t('comun.idioma.actual', { nombre: actual.nombre })}">${actual.bandera || ''}<span>${actual.corto}</span>${lucide('chevron-down')}</button>
+      <div class="idiomas-menu" id="idiomas-menu" role="menu" aria-label="${I18N.t('comun.idioma')}" hidden>${Object.entries(I18N.IDIOMAS).map(([cod, i]) => `<button type="button" role="menuitemradio" lang="${cod}" data-idioma="${cod}" aria-checked="${cod === I18N.idioma}" title="${I18N.t('comun.idioma.cambiar', { nombre: i.nombre })}">${i.bandera || ''}<span>${i.nombre}</span>${cod === I18N.idioma ? lucide('check') : ''}</button>`).join('')}</div>`;
+    const boton = grupo.querySelector('.idiomas-boton');
+    const menu = grupo.querySelector('.idiomas-menu');
+    const abrir = (si) => { menu.hidden = !si; boton.setAttribute('aria-expanded', String(si)); if (si) (menu.querySelector('[aria-checked="true"]') || menu.firstElementChild).focus(); };
+    boton.addEventListener('click', () => abrir(menu.hidden));
+    menu.addEventListener('click', (ev) => { const b = ev.target.closest('[data-idioma]'); if (b) I18N.cambiar(b.dataset.idioma); abrir(false); });
+    menu.addEventListener('keydown', (ev) => {
+      const items = [...menu.querySelectorAll('[data-idioma]')]; const k = items.indexOf(document.activeElement);
+      if (ev.key === 'ArrowDown' || ev.key === 'ArrowUp') { ev.preventDefault(); items[(k + (ev.key === 'ArrowDown' ? 1 : items.length - 1)) % items.length].focus(); }
+    });
+    document.addEventListener('click', (ev) => { if (!grupo.contains(ev.target)) abrir(false); });
+    document.addEventListener('keydown', (ev) => { if (ev.key === 'Escape' && !menu.hidden) { abrir(false); boton.focus(); } });
     destino.appendChild(grupo);
   }
 
@@ -42,11 +50,120 @@
     const nav = document.createElement('nav');
     nav.className = 'topnav';
     nav.setAttribute('aria-label', I18N.t('shell.cab.paginas'));
-    nav.innerHTML = PAGINAS.map(([p, url, icono, clave]) => `<a class="topnav-item" href="${url}"${p === shell.dataset.pagina ? ' aria-current="page"' : ''}>${lucide(icono)}<span>${I18N.t(clave)}</span></a>`).join('');
+    nav.innerHTML = PAGINAS.map(([p, url, , clave]) => `<a class="topnav-item" href="${url}"${p === shell.dataset.pagina ? ' aria-current="page"' : ''}>${I18N.t(clave)}</a>`).join('');
     cab.querySelector('.topbar-actions').prepend(nav);
     initIdiomas();
   }
   if (typeof document !== 'undefined') initCabecera();   // en Node (tests del recorrido) no hay página
+
+  // Grupos del menú lateral plegables: el título de grupo abre y cierra las secciones que le siguen (hasta el
+  // siguiente título o separador). El grupo de la sección activa siempre está abierto; los cerrados se recuerdan por
+  // página en este navegador. Con el menú plegado (solo iconos) se ven todas las secciones.
+  const CLAVE_GRUPOS = 'shell.grupos';
+  const leerGrupos = (pag) => { try { return JSON.parse(localStorage.getItem(CLAVE_GRUPOS) || '{}')[pag] || []; } catch { return []; } };
+  const guardarGrupos = (pag, cerrados) => {
+    try { const t = JSON.parse(localStorage.getItem(CLAVE_GRUPOS) || '{}'); t[pag] = cerrados; localStorage.setItem(CLAVE_GRUPOS, JSON.stringify(t)); } catch { /* sin almacenamiento */ }
+  };
+  let menuGrupos = null;   // { cuerpo, pagina }: lo usa también el recorrido para abrir el grupo de lo que enseña
+
+  // Secciones de cada título de grupo, en el orden del menú
+  const gruposDe = (cuerpo) => {
+    const out = []; let actual = null;
+    [...cuerpo.children].forEach((el) => {
+      if (el.classList.contains('nav-grupo')) { actual = { titulo: el, items: [] }; out.push(actual); }
+      else if (el.classList.contains('nav-sep')) actual = null;
+      else if (actual) actual.items.push(el);
+    });
+    return out;
+  };
+
+  function pintarGrupos() {
+    if (!menuGrupos) return;
+    const { cuerpo, pagina } = menuGrupos;
+    let cerrados = leerGrupos(pagina);
+    const grupos = gruposDe(cuerpo);
+    // Un grupo cerrado que contiene la sección activa se abre y se queda abierto al ir a otra sección
+    const conActiva = grupos.findIndex(({ items }) => items.some((el) => el.classList.contains('is-active') || el.getAttribute('aria-current') === 'page'));
+    if (cerrados.includes(conActiva)) { cerrados = cerrados.filter((x) => x !== conActiva); guardarGrupos(pagina, cerrados); }
+    grupos.forEach(({ titulo, items }, i) => {
+      if (!titulo.dataset.grupo) {
+        titulo.dataset.grupo = String(i);
+        titulo.setAttribute('role', 'button');
+        titulo.tabIndex = 0;
+        titulo.insertAdjacentHTML('beforeend', lucide('chevron-down'));
+      }
+      const id = `grupo-${i}`;
+      const cerrado = cerrados.includes(i);
+      titulo.classList.toggle('is-cerrado', cerrado);
+      titulo.setAttribute('aria-expanded', String(!cerrado));
+      titulo.title = I18N.t(cerrado ? 'shell.grupo_abrir' : 'shell.grupo_cerrar', { grupo: titulo.textContent.trim() });
+      items.forEach((el) => { el.classList.toggle('en-grupo-cerrado', cerrado); el.dataset.grupoDe = id; });
+    });
+  }
+
+  function alternarGrupo(titulo) {
+    if (!menuGrupos || document.querySelector('.shell.nav-collapsed')) return;
+    const i = Number(titulo.dataset.grupo);
+    const cerrados = leerGrupos(menuGrupos.pagina);
+    const cerrar = !titulo.classList.contains('is-cerrado');
+    guardarGrupos(menuGrupos.pagina, cerrar ? [...new Set([...cerrados, i])] : cerrados.filter((x) => x !== i));
+    pintarGrupos();
+  }
+
+  // Abre el grupo que contiene un elemento del menú (el recorrido enseña o pulsa secciones que pueden estar cerradas)
+  function abrirGrupoDe(el) {
+    const item = menuGrupos && el && el.closest && el.closest('.en-grupo-cerrado');
+    if (!item) return;
+    const titulo = menuGrupos.cuerpo.querySelector(`.nav-grupo[data-grupo="${String(item.dataset.grupoDe).replace('grupo-', '')}"]`);
+    if (titulo) alternarGrupo(titulo);
+  }
+
+  function initGrupos(cuerpo) {
+    const shell = cuerpo && cuerpo.closest('.shell');
+    if (!shell) return;
+    menuGrupos = { cuerpo, pagina: shell.dataset.pagina || location.pathname };
+    cuerpo.addEventListener('click', (ev) => { const t = ev.target.closest('.nav-grupo[data-grupo]'); if (t) alternarGrupo(t); });
+    cuerpo.addEventListener('keydown', (ev) => {
+      const t = ev.target.closest('.nav-grupo[data-grupo]');
+      if (t && (ev.key === 'Enter' || ev.key === ' ')) { ev.preventDefault(); alternarGrupo(t); }
+    });
+    pintarGrupos();
+  }
+
+  // Menú lateral más alto que la ventana: la lista se desplaza; un degradado arriba o abajo avisa de que hay más
+  // secciones y la sección activa se mantiene a la vista cuando cambia (también desde las tarjetas de la página)
+  function initScrollMenu(cuerpo) {
+    if (!cuerpo) return;
+    const bordes = () => {
+      const max = cuerpo.scrollHeight - cuerpo.clientHeight;
+      cuerpo.classList.toggle('hay-arriba', cuerpo.scrollTop > 2);
+      cuerpo.classList.toggle('hay-abajo', cuerpo.scrollTop < max - 2);
+    };
+    const aLaVista = () => {
+      const activo = cuerpo.querySelector('.nav-item.is-active');
+      if (!activo) return;
+      const c = cuerpo.getBoundingClientRect(); const a = activo.getBoundingClientRect(); const margen = 28;
+      if (a.top < c.top + margen) cuerpo.scrollTop -= c.top + margen - a.top;
+      else if (a.bottom > c.bottom - margen) cuerpo.scrollTop += a.bottom - (c.bottom - margen);
+    };
+    cuerpo.addEventListener('scroll', bordes, { passive: true });
+    addEventListener('resize', bordes);
+    // Solo cuando una sección pasa a activa (no con las clases del propio degradado, que cambian al desplazar)
+    const nuevaActiva = (m) => m.target !== cuerpo && m.target.classList.contains('is-active') && !/\bis-active\b/.test(m.oldValue || '');
+    let pintando = false;
+    new MutationObserver((ms) => {
+      if (pintando) return;
+      // Lista rehecha (gobierno.js) o sección activa nueva: grupos al día antes de colocar la activa a la vista
+      if (ms.some((m) => m.type === 'childList' || nuevaActiva(m))) { pintando = true; pintarGrupos(); pintando = false; }
+      if (ms.some(nuevaActiva)) aLaVista();
+      bordes();
+    })
+      .observe(cuerpo, { subtree: true, childList: true, attributes: true, attributeFilter: ['class'], attributeOldValue: true });
+    // La altura cambia sin desplazar ni redimensionar: secciones que se pintan después, fuentes, menú plegado
+    if (typeof ResizeObserver !== 'undefined') new ResizeObserver(bordes).observe(cuerpo);
+    addEventListener('load', bordes);
+    requestAnimationFrame(() => { aLaVista(); bordes(); });
+  }
 
   function initShell({ onChange } = {}) {
     initIdiomas();
@@ -72,6 +189,8 @@
     boton.addEventListener('click', () => set(shell.classList.contains('nav-collapsed')));
 
     set(leer(), { guardarEstado: false });
+    initGrupos(shell.querySelector('.sidenav-body'));
+    initScrollMenu(shell.querySelector('.sidenav-body'));
     return { set, abierto: () => !shell.classList.contains('nav-collapsed') };
   }
 
@@ -423,6 +542,7 @@
           if (nombre === 'cerrar') { document.querySelectorAll('dialog[open]').forEach((d) => { if (d.id !== 'rec-clave') d.close(); }); await pausa(150); continue; }
           if (nombre === 'ver' || nombre === 'clic') {
             const [sel, txt] = arg.split('~'); const el = await esperarEl(sel, txt); if (!el || !vigente()) continue;
+            abrirGrupoDe(el);
             if (nombre === 'ver') { resaltar(el); await desplazar(el); await pausa(400); } else { el.scrollIntoView({ block: 'nearest' }); el.click(); await pausa(300); }
             continue;
           }

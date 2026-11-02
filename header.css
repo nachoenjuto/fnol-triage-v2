@@ -9,27 +9,31 @@
 .brand h1 { font-size: 1.6rem; margin: 0; letter-spacing: -.01em; line-height: 1.1; }
 .brand-sub { margin: .25rem 0 0; font-size: .85rem; font-weight: 400; line-height: 1.25; color: rgba(255,255,255,.85); }
 
-.topbar-actions { display: flex; align-items: center; justify-content: flex-end; gap: .6rem; flex-wrap: nowrap; flex: none; margin-top: 0; }
+.topbar-actions { display: flex; align-items: center; justify-content: flex-end; gap: .75rem; flex-wrap: nowrap; flex: none; margin-top: 0; }
 
 
-/* Enlaces entre las tres páginas (shell.js · initCabecera): la página en la que se está, en blanco */
-.topnav { display: flex; align-items: center; gap: .4rem; flex-wrap: wrap; }
-.topnav-item { display: inline-flex; align-items: center; gap: .45rem; font-size: 14px; font-weight: 600; line-height: 1.2; padding: .55rem 1rem; border: 1px solid rgba(255,255,255,.45); border-radius: 6px; color: #fff; text-decoration: none; white-space: nowrap; }
-.topnav-item svg { width: 1.05rem; height: 1.05rem; flex: none; }
-.topnav-item:hover { background: rgba(255,255,255,.14); }
-.topnav-item[aria-current="page"] { background: #fff; color: var(--header); border-color: #fff; }
+/* Enlaces entre las tres páginas (shell.js · initCabecera): texto sin caja; la página en la que se está, sobre una
+   píldora translúcida */
+.topnav { display: flex; align-items: center; gap: .25rem; flex-wrap: wrap; }
+.topnav-item { font-size: 15px; font-weight: 500; line-height: 1.2; padding: .5rem .95rem; border-radius: 999px; color: rgba(255,255,255,.72); text-decoration: none; white-space: nowrap; transition: background-color .15s, color .15s; }
+.topnav-item:hover { color: #fff; background: rgba(255,255,255,.07); }
+.topnav-item[aria-current="page"] { color: #fff; background: rgba(255,255,255,.13); }
 .topnav-item:focus-visible { outline: none; box-shadow: 0 0 0 2px #ffd166; }
 
-/* Selector de idioma (shell.js · initIdiomas): botones ES | EN | DE al final de la cabecera */
-.idiomas { display: inline-flex; flex: none; border: 1px solid rgba(255,255,255,.45); border-radius: 6px; overflow: hidden; }
-.idiomas button { font: 600 12px/1 inherit; font-family: inherit; letter-spacing: .04em; padding: .5rem .6rem; min-width: 36px; background: transparent; color: #fff; border: 0; cursor: pointer; }
-.idiomas button + button { border-left: 1px solid rgba(255,255,255,.3); }
-.idiomas button:hover { background: rgba(255,255,255,.14); }
-.idiomas button[aria-pressed="true"] { background: #fff; color: var(--header); cursor: default; }
-.idiomas button svg { display: block; width: 24px; height: 16px; border-radius: 2px; box-shadow: 0 0 0 1px rgba(0,0,0,.25); }
-.idiomas button { line-height: 0; padding: .4rem .5rem; opacity: .65; }
-.idiomas button:hover, .idiomas button[aria-pressed="true"] { opacity: 1; }
-.idiomas button:focus-visible { outline: none; box-shadow: inset 0 0 0 2px #ffd166; }
+/* Selector de idioma (shell.js · initIdiomas): bandera y código del idioma actual; abre la lista de idiomas */
+.idiomas { position: relative; flex: none; }
+.idiomas-boton { display: inline-flex; align-items: center; gap: .45rem; font: 500 13px/1 inherit; font-family: inherit; letter-spacing: .03em; padding: .5rem .75rem; border: 0; border-radius: 999px; background: transparent; color: rgba(255,255,255,.85); cursor: pointer; transition: background-color .15s; }
+.idiomas-boton:hover, .idiomas-boton[aria-expanded="true"] { background: rgba(255,255,255,.1); color: #fff; }
+.idiomas-boton > svg:last-child { width: 14px; height: 14px; opacity: .7; }
+.idiomas svg[viewBox] { flex: none; }
+.idiomas-boton > svg:first-child, .idiomas-menu button > svg:first-child { display: block; width: 18px; height: 12px; border-radius: 2px; }
+.idiomas-menu { position: absolute; right: 0; top: calc(100% + 6px); z-index: 20; min-width: 170px; padding: .3rem; background: #fff; color: var(--text, #1f2937); border-radius: 10px; box-shadow: 0 10px 30px rgba(15,23,42,.18), 0 0 0 1px rgba(15,23,42,.06); }
+.idiomas-menu[hidden] { display: none; }
+.idiomas-menu button { display: flex; align-items: center; gap: .6rem; width: 100%; padding: .5rem .6rem; border: 0; border-radius: 7px; background: transparent; color: inherit; font: 400 14px/1.2 inherit; font-family: inherit; text-align: left; cursor: pointer; }
+.idiomas-menu button span { flex: 1; }
+.idiomas-menu button > svg:last-child:not(:first-child) { width: 15px; height: 15px; color: var(--primary, #1b2a4a); }
+.idiomas-menu button:hover, .idiomas-menu button:focus-visible { outline: none; background: rgba(15,23,42,.06); }
+.idiomas-boton:focus-visible { outline: none; box-shadow: 0 0 0 2px #ffd166; }
 
 /* font-size fijo: index.html (body 16px) y gobierno.html (body 14px) parten de bases distintas;
    se fija aquí para que el texto y los iconos del menú horizontal midan igual en las dos páginas. */
@@ -67,6 +71,14 @@ html { scrollbar-gutter: stable; }
 .shell.nav-collapsed { --nav-w: 60px; }
 .sidenav { position: sticky; top: var(--nav-top); height: calc(100vh - var(--nav-top)); display: flex; flex-direction: column; background: var(--surface); border-right: 1px solid var(--border); box-shadow: 2px 0 4px rgba(15, 23, 42, .04); z-index: 3; font-size: 14px; min-width: 0; }
 .sidenav-body { flex: 1 1 auto; overflow-y: auto; overflow-x: hidden; padding: .8rem .55rem; display: flex; flex-direction: column; gap: .15rem; }
+/* Lo que no cabe se desplaza: ningún elemento encoge (los títulos de grupo, con overflow hidden, se aplastaban) */
+.sidenav-body > * { flex-shrink: 0; }
+.sidenav-body { scrollbar-width: thin; scrollbar-color: transparent transparent; overscroll-behavior: contain; }
+.sidenav-body:hover, .sidenav-body:focus-within { scrollbar-color: var(--border) transparent; }
+/* Degradado en el borde por el que quedan secciones ocultas (shell.js · initScrollMenu) */
+.sidenav-body.hay-abajo { mask-image: linear-gradient(to bottom, #000 calc(100% - 32px), transparent); -webkit-mask-image: linear-gradient(to bottom, #000 calc(100% - 32px), transparent); }
+.sidenav-body.hay-arriba { mask-image: linear-gradient(to bottom, transparent, #000 32px); -webkit-mask-image: linear-gradient(to bottom, transparent, #000 32px); }
+.sidenav-body.hay-arriba.hay-abajo { mask-image: linear-gradient(to bottom, transparent, #000 32px, #000 calc(100% - 32px), transparent); -webkit-mask-image: linear-gradient(to bottom, transparent, #000 32px, #000 calc(100% - 32px), transparent); }
 .sidenav-foot { flex: none; border-top: 1px solid var(--border); padding: .45rem .55rem; display: grid; gap: .15rem; }
 .nav-item { font: inherit; font-weight: 600; color: var(--muted); text-decoration: none; background: none; border: 0; border-left: 3px solid transparent; border-radius: 0 5px 5px 0; padding: .55rem .65rem; cursor: pointer; white-space: nowrap; display: flex; align-items: center; gap: .6rem; text-align: left; position: relative; width: 100%; min-width: 0; list-style: none; }
 .nav-item::-webkit-details-marker { display: none; }
@@ -81,6 +93,17 @@ html { scrollbar-gutter: stable; }
 .nav-sep { height: 1px; background: var(--border); margin: .6rem .4rem; flex: none; }
 /* Encabezado de grupo del menú (gobierno.html e intro.html); plegado se reduce a una línea separadora */
 .nav-grupo { font-size: .66rem; font-weight: 700; letter-spacing: .07em; text-transform: uppercase; color: var(--muted); padding: .85rem .65rem .25rem calc(.65rem + 3px); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+/* Grupos plegables (shell.js · initGrupos): el título abre y cierra sus secciones; la flecha gira al cerrar */
+.nav-grupo[data-grupo] { display: flex; align-items: center; gap: .35rem; cursor: pointer; user-select: none; border-radius: 5px; }
+.nav-grupo[data-grupo]:hover { color: var(--text); }
+.nav-grupo[data-grupo] svg { width: .8rem; height: .8rem; flex: none; margin-left: auto; opacity: .55; transition: transform .15s; }
+.nav-grupo[data-grupo]:hover svg { opacity: 1; }
+.nav-grupo.is-cerrado svg { transform: rotate(-90deg); }
+.nav-grupo[data-grupo]:focus-visible { outline: 2px solid var(--primary); outline-offset: -2px; }
+.sidenav-body .en-grupo-cerrado { display: none; }
+.shell.nav-collapsed .sidenav-body .en-grupo-cerrado { display: flex; }
+.shell.nav-collapsed .nav-grupo[data-grupo] { cursor: default; pointer-events: none; }
+.shell.nav-collapsed .nav-grupo[data-grupo] svg { display: none; }
 /* Usuario (sesión simulada) y botón de plegar, al pie del menú */
 .usuario { display: flex; align-items: center; gap: .6rem; padding: .4rem .5rem .4rem calc(.65rem + 3px); min-width: 0; }
 .avatar { flex: none; width: 1.75rem; height: 1.75rem; border-radius: 50%; background: var(--header); color: #fff; display: grid; place-items: center; font-size: .7rem; font-weight: 700; letter-spacing: .02em; }

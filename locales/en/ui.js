@@ -3,6 +3,7 @@
 I18N.registrar('en', {
   "comun.idioma": ["Language","012fad36"],
   "comun.idioma.cambiar": ["View the demo in {nombre}","b93e361e"],
+  "comun.idioma.actual": ["Language: {nombre}","643f40d7"],
   "comun.ramo.Auto": ["Motor","126befb6"],
   "comun.ramo.Hogar": ["Home","a3965312"],
   "comun.ramo.Salud": ["Health","1bfa75de"],
@@ -469,4 +470,6 @@ I18N.registrar('en', {
   "shell.ctl.volver_t": ["Back to the first step","e3bcdc00"],
   "shell.cfg.desactivar": ["Turn off","147800e9"],
   "shell.cfg.ir_a_la_configuracion": ["Auto Tour settings","67ddd8e4"],
+  "shell.grupo_abrir": ["Open {grupo}","bcf6c672"],
+  "shell.grupo_cerrar": ["Close {grupo}","6833d6db"],
 });

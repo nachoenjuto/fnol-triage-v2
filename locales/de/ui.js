@@ -3,6 +3,7 @@
 I18N.registrar('de', {
   "comun.idioma": ["Sprache","012fad36"],
   "comun.idioma.cambiar": ["Demo auf {nombre} ansehen","b93e361e"],
+  "comun.idioma.actual": ["Sprache: {nombre}","643f40d7"],
   "comun.ramo.Auto": ["Kfz","126befb6"],
   "comun.ramo.Hogar": ["Hausrat","a3965312"],
   "comun.ramo.Salud": ["Gesundheit","1bfa75de"],
@@ -469,4 +470,6 @@ I18N.registrar('de', {
   "shell.ctl.volver_t": ["Zurück zum ersten Schritt","e3bcdc00"],
   "shell.cfg.desactivar": ["Deaktivieren","147800e9"],
   "shell.cfg.ir_a_la_configuracion": ["Einstellungen der Auto Tour","67ddd8e4"],
+  "shell.grupo_abrir": ["{grupo} öffnen","bcf6c672"],
+  "shell.grupo_cerrar": ["{grupo} schließen","6833d6db"],
 });
