@@ -1748,13 +1748,36 @@
     window.addEventListener('scroll', () => { if (active) position(active); }, { passive: true });
   }
 
-  // Altura real de la cabecera para que la barra de submenú (.submenu) quede pegada justo debajo
+  // Altura real de la cabecera: el menú lateral y la barra de fases (.submenu) quedan pegados justo debajo
   function medirTopH() {
     const topbar = document.querySelector('.topbar');
     if (topbar) document.documentElement.style.setProperty('--top-h', `${topbar.offsetHeight}px`);
-    // Cabecera + barra de fases (ambas fijas): el panel lateral se ancla justo debajo
-    const submenu = document.querySelector('.submenu');
-    if (topbar) document.documentElement.style.setProperty('--head-h', `${topbar.offsetHeight + (submenu ? submenu.offsetHeight : 0)}px`);
+  }
+
+  // Barra de fases en una sola línea: si los seis textos no caben, se acortan con «…» solo los más largos, todos al
+  // mismo ancho máximo (el mayor que hace que quepan); los cortos se ven enteros. Sin esto el navegador acortaría
+  // todos un poco (styles.css · .phase-lbl, que queda como respaldo).
+  function ajustarFases() {
+    const barra = document.querySelector('.submenu');
+    const textos = barra ? [...barra.querySelectorAll('.phase-lbl')] : [];
+    if (!textos.length) return;
+    textos.forEach((t) => { t.style.maxWidth = ''; });
+    barra.classList.add('midiendo');
+    const sobra = barra.scrollWidth - barra.clientWidth;
+    const anchos = textos.map((t) => t.scrollWidth);
+    barra.classList.remove('midiendo');
+    if (sobra <= 0) return;
+    // Ancho máximo común: se recorta primero el más largo hasta igualar al siguiente, y así sucesivamente
+    const objetivo = anchos.reduce((a, w) => a + w, 0) - sobra - 2;
+    const orden = [...anchos].sort((a, b) => b - a);
+    let tope = 0;
+    for (let k = 1; k <= orden.length; k++) {
+      const resto = orden.slice(k).reduce((a, w) => a + w, 0);
+      tope = (objetivo - resto) / k;
+      if (k === orden.length || tope >= orden[k]) break;
+    }
+    tope = Math.max(24, Math.floor(tope));
+    textos.forEach((t, i) => { if (anchos[i] > tope) t.style.maxWidth = `${tope}px`; });
   }
 
   // ---------------------------------------------------------------------------
@@ -1773,4 +1796,8 @@
   renderLog();
   medirTopH();
   window.addEventListener('resize', medirTopH);
+  // La barra cambia de ancho al redimensionar, al plegar el menú lateral y cuando cargan las fuentes
+  const barraFases = document.querySelector('.submenu');
+  if (barraFases && typeof ResizeObserver !== 'undefined') new ResizeObserver(ajustarFases).observe(barraFases);
+  if (document.fonts) document.fonts.ready.then(ajustarFases);
 })();

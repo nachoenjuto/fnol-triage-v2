@@ -179,6 +179,7 @@
 
     const set = (abierto, { guardarEstado = true } = {}) => {
       shell.classList.toggle('nav-collapsed', !abierto);
+      document.documentElement.classList.toggle('nav-plegado', !abierto);
       boton.setAttribute('aria-expanded', String(abierto));
       const txt = abierto ? I18N.t('shell.plegar_menu') : I18N.t('shell.desplegar_menu');
       boton.innerHTML = `${lucide(abierto ? 'panel-left-close' : 'panel-left-open')}<span class="lbl">${txt}</span>`;

@@ -37,7 +37,9 @@
 
 /* font-size fijo: index.html (body 16px) y gobierno.html (body 14px) parten de bases distintas;
    se fija aquí para que el texto y los iconos del menú horizontal midan igual en las dos páginas. */
-.submenu { display: flex; align-items: center; gap: .25rem; padding: .6rem 1.25rem 0; background: var(--surface); border-bottom: 1px solid var(--border); box-shadow: 0 2px 4px rgba(15, 23, 42, .06); overflow-x: auto; position: sticky; top: var(--top-h, 63px); z-index: 4; font-size: 14px; }
+/* Barra de fases (solo index): primera fila de la columna principal, a la derecha del menú lateral; mismo espacio
+   arriba y abajo. Nunca hace dos líneas: si no cabe, los textos más largos se acortan con «…» (styles.css · .phase-lbl) */
+.submenu { display: flex; align-items: center; flex-wrap: nowrap; gap: .1rem; padding: .4rem 1rem; background: var(--surface); border-bottom: 1px solid var(--border); box-shadow: 0 2px 4px rgba(15, 23, 42, .06); overflow: hidden; position: sticky; top: var(--top-h, 63px); z-index: 4; font-size: 14px; }
 
 @media (max-width: 1100px) {
   .topbar-actions, .topnav { flex-wrap: wrap; flex: 1 1 auto; min-width: 0; }
@@ -67,8 +69,9 @@ html { scrollbar-gutter: stable; }
 
 /* ── Menú lateral común ── font-size fijo: index (body 16px) y gobierno (body 14px) parten de bases distintas */
 .shell { --nav-w: 248px; --nav-top: var(--top-h, 76px); display: grid; grid-template-columns: var(--nav-w) minmax(0, 1fr); align-items: start; transition: grid-template-columns .18s ease; }
-.shell[data-pagina="triaje"] { --nav-top: var(--head-h, 7.5rem); }  /* debajo de la barra de fases */
-.shell.nav-collapsed { --nav-w: 60px; }
+/* Plegado: clase en <html> (la pone el <head> de cada página antes de pintar y shell.js al plegar), así al cambiar
+   de página el menú ya sale plegado y sin animación */
+.nav-plegado .shell { --nav-w: 60px; }
 .sidenav { position: sticky; top: var(--nav-top); height: calc(100vh - var(--nav-top)); display: flex; flex-direction: column; background: var(--surface); border-right: 1px solid var(--border); box-shadow: 2px 0 4px rgba(15, 23, 42, .04); z-index: 3; font-size: 14px; min-width: 0; }
 .sidenav-body { flex: 1 1 auto; overflow-y: auto; overflow-x: hidden; padding: .8rem .55rem; display: flex; flex-direction: column; gap: .15rem; }
 /* Lo que no cabe se desplaza: ningún elemento encoge (los títulos de grupo, con overflow hidden, se aplastaban) */
@@ -101,9 +104,9 @@ html { scrollbar-gutter: stable; }
 .nav-grupo.is-cerrado svg { transform: rotate(-90deg); }
 .nav-grupo[data-grupo]:focus-visible { outline: 2px solid var(--primary); outline-offset: -2px; }
 .sidenav-body .en-grupo-cerrado { display: none; }
-.shell.nav-collapsed .sidenav-body .en-grupo-cerrado { display: flex; }
-.shell.nav-collapsed .nav-grupo[data-grupo] { cursor: default; pointer-events: none; }
-.shell.nav-collapsed .nav-grupo[data-grupo] svg { display: none; }
+.nav-plegado .shell .sidenav-body .en-grupo-cerrado { display: flex; }
+.nav-plegado .shell .nav-grupo[data-grupo] { cursor: default; pointer-events: none; }
+.nav-plegado .shell .nav-grupo[data-grupo] svg { display: none; }
 /* Usuario (sesión simulada) y botón de plegar, al pie del menú */
 .usuario { display: flex; align-items: center; gap: .6rem; padding: .4rem .5rem .4rem calc(.65rem + 3px); min-width: 0; }
 .avatar { flex: none; width: 1.75rem; height: 1.75rem; border-radius: 50%; background: var(--header); color: #fff; display: grid; place-items: center; font-size: .7rem; font-weight: 700; letter-spacing: .02em; }
@@ -113,11 +116,11 @@ html { scrollbar-gutter: stable; }
 .usuario .lbl small { font-size: .7rem; color: var(--muted); }
 .sidenav-toggle { font-weight: 500; font-size: .8rem; }
 /* Plegado: solo iconos (el nombre sale en el tooltip) */
-.shell.nav-collapsed .nav-item { justify-content: center; padding: .6rem 0; }
-.shell.nav-collapsed .nav-item .lbl, .shell.nav-collapsed .usuario .lbl { display: none; }
-.shell.nav-collapsed .nav-item .n { position: absolute; top: .3rem; right: .4rem; width: .5rem; height: .5rem; padding: 0; font-size: 0; border-radius: 50%; }
-.shell.nav-collapsed .usuario { justify-content: center; padding: .4rem 0; }
-.shell.nav-collapsed .nav-grupo { font-size: 0; padding: 0; height: 1px; margin: .45rem .4rem; background: var(--border); }
+.nav-plegado .shell .nav-item { justify-content: center; padding: .6rem 0; }
+.nav-plegado .shell .nav-item .lbl, .nav-plegado .shell .usuario .lbl { display: none; }
+.nav-plegado .shell .nav-item .n { position: absolute; top: .3rem; right: .4rem; width: .5rem; height: .5rem; padding: 0; font-size: 0; border-radius: 50%; }
+.nav-plegado .shell .usuario { justify-content: center; padding: .4rem 0; }
+.nav-plegado .shell .nav-grupo { font-size: 0; padding: 0; height: 1px; margin: .45rem .4rem; background: var(--border); }
 /* Columna principal: el pie queda al final del contenido, estático, fino y alineado con el menú */
 .shell-main { min-width: 0; display: flex; flex-direction: column; min-height: calc(100vh - var(--nav-top)); }
 .shell-main > main { flex: 1 0 auto; }
@@ -125,7 +128,7 @@ html { scrollbar-gutter: stable; }
 .pie a { color: inherit; }
 .pie a:hover { color: var(--primary); }
 @media (max-width: 760px) {
-  .shell, .shell.nav-collapsed, .shell[data-pagina="triaje"] { grid-template-columns: 1fr; }
+  .shell, .nav-plegado .shell, .shell[data-pagina="triaje"] { grid-template-columns: 1fr; }
   .sidenav { position: static; height: auto; border-right: 0; border-bottom: 1px solid var(--border); }
   .sidenav-foot { display: none; }
   .pie { flex-wrap: wrap; padding: .3rem 1rem; }

@@ -59,7 +59,11 @@ a { color: var(--primary); }
 /* .topbar, .brand, .brand-icon y los botones de cabecera están en header.css (compartido con gobierno.html) */
 /* Barra de submenú (fases del proceso): botones tipo breadcrumb sobre la barra clara .submenu */
 .submenu .arrow { color: var(--muted); width: 1em; height: 1em; flex: none; }
-.phase { font: inherit; font-weight: 600; color: var(--muted); background: transparent; border: 0; padding: .6rem .6rem; margin: 0; border-radius: 5px; cursor: pointer; line-height: inherit; white-space: nowrap; display: inline-flex; align-items: center; gap: .4rem; transition: background .12s, color .12s; }
+.phase { font: inherit; font-weight: 600; color: var(--muted); background: transparent; border: 0; padding: .5rem .5rem; margin: 0; border-radius: 5px; cursor: pointer; line-height: inherit; white-space: nowrap; display: inline-flex; align-items: center; gap: .35rem; flex: 0 1 auto; min-width: 0; transition: background .12s, color .12s; }
+/* Texto de la fase: encoge con «…» cuando la barra no cabe; los más largos encogen más (flex-shrink ∝ ancho) */
+.phase-lbl { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+/* Medición (app.js · ajustarFases): ancho natural de cada fase, sin encoger */
+.submenu.midiendo .phase { flex: none; }
 .phase:hover, .phase:focus-visible, .phase.is-active { background: var(--bg); color: var(--primary); outline: none; }
 .phase:focus-visible { box-shadow: 0 0 0 2px var(--primary); }
 /* Número de paso: círculo con el color de la cabecera y número en blanco */
@@ -263,8 +267,8 @@ tbody tr:focus { outline: 2px solid var(--primary); outline-offset: -2px; }
    (248px desplegado, 60px plegado); por debajo de 760px el menú se apila arriba y el panel ocupa todo el ancho.
    Sigue siendo un <dialog> abierto con showModal(): el resto de la página queda inerte y el foco dentro. */
 .modal.ficha { --panel-izq: 248px; display: none; flex-direction: column; position: fixed; inset: 0 0 0 var(--panel-izq); margin: 0; width: auto; height: auto; max-width: none; max-height: none; border: 0; border-left: 1px solid var(--border); border-radius: 0; box-shadow: -12px 0 32px rgba(10, 15, 30, .22); }
-:root:has(.shell.nav-collapsed) .modal.ficha { --panel-izq: 60px; }
-@media (max-width: 760px) { .modal.ficha, :root:has(.shell.nav-collapsed) .modal.ficha { --panel-izq: 0px; border-left: 0; } }
+:root.nav-plegado .modal.ficha { --panel-izq: 60px; }
+@media (max-width: 760px) { .modal.ficha, :root.nav-plegado .modal.ficha { --panel-izq: 0px; border-left: 0; } }
 .modal.ficha[open] { display: flex; }
 .modal.ficha::backdrop { background: rgba(10, 15, 30, .4); }
 @media (prefers-reduced-motion: no-preference) {
