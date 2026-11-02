@@ -5,8 +5,8 @@
 require('../../core/i18n/node.js')();
 const fs = require('fs');
 const path = require('path');
-const C = require('../../cumplimiento.js');
-const F = require('../../fraude.js');
+const C = require('../../core/cumplimiento.js');
+const F = require('../../core/fraude.js');
 
 const raiz = path.join(__dirname, '..', '..');
 const cargar = (f, exportar) => new Function(`${fs.readFileSync(path.join(raiz, f), 'utf8')}\nreturn ${exportar};`)();
@@ -15,10 +15,10 @@ const escribir = (f, datos) => { fs.writeFileSync(path.join(raiz, f), `${JSON.st
 const G = cargar('data/demo/gobierno.js', 'GOBIERNO_DEMO');
 const PAQUETES = cargar('data/demo/mensajes.js', 'PAQUETES');
 const { RESULTADOS_GUARDADOS, TRAZA_DEMO, expandir } = cargar('data/demo/resultados.js', '{ RESULTADOS_GUARDADOS, TRAZA_DEMO, expandir: expandirResultadoGuardado }');
-const PROMPT_VERSION = cargar('prompts.js', 'PROMPT_VERSION');
+const PROMPT_VERSION = cargar('core/prompts.js', 'PROMPT_VERSION');
 const FRAUDE_DEMO = cargar('data/demo/fraude.js', 'FRAUDE_DEMO');
 
-// `ancla`: fecha en la que están escritos los datos; al cargarlos, fechas.js los desplaza al día de hoy
+// `ancla`: fecha en la que están escritos los datos; al cargarlos, core/fechas.js los desplaza al día de hoy
 escribir('data/import-samples/gobierno-paquete-A.json', { ancla: '2026-09-17', ...G, fraude: FRAUDE_DEMO });
 
 // Registro del triaje: misma hora de inicio y duración que la traza del panel de gobierno

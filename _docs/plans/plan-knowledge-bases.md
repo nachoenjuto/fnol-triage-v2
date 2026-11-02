@@ -64,7 +64,7 @@ La ficha permitiría **comparar configuraciones**: el mismo corpus indexado con 
 | **Duplicados** | Pares de chunks con similitud > 0,97 | < 2 % |
 | **Deriva** | Caída de recall en las mismas preguntas tras cada reindexado | < 3 pp |
 | **Latencia p95** de la recuperación | | < 400 ms |
-| **Datos personales** en el índice | Detector de `cumplimiento.js` aplicado a los chunks | 0 en KB que no deban tenerlos |
+| **Datos personales** en el índice | Detector de `core/cumplimiento.js` aplicado a los chunks | 0 en KB que no deban tenerlos |
 
 ## 5. Rúbricas: la colección también hay que gobernarla
 
@@ -103,14 +103,14 @@ Una sección nueva en el menú lateral, entre «Guardrails» y «Termómetro de 
 
 Hoy la demo **no usa RAG**: las reglas van en el prompt (reglas v2.3). En la pestaña:
 
-- la **KB «Reglas de negocio Auto / Hogar / Salud»** sería la única real (los bloques de `prompts.js`, con su versión);
+- la **KB «Reglas de negocio Auto / Hogar / Salud»** sería la única real (los bloques de `core/prompts.js`, con su versión);
 - el resto se mostraría con la marca **«simulada en la demo»**, con datos inventados pero coherentes, igual que el histórico de 14 días.
 
 ## 9. Datos de ejemplo propuestos
 
 | KB | Tipo | Fuente | Chunk / overlap | Estado | Motivo |
 |---|---|---|---|---|---|
-| Reglas de negocio v2.3 | Markdown | Git (`prompts.js`) | sin trocear | Verde | Real, versionada en cada traza |
+| Reglas de negocio v2.3 | Markdown | Git (`core/prompts.js`) | sin trocear | Verde | Real, versionada en cada traza |
 | Condicionados Auto 2026 | RAG | SharePoint · Producto | 512 / 15 % · híbrida α 0,6 · reranker | Ámbar | Recall cae 6 pp tras añadir 340 documentos del condicionado 2024 |
 | Condicionados Hogar 2026 | RAG | SharePoint · Producto | 384 / 10 % | Verde | |
 | Manual de tramitación | RAG | Google Drive · Siniestros | 1.024 / 20 % | Ámbar | 2 % de duplicados; 11 % de consultas sin respuesta en robo |

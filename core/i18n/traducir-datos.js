@@ -1,6 +1,6 @@
-// Traduce en el sitio los datos de la demo ya cargados (data/*.js, prompts.js) con las tablas del idioma activo
-// (locales/<idioma>/datos-*.js). Va justo antes de fechas.js, que después desplaza las fechas escritas en esos
-// textos, y antes de app.js, gobierno.js e intro.js. Con el idioma base no hace nada.
+// Traduce en el sitio los datos de la demo ya cargados (data/demo/*.js, core/prompts.js) con las tablas del idioma activo
+// (locales/<idioma>/datos-*.js). Va justo antes de core/fechas.js, que después desplaza las fechas escritas en esos
+// textos, y antes de ui/triage/triaje.js, ui/governance/gobierno.js e ui/intro/intro.js. Con el idioma base no hace nada.
 (function () {
   'use strict';
   if (I18N.idioma === I18N.BASE) return;

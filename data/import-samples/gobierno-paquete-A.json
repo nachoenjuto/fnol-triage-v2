@@ -4593,7 +4593,7 @@
       "simulada": false,
       "fuente": {
         "sistema": "Git",
-        "ruta": "prompts.js · bloques REGLAS_AUTO, REGLAS_HOGAR, REGLAS_SALUD",
+        "ruta": "core/prompts.js · bloques REGLAS_AUTO, REGLAS_HOGAR, REGLAS_SALUD",
         "sync": "con cada despliegue",
         "ultima": "2026-09-05T08:15:00",
         "sla_h": null,
@@ -5717,25 +5717,25 @@
           "MSG-A-13 · robo sin denuncia en póliza reciente",
           "exclusion",
           "REVISION por H4 y H7",
-          "prompts.js · H4, H7"
+          "core/prompts.js · H4, H7"
         ],
         [
           "MSG-A-08 · moto con lesionado",
           "clausula",
           "REVISION por A5 (daños corporales)",
-          "prompts.js · A5"
+          "core/prompts.js · A5"
         ],
         [
           "MSG-C-15 · cirugía refractiva",
           "exclusion",
           "REVISION por S5 y S7",
-          "prompts.js · S5, S7"
+          "core/prompts.js · S5, S7"
         ],
         [
           "MSG-B-23 · comunicado 3 semanas después",
           "plazo",
           "REVISION por A2",
-          "prompts.js · A2"
+          "core/prompts.js · A2"
         ]
       ],
       "historial": [

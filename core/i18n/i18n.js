@@ -87,7 +87,7 @@
   }
 
   // ── Datos de la demo ──
-  // Los hechos están una sola vez, en data/*.js y prompts.js, en el idioma base. Cada traducción es una tabla
+  // Los hechos están una sola vez, en data/demo/*.js y core/prompts.js, en el idioma base. Cada traducción es una tabla
   // { huella del texto base: texto traducido } (locales/<idioma>/datos-*.js) que traducirDatos aplica en el sitio
   // sobre esos objetos al cargar la página. Lo que no está en la tabla se queda en el idioma base. Así los números,
   // fechas y decisiones son siempre los mismos, y si el texto base cambia su huella cambia y queda pendiente.

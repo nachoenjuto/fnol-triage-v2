@@ -4,7 +4,7 @@
 run: ## Sirve la demo en http://localhost:8792
 	python3 -m http.server 8792
 
-test: ## Pruebas de evidencias.js, cumplimiento.js, fraude.js, fechas.js, ahorro.js, adjuntos.js, del recorrido y de los idiomas (sin dependencias, requiere Node)
+test: ## Pruebas de core/evidencias.js, core/cumplimiento.js, core/fraude.js, core/fechas.js, core/ahorro.js, core/adjuntos.js, del recorrido y de los idiomas (sin dependencias, requiere Node)
 	node tests/i18n.test.js
 	node scripts/i18n/i18n-check.js
 	node tests/evidencias.test.js
@@ -34,7 +34,7 @@ i18n-instantanea: ## Guarda el texto visible de la demo en ~700 estados (SALIDA=
 test-ia: ## Mide las evidencias con un modelo real (variables TRIAGE_*, ver tests/benchmark/ia-real.js)
 	N=$(N) node tests/benchmark/ia-real.js
 
-datos: ## Regenera los JSON de ejemplo de data/ desde las fuentes JS (tras cambiar mensajes o resultados)
+datos: ## Regenera los JSON de data/import-samples/ desde las fuentes JS (tras cambiar mensajes o resultados)
 	node scripts/generators/generar-datos.js
 
 recorrido: ## Regenera los pasos y subtítulos del Recorrido de la demo (data/generated/recorrido.js) desde _docs/demo/es/guion-demo.md

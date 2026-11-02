@@ -1,6 +1,6 @@
 /* Capa de cumplimiento compartida por index.html y gobierno.html: JSON coloreado con metadatos de gobierno
-   (cumplimiento.js → jsonHtml) y marcas de datos personales sobre el texto del mensaje. */
-/* Respuesta cruda con metadatos de gobierno (cumplimiento.js → jsonHtml) */
+   (core/cumplimiento.js → jsonHtml) y marcas de datos personales sobre el texto del mensaje. */
+/* Respuesta cruda con metadatos de gobierno (core/cumplimiento.js → jsonHtml) */
 :root { --g-pii: #a0522d; --g-art9: #9f2d2d; --g-traz: #2c5aa0; --g-expl: #276749; --g-sup: #6b4c7a; --g-ret: #8a5a2b; --g-norma: #1b2a4a; }
 @media (prefers-color-scheme: dark) { :root { --g-pii: #e0a07a; --g-art9: #ef8f8e; --g-traz: #8fb3ec; --g-expl: #7fcca2; --g-sup: #c3a6d6; --g-ret: #d9ad7c; --g-norma: #c9d4ee; } }
 .raw-leyenda { list-style: none; display: flex; flex-wrap: wrap; gap: .3rem .9rem; margin: .55rem 0 0; padding: 0; font-size: .74rem; color: var(--muted); }
@@ -48,7 +48,7 @@
 :is(.raw, .raw-json) .g-art9, :is(.raw, .raw-json) .g-art9 .j-str { color: var(--g-art9); }
 :is(.raw, .raw-json) .j-norma, :is(.raw, .raw-json) .g-sec .j-norma { color: var(--g-norma); background: color-mix(in srgb, var(--g-norma) 10%, transparent); border: 1px solid color-mix(in srgb, var(--g-norma) 40%, transparent); border-radius: 3px; cursor: help; }
 
-/* JSON en gobierno.html (index.html ya da estilo a .raw en styles.css) */
+/* JSON en gobierno.html (index.html ya da estilo a .raw en ui/triage/triaje.css) */
 .raw-json { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: .75rem; line-height: 1.5; white-space: pre-wrap; word-break: break-word; background: var(--bg); border: 1px solid var(--border); border-radius: 5px; padding: .6rem; max-height: 420px; overflow: auto; margin: 0; }
 
 /* Datos personales resaltados sobre el texto del mensaje (una clase por categoría) */

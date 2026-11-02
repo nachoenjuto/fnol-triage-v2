@@ -10,13 +10,13 @@ const RAIZ = path.join(__dirname, '..', '..');
 const GUION = path.join(RAIZ, '_docs', 'demo', 'es', 'guion-demo.md');
 const SALIDA = path.join(RAIZ, 'data', 'generated', 'recorrido.js');
 const MAX_CHUNK = 230;   // caracteres por subtítulo (una o dos frases)
-const MAX_TXT = 400;     // límite de shell.js por subtítulo
+const MAX_TXT = 400;     // límite de ui/shared/shell.js por subtítulo
 
 // Encabezado del guion → página y acción del paso (las acciones las registra cada página en Shell.Recorrido.init).
 // «requiere: 'lote'»: el paso necesita el Paquete A procesado (si no, el panel avisa y ofrece ir al paso 4).
 // «momentos»: lo que se ve en cada subpaso. Cada uno es [frase, acciones]: se engancha al primer subtítulo del paso
 // que contiene la frase, que tiene que ser única en el paso (así sobrevive a cambios de redacción y de troceo) y ejecuta sus acciones en orden al llegar
-// a él, por tiempo o con los botones de subtítulo. Acciones comunes (shell.js): ver:SELECTOR[~texto] (scroll y
+// a él, por tiempo o con los botones de subtítulo. Acciones comunes (ui/shared/shell.js): ver:SELECTOR[~texto] (scroll y
 // resaltado), clic:SELECTOR[~texto], cerrar (ventanas), arriba, espera:ms. «~@clave» busca el texto de esa clave en el
 // idioma de la página (así el recorrido sirve en todos los idiomas): no se escribe texto visible en las acciones. El resto son acciones de cada página.
 // Las acciones que cambian el estado de la demo (kill switch, guardrails, medidas, alteración, replay, comparativa)
@@ -201,7 +201,7 @@ const faltan = MAPA.filter(([pre]) => !lineas.some((l) => l.startsWith(pre))).ma
 if (faltan.length) { console.error(`No encuentro en el guion: ${faltan.join(', ')}`); process.exit(1); }
 pasos.forEach((p, n) => { if (!p.frase || !p.subtitulos.length) { console.error(`Paso ${n + 1} (${p.titulo}) sin frase clave o sin texto para decir`); process.exit(1); } });
 
-const js = `// Pasos del Recorrido de la demo (modo presentador, shell.js). GENERADO desde _docs/demo/es/guion-demo.md con
+const js = `// Pasos del Recorrido de la demo (modo presentador, ui/shared/shell.js). GENERADO desde _docs/demo/es/guion-demo.md con
 // \`node scripts/generators/generar-recorrido.js\` (o \`make recorrido\`): no editar a mano, cambiar el guion y regenerar.
 // Cada paso: minuto, página, título, pantalla («que»), frase clave, acción de «Ir», clics y subtítulos con su tipo
 // (intro · para: para qué sirve · que: qué es y qué hace · valor). Cada presentador puede editarlos en el engranaje

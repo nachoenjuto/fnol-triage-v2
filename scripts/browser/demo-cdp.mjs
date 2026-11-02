@@ -29,7 +29,7 @@ function conectar(url) {
 }
 
 // Abre Chrome con una pestaña de W×H px CSS a 2× y devuelve { cdp, ir, js, cerrar }.
-// ir(url): navega con las fechas congeladas en el día ancla del dataset (fechas.js), así el resultado no cambia
+// ir(url): navega con las fechas congeladas en el día ancla del dataset (core/fechas.js), así el resultado no cambia
 // según el día en que se ejecute. js(código): ejecuta en la página (admite await) y devuelve el valor.
 export async function abrirDemo({ W = 1440, H = 900 } = {}) {
   try { await fetch(`${BASE}/index.html`); } catch { throw new Error(`No responde ${BASE}: arranca antes «make run»`); }

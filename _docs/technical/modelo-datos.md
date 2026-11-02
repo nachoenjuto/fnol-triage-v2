@@ -30,7 +30,7 @@ Los datos personales de todos los ficheros son ficticios.
 }
 ```
 
-`esperado` sirve para pintar ✔/✖ en la columna Ramo y en la ficha. `app.js` lo copia al registro, pero `buildUserPrompt()` (`prompts.js`) no lo incluye en el prompt.
+`esperado` sirve para pintar ✔/✖ en la columna Ramo y en la ficha. `ui/triage/triaje.js` lo copia al registro, pero `buildUserPrompt()` (`core/prompts.js`) no lo incluye en el prompt.
 
 Cada paquete es `{ id, nombre, descripcion, mensajes }`. Reparto: A 13 mensajes (5 Auto, 4 Hogar, 4 Salud; 3 esperados a revisión), B 23 (8/8/7; 4), C 15 (5/5/5; 3).
 
@@ -45,7 +45,7 @@ Cada paquete es `{ id, nombre, descripcion, mensajes }`. Reparto: A 13 mensajes 
 { id: 'ADJ-2', archivo: 'foto-danos-1.jpg', tipo: 'foto_danos', mime: 'image/jpeg', titulo: '…', src: 'data/attachments/foto-danos-1.jpg' }
 ```
 
-El PDF no existe en el repositorio. `adjuntos.js` lo dibuja con pdf-lib a partir de `contenido`. Las circunstancias son índices (1–17) de la lista `CIRCUNSTANCIAS` del modelo oficial de declaración amistosa.
+El PDF no existe en el repositorio. `core/adjuntos.js` lo dibuja con pdf-lib a partir de `contenido`. Las circunstancias son índices (1–17) de la lista `CIRCUNSTANCIAS` del modelo oficial de declaración amistosa.
 
 ## Ficha guardada (`RESULTADOS_GUARDADOS[id]`)
 
@@ -70,7 +70,7 @@ Formato compacto para que el fichero ocupe menos. `expandirResultadoGuardado()` 
 
 ## Entrada del registro del triaje
 
-`app.js · runBatch()` añade una entrada por mensaje procesado a `state.log` y la guarda en `sessionStorage['triage.log']`. Es el formato de «Exportar JSON» y el que lee «Reproducir desde archivo».
+`ui/triage/triaje.js · runBatch()` añade una entrada por mensaje procesado a `state.log` y la guarda en `sessionStorage['triage.log']`. Es el formato de «Exportar JSON» y el que lee «Reproducir desde archivo».
 
 | Campo | Origen |
 |---|---|
@@ -105,7 +105,7 @@ Mismo esquema que `data/import-samples/gobierno-paquete-A.json`. Claves de prime
 | `cambios_autonomia[]` | auditoría de cambios de nivel |
 | `modelos[]` | consumo por modelo: llamadas, tokens, coste, latencia y tasas de éxito |
 | `caps[]` | CAP-01…CAP-11: `{ id, ambito, tipo, limite, unidad, consumo, accion, estado }` + `CAPS_DETALLE` (`desde, propietario, descripcion, serie, superaciones, correctivas`) |
-| `kpis` | `{ resumen, cap_mensual, negocio, autonomia, finops }`; `negocio` son las hipótesis de `ahorro.js` |
+| `kpis` | `{ resumen, cap_mensual, negocio, autonomia, finops }`; `negocio` son las hipótesis de `core/ahorro.js` |
 | `alertas[]`, `eventos[]`, `recomendaciones[]`, `replays[]` | listas para Resumen, Histórico y FinOps |
 | `trazas[]` | 13 trazas del Paquete A (ver abajo) |
 | `razonamiento` | `{ traza_id: [{ agente, entrada, pasos[], salida }] }` |
@@ -127,7 +127,7 @@ Los cuatro agentes son `multicanal` (gpt-5-nano + stt-es, L3), `clasificacion` (
   spans: [[agente, inicio_ms, duracion_ms, modelo, tokens_in, tokens_out, tokens_razonamiento], …] }
 ```
 
-El coste de una traza no se guarda: `gobierno.js` lo calcula con `precios` (`spanCost`). La duración es el final del último span.
+El coste de una traza no se guarda: `ui/governance/gobierno.js` lo calcula con `precios` (`spanCost`). La duración es el final del último span.
 
 ## Dataset antifraude (`FRAUDE_DEMO`)
 
@@ -143,7 +143,7 @@ El motor que usa estos datos está en [evidencias-y-fraude.md](evidencias-y-frau
 
 ## Fechas relativas a hoy
 
-Todos los datos están escritos con «hoy» = **17/09/2026** (`Fechas.ANCLA`). `fechas.js` se carga después de los datos y antes de la lógica, y desplaza `PAQUETES`, `RESULTADOS_GUARDADOS`, `GOBIERNO_DEMO` y `FRAUDE_DEMO` en Δ días, recorriendo cada cadena de los objetos.
+Todos los datos están escritos con «hoy» = **17/09/2026** (`Fechas.ANCLA`). `core/fechas.js` se carga después de los datos y antes de la lógica, y desplaza `PAQUETES`, `RESULTADOS_GUARDADOS`, `GOBIERNO_DEMO` y `FRAUDE_DEMO` en Δ días, recorriendo cada cadena de los objetos.
 
 - Δ = hoy − ancla. Antes de las 09:45 (`CORTE`) se resta un día, porque las trazas del lote son de 09:02 a 09:41.
 - Formatos que reconoce: ISO con y sin hora, `dd/mm`, rangos `1–3/09`, `mm/aaaa`, «12 de septiembre», «sábado 12 de septiembre», «el jueves 10», «el pasado día 8» y «julio de 2026». Recalcula el día de la semana y respeta la mayúscula inicial. No toca la hora.

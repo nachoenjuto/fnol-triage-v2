@@ -1,4 +1,4 @@
-// Pruebas del Recorrido de la demo (shell.js + data/generated/recorrido.js) sin dependencias: `node tests/recorrido.test.js` (o `make test`).
+// Pruebas del Recorrido de la demo (ui/shared/shell.js + data/generated/recorrido.js) sin dependencias: `node tests/recorrido.test.js` (o `make test`).
 const assert = require('assert');
 const crypto = require('crypto');
 const fs = require('fs');
@@ -7,7 +7,7 @@ const path = require('path');
 const cargar = (f, exportar) => new Function(`${fs.readFileSync(path.join(__dirname, '..', f), 'utf8')}\nreturn ${exportar};`)();
 require('../core/i18n/node.js')();
 globalThis.RECORRIDO_DEMO = cargar('data/generated/recorrido.js', 'RECORRIDO_DEMO');
-require('../shell.js');
+require('../ui/shared/shell.js');
 const R = globalThis.Shell.Recorrido;
 const N = R.PASOS.length;
 
@@ -140,7 +140,7 @@ const test = async (nombre, fn) => { try { await fn(); n++; console.log(`  ok   
     assert.strictEqual(R.HASH_CLAVE, crypto.createHash('sha256').update('password').digest('hex'));
     assert.strictEqual(await R.sha256Hex('password'), R.HASH_CLAVE);
     assert.notStrictEqual(await R.sha256Hex('Password'), R.HASH_CLAVE);
-    assert.ok(!fs.readFileSync(path.join(__dirname, '..', 'shell.js'), 'utf8').includes("'password'"), 'la contraseña no aparece en claro');
+    assert.ok(!fs.readFileSync(path.join(__dirname, '..', 'ui/shared/shell.js'), 'utf8').includes("'password'"), 'la contraseña no aparece en claro');
   });
 
   console.log(`\n${n} pruebas ejecutadas${process.exitCode ? ' con fallos' : ' correctamente'}`);

@@ -1,5 +1,5 @@
 // Prompts del triaje de mensajes. Se mantienen aquí, fuera de la lógica de
-// negocio (app.js). La GUI permite editar cada bloque; la llamada a la API
+// negocio (ui/triage/triaje.js). La GUI permite editar cada bloque; la llamada a la API
 // usa siempre el texto vigente en la barra lateral.
 
 const PROMPT_RAMO = `Eres un tramitador senior del departamento de siniestros de una aseguradora española.

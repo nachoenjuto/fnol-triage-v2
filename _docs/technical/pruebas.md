@@ -8,19 +8,19 @@ make test
 
 | Suite | Casos | Módulo | Qué fija |
 |---|---|---|---|
-| `tests/evidencias.test.js` | 22 | `evidencias.js` | localización exacta y normalizada, rechazo de paráfrasis, respaldo, siguiente paso |
-| `tests/cumplimiento.test.js` | 28 | `cumplimiento.js` | SHA-256, detección de datos personales, seudonimización, `_gobernanza`, cadena, termómetro, override |
-| `tests/fraude.test.js` | 18 | `fraude.js` | scores y niveles del Paquete A, cruces, indicadores nuevos, G-12, caps antifraude |
-| `tests/fechas.test.js` | 11 | `fechas.js` | formatos de fecha, día de la semana, cambio de año, corte de la mañana, citas literales |
-| `tests/ahorro.test.js` | 6 | `ahorro.js` | coste manual por mensaje, automatizados y escalados, escenarios |
-| `tests/adjuntos.test.js` | 10 | `adjuntos.js` | parte en PDF determinista, contraste con el email, `_gobernanza.adjuntos` |
-| `tests/recorrido.test.js` | 13 | `shell.js`, `data/generated/recorrido.js` | guion sincronizado, configuración del recorrido, tiempos de subtítulos |
+| `tests/evidencias.test.js` | 22 | `core/evidencias.js` | localización exacta y normalizada, rechazo de paráfrasis, respaldo, siguiente paso |
+| `tests/cumplimiento.test.js` | 28 | `core/cumplimiento.js` | SHA-256, detección de datos personales, seudonimización, `_gobernanza`, cadena, termómetro, override |
+| `tests/fraude.test.js` | 18 | `core/fraude.js` | scores y niveles del Paquete A, cruces, indicadores nuevos, G-12, caps antifraude |
+| `tests/fechas.test.js` | 11 | `core/fechas.js` | formatos de fecha, día de la semana, cambio de año, corte de la mañana, citas literales |
+| `tests/ahorro.test.js` | 6 | `core/ahorro.js` | coste manual por mensaje, automatizados y escalados, escenarios |
+| `tests/adjuntos.test.js` | 10 | `core/adjuntos.js` | parte en PDF determinista, contraste con el email, `_gobernanza.adjuntos` |
+| `tests/recorrido.test.js` | 13 | `ui/shared/shell.js`, `data/generated/recorrido.js` | guion sincronizado, configuración del recorrido, tiempos de subtítulos |
 
 ## Qué cubre cada suite
 
 **Evidencias.** Citas con mayúsculas, tildes, espacios dobles, comillas tipográficas, saltos de línea y emojis antes de la cita. Una cita inventada o parafraseada no se localiza. Basura en el campo `evidencias` (no array, objetos sin cita, más de 12) se descarta. Las citas curadas de los resultados guardados existen literalmente en su mensaje, y toda ficha de los tres paquetes tiene al menos 2 evidencias verificadas sin solapes. Sin campo `evidencias`, o con todo inventado, el respaldo sigue produciendo evidencias. Un texto de cliente con HTML o instrucciones no rompe el pintado.
 
-**Cumplimiento.** `sha256` coincide con `crypto` de Node. Detección sobre mensajes concretos: DNI, teléfono, IBAN, dirección y póliza en MSG-A-02; salud, menor y tercero en MSG-A-12; «no hay fractura» no es dato de salud (MSG-A-03); un adulto de 22 años no es un menor (MSG-A-04). La traza persistida no lleva ningún dato personal en claro. La seudonimización no deja salir datos hacia el modelo salvo salud y edad de menores, y la reconstrucción devuelve exactamente el original. La cadena detecta una alteración. Validar un «A revisar» no cuenta como override; un override de un aprobado sí. El catálogo de KB de `cumplimiento.js` coincide con el del panel.
+**Cumplimiento.** `sha256` coincide con `crypto` de Node. Detección sobre mensajes concretos: DNI, teléfono, IBAN, dirección y póliza en MSG-A-02; salud, menor y tercero en MSG-A-12; «no hay fractura» no es dato de salud (MSG-A-03); un adulto de 22 años no es un menor (MSG-A-04). La traza persistida no lleva ningún dato personal en claro. La seudonimización no deja salir datos hacia el modelo salvo salud y edad de menores, y la reconstrucción devuelve exactamente el original. La cadena detecta una alteración. Validar un «A revisar» no cuenta como override; un override de un aprobado sí. El catálogo de KB de `core/cumplimiento.js` coincide con el del panel.
 
 **Fraude.** MSG-A-13 da 90 y va a la SIU; MSG-A-09 y MSG-A-02 comparten cuenta y retienen el pago; MSG-A-11 queda en vigilancia; en MSG-A-04 el conductor declarado anula IF-11. La decisión del triaje no cambia (10 aprobados, 3 a revisar) y los paquetes B y C no tienen casos. Cada cita es literal y está en su posición. El bloque para `_gobernanza` no lleva citas ni la cuenta. Las series del dataset (CAP-09, CAP-10, CAP-11, G-10) cuadran con el motor.
 
@@ -40,9 +40,9 @@ make test-ia N=3
 
 ## Lo que no está cubierto
 
-- `app.js` (cliente del modelo, `parseTriage`, motor local, lote con pausa y cancelación) y `gobierno.js` (render, conversión de la sesión en trazas, replay, medidas) no tienen pruebas automáticas. Son las dos piezas más grandes: unas 1.800 y 3.350 líneas.
+- `ui/triage/triaje.js` (cliente del modelo, `parseTriage`, motor local, lote con pausa y cancelación) y `ui/governance/gobierno.js` (render, conversión de la sesión en trazas, replay, medidas) no tienen pruebas automáticas. Son las dos piezas más grandes: unas 1.800 y 3.350 líneas.
 - No hay pruebas de interfaz ni de extremo a extremo. Las capturas de `make capturas` sirven de comprobación visual manual.
 - No hay pruebas contra las cuatro rutas de la API ni de la adaptación de parámetros a un 400.
 - No hay lint ni comprobación de tipos, y no hay CI: las pruebas solo corren si alguien ejecuta `make test`.
 
-Las primeras candidatas a cubrir son `parseTriage()`, `buildEndpointUrl()` y `localTriage()` (puras) y `buildBody()` y `trazasDesdeSesion()` (dependen de `paramCompat` y de `sessionStorage`). Están dentro de los IIFE de `app.js` y `gobierno.js`; habría que sacarlas a un módulo con la misma doble exportación (`window` y `module.exports`) que usan los demás.
+Las primeras candidatas a cubrir son `parseTriage()`, `buildEndpointUrl()` y `localTriage()` (puras) y `buildBody()` y `trazasDesdeSesion()` (dependen de `paramCompat` y de `sessionStorage`). Están dentro de los IIFE de `ui/triage/triaje.js` y `ui/governance/gobierno.js`; habría que sacarlas a un módulo con la misma doble exportación (`window` y `module.exports`) que usan los demás.

@@ -13,7 +13,7 @@ La demo es estática: HTML, CSS y JavaScript sin build, sin dependencias de ejec
 | Google Chrome | `make capturas` (lo controla por CDP sin interfaz) |
 | npm | solo `make guion-docx`, que instala `docx@9` en una carpeta temporal fuera del repositorio |
 
-Abrir `index.html` con `file://` no funciona del todo: `adjuntos.js` lee las fotos con `fetch` para calcular su SHA-256, y el navegador lo bloquea fuera de HTTP. Hay que servirlo con `make run`.
+Abrir `index.html` con `file://` no funciona del todo: `core/adjuntos.js` lee las fotos con `fetch` para calcular su SHA-256, y el navegador lo bloquea fuera de HTTP. Hay que servirlo con `make run`.
 
 ## Targets del Makefile
 
@@ -46,14 +46,14 @@ Parámetros útiles:
 Los módulos se comunican por variables globales, así que el orden de las etiquetas `<script>` importa. En `index.html`:
 
 ```text
-icons.js → data/generated/recorrido.js → shell.js → data/demo/mensajes.js → data/demo/resultados.js → data/demo/fraude.js
-→ fechas.js → prompts.js → evidencias.js → cumplimiento.js → fraude.js → adjuntos.js → app.js
+ui/shared/icons.js → data/generated/recorrido.js → ui/shared/shell.js → data/demo/mensajes.js → data/demo/resultados.js → data/demo/fraude.js
+→ core/fechas.js → core/prompts.js → core/evidencias.js → core/cumplimiento.js → core/fraude.js → core/adjuntos.js → ui/triage/triaje.js
 ```
 
-En `gobierno.html`, igual pero con `data/demo/gobierno.js` antes de `data/demo/fraude.js`, sin `adjuntos.js`, con `ahorro.js` y `gobierno.js` al final. Dos dependencias obligatorias:
+En `gobierno.html`, igual pero con `data/demo/gobierno.js` antes de `data/demo/fraude.js`, sin `core/adjuntos.js`, con `core/ahorro.js` y `ui/governance/gobierno.js` al final. Dos dependencias obligatorias:
 
-- `fechas.js` va después de todos los `data/*.js`, porque los desplaza al cargarse, y antes de la lógica.
-- `cumplimiento.js` va después de `evidencias.js`, porque lo lee de `window.Evidencias`.
+- `core/fechas.js` va después de todos los `data/demo/*.js`, porque los desplaza al cargarse, y antes de la lógica.
+- `core/cumplimiento.js` va después de `core/evidencias.js`, porque lo lee de `window.Evidencias`.
 
 Cada `<script>` lleva `?v=N` para romper la caché del navegador y de GitHub Pages. Al cambiar un fichero hay que subir su número en las páginas que lo cargan.
 
@@ -97,7 +97,7 @@ Antes de publicar:
 La demo cumple su objetivo sin infraestructura. Llevarla a producción exige, como mínimo:
 
 - un backend que guarde la clave del modelo (identidad administrada), haga de proxy y registre las trazas en un almacén inmutable;
-- autenticación de usuarios y permisos por acción sobre los recursos, en lugar del usuario simulado de `shell.js` y del modo presentador con contraseña en el código;
+- autenticación de usuarios y permisos por acción sobre los recursos, en lugar del usuario simulado de `ui/shared/shell.js` y del modo presentador con contraseña en el código;
 - persistencia de trazas, revisiones y `_gobernanza` con los plazos de retención aplicados de verdad;
 - ejecución real de los guardrails y del kill switch en la cadena de decisión;
 - CI en GitHub Actions con `make test`, lint y escaneo de secretos, y hooks de pre-commit. Hoy el repositorio no tiene `.github/workflows/` ni `.pre-commit-config.yaml`.

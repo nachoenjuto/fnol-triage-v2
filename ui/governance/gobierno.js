@@ -1,7 +1,7 @@
 /* Panel «Gobierno de Agentes»: trazabilidad, Reasoning & Replay, autonomía, guardrails
  * y FinOps de los agentes del triaje. Sin backend: renderiza un dataset (demo embebida
  * en data/demo/gobierno.js, un JSON cargado con el mismo esquema, o el registro de la sesión
- * actual del triaje leído de sessionStorage). Iconos: icons.js (Lucide).
+ * actual del triaje leído de sessionStorage). Iconos: ui/shared/icons.js (Lucide).
  */
 (function () {
   'use strict';
@@ -66,7 +66,7 @@
   const conGuardrails = (html) => String(html).replace(/\b(G-\d{2}|CAP-\d{2})\b/g, (m) => grRef(m));
 
   // Marco normativo: etiquetas con tooltip junto al título de cada bloque (qué norma respalda lo que se ve)
-  // Catálogo compartido con la ficha del triaje (cumplimiento.js): misma etiqueta y explicación en las dos páginas
+  // Catálogo compartido con la ficha del triaje (core/cumplimiento.js): misma etiqueta y explicación en las dos páginas
   const NORMA = Cumplimiento.NORMAS;
   const normas = (...ids) => `<span class="normas">${ids.map((k) => `<span class="norma" data-tip="${esc(NORMA[k][1])}">${ic('scale')} ${esc(NORMA[k][0])}</span>`).join('')}</span>`;
   const NORMAS_BLOQUE = {
@@ -125,7 +125,7 @@
     });
   }
 
-  // Acción humana registrada en la ficha del triaje (app.js · revisar):
+  // Acción humana registrada en la ficha del triaje (ui/triage/triaje.js · revisar):
   // · override: el agente aprobó solo y una persona lo pasó a «A revisar» → cuenta en la tasa de override de Reglas
   // · validada: el agente ya lo había escalado y una persona resolvió la revisión → no es override
   function accionHumanaDeSesion(rev) {
@@ -569,7 +569,7 @@
       salida: [['ramo', I18N.t('gob.auto_hogar_salud_indeterminado')], ['criterios_ramo', I18N.t('gob.lista_de_cita_literal')], ['confianza', I18N.t('gob.numero_0_1_por')]] },
     extraccion: { entrada: [['texto', I18N.t('gob.texto_normalizado')], ['ramo', I18N.t('gob.el_que_asigno_clasificacion')]],
       salida: [['nombre_cliente', I18N.t('gob.texto_null')], ['numero_poliza', I18N.t('gob.texto_null')], ['tipo_siniestro', I18N.t('gob.texto_null')], ['fecha_hecho', I18N.t('gob.aaaa_mm_dd_null')], ['importe_estimado_eur', I18N.t('gob.numero_null')], ['lugar', I18N.t('gob.texto_null')], ['terceros_implicados', I18N.t('gob.si_no')], ['lesionados', I18N.t('gob.si_no')], ['documentacion_mencionada', I18N.t('gob.lista_de_textos')], ['observaciones', I18N.t('gob.texto_null')]] },
-    reglas: { entrada: [['datos_extraidos', I18N.t('gob.los_10_campos_de')], ['ramo', 'texto'], [I18N.t('gob.bloque_de_reglas'), `prompts.js · ${PROMPT_VERSION}`], [I18N.t('gob.knowledge_bases_2'), I18N.t('gob.condicionados_cuadro_medico_red')]],
+    reglas: { entrada: [['datos_extraidos', I18N.t('gob.los_10_campos_de')], ['ramo', 'texto'], [I18N.t('gob.bloque_de_reglas'), `core/prompts.js · ${PROMPT_VERSION}`], [I18N.t('gob.knowledge_bases_2'), I18N.t('gob.condicionados_cuadro_medico_red')]],
       salida: [['criterios', I18N.t('gob.lista_de')], ['evidencias', I18N.t('gob.lista_de_5_a')], ['decision', I18N.t('gob.despejado_revision')], ['motivo', I18N.t('gob.texto_maximo_200_caracteres')], ['confianza', I18N.t('gob.numero_0_1')]] },
   };
   const INCID_AG = { multicanal: /STT|transcrip/i, clasificacion: /G-0[36]/, extraccion: /429|CAP-06/, reglas: /CAP-0[45]|razonamiento/i };
@@ -928,7 +928,7 @@
   // ---------------------------------------------------------------------------
   const CAP_ESTADO = { ok: ['pill-ok', 'check', I18N.t('gob.dentro')], aviso: ['pill-warn', 'circle-alert', I18N.t('gob.aviso_80')], superado: ['pill-crit', 'triangle-alert', I18N.t('gob.superado')] };
   const capRow = (c) => { const u = c.consumo / c.limite; const [pc, pi, pl] = CAP_ESTADO[c.estado] || CAP_ESTADO.ok; const f = (v) => (c.unidad === '€' ? eur(v, v < 1 ? 3 : 2) : `${num(v)} ${esc(unidadCap(c.unidad))}`); return `<tr class="clickable" data-cap="${esc(c.id)}" tabindex="0" title="${I18N.t('gob.ver_el_detalle_de', { id: esc(c.id) })}"><td class="mono"><b>${esc(c.id)}</b>${c.nuevo ? I18N.t('gob.nuevo') : ''}</td><td>${ambitoHtml(c)}</td><td>${esc(I18N.dato(c.tipo))}</td><td class="tnum">${f(c.limite)}</td><td class="tnum">${f(c.consumo)}</td><td><div class="meter" style="--c:${u >= 1 ? 'var(--crit)' : u >= .8 ? 'var(--warn)' : 'var(--ok)'};margin:0"><i style="width:${Math.min(100, u * 100)}%"></i></div><span class="small muted tnum">${Math.round(u * 100)} %</span></td><td class="wrap">${conGuardrails(esc(c.accion))}</td><td>${((n) => (n ? `<button class="pill pill-warn cap-chip" type="button" data-ir-alerta="${esc(c.id)}" title="${I18N.t('gob.ver_la_alerta_de', { id: esc(c.id) })}">${ic('bell')} ${n}</button>` : '<span class="muted">—</span>'))(alertasDeCap(c.id).length)}</td><td><span class="pill ${pc}">${ic(pi)} ${pl}</span></td></tr>`; };
-  // Escenario de ahorro (ahorro.js): hipótesis del dataset (`kpis.negocio`), editables en la ficha sin guardarse
+  // Escenario de ahorro (core/ahorro.js): hipótesis del dataset (`kpis.negocio`), editables en la ficha sin guardarse
   let ahorroEdit = {};
   const ahorroParams = () => ({ ...((G.kpis && G.kpis.negocio) || {}), ...ahorroEdit });
   const ahorroDe = (dias, p = ahorroParams()) => Ahorro.calcular({ mensajes: dias.reduce((a, d) => a + d[1], 0), autonomia: datosResumen().pAut, costeIA: dias.reduce((a, d) => a + costeDia(d), 0), dias: dias.length }, p);
@@ -2476,7 +2476,7 @@
   }
 
   // ---------------------------------------------------------------------------
-  // Indicadores de fraude: score antifraude del lote (fraude.js), escenarios, catálogo, relaciones y cola de la SIU.
+  // Indicadores de fraude: score antifraude del lote (core/fraude.js), escenarios, catálogo, relaciones y cola de la SIU.
   // El motor no usa IA: cruza el texto de cada mensaje con el resto del lote y con el histórico de data/demo/fraude.js.
   // ---------------------------------------------------------------------------
   const frCfg = ssGet('gobierno.fraude_cfg', {}); // cambios de la sesión en el catálogo: { 'IF-09': { activo, peso } }
@@ -2862,7 +2862,7 @@
   }
 
   // ---------------------------------------------------------------------------
-  // Termómetro de cumplimiento: controles medidos en las trazas (cumplimiento.js) + declarados (documentales)
+  // Termómetro de cumplimiento: controles medidos en las trazas (core/cumplimiento.js) + declarados (documentales)
   // ---------------------------------------------------------------------------
   const ESTADO_CMP = { ok: ['pill-ok', 'circle-check', I18N.t('gob.cubierto')], ambar: ['pill-warn', 'circle-alert', I18N.t('gob.parcial')], rojo: ['pill-crit', 'circle-x', I18N.t('gob.sin_cubrir')] };
   const CAT_ICONO = { identificativo: 'user', contacto: 'phone', indirecto: 'fingerprint', localizacion: 'map-pin', financiero: 'wallet', salud: 'heart-pulse', menor: 'users', tercero: 'user-check' };
@@ -3172,7 +3172,7 @@
     const botonMenu = (v) => { const [i, l] = tabMenu[v]; return `<button class="tab nav-item${v === 'inicio' ? ' is-active' : ''}" type="button" role="tab" data-view="${v}" aria-selected="${v === 'inicio'}" aria-label="${l}" title="${l}">${ic(i)}<span class="lbl">${l}</span>${v === 'finops' || v === 'fraude' ? I18N.t('gob.texto_5') : ''}</button>`; };
     // Configuración (fuente de datos, periodo y archivo de trazas) va aparte, al final del menú y sin ficha en Inicio
     $('tabs').innerHTML = botonMenu('inicio') + MENU.map(([g, , vs]) => `<div class="nav-grupo" role="presentation">${esc(g)}</div>${vs.map(botonMenu).join('')}`).join('') + `<div class="nav-sep" role="presentation"></div>${botonMenu('config')}`;
-    // Menú lateral común con el triaje (shell.js); al plegar o desplegar se reajustan las tarjetas de agentes
+    // Menú lateral común con el triaje (ui/shared/shell.js); al plegar o desplegar se reajustan las tarjetas de agentes
     Shell.initShell({ onChange: () => ajustarAgentes() });
     // Recorrido de la demo (modo presentador): acciones de los pasos que ocurren en el panel
     // El guion trabaja con la fuente «Sesión actual» (las trazas del lote procesado en el triaje) si hay lote

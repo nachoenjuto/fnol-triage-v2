@@ -1,7 +1,7 @@
 // Datos de demostración de «Indicadores de fraude»: catálogo de indicadores de comportamiento, escenarios de fraude,
-// histórico ficticio de pólizas y siniestros (lo que cruza el motor de fraude.js), cola de la Unidad de Investigación
+// histórico ficticio de pólizas y siniestros (lo que cruza el motor de core/fraude.js), cola de la Unidad de Investigación
 // de Siniestros (SIU) y 14 días de evolución. Todo inventado para la demo y escrito con «hoy» = 17/09/2026
-// (fechas.js lo desplaza al día de hoy). Nada de esto se envía al modelo.
+// (core/fechas.js lo desplaza al día de hoy). Nada de esto se envía al modelo.
 //
 // Principio: el indicio no acusa, prioriza. Un score alto escala a una persona de la SIU; nunca rechaza nada solo
 // (RGPD art. 22) y nunca se comunica al cliente (G-12).

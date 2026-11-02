@@ -2,7 +2,7 @@
 
 Veintiocho diapositivas para unos 22 minutos de presentación: portada, agenda, cuatro separadores de sección, veintiuna diapositivas de contenido y cierre. Doce de ellas (14-25) presentan la capa de gobierno sección a sección; el plan está en [plan-slides-sesion-pilares.md](../plans/plan-slides-sesion-pilares.md). Cada diapositiva de contenido lleva título, contenido, fuentes y notas del ponente. Guion completo en [guion-sesion.md](guion-sesion.md).
 
-Versión en PowerPoint (plantilla Logicalis 2026): [slides-sesion-v4.pptx](slides-sesion-v4.pptx). Se genera a partir de la v3 con `python3 scripts/slides/build_slides_sesion_v4.py`, que rehace la slide 11, añade las slides 14-25 con las capturas de `img/observabilidad/` y actualiza «Vamos a verlo». Iconos de [Lucide](https://lucide.dev) (los mismos de `icons.js`), insertados como SVG editable. La [v3](slides-sesion-v3.pptx) se conserva porque es la base de la que parte el script.
+Versión en PowerPoint (plantilla Logicalis 2026): [slides-sesion-v4.pptx](slides-sesion-v4.pptx). Se genera a partir de la v3 con `python3 scripts/slides/build_slides_sesion_v4.py`, que rehace la slide 11, añade las slides 14-25 con las capturas de `img/observabilidad/` y actualiza «Vamos a verlo». Iconos de [Lucide](https://lucide.dev) (los mismos de `ui/shared/icons.js`), insertados como SVG editable. La [v3](slides-sesion-v3.pptx) se conserva porque es la base de la que parte el script.
 
 | Nº | Diapositiva | Tipo |
 |---|---|---|

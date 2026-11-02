@@ -1,4 +1,4 @@
-// Textos de interfaz del triaje (index.html y app.js) en español, idioma base.
+// Textos de interfaz del triaje (index.html y ui/triage/triaje.js) en español, idioma base.
 // Claves generadas desde el HTML (contexto = id más cercano); los valores con etiquetas van con data-i18n-html.
 I18N.registrar('es', {
   'triaje.pagina.fnol_primer_aviso_de': 'FNOL — Primer Aviso de Siniestro',
@@ -133,7 +133,7 @@ I18N.registrar('es', {
   'triaje.raw_leyenda.norma': 'Norma',
   'triaje.raw_filtro.plegar_todo': 'Plegar todo',
   'triaje.raw_filtro.desplegar_todo': 'Desplegar todo',
-  // ── app.js ──
+  // ── ui/triage/triaje.js ──
   'triaje.email': 'Email',
   'triaje.formulario_web': 'Formulario web',
   'triaje.chat': 'Chat',
@@ -485,7 +485,7 @@ I18N.registrar('es', {
   'triaje.el_objetivo_es_maximizar': 'El objetivo es <strong>maximizar el porcentaje automatizado</strong> manteniendo el <strong>control humano</strong> sobre los casos dudosos.',
   'triaje.ia_generativa': 'IA generativa',
   'triaje.logica_de_negocio': 'Lógica de negocio',
-  // Origen de la decisión (valores internos de entry.origen, ver origenTexto en app.js)
+  // Origen de la decisión (valores internos de entry.origen, ver origenTexto en ui/triage/triaje.js)
   'triaje.origen.ia': 'IA',
   'triaje.origen.ia_guardado': 'IA (guardado)',
   'triaje.origen.reglas_locales': 'reglas locales',

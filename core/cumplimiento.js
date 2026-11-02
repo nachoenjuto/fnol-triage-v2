@@ -55,7 +55,7 @@
     'sii-41': ['Solvencia II art. 41', I18N.t('cumpl.sistema_de_gobernanza_eficaz')],
   };
   // Etiqueta de una norma en el idioma activo: cambian las siglas y los conectores (RGPD → GDPR), no los números.
-  // Las de data/*.js están en español y se pasan por aquí al pintarlas.
+  // Las de data/demo/*.js están en español y se pasan por aquí al pintarlas.
   const normaVisible = (e) => String(e).replace(/^RGPD\b/, I18N.t('cumpl.norma.rgpd')).replace(/^Solvencia II\b/, I18N.t('cumpl.norma.solvencia'))
     .replace(/ y /g, ` ${I18N.t('cumpl.norma.y')} `).replace(/\bcons\./g, I18N.t('cumpl.norma.cons'));
   const N = (k) => normaVisible(NORMAS[k][0]);
@@ -311,7 +311,7 @@
   // ---------------------------------------------------------------------------
   // Conocimiento usado por cada decisión: catálogo común con la sección «Knowledge bases» del panel
   // (data/demo/gobierno.js · knowledge[] usa los mismos ids y versiones; lo comprueba tests/cumplimiento.test.js).
-  // Solo KB-01 (los bloques de reglas de prompts.js) es real en la demo; el resto está simulado.
+  // Solo KB-01 (los bloques de reglas de core/prompts.js) es real en la demo; el resto está simulado.
   // ---------------------------------------------------------------------------
   const CONOCIMIENTO = {
     'KB-01': { nombre: I18N.t('cumpl.reglas_de_negocio_auto'), version: 'v2.3', simulada: false },

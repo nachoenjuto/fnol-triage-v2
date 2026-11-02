@@ -1,4 +1,4 @@
-// Textos de la introducción (intro.html e intro.js) en español, idioma base.
+// Textos de la introducción (intro.html e ui/intro/intro.js) en español, idioma base.
 // Claves generadas desde el HTML (contexto = id más cercano); los valores con etiquetas van con data-i18n-html.
 I18N.registrar('es', {
   'intro.pagina.fnol_introduccion': 'FNOL — Introducción',
@@ -272,7 +272,7 @@ I18N.registrar('es', {
   'intro.cifras.pct_2_1': '2,1 %',
   'intro.cifras.pct_19': '19 %',
   'intro.cifras.num_16720': '16.720',
-  // ── intro.js ──
+  // ── ui/intro/intro.js ──
   'intro.use_strict': 'use strict',
   'intro.introduccion_de': 'Introducción · {v} de {ids} · {titulo}',
 });

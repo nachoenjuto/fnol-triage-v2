@@ -9,11 +9,11 @@
 require('../../core/i18n/node.js')();
 const fs = require('fs');
 const path = require('path');
-const E = require('../../evidencias.js');
+const E = require('../../core/evidencias.js');
 
 const cargar = (f, exportar) => new Function(`${fs.readFileSync(path.join(__dirname, '..', '..', f), 'utf8')}\nreturn ${exportar};`)();
 const PAQUETES = cargar('data/demo/mensajes.js', 'PAQUETES');
-const P = cargar('prompts.js', '{ PROMPT_BLOQUES, buildSystemPrompt, buildUserPrompt }');
+const P = cargar('core/prompts.js', '{ PROMPT_BLOQUES, buildSystemPrompt, buildUserPrompt }');
 
 const { TRIAGE_ENDPOINT: url, TRIAGE_API_KEY: key, TRIAGE_MODEL: modelo, TRIAGE_REASONING: razonamiento } = process.env;
 if (!url || !key) { console.error('Faltan TRIAGE_ENDPOINT y TRIAGE_API_KEY en el entorno (ver cabecera de este archivo).'); process.exit(2); }

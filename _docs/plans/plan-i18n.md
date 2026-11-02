@@ -5,7 +5,7 @@ Estado: **fases 0 y 1 aplicadas** · 30/10/2026 · repo `fnol-triage/v2` · aña
 Objetivo: la demo funciona igual en ES, EN y DE. Cambia la lengua y nada más: mismos mensajes, mismas decisiones, mismos números en el panel de gobierno, mismo recorrido. Ningún texto visible en los HTML. Añadir un cuarto idioma se reduce a crear una carpeta y pasar un validador.
 
 
-> **Cambio en la fase 1 (datos):** en lugar de partir los datos en `data/base/` + texto por idioma, el español de `data/*.js` y `prompts.js` hace de base y es la única copia de los hechos. Cada idioma aporta tablas `{ huella del texto español: traducción }` (`locales/<idioma>/datos-*.js`) que `core/i18n/traducir-datos.js` aplica sobre esos objetos al cargar, antes de `fechas.js`. Mismo resultado (los números no se duplican; si cambia un texto español, su traducción queda pendiente) sin reestructurar 134 KB de datos. El validador comprueba además que cada traducción lleva las mismas cifras que su original.
+> **Cambio en la fase 1 (datos):** en lugar de partir los datos en `data/base/` + texto por idioma, el español de `data/*.js` y `core/prompts.js` hace de base y es la única copia de los hechos. Cada idioma aporta tablas `{ huella del texto español: traducción }` (`locales/<idioma>/datos-*.js`) que `core/i18n/traducir-datos.js` aplica sobre esos objetos al cargar, antes de `core/fechas.js`. Mismo resultado (los números no se duplican; si cambia un texto español, su traducción queda pendiente) sin reestructurar 134 KB de datos. El validador comprueba además que cada traducción lleva las mismas cifras que su original.
 
 ---
 
@@ -14,16 +14,16 @@ Objetivo: la demo funciona igual en ES, EN y DE. Cambia la lengua y nada más: m
 | Dónde | Volumen | Qué depende del idioma |
 |---|---|---|
 | `index.html`, `gobierno.html`, `intro.html` | ~1.330 líneas | Títulos, etiquetas, placeholders, `aria-label`, `<title>`, `meta description` |
-| `app.js`, `gobierno.js`, `shell.js`, `cumplimiento.js`, `fraude.js`, `intro.js` | ~6.700 líneas | Literales dentro de las plantillas HTML; ~15 llamadas con `'es-ES'` fijo |
+| `ui/triage/triaje.js`, `ui/governance/gobierno.js`, `ui/shared/shell.js`, `core/cumplimiento.js`, `core/fraude.js`, `ui/intro/intro.js` | ~6.700 líneas | Literales dentro de las plantillas HTML; ~15 llamadas con `'es-ES'` fijo |
 | `data/demo/mensajes.js` | 51 mensajes en 3 paquetes, 38 KB | Texto del cliente, asuntos, adjuntos (parte amistoso, facturas) |
 | `data/demo/resultados.js` | 83 KB | Citas literales, notas, motivos, criterios, contraste con adjuntos |
 | `data/demo/gobierno.js` | 134 KB | Textos del panel mezclados con números ya formateados (`'99,5 %'`, 105 casos) |
 | `data/demo/fraude.js` | 19 KB | Catálogo de indicadores, escenarios, cola de la SIU |
 | `data/generated/recorrido.js` ← `_docs/demo/es/guion-demo.md` | 78 KB / 80 KB | Pasos y subtítulos del modo presentador |
-| `prompts.js` | 12 KB | Instrucciones al modelo |
-| Motor local (`app.js`) | — | Palabras clave por ramo, meses, «ayer», negaciones de «heridos» |
-| `fechas.js` | — | Reconoce fechas escritas en español («sábado 12 de septiembre») para desplazarlas a hoy |
-| `fraude.js` | — | Señales de relato por cita literal («no sé cuánto», «que venga alguien hoy») |
+| `core/prompts.js` | 12 KB | Instrucciones al modelo |
+| Motor local (`ui/triage/triaje.js`) | — | Palabras clave por ramo, meses, «ayer», negaciones de «heridos» |
+| `core/fechas.js` | — | Reconoce fechas escritas en español («sábado 12 de septiembre») para desplazarlas a hoy |
+| `core/fraude.js` | — | Señales de relato por cita literal («no sé cuánto», «que venga alguien hoy») |
 
 Unos 445 KB de contenido por idioma, más los literales del código. Es mucho volumen, pero se puede hacer: son unos 150.000 tokens de texto por idioma, repartidos en varias sesiones con una comprobación automática al final de cada una.
 
@@ -72,13 +72,13 @@ Reglas de diseño:
 - **Valores internos sin traducir.** `'Auto'`, `'Hogar'`, `'Salud'`, `'DESPEJADO'`, `'REVISION'`, A1…S8, IF-01…, G-01… siguen siendo claves. Solo cambia la etiqueta que se muestra. El JSON exportado, los filtros y los tests no se tocan.
 - **HTML sin texto.** Solo estructura y atributos `data-i18n="clave"` y `data-i18n-attr="title:clave;aria-label:clave"`. `i18n.js` los rellena al cargar. El validador falla si encuentra un nodo de texto visible en un HTML.
 - **Números como números.** Los `'99,5 %'` y `'0,0006 €'` de `data/demo/gobierno.js` pasan a `0.995` y `0.0006`, y se formatean con el locale del idioma activo (`99.5%` en EN, `99,5 %` en DE).
-- **Motor local partido en dos.** La lógica de las reglas (umbrales, combinaciones, decisión) se queda en `app.js`. Las expresiones van en `motor.js` de cada idioma. En alemán, límites de palabra Unicode (flag `u`, `\b` no reconoce «Ä») y búsqueda de raíz dentro de palabras compuestas («Wasserrohrbruch»).
+- **Motor local partido en dos.** La lógica de las reglas (umbrales, combinaciones, decisión) se queda en `ui/triage/triaje.js`. Las expresiones van en `motor.js` de cada idioma. En alemán, límites de palabra Unicode (flag `u`, `\b` no reconoce «Ä») y búsqueda de raíz dentro de palabras compuestas («Wasserrohrbruch»).
 - **Si falta una clave**, se muestra la del español y se avisa en consola. El validador no deja pasar ninguna.
 - **Cambio de idioma con recarga.** Se guarda en `localStorage` y se puede forzar con `?lang=en`. Recargar evita tener que repintar en caliente el estado de tres páginas. Funciona igual abriendo los HTML desde disco, sin servidor ni paso de compilación.
 
 ### Selector
 
-Botones `ES | EN | DE` en la cabecera, generados a partir de `locales/idiomas.js` (un idioma nuevo aparece solo). Lo pinta `shell.js`, que ya comparten las tres páginas, así que sale en `index.html`, `gobierno.html` e `intro.html`.
+Botones `ES | EN | DE` en la cabecera, generados a partir de `locales/idiomas.js` (un idioma nuevo aparece solo). Lo pinta `ui/shared/shell.js`, que ya comparten las tres páginas, así que sale en `index.html`, `gobierno.html` e `intro.html`.
 
 ### Añadir un idioma en el futuro
 
@@ -96,7 +96,7 @@ Lo documento en `_docs/technical/i18n.md` y actualizo el diagrama C4 de contened
 - Cada id de `data/base/` tiene su texto en todos los idiomas, y no hay textos sin base.
 - Cada cita de evidencia, de contraste de adjuntos y de indicador de fraude se localiza en el mensaje de su idioma con `Evidencias.localizar`, la misma función que usa la ficha.
 - El motor local de cada idioma da, en cada mensaje de su idioma, el mismo resultado que el motor en español: ramo, resultado de cada regla, importe, fecha y decisión. La referencia es el motor en español, no la IA, porque ya hoy difieren en algunos mensajes.
-- `fechas.js` reconoce y desplaza en cada idioma las mismas fechas que en español.
+- `core/fechas.js` reconoce y desplaza en cada idioma las mismas fechas que en español.
 - Los HTML no tienen texto visible.
 - Restos de otro idioma: avisa si en `en/` aparecen `ñ`, `¿` o palabras frecuentes del español, y lo mismo para `de/`.
 
@@ -137,7 +137,7 @@ Cada fase termina con la demo funcionando y `make test` en verde.
 
 | Fase | Qué | Cómo se comprueba |
 |---|---|---|
-| 0 | `locales/`, `cargar.js`, `i18n.js`, selector en `shell.js`, esqueleto del validador | La demo sale igual y el selector cambia `<html lang>` |
+| 0 | `locales/`, `cargar.js`, `i18n.js`, selector en `ui/shared/shell.js`, esqueleto del validador | La demo sale igual y el selector cambia `<html lang>` |
 | 1 | Migración del español: HTML a claves, literales del código a `es/ui.js`, datos separados en base + texto `es` | Capturas de las tres páginas antes y después (`scripts/browser/capturas.mjs`): tienen que salir iguales |
 | 2 | Inglés: `ui`, prompts, motor, fechas, mensajes reescritos, análisis rehecho, gobierno, fraude, guion y recorrido | `make i18n-check` limpio; repaso de las tres páginas y del recorrido completo en el navegador |
 | 3 | Alemán: lo mismo | Igual, más revisión a 375 px de ancho: el alemán ocupa un 30 % más y hay que vigilar botones, pestañas y contadores |

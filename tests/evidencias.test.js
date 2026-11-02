@@ -1,10 +1,10 @@
-// Pruebas de evidencias.js sin dependencias: `node tests/evidencias.test.js` (o `make test`).
+// Pruebas de core/evidencias.js sin dependencias: `node tests/evidencias.test.js` (o `make test`).
 // Incluye respuestas del modelo simuladas, también defectuosas (parafraseo, acentos, JSON raro, citas inventadas).
 require('../core/i18n/node.js')();
 const assert = require('assert');
 const fs = require('fs');
 const path = require('path');
-const E = require('../evidencias.js');
+const E = require('../core/evidencias.js');
 
 const cargar = (f, exportar) => new Function(`${fs.readFileSync(path.join(__dirname, '..', f), 'utf8')}\nreturn ${exportar};`)();
 const PAQUETES = cargar('data/demo/mensajes.js', 'PAQUETES');

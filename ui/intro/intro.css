@@ -1,7 +1,7 @@
 /* Introducción (intro.html): cinco secciones (la idea, el problema, la solución, los actores y la demo) para contar el FNOL
-   y el sistema antes de la demo. Usa los tokens de styles.css y el marco de header.css; aquí solo lo propio de estas páginas. */
+   y el sistema antes de la demo. Usa los tokens de ui/triage/triaje.css y el marco de ui/shared/shell.css; aquí solo lo propio de estas páginas. */
 
-.intro { display: grid; gap: 1.25rem; padding: var(--main-pad) var(--main-pad) 2.5rem; max-width: var(--main-max); width: 100%; margin: 0 auto; align-content: start; }  /* ancho común (header.css) */
+.intro { display: grid; gap: 1.25rem; padding: var(--main-pad) var(--main-pad) 2.5rem; max-width: var(--main-max); width: 100%; margin: 0 auto; align-content: start; }  /* ancho común (ui/shared/shell.css) */
 .intro > * { min-width: 0; }
 
 /* Cabecera de la página: número de bloque, titular y entradilla */
@@ -34,7 +34,7 @@
 .bloque-sub { margin: -.6rem 0 1rem; color: var(--muted); font-size: .95rem; }
 .bloque-lista { padding-left: 1.1rem; display: grid; gap: .2rem; }
 
-/* Una sección visible cada vez (intro.js) */
+/* Una sección visible cada vez (ui/intro/intro.js) */
 .intro-sec { display: grid; gap: 1.25rem; min-width: 0; }
 .intro-sec > * { min-width: 0; }
 .intro-sec[hidden] { display: none; }

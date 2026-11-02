@@ -1,6 +1,6 @@
 // Introducción (intro.html): cinco secciones en una sola página (la idea, el problema, la solución, los actores y la
 // demo), una visible cada vez y con su propio enlace (#intro, #problema, #solucion, #actores, #demo), más Tour (#tour, Auto Tour y sus ajustes). Mismo marco que
-// el triaje y el gobierno (menú lateral de shell.js) y altura real de la cabecera para que el menú quede pegado debajo
+// el triaje y el gobierno (menú lateral de ui/shared/shell.js) y altura real de la cabecera para que el menú quede pegado debajo
 // aunque el título ocupe varias líneas.
 (function () {
   'use strict';
@@ -27,7 +27,7 @@
     const titulo = secciones[n].dataset.titulo;
     if (sub) sub.textContent = numeradas.includes(id) ? I18N.t('intro.introduccion_de', { v: numeradas.indexOf(id) + 1, ids: numeradas.length, titulo }) : titulo;
     document.title = `FNOL — ${titulo}`;
-    // «#demo=N» (llegada desde otra página del recorrido) lo consume shell.js: no se pisa
+    // «#demo=N» (llegada desde otra página del recorrido) lo consume ui/shared/shell.js: no se pisa
     if (location.hash !== `#${id}` && !/demo=\d+/.test(location.hash)) history.replaceState(null, '', `#${id}`);
     ajustar();
     if (scroll) window.scrollTo({ top: 0 });

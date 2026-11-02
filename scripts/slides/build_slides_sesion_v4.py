@@ -7,7 +7,7 @@
   diseño: qué hace, qué gana el negocio, normas, dónde se ve en la demo y la captura de la sección.
 - Slide 27 («Vamos a verlo»): lo que se verá del gobierno, con las secciones nuevas.
 
-Plan y decisiones: _docs/plans/plan-slides-sesion-pilares.md. Iconos: los SVG de Lucide de icons.js, con el color de la
+Plan y decisiones: _docs/plans/plan-slides-sesion-pilares.md. Iconos: los SVG de Lucide de ui/shared/icons.js, con el color de la
 plantilla, igual que en la v3. Capturas: _docs/slides/img/observabilidad/ (se regeneran con `make capturas`).
 
 Uso (desde la raíz del repo):
@@ -115,8 +115,8 @@ BLOQUES = [
 
 
 def lucide():
-    """Contenido SVG de cada icono de icons.js (el mismo juego de iconos que el panel)."""
-    out = subprocess.run(['node', '-e', f"const fs=require('fs');eval(fs.readFileSync({json.dumps(os.path.join(RAIZ, 'icons.js'))},'utf8').split('function lucide(')[0].replace(/^const LUCIDE/m,'globalThis.LUCIDE'));process.stdout.write(JSON.stringify(LUCIDE))"],
+    """Contenido SVG de cada icono de ui/shared/icons.js (el mismo juego de iconos que el panel)."""
+    out = subprocess.run(['node', '-e', f"const fs=require('fs');eval(fs.readFileSync({json.dumps(os.path.join(RAIZ, 'ui/shared/icons.js'))},'utf8').split('function lucide(')[0].replace(/^const LUCIDE/m,'globalThis.LUCIDE'));process.stdout.write(JSON.stringify(LUCIDE))"],
                          capture_output=True, text=True, check=True)
     return json.loads(out.stdout)
 
@@ -278,7 +278,7 @@ def main():
     global LUC, MONITOR
     LUC = lucide()
     prs = Presentation(ORIGEN)
-    # el icono «monitor» no está en icons.js: se toma el de la v3
+    # el icono «monitor» no está en ui/shared/icons.js: se toma el de la v3
     MONITOR = '<rect width="20" height="14" x="2" y="3" rx="2"/><line x1="8" x2="16" y1="21" y2="21"/><line x1="12" x2="12" y1="17" y2="21"/>'
     s11, s12, s13, s15 = prs.slides[10], prs.slides[11], prs.slides[12], prs.slides[14]
     rehacer_slide11(prs, s11)

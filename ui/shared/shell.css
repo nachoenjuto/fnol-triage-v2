@@ -1,5 +1,5 @@
 /* Marco compartido por intro.html, index.html y gobierno.html: cabecera azul (.topbar) con los enlaces entre páginas, barra clara de fases
-   (.submenu, solo en index), menú lateral plegable (.shell / .sidenav, comportamiento en shell.js)
+   (.submenu, solo en index), menú lateral plegable (.shell / .sidenav, comportamiento en ui/shared/shell.js)
    y pie fino de la columna principal (.pie). Las tres páginas usan exactamente estas reglas. */
 
 .topbar { display: flex; align-items: center; justify-content: space-between; gap: 1rem; min-height: 76px; padding: .8rem 1.25rem; background: var(--header); color: #fff; position: sticky; top: 0; z-index: 5; box-shadow: 0 1px 0 rgba(16, 24, 40, .12); }
@@ -12,7 +12,7 @@
 .topbar-actions { display: flex; align-items: center; justify-content: flex-end; gap: .75rem; flex-wrap: nowrap; flex: none; margin-top: 0; }
 
 
-/* Enlaces entre las tres páginas (shell.js · initCabecera): texto sin caja; la página en la que se está, sobre una
+/* Enlaces entre las tres páginas (ui/shared/shell.js · initCabecera): texto sin caja; la página en la que se está, sobre una
    píldora translúcida */
 .topnav { display: flex; align-items: center; gap: .25rem; flex-wrap: wrap; }
 .topnav-item { font-size: 15px; font-weight: 500; line-height: 1.2; padding: .5rem .95rem; border-radius: 999px; color: rgba(255,255,255,.72); text-decoration: none; white-space: nowrap; transition: background-color .15s, color .15s; }
@@ -20,7 +20,7 @@
 .topnav-item[aria-current="page"] { color: #fff; background: rgba(255,255,255,.13); }
 .topnav-item:focus-visible { outline: none; box-shadow: 0 0 0 2px #ffd166; }
 
-/* Selector de idioma (shell.js · initIdiomas): bandera y código del idioma actual; abre la lista de idiomas */
+/* Selector de idioma (ui/shared/shell.js · initIdiomas): bandera y código del idioma actual; abre la lista de idiomas */
 .idiomas { position: relative; flex: none; }
 .idiomas-boton { display: inline-flex; align-items: center; gap: .45rem; font: 500 13px/1 inherit; font-family: inherit; letter-spacing: .03em; padding: .5rem .75rem; border: 0; border-radius: 999px; background: transparent; color: rgba(255,255,255,.85); cursor: pointer; transition: background-color .15s; }
 .idiomas-boton:hover, .idiomas-boton[aria-expanded="true"] { background: rgba(255,255,255,.1); color: #fff; }
@@ -38,7 +38,7 @@
 /* font-size fijo: index.html (body 16px) y gobierno.html (body 14px) parten de bases distintas;
    se fija aquí para que el texto y los iconos del menú horizontal midan igual en las dos páginas. */
 /* Barra de fases (solo index): primera fila de la columna principal, a la derecha del menú lateral; mismo espacio
-   arriba y abajo. Nunca hace dos líneas: si no cabe, los textos más largos se acortan con «…» (styles.css · .phase-lbl) */
+   arriba y abajo. Nunca hace dos líneas: si no cabe, los textos más largos se acortan con «…» (ui/triage/triaje.css · .phase-lbl) */
 .submenu { display: flex; align-items: center; flex-wrap: nowrap; gap: .1rem; padding: .4rem 1rem; background: var(--surface); border-bottom: 1px solid var(--border); box-shadow: 0 2px 4px rgba(15, 23, 42, .06); overflow: hidden; position: sticky; top: var(--top-h, 63px); z-index: 4; font-size: 14px; }
 
 @media (max-width: 1100px) {
@@ -69,7 +69,7 @@ html { scrollbar-gutter: stable; }
 
 /* ── Menú lateral común ── font-size fijo: index (body 16px) y gobierno (body 14px) parten de bases distintas */
 .shell { --nav-w: 248px; --nav-top: var(--top-h, 76px); display: grid; grid-template-columns: var(--nav-w) minmax(0, 1fr); align-items: start; transition: grid-template-columns .18s ease; }
-/* Plegado: clase en <html> (la pone el <head> de cada página antes de pintar y shell.js al plegar), así al cambiar
+/* Plegado: clase en <html> (la pone el <head> de cada página antes de pintar y ui/shared/shell.js al plegar), así al cambiar
    de página el menú ya sale plegado y sin animación */
 .nav-plegado .shell { --nav-w: 60px; }
 .sidenav { position: sticky; top: var(--nav-top); height: calc(100vh - var(--nav-top)); display: flex; flex-direction: column; background: var(--surface); border-right: 1px solid var(--border); box-shadow: 2px 0 4px rgba(15, 23, 42, .04); z-index: 3; font-size: 14px; min-width: 0; }
@@ -78,7 +78,7 @@ html { scrollbar-gutter: stable; }
 .sidenav-body > * { flex-shrink: 0; }
 .sidenav-body { scrollbar-width: thin; scrollbar-color: transparent transparent; overscroll-behavior: contain; }
 .sidenav-body:hover, .sidenav-body:focus-within { scrollbar-color: var(--border) transparent; }
-/* Degradado en el borde por el que quedan secciones ocultas (shell.js · initScrollMenu) */
+/* Degradado en el borde por el que quedan secciones ocultas (ui/shared/shell.js · initScrollMenu) */
 .sidenav-body.hay-abajo { mask-image: linear-gradient(to bottom, #000 calc(100% - 32px), transparent); -webkit-mask-image: linear-gradient(to bottom, #000 calc(100% - 32px), transparent); }
 .sidenav-body.hay-arriba { mask-image: linear-gradient(to bottom, transparent, #000 32px); -webkit-mask-image: linear-gradient(to bottom, transparent, #000 32px); }
 .sidenav-body.hay-arriba.hay-abajo { mask-image: linear-gradient(to bottom, transparent, #000 32px, #000 calc(100% - 32px), transparent); -webkit-mask-image: linear-gradient(to bottom, transparent, #000 32px, #000 calc(100% - 32px), transparent); }
@@ -96,7 +96,7 @@ html { scrollbar-gutter: stable; }
 .nav-sep { height: 1px; background: var(--border); margin: .6rem .4rem; flex: none; }
 /* Encabezado de grupo del menú (gobierno.html e intro.html); plegado se reduce a una línea separadora */
 .nav-grupo { font-size: .66rem; font-weight: 700; letter-spacing: .07em; text-transform: uppercase; color: var(--muted); padding: .85rem .65rem .25rem calc(.65rem + 3px); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-/* Grupos plegables (shell.js · initGrupos): el título abre y cierra sus secciones; la flecha gira al cerrar */
+/* Grupos plegables (ui/shared/shell.js · initGrupos): el título abre y cierra sus secciones; la flecha gira al cerrar */
 .nav-grupo[data-grupo] { display: flex; align-items: center; gap: .35rem; cursor: pointer; user-select: none; border-radius: 5px; }
 .nav-grupo[data-grupo]:hover { color: var(--text); }
 .nav-grupo[data-grupo] svg { width: .8rem; height: .8rem; flex: none; margin-left: auto; opacity: .55; transition: transform .15s; }
@@ -134,7 +134,7 @@ html { scrollbar-gutter: stable; }
   .pie { flex-wrap: wrap; padding: .3rem 1rem; }
 }
 
-/* ── Recorrido de la demo (modo presentador, shell.js): panel flotante común a las dos páginas ── */
+/* ── Recorrido de la demo (modo presentador, ui/shared/shell.js): panel flotante común a las dos páginas ── */
 .recorrido { position: fixed; right: 1rem; bottom: 2.2rem; z-index: 50; width: min(440px, calc(100vw - 2rem)); max-height: min(78vh, 640px); display: flex; flex-direction: column; background: var(--surface); color: var(--text); border: 1px solid var(--border); border-top: 4px solid var(--header); border-radius: 8px; box-shadow: 0 14px 36px rgba(10, 20, 50, .28); font-size: 13px; }
 .recorrido svg { width: 1em; height: 1em; flex: none; }
 .rec-cab { display: flex; align-items: center; gap: .5rem; padding: .55rem .6rem .55rem .8rem; border-bottom: 1px solid var(--border); }

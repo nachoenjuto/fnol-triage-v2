@@ -80,7 +80,7 @@ async function instantanea(salida, idioma) {
     }
     await js(clic('#btn-toggle-config', 200)); await guardar('triaje/config', texto("document.getElementById('config-panel')"));
 
-    // ── Triaje con el motor local (sin IA): las decisiones y motivos los escribe app.js ──
+    // ── Triaje con el motor local (sin IA): las decisiones y motivos los escribe ui/triage/triaje.js ──
     for (const p of ['A', 'B', 'C']) {
       await ir('index.html', { forzar: true });
       await js(`sessionStorage.clear(); const s = document.getElementById('sel-paquete'); s.value = ${JSON.stringify(p)}; s.dispatchEvent(new Event('change'));

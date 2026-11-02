@@ -1,7 +1,7 @@
 // Motor local de reglas (modo degradado sin IA): ramo por palabras clave, extracción por expresiones regulares y
 // reglas heurísticas. La lógica (umbrales, combinaciones y decisión) es común a todos los idiomas; las expresiones
 // dependen del idioma de los mensajes y están en locales/<idioma>/motor.js (I18N.motor('local')).
-// Funciona en el navegador (global `MotorLocal`, lo usa app.js) y en Node (tests/motores-idioma.test.js).
+// Funciona en el navegador (global `MotorLocal`, lo usa ui/triage/triaje.js) y en Node (tests/motores-idioma.test.js).
 (function (root) {
   'use strict';
 

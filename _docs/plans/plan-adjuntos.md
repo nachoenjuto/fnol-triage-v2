@@ -39,7 +39,7 @@ No se usan fotos de internet sin licencia.
 
 ### Las fechas del PDF (decisión pendiente)
 
-`fechas.js` desplaza las fechas del mensaje al día de hoy (el «12 de septiembre» pasa a ser el sábado más reciente que toque). Un PDF estático con «12/09/2026» no cuadraría con el texto ni con los datos extraídos.
+`core/fechas.js` desplaza las fechas del mensaje al día de hoy (el «12 de septiembre» pasa a ser el sábado más reciente que toque). Un PDF estático con «12/09/2026» no cuadraría con el texto ni con los datos extraídos.
 
 - **Opción A (recomendada):** el parte se genera en el navegador a partir de una plantilla con [pdf-lib](https://cdnjs.cloudflare.com/ajax/libs/pdf-lib/1.17.1/pdf-lib.min.js), rellenando la fecha ya desplazada con `Fechas`. Se sigue viendo y descargando como un PDF de verdad. Es la primera dependencia externa de la demo; si se prefiere no tener ninguna, se copia el `.min.js` en el repositorio.
 - **Opción B:** PDF fijo y aceptar que la fecha del parte no coincida con la del mensaje cuando la demo no se abre con `?fecha=ancla`. Más sencillo, pero se nota.
@@ -114,7 +114,7 @@ La salida del modelo gana un campo `adjuntos` al mismo nivel que `datos_extraido
 ]
 ```
 
-Con «+ Gobierno», el bloque `_gobernanza` añade lo que calcula la plataforma (en `cumplimiento.js`, sin IA):
+Con «+ Gobierno», el bloque `_gobernanza` añade lo que calcula la plataforma (en `core/cumplimiento.js`, sin IA):
 
 - **Sello:** SHA-256 de cada archivo, igual que ya se hace con la entrada y la salida.
 - **Datos personales en adjuntos:** nombre, DNI y firma del tercero en el parte, y matrícula visible en las fotos, marcados como datos de **terceros**.
@@ -140,9 +140,9 @@ Recomiendo hacer solo la fase 1 ahora. La fase 2 tiene sentido si se va a enseñ
 | `data/demo/mensajes.js` | `adjuntos: [{ id, archivo, tipo, mime, tamano }]` en MSG-A-01. |
 | `data/demo/resultados.js` | Bloque `adj` de MSG-A-01 en el formato compacto del archivo. |
 | `index.html` | Panel `#tab-adjuntos` y versión de los scripts. |
-| `app.js` | Pestaña condicional en `TABS`/`openModal`, `pintarAdjuntos`, visor, `adjuntos` en `pintarRaw` y `pintarEnviado`. |
-| `styles.css` | Estilos de la pestaña, el visor y el panel. |
-| `cumplimiento.js` | Hash y datos personales de los adjuntos en `_gobernanza`. |
+| `ui/triage/triaje.js` | Pestaña condicional en `TABS`/`openModal`, `pintarAdjuntos`, visor, `adjuntos` en `pintarRaw` y `pintarEnviado`. |
+| `ui/triage/triaje.css` | Estilos de la pestaña, el visor y el panel. |
+| `core/cumplimiento.js` | Hash y datos personales de los adjuntos en `_gobernanza`. |
 | `data/demo/gobierno.js` | TRZ-4F2A: «3 adjuntos» en el agente multicanal y una línea en extracción. |
 | `_docs/demo/es/guion-demo.md` y `guion-demo-corto.md` | Paso 3: un clic más en «Adjuntos». Después, `make recorrido` y `make guion-docx`. |
 | `README.md` | Una línea en «Caso de uso» (la ficha pasa de cinco a seis pestañas cuando hay adjuntos). |

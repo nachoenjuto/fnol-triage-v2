@@ -38,7 +38,7 @@
   }
 
   // Cabecera común de las tres páginas: el logo de la página y los enlaces entre ellas llevan el mismo icono que
-  // el menú lateral de intro.html. Se monta al cargar shell.js, antes de que cada página mida la altura de la cabecera.
+  // el menú lateral de intro.html. Se monta al cargar ui/shared/shell.js, antes de que cada página mida la altura de la cabecera.
   const PAGINAS = [['intro', 'intro.html', 'compass', 'shell.cab.introduccion'], ['triaje', 'index.html', 'inbox', 'shell.cab.triaje'], ['gobierno', 'gobierno.html', 'shield-check', 'shell.cab.gobierno']];
   function initCabecera() {
     const cab = document.querySelector('.topbar');
@@ -153,7 +153,7 @@
     let pintando = false;
     new MutationObserver((ms) => {
       if (pintando) return;
-      // Lista rehecha (gobierno.js) o sección activa nueva: grupos al día antes de colocar la activa a la vista
+      // Lista rehecha (ui/governance/gobierno.js) o sección activa nueva: grupos al día antes de colocar la activa a la vista
       if (ms.some((m) => m.type === 'childList' || nuevaActiva(m))) { pintando = true; pintarGrupos(); pintando = false; }
       if (ms.some(nuevaActiva)) aLaVista();
       bordes();

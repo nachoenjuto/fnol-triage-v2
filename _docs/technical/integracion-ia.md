@@ -1,6 +1,6 @@
 # Integración con el modelo
 
-El navegador llama directamente al modelo. No hay backend ni proxy: `app.js` construye la petición, la envía con `fetch` al endpoint de Azure AI Foundry que el usuario pega en «Configurar IA», valida la respuesta y, si falla, cae al motor local.
+El navegador llama directamente al modelo. No hay backend ni proxy: `ui/triage/triaje.js` construye la petición, la envía con `fetch` al endpoint de Azure AI Foundry que el usuario pega en «Configurar IA», valida la respuesta y, si falla, cae al motor local.
 
 ## Motores de triaje
 
@@ -82,7 +82,7 @@ Los tokens de cada llamada se escriben en consola (`[triage][llm] tokens`) y se 
 
 ## Prompts
 
-Todos los textos están en `prompts.js`, fuera de la lógica:
+Todos los textos están en `core/prompts.js`, fuera de la lógica:
 
 | Constante | Bloque editable | Contenido |
 |---|---|---|
@@ -167,7 +167,7 @@ Con el motor `guardado`, la seudonimización se simula: se aplica la tabla a la 
 - **Reglas** (`LOCAL_RULES`): un subconjunto heurístico por ramo (Auto A2–A7, Hogar H2–H5 y H9, Salud S2–S5, S7 y S8) evaluado con expresiones regulares.
 - **Decisión**: `REVISION` si el ramo es indeterminado o hay alguna regla incumplida; si no, `DESPEJADO`. Confianza 0,3 con ramo indeterminado o `0,6 + min(0,25; 0,04 × nº de reglas)`.
 
-El motor local no lee adjuntos ni devuelve evidencias; `evidencias.js` las reconstruye después.
+El motor local no lee adjuntos ni devuelve evidencias; `core/evidencias.js` las reconstruye después.
 
 ## Adjuntos
 

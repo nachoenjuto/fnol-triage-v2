@@ -10,7 +10,7 @@ const { execSync } = require('child_process');
 const { fs, path, raiz, IDIOMAS, I18N, BASE, FICHEROS, cargarTabla, comparar, textosDatos, cargarTablaDatos } = require('./i18n-comun.js');
 
 // Fuentes del idioma base cuyo cambio obliga a revisar las traducciones
-const FUENTES_BASE = [`locales/${BASE}`, 'data', 'prompts.js', ...require('./guion.js').GUIONES.map((g) => `_docs/demo/${BASE}/${g}`)];
+const FUENTES_BASE = [`locales/${BASE}`, 'data', 'core/prompts.js', ...require('./guion.js').GUIONES.map((g) => `_docs/demo/${BASE}/${g}`)];
 
 const pedidos = (process.env.IDIOMA || '').split(',').map((s) => s.trim()).filter(Boolean);
 const idiomas = (pedidos.length ? pedidos : Object.keys(IDIOMAS)).filter((i) => i !== BASE && IDIOMAS[i]);

@@ -16,7 +16,7 @@ Referencia para mantener, ampliar o auditar el código de la demo. El uso de cad
 
 - **Sin backend ni build.** Tres páginas HTML (`intro.html`, `index.html`, `gobierno.html`) cargan scripts que se comunican por variables globales. GitHub Pages sirve la rama `main`.
 - **Una sola dependencia externa:** el endpoint de Azure AI Foundry que el usuario configura. Sin él, el triaje usa el motor local o los resultados guardados.
-- **Lógica pura separada del DOM.** `evidencias.js`, `cumplimiento.js`, `fraude.js`, `fechas.js` y `ahorro.js` se cargan igual en el navegador y en Node, y son lo que cubren los tests.
+- **Lógica pura separada del DOM.** `core/evidencias.js`, `core/cumplimiento.js`, `core/fraude.js`, `core/fechas.js` y `core/ahorro.js` se cargan igual en el navegador y en Node, y son lo que cubren los tests.
 - **El modelo propone y la plataforma comprueba.** La respuesta del modelo pasa por `parseTriage()`, sus citas por `Evidencias.localizar()` y todo el bloque `_gobernanza` lo calcula la plataforma.
 - **Estado en la pestaña.** Configuración, prompts, registro y cambios del panel viven en `sessionStorage`.
 
@@ -24,16 +24,16 @@ Referencia para mantener, ampliar o auditar el código de la demo. El uso de cad
 
 | Fichero | Líneas | Papel |
 |---|---|---|
-| `app.js` | ≈ 1.800 | triaje: cliente del modelo, motor local, lote, registro, ficha |
-| `gobierno.js` | ≈ 3.350 | panel: fuentes de datos, trazas, secciones, gráficos SVG |
-| `cumplimiento.js` | ≈ 660 | `_gobernanza`, datos personales, seudonimización, SHA-256, termómetro |
-| `shell.js` | ≈ 660 | marco común y recorrido de la demo |
-| `evidencias.js` | ≈ 290 | verificación de citas y siguiente paso |
-| `adjuntos.js` | ≈ 190 | parte amistoso en PDF (pdf-lib) y huellas de adjuntos |
-| `fraude.js` | ≈ 170 | score antifraude |
-| `icons.js` | ≈ 160 | iconos Lucide inline |
-| `prompts.js` | ≈ 125 | prompts y bloques de reglas |
-| `fechas.js` | ≈ 110 | desplazamiento de fechas al día de hoy |
-| `ahorro.js` | ≈ 60 | escenario de ahorro de FinOps |
-| `intro.js` | ≈ 45 | navegación de la introducción |
+| `ui/triage/triaje.js` | ≈ 1.800 | triaje: cliente del modelo, motor local, lote, registro, ficha |
+| `ui/governance/gobierno.js` | ≈ 3.350 | panel: fuentes de datos, trazas, secciones, gráficos SVG |
+| `core/cumplimiento.js` | ≈ 660 | `_gobernanza`, datos personales, seudonimización, SHA-256, termómetro |
+| `ui/shared/shell.js` | ≈ 660 | marco común y recorrido de la demo |
+| `core/evidencias.js` | ≈ 290 | verificación de citas y siguiente paso |
+| `core/adjuntos.js` | ≈ 190 | parte amistoso en PDF (pdf-lib) y huellas de adjuntos |
+| `core/fraude.js` | ≈ 170 | score antifraude |
+| `ui/shared/icons.js` | ≈ 160 | iconos Lucide inline |
+| `core/prompts.js` | ≈ 125 | prompts y bloques de reglas |
+| `core/fechas.js` | ≈ 110 | desplazamiento de fechas al día de hoy |
+| `core/ahorro.js` | ≈ 60 | escenario de ahorro de FinOps |
+| `ui/intro/intro.js` | ≈ 45 | navegación de la introducción |
 | `vendor/pdf-lib.min.js` | — | pdf-lib 1.17.1 (MIT), se carga al abrir el parte |

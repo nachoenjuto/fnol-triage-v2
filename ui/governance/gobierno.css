@@ -1,4 +1,4 @@
-/* Panel «Gobierno de Agentes» — hoja autosuficiente con los mismos tokens que styles.css */
+/* Panel «Gobierno de Agentes» — hoja autosuficiente con los mismos tokens que ui/triage/triaje.css */
 :root {
   --bg: #f3f4f6; --surface: #ffffff; --text: #1b2130; --muted: #667085; --border: #dfe2e8;
   --primary: #1b2a4a; --header: #1b2a4a; --primary-ink: #fff;
@@ -39,7 +39,7 @@ svg.i, svg.lucide-svg { width: 1em; height: 1em; flex: none; vertical-align: -.1
 .muted { color: var(--muted); }
 .small { font-size: .8rem; }
 
-/* .topbar, .brand y .brand-icon están en header.css (compartido con index.html e intro.html) */
+/* .topbar, .brand y .brand-icon están en ui/shared/shell.css (compartido con index.html e intro.html) */
 .btn { font: inherit; font-weight: 600; padding: .5rem .9rem; border-radius: var(--radius-sm); cursor: pointer; border: 1px solid var(--border); background: var(--surface); color: var(--text); display: inline-flex; align-items: center; gap: .45rem; transition: background .15s, transform .06s; }
 .btn:hover { background: var(--bg); } .btn:active { transform: translateY(1px); }
 .btn:focus-visible { outline: 2px solid var(--primary); outline-offset: 2px; }
@@ -55,7 +55,7 @@ svg.i, svg.lucide-svg { width: 1em; height: 1em; flex: none; vertical-align: -.1
 .ag-ico { --c: var(--primary); width: 1.9rem; height: 1.9rem; border-radius: 5px; display: inline-grid; place-items: center; color: var(--c); background: color-mix(in srgb, var(--c) 13%, transparent); flex: none; }
 .ag-ico svg { width: 1.1rem; height: 1.1rem; }
 
-.view { display: none; padding: var(--main-pad); gap: 1.25rem; grid-template-columns: 1fr; max-width: var(--main-max); margin: 0 auto; }  /* ancho común (header.css) */
+.view { display: none; padding: var(--main-pad); gap: 1.25rem; grid-template-columns: 1fr; max-width: var(--main-max); margin: 0 auto; }  /* ancho común (ui/shared/shell.css) */
 .view.is-active { display: grid; }
 .card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 1.1rem 1.25rem; box-shadow: var(--shadow); min-width: 0; }
 .card-head { display: flex; justify-content: space-between; align-items: center; gap: 1rem; flex-wrap: wrap; margin-bottom: .8rem; }

@@ -1,6 +1,6 @@
 # Panel de Gobierno de Agentes
 
-`gobierno.html` + `gobierno.js` (≈ 3.350 líneas) + `gobierno.css`. Pinta un dataset con el esquema de `GOBIERNO_DEMO` (ver [modelo-datos.md](modelo-datos.md#dataset-del-panel-gobierno_demo)). No tiene backend ni librerías de gráficos: todo el HTML y los SVG se generan como cadenas en el propio script.
+`gobierno.html` + `ui/governance/gobierno.js` (≈ 3.350 líneas) + `ui/governance/gobierno.css`. Pinta un dataset con el esquema de `GOBIERNO_DEMO` (ver [modelo-datos.md](modelo-datos.md#dataset-del-panel-gobierno_demo)). No tiene backend ni librerías de gráficos: todo el HTML y los SVG se generan como cadenas en el propio script.
 
 ## Qué es real y qué es simulado
 
@@ -8,14 +8,14 @@ El panel describe una cadena de cuatro agentes (Multicanalidad → Clasificació
 
 | Elemento | Origen |
 |---|---|
-| `_gobernanza`, termómetro (controles medidos), cadena de hashes | calculado con `cumplimiento.js` sobre los mensajes y las respuestas |
-| Score antifraude, niveles, pagos retenidos | calculado con `fraude.js` sobre el lote |
-| Escenario de ahorro de FinOps | calculado con `ahorro.js` |
+| `_gobernanza`, termómetro (controles medidos), cadena de hashes | calculado con `core/cumplimiento.js` sobre los mensajes y las respuestas |
+| Score antifraude, niveles, pagos retenidos | calculado con `core/fraude.js` sobre el lote |
+| Escenario de ahorro de FinOps | calculado con `core/ahorro.js` |
 | Coste de cada traza | calculado: tokens de los spans × `precios` |
 | Trazas con la fuente «Sesión actual» | convertidas del registro real del triaje |
 | Override y validación desde la ficha del triaje | reales en la sesión; cambian la tasa de override |
 | 14 días de histórico, caps, alertas, modelos, KB, rúbricas | datos inventados en `data/demo/gobierno.js` |
-| Guardrails G-01…G-12 | descritos y contados; `app.js` no los ejecuta |
+| Guardrails G-01…G-12 | descritos y contados; `ui/triage/triaje.js` no los ejecuta |
 | Kill switch | cambia el estado del agente en el panel; no detiene el triaje |
 | Replay idéntico y what-if | simulado con factores fijos (ver abajo) |
 | Aplicar o aprobar una acción correctiva | cambia el estado en la sesión y los KPI; no toca ninguna configuración |
@@ -95,7 +95,7 @@ Si la entrada no tiene acción humana pero su id coincide con una traza de la de
 | gpt-5-nano | ×0,04 | ×0,45 | pasa a `DESPEJADO` si la original era `REVISION` (se muestra como regresión) |
 | gpt-5 con prompt v2.4 | ×0,82 | ×0,88 | igual |
 
-**Ahorro estimado** (`ahorro.js · calcular()`): coste de un mensaje manual = salario bruto × (1 + SS) × (1 + estructura) / (horas de convenio × productividad) / 60 × minutos por mensaje. Ahorro bruto = automatizados × coste + escalados × coste × `ahorro_escalados`. Neto = bruto − coste de IA. Con los valores por defecto (28.000 €, 1,32, 15 %, 1.700 h, 80 %, 8 min, 40 %) un mensaje manual cuesta 4,17 €. Las hipótesis vienen de `kpis.negocio`, se editan en la ficha y no se guardan.
+**Ahorro estimado** (`core/ahorro.js · calcular()`): coste de un mensaje manual = salario bruto × (1 + SS) × (1 + estructura) / (horas de convenio × productividad) / 60 × minutos por mensaje. Ahorro bruto = automatizados × coste + escalados × coste × `ahorro_escalados`. Neto = bruto − coste de IA. Con los valores por defecto (28.000 €, 1,32, 15 %, 1.700 h, 80 %, 8 min, 40 %) un mensaje manual cuesta 4,17 €. Las hipótesis vienen de `kpis.negocio`, se editan en la ficha y no se guardan.
 
 **Índice de calidad de un agente**: media de sus indicadores medibles sobre las trazas y sus `_gobernanza`, en un círculo con el color del semáforo.
 
@@ -123,8 +123,8 @@ El panel lee además `triage.log` y `triage.cfg`, que escribe el triaje.
 - Las animaciones de las fichas solo empiezan con el texto final ya escrito: sin JavaScript o con `prefers-reduced-motion` se ve el valor final.
 - Las ventanas emergentes que se abren desde una lista llevan «‹ n de N ›» y responden a ← →.
 - Cualquier código de guardrail o cap (G-04, CAP-03) en un texto se envuelve con un tooltip de su descripción, a partir de `POL`.
-- Las etiquetas de norma usan el catálogo `NORMAS` de `cumplimiento.js`, el mismo que la ficha del triaje.
+- Las etiquetas de norma usan el catálogo `NORMAS` de `core/cumplimiento.js`, el mismo que la ficha del triaje.
 
 ## Menú lateral y recorrido
 
-`shell.js` es común a las tres páginas: menú plegable (estado en `localStorage['shell.nav']`), usuario simulado (`Shell.USUARIO`) y el Recorrido de la demo (modo presentador). El recorrido lee `RECORRIDO_DEMO`, ejecuta las acciones de cada paso («Ir», clics, esperas) y muestra subtítulos filtrables por tipo. El modo presentador se desbloquea con una contraseña cuyo SHA-256 está en el código: es un cierre de presentación, no un control de acceso. La configuración y los textos editados del recorrido se guardan en `localStorage` (`demo.recorrido.config`, `demo.recorrido.pos`) y el estado del recorrido en `sessionStorage` (`demo.presentador`, `demo.recorrido`).
+`ui/shared/shell.js` es común a las tres páginas: menú plegable (estado en `localStorage['shell.nav']`), usuario simulado (`Shell.USUARIO`) y el Recorrido de la demo (modo presentador). El recorrido lee `RECORRIDO_DEMO`, ejecuta las acciones de cada paso («Ir», clics, esperas) y muestra subtítulos filtrables por tipo. El modo presentador se desbloquea con una contraseña cuyo SHA-256 está en el código: es un cierre de presentación, no un control de acceso. La configuración y los textos editados del recorrido se guardan en `localStorage` (`demo.recorrido.config`, `demo.recorrido.pos`) y el estado del recorrido en `sessionStorage` (`demo.presentador`, `demo.recorrido`).

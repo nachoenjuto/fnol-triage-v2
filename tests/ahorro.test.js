@@ -1,9 +1,9 @@
-// Pruebas de ahorro.js sin dependencias: `node tests/ahorro.test.js` (o `make test`).
+// Pruebas de core/ahorro.js sin dependencias: `node tests/ahorro.test.js` (o `make test`).
 require('../core/i18n/node.js')();
 const assert = require('assert');
 const fs = require('fs');
 const path = require('path');
-const A = require('../ahorro.js');
+const A = require('../core/ahorro.js');
 
 const cargar = (f, exportar) => new Function(`${fs.readFileSync(path.join(__dirname, '..', f), 'utf8')}\nreturn ${exportar};`)();
 const G = cargar('data/demo/gobierno.js', 'GOBIERNO_DEMO');

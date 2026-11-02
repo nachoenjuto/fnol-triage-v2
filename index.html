@@ -5,10 +5,10 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title data-i18n="triaje.pagina.fnol_primer_aviso_de"></title>
   <meta name="description" data-i18n-attr="content:triaje.pagina.demo_de_triaje_multicanal">
-  <link rel="stylesheet" href="styles.css?v=55">
-  <link rel="stylesheet" href="header.css?v=59">
-  <link rel="stylesheet" href="cumplimiento.css?v=37">
-  <!-- Menú lateral plegado antes de pintar (shell.js · CLAVE) -->
+  <link rel="stylesheet" href="ui/triage/triaje.css?v=55">
+  <link rel="stylesheet" href="ui/shared/shell.css?v=59">
+  <link rel="stylesheet" href="ui/shared/cumplimiento.css?v=37">
+  <!-- Menú lateral plegado antes de pintar (ui/shared/shell.js · CLAVE) -->
   <script>try { if (localStorage.getItem('shell.nav') === '0') document.documentElement.classList.add('nav-plegado'); } catch (e) { /* sin almacenamiento */ }</script>
 </head>
 <body>
@@ -20,12 +20,12 @@
         <p class="brand-sub" data-i18n="triaje.pagina.clasificacion_priorizacion_y_automatizac"></p>
       </div>
     </div>
-    <!-- Enlaces entre las tres páginas y selector de idioma: los pone shell.js (initCabecera) -->
+    <!-- Enlaces entre las tres páginas y selector de idioma: los pone ui/shared/shell.js (initCabecera) -->
     <div class="topbar-actions"></div>
   </header>
 
 
-  <!-- Marco común con gobierno.html (shell.js): menú lateral plegable (plegado, solo iconos) con usuario y botón al pie -->
+  <!-- Marco común con gobierno.html (ui/shared/shell.js): menú lateral plegable (plegado, solo iconos) con usuario y botón al pie -->
   <div class="shell" id="shell" data-pagina="triaje">
     <nav class="sidenav" data-i18n-attr="aria-label:triaje.shell.ajustes_del_triaje">
       <div class="sidenav-body" id="sidebar">
@@ -47,13 +47,13 @@
       <button type="button" class="phase" data-phase="reglas" aria-expanded="false"><span class="step-n" aria-hidden="true">4</span> <span class="phase-lbl" data-i18n="triaje.phases.ag_de_reglas_de"></span></button><span class="arrow" data-lucide="chevron-right" aria-hidden="true"></span>
       <button type="button" class="phase" data-phase="registro" aria-expanded="false"><span class="step-n" aria-hidden="true">5</span> <span class="phase-lbl" data-i18n="triaje.phases.trazabilidad"></span></button><span class="arrow" data-lucide="chevron-right" aria-hidden="true"></span>
       <button type="button" class="phase" data-phase="automatizacion" aria-expanded="false"><span class="step-n" aria-hidden="true">6</span> <span class="phase-lbl" data-i18n="triaje.phases.automatizacion"></span></button>
-      <!-- Panel emergente con la descripción de la fase (se rellena en app.js) -->
+      <!-- Panel emergente con la descripción de la fase (se rellena en ui/triage/triaje.js) -->
       <div id="phase-pop" class="phase-pop" role="tooltip" hidden>
         <div class="phase-pop-caret" aria-hidden="true"></div>
         <div id="phase-pop-body" class="phase-pop-body"></div>
       </div>
     </nav>
-    <!-- Secciones a página completa (app.js · mostrarVista): cada una con su enlace en el menú lateral (#mensajes…) -->
+    <!-- Secciones a página completa (ui/triage/triaje.js · mostrarVista): cada una con su enlace en el menú lateral (#mensajes…) -->
     <main class="content">
       <!-- Mensajes FNOL: indicadores, lote y registro de decisiones -->
       <div class="vista" data-vista="mensajes">
@@ -363,20 +363,20 @@
   <script src="locales/idiomas.js?v=2"></script>
   <script src="core/i18n/i18n.js?v=5"></script>
   <script src="core/i18n/cargar.js?v=23"></script>
-  <script src="icons.js?v=41"></script>
+  <script src="ui/shared/icons.js?v=41"></script>
   <script src="data/generated/recorrido.js?v=50"></script>
-  <script src="shell.js?v=74"></script>
+  <script src="ui/shared/shell.js?v=74"></script>
   <script src="data/demo/mensajes.js?v=37"></script>
   <script src="data/demo/resultados.js?v=37"></script>
   <script src="data/demo/fraude.js?v=37"></script>
-  <script src="prompts.js?v=37"></script>
+  <script src="core/prompts.js?v=37"></script>
   <script src="core/i18n/traducir-datos.js?v=1"></script>
-  <script src="fechas.js?v=37"></script>
-  <script src="evidencias.js?v=39"></script>
-  <script src="cumplimiento.js?v=44"></script>
-  <script src="fraude.js?v=39"></script>
-  <script src="adjuntos.js?v=2"></script>
-  <script src="motor-local.js?v=2"></script>
-  <script src="app.js?v=59"></script>
+  <script src="core/fechas.js?v=37"></script>
+  <script src="core/evidencias.js?v=39"></script>
+  <script src="core/cumplimiento.js?v=44"></script>
+  <script src="core/fraude.js?v=39"></script>
+  <script src="core/adjuntos.js?v=2"></script>
+  <script src="core/motor-local.js?v=2"></script>
+  <script src="ui/triage/triaje.js?v=59"></script>
 </body>
 </html>

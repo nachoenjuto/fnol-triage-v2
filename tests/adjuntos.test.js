@@ -1,13 +1,13 @@
-// Pruebas de los adjuntos (adjuntos.js, MSG-A-01 y su bloque _gobernanza.adjuntos) sin dependencias: `node tests/adjuntos.test.js` (o `make test`).
+// Pruebas de los adjuntos (core/adjuntos.js, MSG-A-01 y su bloque _gobernanza.adjuntos) sin dependencias: `node tests/adjuntos.test.js` (o `make test`).
 require('../core/i18n/node.js')();
 const assert = require('assert');
 const crypto = require('crypto');
 const fs = require('fs');
 const path = require('path');
-const C = require('../cumplimiento.js');
-const F = require('../fechas.js');
+const C = require('../core/cumplimiento.js');
+const F = require('../core/fechas.js');
 globalThis.PDFLib = require('../vendor/pdf-lib.min.js');
-require('../adjuntos.js');
+require('../core/adjuntos.js');
 const Adj = globalThis.Adjuntos;
 
 const cargar = (f, exportar) => new Function(`${fs.readFileSync(path.join(__dirname, '..', f), 'utf8')}\nreturn ${exportar};`)();
@@ -43,7 +43,7 @@ const test = async (nombre, fn) => { try { await fn(); n++; console.log(`  ok   
     assert.ok(m.texto.includes(`sobre las ${c.hora}`) && m.texto.includes(c.a.matricula) && m.texto.includes(c.a.poliza));
     assert.deepStrictEqual(d.circunstancias_a, c.circunstancias_a);
   });
-  await test('fechas.js desplaza igual la fecha del parte, la extraída y la del mensaje', () => {
+  await test('core/fechas.js desplaza igual la fecha del parte, la extraída y la del mensaje', () => {
     const dd = 40;
     const cp = F.desplazar(JSON.parse(JSON.stringify(m)), dd); const rp = F.desplazar(JSON.parse(JSON.stringify(r)), dd);
     assert.strictEqual(cp.adjuntos[0].contenido.fecha.split('/').reverse().join('-'), rp.adjuntos[0].datos.fecha_hecho);

@@ -1,10 +1,10 @@
-// Pruebas de cumplimiento.js sin dependencias: `node tests/cumplimiento.test.js` (o `make test`).
+// Pruebas de core/cumplimiento.js sin dependencias: `node tests/cumplimiento.test.js` (o `make test`).
 require('../core/i18n/node.js')();
 const assert = require('assert');
 const crypto = require('crypto');
 const fs = require('fs');
 const path = require('path');
-const C = require('../cumplimiento.js');
+const C = require('../core/cumplimiento.js');
 
 const cargar = (f, exportar) => new Function(`${fs.readFileSync(path.join(__dirname, '..', f), 'utf8')}\nreturn ${exportar};`)();
 const PAQUETES = cargar('data/demo/mensajes.js', 'PAQUETES');
@@ -14,7 +14,7 @@ const A = PAQUETES[0].mensajes;
 let n = 0;
 const test = (nombre, fn) => { try { fn(); n++; console.log(`  ok   ${nombre}`); } catch (e) { console.error(`  FALLA ${nombre}\n       ${e.message}`); process.exitCode = 1; } };
 
-// Misma construcción que app.js en modo «Resultados guardados»
+// Misma construcción que ui/triage/triaje.js en modo «Resultados guardados»
 const entrada = (m) => {
   const r = expandir(RESULTADOS_GUARDADOS[m.id]);
   const { usage, ...json } = r;

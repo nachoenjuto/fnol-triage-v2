@@ -1,9 +1,9 @@
-// Pruebas de fraude.js (motor de indicadores) sin dependencias: `node tests/fraude.test.js` (o `make test`).
+// Pruebas de core/fraude.js (motor de indicadores) sin dependencias: `node tests/fraude.test.js` (o `make test`).
 require('../core/i18n/node.js')();
 const assert = require('assert');
 const fs = require('fs');
 const path = require('path');
-const F = require('../fraude.js');
+const F = require('../core/fraude.js');
 
 const cargar = (f, exportar) => new Function(`${fs.readFileSync(path.join(__dirname, '..', f), 'utf8')}\nreturn ${exportar};`)();
 const PAQUETES = cargar('data/demo/mensajes.js', 'PAQUETES');
@@ -76,7 +76,7 @@ test('el bloque para _gobernanza no lleva citas ni la cuenta', () => {
   assert.ok(!/ES91|1332|Vallecas/.test(g)); assert.ok(/IF-03\+35/.test(g)); assert.ok(/"comunicado_al_cliente":false/.test(g));
 });
 test('la respuesta al cliente no menciona el indicio (G-12)', () => {
-  const E = require('../evidencias.js');
+  const E = require('../core/evidencias.js');
   A.forEach((e) => { const r = expandir(RESULTADOS_GUARDADOS[e.id]); const p = E.siguientePaso(r); const b = E.borradorSolicitud({ ...r, mensaje: e.mensaje }, p) || ''; assert.ok(!F.ACUSATORIO.test(`${p.titulo} ${p.detalle} ${b}`), e.id); });
 });
 
@@ -96,7 +96,7 @@ test('G-10 dispara tantas veces como escalados a la SIU en 14 días', () => {
   assert.strictEqual(g.disparos, FD.diario.reduce((s, d) => s + d[3], 0)); assert.deepStrictEqual(g.disparos_dia, FD.diario.map((d) => d[3]));
 });
 test('los escenarios usan indicadores del catálogo y normas existentes', () => {
-  const C = require('../cumplimiento.js');
+  const C = require('../core/cumplimiento.js');
   const ids = new Set(FD.indicadores.map((i) => i.id));
   FD.escenarios.forEach((s) => { s.indicadores.forEach((i) => assert.ok(ids.has(i), `${s.id} ${i}`)); s.normas.forEach((k) => assert.ok(C.NORMAS[k], `${s.id} ${k}`)); });
 });

@@ -1,6 +1,6 @@
 # Evidencias y fraude
 
-Dos módulos de lógica pura que no usan IA: `evidencias.js` comprueba en el texto las citas que da el modelo y `fraude.js` calcula un score antifraude cruzando el mensaje con el lote y con un histórico. Los dos exportan su API en `window` (`Evidencias`, `Fraude`) y en `module.exports` para los tests.
+Dos módulos de lógica pura que no usan IA: `core/evidencias.js` comprueba en el texto las citas que da el modelo y `core/fraude.js` calcula un score antifraude cruzando el mensaje con el lote y con un histórico. Los dos exportan su API en `window` (`Evidencias`, `Fraude`) y en `module.exports` para los tests.
 
 ## Evidencias
 
@@ -114,7 +114,7 @@ La decisión del triaje sigue siendo 10 aprobados y 3 a revisar. Los paquetes B 
 
 ### Dónde se usa
 
-- **Triaje** (`app.js · fraudeDe()`): evalúa todo el registro de la sesión con `FRAUDE_DEMO`, pinta el chip en la lista y el bloque «Indicadores de fraude» en la pestaña de reglas, y añade `antifraude` al `_gobernanza` de cada entrada.
-- **Panel** (`gobierno.js · evaluarFraude()`): evalúa el lote de la fuente activa con el catálogo modificado en la sesión y alimenta la sección Fraude, el mapa de relaciones, la cola de la SIU y los caps antifraude CAP-08…CAP-11.
+- **Triaje** (`ui/triage/triaje.js · fraudeDe()`): evalúa todo el registro de la sesión con `FRAUDE_DEMO`, pinta el chip en la lista y el bloque «Indicadores de fraude» en la pestaña de reglas, y añade `antifraude` al `_gobernanza` de cada entrada.
+- **Panel** (`ui/governance/gobierno.js · evaluarFraude()`): evalúa el lote de la fuente activa con el catálogo modificado en la sesión y alimenta la sección Fraude, el mapa de relaciones, la cola de la SIU y los caps antifraude CAP-08…CAP-11.
 
 El histórico de pólizas, siniestros y proveedores es ficticio (5 pólizas, 4 siniestros). En producción vendría del sistema de pólizas y siniestros y, para los cruces sectoriales, del fichero común del sector.

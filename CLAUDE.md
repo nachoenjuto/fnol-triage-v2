@@ -2,6 +2,19 @@
 
 Demo estática (sin build) de triaje FNOL con agentes de IA gobernados: `index.html` (triaje), `gobierno.html` (panel de gobierno) e `intro.html` (introducción). Se sirve con `make run`.
 
+## Dónde va cada cosa
+
+Carpetas en inglés, módulos con su nombre de dominio en español. El árbol completo está en `README.md` («Estructura»).
+
+- `ui/<página>/` (`shared`, `triage`, `governance`, `intro`): código que solo corre en el navegador.
+- `core/`: lógica pura que corre igual en navegador y en Node; es lo que cubre `make test`. `core/i18n/` es el motor de idiomas.
+- `data/demo/`: hechos en español. `data/generated/` no se edita (sale de `make recorrido`). `data/import-samples/` sale de `make datos`.
+- `locales/`: solo traducciones e `idiomas.js`.
+- `scripts/<tarea>/` (`i18n`, `generators`, `browser`, `slides`), `tests/` (con `helpers/` y `benchmark/`).
+- `_docs/`: `architecture/`, `demo/` (guía y guiones `es/`, `en/`, `de/`), `technical/`, `plans/`, `slides/`.
+- Las tres páginas HTML se quedan en la raíz: son las URL publicadas en GitHub Pages.
+- Un fichero nuevo va a la carpeta de su papel; si no encaja en ninguna, se pregunta antes de crear otra.
+
 ## Idiomas (ES, EN, DE y los que se añadan)
 
 Plan y estado: `_docs/plans/plan-i18n.md`. Reglas que se cumplen siempre, también cuando se trabaja solo en español:
@@ -9,7 +22,7 @@ Plan y estado: `_docs/plans/plan-i18n.md`. Reglas que se cumplen siempre, tambi�
 - **Ningún texto visible en los HTML.** Solo estructura y atributos `data-i18n="clave"` / `data-i18n-attr="title:clave;aria-label:clave"`.
 - **Ningún literal de texto en el código.** Todo texto va en `locales/es/ui*.js` (`ui.js` lo común; `ui-triaje.js`, `ui-gobierno.js`, `ui-intro.js` lo de cada página) y se usa con `I18N.t('clave', { vars })` (no `t()`: muchas funciones tienen un parámetro `t`). Fechas, números e importes con `I18N.fmt`, nunca con `'es-ES'` fijo.
 - **Valores internos sin traducir**: `'Auto'`, `'Hogar'`, `'Salud'`, `'DESPEJADO'`, `'REVISION'`, A1…S8, IF-…, G-… son claves; solo se traduce la etiqueta que se muestra.
-- **Los hechos se escriben una sola vez**, en español, en `data/*.js` y `prompts.js` (importes, fechas, decisiones, resultado de cada regla, métricas, tokens, scores). Los otros idiomas solo aportan tablas de traducción de esos textos, indexadas por la huella del texto español (`locales/<idioma>/datos-*.js`), que `core/i18n/traducir-datos.js` aplica al cargar. Una traducción tiene que llevar las mismas cifras que su original.
+- **Los hechos se escriben una sola vez**, en español, en `data/demo/*.js` y `core/prompts.js` (importes, fechas, decisiones, resultado de cada regla, métricas, tokens, scores). Los otros idiomas solo aportan tablas de traducción de esos textos, indexadas por la huella del texto español (`locales/<idioma>/datos-*.js`), que `core/i18n/traducir-datos.js` aplica al cargar. Una traducción tiene que llevar las mismas cifras que su original.
 - Los valores internos de los datos que compara el código (estados, ramos, ámbitos…) no se traducen: ver `NO_TRADUCIR` en `core/i18n/i18n.js`.
 - **El código que lee el texto de los mensajes no lleva expresiones en español.** Motor local de reglas, fechas que se desplazan, evidencias de respaldo, datos personales y antifraude toman sus expresiones regulares de `locales/<idioma>/motor.js` con `I18N.motor('<módulo>')`; la lógica (umbrales, pesos, decisiones) es común. `tests/motores-idioma.test.js` comprueba que cada idioma da, mensaje a mensaje, el mismo resultado que el español (ramo, reglas, fechas, evidencias, datos personales, puntuación de fraude).
 - `make test` (incluye `make i18n-check` y `tests/motores-idioma.test.js`) tiene que pasar: estricto con el español y lo común, aviso con el resto.

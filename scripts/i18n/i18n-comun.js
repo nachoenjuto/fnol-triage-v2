@@ -3,7 +3,7 @@
 const fs = require('fs');
 const path = require('path');
 const IDIOMAS = require('../../locales/idiomas.js');
-const I18N = require('../../core/i18n/node.js')();   // con los textos del idioma base: prompts.js y otros los usan al cargar
+const I18N = require('../../core/i18n/node.js')();   // con los textos del idioma base: core/prompts.js y otros los usan al cargar
 
 const raiz = path.join(__dirname, '..', '..');
 const BASE = I18N.BASE;
@@ -40,7 +40,7 @@ const FUENTES_DATOS = {
   'datos-resultados.js': [['data/demo/resultados.js', 'RESULTADOS_GUARDADOS'], ['data/demo/resultados.js', 'REGLA_DESC']],
   'datos-gobierno.js': [['data/demo/gobierno.js', 'GOBIERNO_DEMO']],
   'datos-fraude.js': [['data/demo/fraude.js', 'FRAUDE_DEMO']],
-  'datos-prompts.js': [['prompts.js', 'PROMPT_BLOQUES']],
+  'datos-prompts.js': [['core/prompts.js', 'PROMPT_BLOQUES']],
   'datos-recorrido.js': [['data/generated/recorrido.js', 'RECORRIDO_DEMO']],
   // Guiones de _docs (no se cargan en el navegador): una unidad por línea con texto, ver scripts/i18n/guion.js
   'datos-guion.js': () => require('./guion.js').textos(I18N),

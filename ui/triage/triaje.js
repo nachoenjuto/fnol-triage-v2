@@ -45,7 +45,7 @@
   const ssGet = (k, fallback) => { try { const v = sessionStorage.getItem(k); return v ? JSON.parse(v) : fallback; } catch { return fallback; } };
   const ssSet = (k, v) => { try { sessionStorage.setItem(k, JSON.stringify(v)); } catch { /* sin almacenamiento */ } };
 
-  // Iconos de canal: mismos iconos Lucide que la ficha de fase «Multicanalidad» (icons.js)
+  // Iconos de canal: mismos iconos Lucide que la ficha de fase «Multicanalidad» (ui/shared/icons.js)
   const CANAL_LUCIDE = { email: 'mail', web: 'globe', chat: 'messages-square', telefono: 'phone', whatsapp: 'message-circle' };
   const CANAL_LABEL = { email: I18N.t('triaje.email'), web: I18N.t('triaje.formulario_web'), chat: I18N.t('triaje.chat'), telefono: I18N.t('triaje.telefono'), whatsapp: I18N.t('triaje.whatsapp') };
   // Origen de la decisión: el valor guardado es interno (lo leen /^IA/ y /^reglas locales/, y va en el JSON exportado)
@@ -82,7 +82,7 @@
   const paqueteActual = () => PAQUETES.find((p) => p.id === state.paqueteId) || PAQUETES[0];
 
   // ---------------------------------------------------------------------------
-  // Motor local (modo degradado sin IA): motor-local.js, con las expresiones del idioma de la página
+  // Motor local (modo degradado sin IA): core/motor-local.js, con las expresiones del idioma de la página
   const localTriage = (msg) => MotorLocal.triage(msg, { fmtEur });
 
   // ---------------------------------------------------------------------------
@@ -360,7 +360,7 @@
 
   // ---------------------------------------------------------------------------
   // Secciones a página completa (menú lateral): Mensajes FNOL, Paquetes, Prompts y Reglas y Configuración, cada una
-  // con su enlace (#mensajes…). «#demo=N» (llegada desde otra página del recorrido) lo consume shell.js: no se pisa.
+  // con su enlace (#mensajes…). «#demo=N» (llegada desde otra página del recorrido) lo consume ui/shared/shell.js: no se pisa.
   // ---------------------------------------------------------------------------
   const VISTAS = ['mensajes', 'paquetes', 'configuracion', 'prompts'];
   function mostrarVista(v, { scroll = true } = {}) {
@@ -713,7 +713,7 @@
   }
 
   // Bloque _gobernanza de una decisión (determinista: se recalcula y se guarda en la propia entrada)
-  // Indicadores de fraude (fraude.js, sin IA): se evalúa todo el registro a la vez porque los cruces (cuenta, teléfono,
+  // Indicadores de fraude (core/fraude.js, sin IA): se evalúa todo el registro a la vez porque los cruces (cuenta, teléfono,
   // duplicados) necesitan ver el lote. No cambia la decisión del triaje y nunca llega al cliente.
   const fraudeDe = () => (typeof Fraude !== 'undefined' && typeof FRAUDE_DEMO !== 'undefined' ? Fraude.evaluar(state.log, FRAUDE_DEMO) : {});
   function gobDe(entry) {
@@ -740,7 +740,7 @@
   }
 
   // Pestaña «Adjuntos»: miniaturas, visor (PDF del navegador o imagen con zoom) y datos extraídos de cada adjunto,
-  // contrastados con el texto del mensaje. El parte se genera con pdf-lib al abrirlo (adjuntos.js).
+  // contrastados con el texto del mensaje. El parte se genera con pdf-lib al abrirlo (core/adjuntos.js).
   const ADJ_LABELS = {
     fecha_hecho: I18N.t('triaje.fecha'), hora: I18N.t('triaje.hora'), lugar: I18N.t('triaje.lugar'), heridos: I18N.t('triaje.heridos'), danos_otros_bienes: I18N.t('triaje.danos_a_otros_bienes'), testigos: I18N.t('triaje.testigos'),
     vehiculo_a: I18N.t('triaje.vehiculo_a'), vehiculo_b: I18N.t('triaje.vehiculo_b'), circunstancias_a: I18N.t('triaje.circunstancias_a'), circunstancias_b: I18N.t('triaje.circunstancias_b'), firmado_ambos: I18N.t('triaje.firmado_por_ambos'),
@@ -1287,7 +1287,7 @@
   // Eventos
   // ---------------------------------------------------------------------------
   function bind() {
-    // Menú lateral común con el panel de gobierno (shell.js): plegado deja solo los iconos de las secciones
+    // Menú lateral común con el panel de gobierno (ui/shared/shell.js): plegado deja solo los iconos de las secciones
     Shell.initShell();
     // Recorrido de la demo (modo presentador): acciones de los pasos que ocurren en el triaje
     // Cierra la ficha de la fase abierta en la barra (la cierra el Escape de la propia barra)
@@ -1558,9 +1558,9 @@
   // ---------------------------------------------------------------------------
   // Fases de la cabecera: panel emergente con la descripción de cada paso
   // ---------------------------------------------------------------------------
-  // Iconos Lucide: definidos en icons.js (LUCIDE + función lucide()), compartidos con gobierno.js.
+  // Iconos Lucide: definidos en ui/shared/icons.js (LUCIDE + función lucide()), compartidos con ui/governance/gobierno.js.
 
-  // Colores por grupo semántico (variables de styles.css)
+  // Colores por grupo semántico (variables de ui/triage/triaje.css)
   const C = { primary: 'var(--primary)', ok: 'var(--ok)', review: 'var(--review)', muted: 'var(--muted)', time: 'var(--time)', auto: 'var(--auto)', hogar: 'var(--hogar)', salud: 'var(--salud)', teal: '#3f7a6a' };
   const RAMO_ITEMS = (detalles) => [
     { icono: 'car', color: C.auto, etiqueta: I18N.t('triaje.auto'), detalle: detalles[0] },
@@ -1756,7 +1756,7 @@
 
   // Barra de fases en una sola línea: si los seis textos no caben, se acortan con «…» solo los más largos, todos al
   // mismo ancho máximo (el mayor que hace que quepan); los cortos se ven enteros. Sin esto el navegador acortaría
-  // todos un poco (styles.css · .phase-lbl, que queda como respaldo).
+  // todos un poco (ui/triage/triaje.css · .phase-lbl, que queda como respaldo).
   function ajustarFases() {
     const barra = document.querySelector('.submenu');
     const textos = barra ? [...barra.querySelectorAll('.phase-lbl')] : [];

@@ -1,6 +1,6 @@
 # Capa de cumplimiento
 
-`cumplimiento.js` calcula, para cada decisión, un bloque `_gobernanza` con los datos personales detectados, la explicación de la decisión, las huellas SHA-256, los plazos de retención y el estado de la supervisión humana. Es lógica pura, sin DOM: la cargan `index.html` (pestaña «Respuesta cruda»), `gobierno.html` (Termómetro de cumplimiento) y Node (`tests/cumplimiento.test.js`). Como las dos páginas usan el mismo módulo, una traza da los mismos hashes y los mismos hallazgos en la ficha y en el panel.
+`core/cumplimiento.js` calcula, para cada decisión, un bloque `_gobernanza` con los datos personales detectados, la explicación de la decisión, las huellas SHA-256, los plazos de retención y el estado de la supervisión humana. Es lógica pura, sin DOM: la cargan `index.html` (pestaña «Respuesta cruda»), `gobierno.html` (Termómetro de cumplimiento) y Node (`tests/cumplimiento.test.js`). Como las dos páginas usan el mismo módulo, una traza da los mismos hashes y los mismos hallazgos en la ficha y en el panel.
 
 El modelo no rellena nada de este bloque. Todo sale de funciones deterministas sobre el mensaje y la respuesta ya validada: misma entrada, mismos hashes (lo comprueba un test).
 
@@ -90,7 +90,7 @@ _gobernanza
 - `hash_salida` = SHA-256 de `raw`, la respuesta cruda del modelo.
 - `hash_registro` = SHA-256 de `hash_entrada|hash_salida|timestamp`.
 - `traza_id` viene de `opts.traza_id` (las trazas de la demo, vía `TRAZA_DEMO`) o se deriva: `TRZ-` + 6 primeros hex de `hash_registro`.
-- `conocimiento[]`: KB-01 siempre (los bloques de reglas de `prompts.js`, con la versión del prompt). Con IA se añaden KB-04 y KB-08, más KB-02/KB-06 en Auto, KB-03 en Hogar, KB-05 en Salud, KB-07 si hay lesionados en Auto y KB-09 si va a revisión. Solo KB-01 es real; las demás llevan `simulada: true`. El test comprueba que este catálogo y `GOBIERNO_DEMO.knowledge` tienen los mismos ids, nombres y versiones.
+- `conocimiento[]`: KB-01 siempre (los bloques de reglas de `core/prompts.js`, con la versión del prompt). Con IA se añaden KB-04 y KB-08, más KB-02/KB-06 en Auto, KB-03 en Hogar, KB-05 en Salud, KB-07 si hay lesionados en Auto y KB-09 si va a revisión. Solo KB-01 es real; las demás llevan `simulada: true`. El test comprueba que este catálogo y `GOBIERNO_DEMO.knowledge` tienen los mismos ids, nombres y versiones.
 
 `encadenar()` construye una cadena sobre las trazas en orden de registro: `eslabon_n = SHA-256(eslabon_{n-1} | hash_registro_n)`, con 64 ceros como origen. `verificarCadena()` recalcula cada `hash_registro` desde el texto, la salida y la fecha, y devuelve el primer eslabón que no cuadra. «Simular una alteración» del panel cambia un carácter y enseña dónde se rompe.
 
@@ -114,7 +114,7 @@ La demo calcula las fechas; no borra ni bloquea nada.
 
 ### Supervisión humana
 
-`requerida` es verdadero para toda decisión `REVISION`. La ficha del triaje permite dos acciones (`app.js · revisar()`):
+`requerida` es verdadero para toda decisión `REVISION`. La ficha del triaje permite dos acciones (`ui/triage/triaje.js · revisar()`):
 
 | Acción | Cuándo | Efecto | ¿Cuenta como override? |
 |---|---|---|---|
@@ -134,7 +134,7 @@ Cada control vale 1 (`ok`), 0,5 (`ambar`) o 0 (`rojo`). El porcentaje de un marc
 
 El control de minimización (`rgpd-5c`) solo se pone en verde si todas las trazas con datos personales que llegaron al modelo iban seudonimizadas. Con la demo por defecto queda en ámbar; con la fuente «Sesión actual» y la casilla activada, pasa a verde.
 
-Una medida correctiva marcada como verificada en el panel pone en verde los controles que lista en `controles` y recalcula los porcentajes. Eso lo hace `gobierno.js · termometroGob()` encima de este módulo, que no sabe nada de las medidas.
+Una medida correctiva marcada como verificada en el panel pone en verde los controles que lista en `controles` y recalcula los porcentajes. Eso lo hace `ui/governance/gobierno.js · termometroGob()` encima de este módulo, que no sabe nada de las medidas.
 
 ## Qué está implementado y qué solo se declara
 

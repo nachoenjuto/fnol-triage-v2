@@ -3,17 +3,17 @@
 > Estado (08/10/2026): **ejecutado**, incluida la 4.4 (seudonimizar antes del modelo), que se implementó el mismo día; ver el apartado 2.7 de [guia-demo.md](../demo/guia-demo.md). La fase 5 (Knowledge bases) se replanteó en [plan-knowledge-bases.md](plan-knowledge-bases.md) y está implementada.
 > Decisiones confirmadas: «grupo 13» = Paquete A · menú lateral con fondo claro · «Termómetro de cumplimiento» en español · controles en ámbar a la vista.
 > Cambio sobre la propuesta: al pasar el ratón o hacer clic en una evidencia solo cambia el título; la leyenda se abre únicamente desde su botón.
-> Cambio posterior a la fase 2: el menú lateral se unificó en las dos páginas (`shell.js` + `header.css`), con el usuario y el botón de plegar al pie, y Autonomía dejó de mostrar las tarjetas de los agentes.
+> Cambio posterior a la fase 2: el menú lateral se unificó en las dos páginas (`ui/shared/shell.js` + `ui/shared/shell.css`), con el usuario y el botón de plegar al pie, y Autonomía dejó de mostrar las tarjetas de los agentes.
 > Cambio posterior (09/10/2026): en el menú del panel la sección se llama «Cumplimiento» (bloque Cumplimiento y coste); dentro de la página sigue titulándose Termómetro de cumplimiento.
 
 ## Orden de trabajo
 
 | Fase | Qué | Esfuerzo | Ficheros principales |
 |---|---|---|---|
-| 1 | Ajustes rápidos de la ficha y del menú de `index.html` | S | `styles.css`, `index.html`, `app.js`, `icons.js` |
-| 2 | Menú lateral colapsable en observabilidad | S-M | `gobierno.html`, `gobierno.js`, `gobierno.css`, `header.css` |
-| 3 | Paquete A ampliado y más evidencias, coherente en las dos páginas | M | `data/demo/mensajes.js`, `data/demo/resultados.js`, `data/demo/gobierno.js`, `prompts.js`, `evidencias.js`, JSON de `data/`, tests |
-| 4 | **Capa de cumplimiento**: motor común, «Respuesta cruda» y pestaña «Termómetro de cumplimiento» | L | nuevo `cumplimiento.js`, `app.js`, `gobierno.*`, tests |
+| 1 | Ajustes rápidos de la ficha y del menú de `index.html` | S | `ui/triage/triaje.css`, `index.html`, `ui/triage/triaje.js`, `ui/shared/icons.js` |
+| 2 | Menú lateral colapsable en observabilidad | S-M | `gobierno.html`, `ui/governance/gobierno.js`, `ui/governance/gobierno.css`, `ui/shared/shell.css` |
+| 3 | Paquete A ampliado y más evidencias, coherente en las dos páginas | M | `data/demo/mensajes.js`, `data/demo/resultados.js`, `data/demo/gobierno.js`, `core/prompts.js`, `core/evidencias.js`, JSON de `data/`, tests |
+| 4 | **Capa de cumplimiento**: motor común, «Respuesta cruda» y pestaña «Termómetro de cumplimiento» | L | nuevo `core/cumplimiento.js`, `ui/triage/triaje.js`, `gobierno.*`, tests |
 | 5 | Pestaña «Knowledge bases» | M | `gobierno.*`, `data/demo/gobierno.js` |
 | 6 | Documentación y C4 | S | `_docs/architecture/arquitectura.md`, `_docs/demo/guia-demo.md`, `README.md` |
 
@@ -30,7 +30,7 @@ Las fases 1 y 2 no dependen de nada. La 4 necesita la 3, porque los mensajes amp
 - Las mismas fichas de color se aplican en la lista de evidencias (`.ev-num` sólido) y en la leyenda.
 
 ### 1.2 Pasos numerados en el menú de fases
-- Lucide **no tiene** iconos de «número dentro de un círculo» (tiene `circle-dot`, `dice-1…6`, etc., pero no dígitos). Lo compruebo en lucide.dev antes de empezar. Si se confirma, creo los glifos `step-1 … step-6` en `icons.js` con la misma geometría Lucide (viewBox 24, círculo r=10). Serían un **círculo relleno del color de la cabecera (`--header`, #1b2a4a) con el número en blanco**.
+- Lucide **no tiene** iconos de «número dentro de un círculo» (tiene `circle-dot`, `dice-1…6`, etc., pero no dígitos). Lo compruebo en lucide.dev antes de empezar. Si se confirma, creo los glifos `step-1 … step-6` en `ui/shared/icons.js` con la misma geometría Lucide (viewBox 24, círculo r=10). Serían un **círculo relleno del color de la cabecera (`--header`, #1b2a4a) con el número en blanco**.
 - Quito los iconos actuales (`messages-square`, `tags`…) de los seis botones `.phase` y mantengo los chevrons entre pasos.
 - Estado activo/hover: el círculo cambia a `--primary`.
 
@@ -71,8 +71,8 @@ Reescribo los 13 mensajes con **2-3 veces más texto** y con datos realistas, to
 **Se mantienen**: ramo, decisión, reglas incumplidas, importes y `esperado` de cada mensaje. Así los KPI, las trazas, el override de A-04, las alertas CAP-04/05 de A-08 y el guardrail G-05 de A-13 siguen teniendo sentido. A-13 sigue siendo vago (le falta información a propósito), aunque algo más largo.
 
 ### 3.2 Motor de evidencias
-- `prompts.js`: se pide al modelo **entre 5 y 12 evidencias** (hoy de 3 a 8), con al menos una por cada dato no nulo de `datos_extraidos` y por cada regla incumplida. `MAX_EVIDENCIAS` ya es 12.
-- `evidencias.js` (respaldo sin IA): nuevos patrones para hora, matrícula, vehículo, centro sanitario, lesión o diagnóstico y testigos. El umbral para completar con el respaldo pasa de `< 3` a `< 5` evidencias verificadas.
+- `core/prompts.js`: se pide al modelo **entre 5 y 12 evidencias** (hoy de 3 a 8), con al menos una por cada dato no nulo de `datos_extraidos` y por cada regla incumplida. `MAX_EVIDENCIAS` ya es 12.
+- `core/evidencias.js` (respaldo sin IA): nuevos patrones para hora, matrícula, vehículo, centro sanitario, lesión o diagnóstico y testigos. El umbral para completar con el respaldo pasa de `< 3` a `< 5` evidencias verificadas.
 
 ### 3.3 Coherencia entre las dos páginas (importante)
 Cuando cambian los textos, dejan de ser válidas las citas guardadas, los tamaños y los tokens. Hay que actualizar:
@@ -88,14 +88,14 @@ Cuando cambian los textos, dejan de ser válidas las citas guardadas, los tamañ
 
 ### 4.0 Principios
 1. **El modelo no se autocertifica.** Los metadatos de cumplimiento los genera la plataforma de forma determinista: detección de PII, hash, versión, norma aplicable. No se le piden al LLM. Sale más barato, es reproducible en un replay y es auditable. Es la misma filosofía de las evidencias: «el modelo cita, el navegador comprueba».
-2. **Una sola fuente de verdad.** Un módulo nuevo y puro, `cumplimiento.js` (como `evidencias.js`, sin DOM, con tests en Node), lo usan **las dos páginas**. `index.html` lo aplica a cada resultado y lo guarda en el registro de la sesión. `gobierno.html` lo lee del registro (fuente «Sesión») o lo recalcula a partir de `mensajes.js` y `resultados.js` (fuente «Demo»). Así los números de la ficha y del termómetro coinciden siempre.
+2. **Una sola fuente de verdad.** Un módulo nuevo y puro, `core/cumplimiento.js` (como `core/evidencias.js`, sin DOM, con tests en Node), lo usan **las dos páginas**. `index.html` lo aplica a cada resultado y lo guarda en el registro de la sesión. `gobierno.html` lo lee del registro (fuente «Sesión») o lo recalcula a partir de `mensajes.js` y `resultados.js` (fuente «Demo»). Así los números de la ficha y del termómetro coinciden siempre.
 3. **Rigor en los términos**, porque un comercial que dice «anonimizado» cuando el dato está seudonimizado comete un error de cumplimiento:
    - **Seudonimizado** (RGPD art. 4.5): el dato sigue siendo personal porque se puede reidentificar con una clave aparte. Es lo que corresponde a las trazas operativas, porque el siniestro hay que tramitarlo.
    - **Anonimizado** (considerando 26): irreversible y fuera del RGPD. Solo en exportaciones para analítica, entrenamiento o datasets de replay.
    - **RIA = AI Act**: son la misma norma, el Reglamento (UE) 2024/1689 (RIA es el nombre en español). En pantalla pondré «RIA (AI Act)» una sola vez y no las trataré como dos normas.
 4. **Honestidad sobre el riesgo.** El triaje de siniestros **no es alto riesgo** según el Anexo III 5(c) del RIA, que cubre la tarificación y la evaluación de riesgos en seguros de vida y salud. Los controles de alto riesgo (arts. 9-15) se aplican como buena práctica, como ya dice el panel. Sí aplican ya el art. 4 (alfabetización en IA) y el art. 50 (transparencia si la IA habla con el cliente). El RGPD aplica íntegro.
 
-### 4.1 Motor `cumplimiento.js`
+### 4.1 Motor `core/cumplimiento.js`
 `Cumplimiento.analizar(mensaje, resultado, evidencias) → _gobernanza`
 
 - **Detector de datos personales** (regex + diccionarios, en español):
@@ -118,7 +118,7 @@ Cuando cambian los textos, dejan de ser válidas las citas guardadas, los tamañ
 
 ### 4.2 «Respuesta cruda» con metadatos de gobierno
 - La salida del modelo se muestra **tal cual**. Debajo va un bloque `"_gobernanza"` **añadido por la plataforma**, en otro color, con una nota de una línea: «Añadido por la plataforma, no generado por el modelo». Esta separación ya es una prueba de integridad.
-- Resaltado sintáctico por tipo dentro del bloque: **PII / art. 9** en rojo-ámbar, **trazabilidad** en azul, **explicabilidad** en verde y las **normas** como chips de color. Al pasar el ratón por una norma sale el mismo tooltip que en el panel de gobierno (reutilizo `NORMA` y lo muevo a `cumplimiento.js` para que sea común).
+- Resaltado sintáctico por tipo dentro del bloque: **PII / art. 9** en rojo-ámbar, **trazabilidad** en azul, **explicabilidad** en verde y las **normas** como chips de color. Al pasar el ratón por una norma sale el mismo tooltip que en el panel de gobierno (reutilizo `NORMA` y lo muevo a `core/cumplimiento.js` para que sea común).
 - Un conmutador `Salida del modelo | + Gobierno`. «Copiar JSON» copia lo que se está viendo.
 
 Ejemplo (MSG-A-12, menor en urgencias, ramo **Salud** y no Auto ni Hogar):
@@ -207,7 +207,7 @@ Las KB que no sean la de reglas aparecen marcadas como «simulada en la demo», 
 ---
 
 ## Fase 6 · Documentación
-- `_docs/architecture/arquitectura.md`: actualizo el diagrama C4 de componentes (Mermaid) con `cumplimiento.js`, el flujo de `_gobernanza` y las KB.
+- `_docs/architecture/arquitectura.md`: actualizo el diagrama C4 de componentes (Mermaid) con `core/cumplimiento.js`, el flujo de `_gobernanza` y las KB.
 - `_docs/demo/guia-demo.md`: guion de cómo enseñar el termómetro y la respuesta cruda.
 - `?v=18 → ?v=19` en `index.html` y versión en `gobierno.html` para no servir caché vieja.
 

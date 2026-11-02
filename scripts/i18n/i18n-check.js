@@ -61,7 +61,7 @@ for (const fichero of FICHEROS) {
   }
 }
 
-// Datos (data/*.js, prompts.js): cada texto base traducido, con las mismas cifras
+// Datos (data/demo/*.js, core/prompts.js): cada texto base traducido, con las mismas cifras
 console.log('\nDatos');
 const base = textosDatos();
 for (const [fichero, textos] of Object.entries(base)) {

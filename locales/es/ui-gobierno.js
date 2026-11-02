@@ -1,4 +1,4 @@
-// Textos de interfaz del panel de gobierno (gobierno.html y gobierno.js) en español, idioma base.
+// Textos de interfaz del panel de gobierno (gobierno.html y ui/governance/gobierno.js) en español, idioma base.
 // Claves generadas desde el HTML (contexto = id más cercano); los valores con etiquetas van con data-i18n-html.
 I18N.registrar('es', {
   'gob.pagina.gobierno_observabilidad_y_finops': 'Observabilidad y Gobierno',
@@ -189,7 +189,7 @@ I18N.registrar('es', {
   'gob.shell.cada_eslabon_es_el': 'Cada eslabón es el SHA-256 del anterior más el sello de la traza (hash de entrada, de salida y hora). Si alguien cambia una sola letra de una traza ya registrada, la cadena se rompe a partir de ella.',
   'gob.shell.panel_gobierno_de_agentes': '<span>Panel «Gobierno de Agentes» · demo estática · datos de demostración inventados y coherentes con el Paquete A del triaje</span> <a href="https://github.com/nachoenjuto/fnol-triage" target="_blank" rel="noopener">Código en GitHub</a>',
   'gob.modal_fr_nuevo.cerrar': 'Cerrar',
-  // ── gobierno.js ──
+  // ── ui/governance/gobierno.js ──
   'gob.ag_de': 'Ag. de {id}',
   'gob.email': 'Email',
   'gob.formulario_web': 'Formulario web',

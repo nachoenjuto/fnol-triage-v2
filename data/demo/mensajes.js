@@ -14,7 +14,7 @@ const PAQUETES = [
         asunto: 'Golpe leve en la M-30 - póliza AU-483920',
         texto: 'Buenos días. Me llamo Marta Gil Sanz, con DNI 50123456-Q, y soy la tomadora de la póliza AU-483920. El sábado 12 de septiembre, sobre las 18:30, iba por la M-30 en dirección a la A-5, a la altura del Puente de Segovia, en una retención, y el coche de delante frenó en seco; le di un pequeño toque por detrás. No hubo heridos y los dos coches pudimos seguir circulando. Rellenamos el parte amistoso los dos en el momento (lo adjunto escaneado); el otro conductor es Raúl Méndez, con un Citroën C4 asegurado en otra compañía. Mi coche es el Seat León 4521 KLM. El taller Autos Carabanchel me ha hecho un presupuesto de 1.350 € por el paragolpes y el faro derecho; también os adjunto fotos de los daños. Podéis llamarme al 619 554 210 por las tardes. ¿Qué tengo que hacer ahora? Gracias.',
         esperado: { ramo: 'Auto', revision: false },
-        // Adjuntos del email. El parte se genera como PDF a partir de `contenido` (adjuntos.js); datos ficticios.
+        // Adjuntos del email. El parte se genera como PDF a partir de `contenido` (core/adjuntos.js); datos ficticios.
         adjuntos: [
           {
             id: 'ADJ-1', archivo: 'parte-amistoso.pdf', tipo: 'declaracion_amistosa', mime: 'application/pdf', titulo: 'Declaración amistosa de accidente',

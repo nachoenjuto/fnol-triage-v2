@@ -164,7 +164,7 @@ const GOBIERNO_DEMO = {
     { id: 'G-07', agente: 'reglas', condicion: 'Cap diario de coste ≥ 100 %', accion: 'Degradar modelo a gpt-5-mini hasta las 00:00', severidad: 'degradar', disparos: 2, activa: true, descripcion: 'Guardrail FinOps: al agotar el cap diario del agente (CAP-03) se cambia a un modelo más barato en lugar de detener el lote; se registra cada mensaje procesado en modo degradado.', disparos_dia: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1], ultimos: [['2026-09-17T08:00:00', 'lote de la mañana', 'degradado desde el arranque'], ['2026-09-16T17:40:00', '312 mensajes', 'degradado hasta las 00:00']] },
     { id: 'G-08', agente: 'reglas', condicion: 'JSON inválido tras 2 reintentos', accion: 'Fallback a motor local + marcar traza', severidad: 'marcar', disparos: 5, activa: true, descripcion: 'Si el modelo no devuelve un JSON válido tras dos reintentos, decide el motor local de reglas y la traza queda marcada para revisión.', disparos_dia: [0, 1, 0, 0, 0, 1, 0, 0, 1, 0, 0, 1, 1, 0], ultimos: [['2026-09-15T10:14:00', 'TRZ-3A62 (MSG-B-11)', 'fallback + revisión']] },
     { id: 'G-09', agente: 'multicanal', condicion: 'Transcripción telefónica con confianza STT < 0,7', accion: 'Escalar a humano (escuchar audio)', severidad: 'humano', disparos: 14, activa: false, descripcion: 'Con una transcripción poco fiable, una persona escucha el audio antes de continuar. Desactivado el 12/09: la confianza media es 0,91 y solo generaba escalados innecesarios.', disparos_dia: [2, 1, 1, 1, 2, 2, 1, 2, 2, 0, 0, 0, 0, 0], ultimos: [['2026-09-11T16:40:00', 'TRZ-2E90 (MSG-B-08)', 'escalado']] },
-    // Antifraude (motor de indicadores, fraude.js): sin IA, se evalúa junto al paso de Reglas
+    // Antifraude (motor de indicadores, core/fraude.js): sin IA, se evalúa junto al paso de Reglas
     { id: 'G-10', agente: 'reglas', condicion: 'Score antifraude ≥ 70', accion: 'Sin despeje automático: escalar a la SIU', severidad: 'humano', disparos: 80, activa: true, descripcion: 'Un score alto no rechaza nada: el caso pasa a la Unidad de Investigación de Siniestros (SIU) con el desglose de indicadores y sus citas. Decide una persona (RGPD art. 22).', disparos_dia: [5, 6, 2, 1, 7, 6, 7, 8, 7, 2, 3, 9, 11, 6], ultimos: [['2026-09-17T09:03:45', 'TRZ-4F36 (MSG-A-13)', 'escalado a la SIU'], ['2026-09-16T12:40:00', 'SIN-2026-09461', 'escalado a la SIU']] },
     { id: 'G-11', agente: 'reglas', condicion: 'IBAN compartido entre asegurados distintos (IF-03)', accion: 'Retener el pago hasta verificar la titularidad', severidad: 'marcar', disparos: 9, activa: true, descripcion: 'Aunque el siniestro se despeje, el pago no sale hasta que Tesorería confirma con el banco que la cuenta es del asegurado. Cubre el escenario EF-02 y alimenta CAP-11.', disparos_dia: [1, 0, 0, 0, 1, 1, 0, 1, 1, 0, 0, 1, 1, 2], ultimos: [['2026-09-17T09:03:14', 'TRZ-4F32 (MSG-A-09)', 'pago retenido'], ['2026-09-17T09:02:18', 'TRZ-4F2B (MSG-A-02)', 'pago retenido']] },
     { id: 'G-12', agente: 'reglas', condicion: 'El texto al cliente menciona un indicio o un término acusatorio', accion: 'Bloquear la salida y regenerar con lenguaje neutro', severidad: 'marcar', disparos: 4, activa: true, descripcion: 'La respuesta al cliente pide la documentación que falta sin hablar de fraude, sospechas ni investigación: el indicio es interno y no se comunica.', disparos_dia: [0, 1, 0, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0], ultimos: [['2026-09-15T13:22:00', 'TRZ-3D11 (MSG-B-19)', 'regenerado sin el término «sospechoso»']] },
@@ -217,7 +217,7 @@ const GOBIERNO_DEMO = {
       { cls: 'crit', icono: 'bell', etiqueta: 'Alertas activas', valor: '3', sub: '1 crítica (cap de Reglas) · 2 avisos' },
     ],
     cap_mensual: 500,
-    // Hipótesis del escenario de ahorro de FinOps (ahorro.js): coste de un tramitador y tiempo por mensaje
+    // Hipótesis del escenario de ahorro de FinOps (core/ahorro.js): coste de un tramitador y tiempo por mensaje
     negocio: { salario_bruto: 28000, factor_ss: 1.32, estructura: 0.15, horas_convenio: 1700, productividad: 0.8, minutos_mensaje: 8, ahorro_escalados: 0.4 },
     autonomia: [
       { cls: 'ok', icono: 'zap', etiqueta: 'Decisiones autónomas', valor: '81 %', sub: '13.540 de 16.720 · objetivo ≥ 80 %', medidor: 81 },
@@ -518,7 +518,7 @@ const CAPS_DETALLE = {
 GOBIERNO_DEMO.caps.forEach((c) => Object.assign(c, CAPS_DETALLE[c.id] || {}));
 
 // Controles de cumplimiento declarados (documentales): el Termómetro de cumplimiento los muestra junto a los
-// controles que se miden en las trazas (cumplimiento.js). Los textos de «normas» coinciden con Cumplimiento.NORMAS.
+// controles que se miden en las trazas (core/cumplimiento.js). Los textos de «normas» coinciden con Cumplimiento.NORMAS.
 GOBIERNO_DEMO.cumplimiento_declarado = (() => {
   const D = (id, normas, exige, como, medida, estado) => ({ id, normas, exige, como, medida, estado, fuente: 'declarado', trazas: [] });
   return {
@@ -556,13 +556,13 @@ GOBIERNO_DEMO.cumplimiento_declarado = (() => {
 })();
 
 // Bases de conocimiento (sección «Knowledge bases»): mismos ids y versiones que Cumplimiento.CONOCIMIENTO.
-// Solo KB-01 es real (los bloques de reglas de prompts.js); el resto está simulado y se marca así en el panel.
+// Solo KB-01 es real (los bloques de reglas de core/prompts.js); el resto está simulado y se marca así en el panel.
 // metricas: recall, precision, fidelidad, citas (0-1) · sin_respuesta y duplicados (%) · frescura_h · obsoletos ·
 // deriva_pp · p95_ms · pii (chunks con datos personales) · exactitud (tablas). null = no aplica a ese tipo.
 GOBIERNO_DEMO.knowledge = [
   {
     id: 'KB-01', nombre: 'Reglas de negocio Auto / Hogar / Salud', tipo: 'markdown', version: 'v2.3', simulada: false,
-    fuente: { sistema: 'Git', ruta: 'prompts.js · bloques REGLAS_AUTO, REGLAS_HOGAR, REGLAS_SALUD', sync: 'con cada despliegue', ultima: '2026-09-05T08:15:00', sla_h: null, altas: 0, cambios: 3, bajas: 0, errores: 0 },
+    fuente: { sistema: 'Git', ruta: 'core/prompts.js · bloques REGLAS_AUTO, REGLAS_HOGAR, REGLAS_SALUD', sync: 'con cada despliegue', ultima: '2026-09-05T08:15:00', sla_h: null, altas: 0, cambios: 3, bajas: 0, errores: 0 },
     responsable: 'Dirección de Siniestros · J. Rey', agentes: ['clasificacion', 'reglas'], documentos: 3, chunks: 3, rubrica: 'R-01',
     descripcion: 'Las 25 reglas de negocio (A1-A8, H1-H9, S1-S8) que aplica el agente de Reglas. Van en el prompt, sin trocear.',
     config: { chunking: 'Sin trocear (bloque completo por ramo en el prompt)', chunk: null, overlap: null, embeddings: null, indice: null, top_k: null, umbral: null, hibrida: null, reranker: null, filtros: 'Bloque del ramo (estrategia de 2 pasos)', versiones: 3 },
@@ -706,7 +706,7 @@ GOBIERNO_DEMO.knowledge = [
 GOBIERNO_DEMO.rubricas = [
   { id: 'R-01', nombre: 'Casos de triaje de los tres paquetes', kb: ['KB-01'], version: 'v1.6', responsable: 'Dirección de Siniestros · J. Rey', actualizada: '2026-09-05', acuerdo: 0.96,
     criterios: [['Decisión correcta', 40, 'DESPEJADO / REVISION igual que el esperado'], ['Regla determinante correcta', 30, 'La regla que frena es la que corresponde'], ['Evidencias verificadas', 20, 'Al menos 5 citas literales localizadas en el texto'], ['Sin datos inventados', 10, 'Los campos ausentes quedan en nulo']],
-    preguntas: [['MSG-A-13 · robo sin denuncia en póliza reciente', 'exclusion', 'REVISION por H4 y H7', 'prompts.js · H4, H7'], ['MSG-A-08 · moto con lesionado', 'clausula', 'REVISION por A5 (daños corporales)', 'prompts.js · A5'], ['MSG-C-15 · cirugía refractiva', 'exclusion', 'REVISION por S5 y S7', 'prompts.js · S5, S7'], ['MSG-B-23 · comunicado 3 semanas después', 'plazo', 'REVISION por A2', 'prompts.js · A2']],
+    preguntas: [['MSG-A-13 · robo sin denuncia en póliza reciente', 'exclusion', 'REVISION por H4 y H7', 'core/prompts.js · H4, H7'], ['MSG-A-08 · moto con lesionado', 'clausula', 'REVISION por A5 (daños corporales)', 'core/prompts.js · A5'], ['MSG-C-15 · cirugía refractiva', 'exclusion', 'REVISION por S5 y S7', 'core/prompts.js · S5, S7'], ['MSG-B-23 · comunicado 3 semanas después', 'plazo', 'REVISION por A2', 'core/prompts.js · A2']],
     historial: [['v1.6', '2026-09-05', 'Criterio de evidencias verificadas', 'J. Rey'], ['v1.5', '2026-08-20', 'Casos del Paquete C', 'J. Rey']] },
   { id: 'R-02', nombre: 'Coberturas y exclusiones de Auto', kb: ['KB-02'], version: 'v2.1', responsable: 'Producto Auto · L. Prieto', actualizada: '2026-09-01', acuerdo: 0.91,
     criterios: [['Fidelidad', 35, 'Solo afirma lo que dicen los fragmentos recuperados'], ['Cláusula correcta', 30, 'Cita el artículo vigente correcto'], ['Completitud', 20, 'Incluye franquicias y condiciones'], ['Rechazo correcto', 15, 'Dice «no consta» cuando no hay respuesta']],

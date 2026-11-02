@@ -53,7 +53,7 @@ Seis botones numerados (del 1 al 6, en un círculo del color de la cabecera con 
 
 ### 2.3 Menú lateral (cuatro secciones a página completa)
 
-Es el mismo menú que el del panel de gobierno (`shell.js`), con el mismo ancho (248 px): al pie están el usuario de la demo («Ignacio Sánchez», sesión simulada) y el botón **Plegar menú**. Plegado deja solo los iconos. Cada sección ocupa la página entera y tiene su propio enlace (`#mensajes`, `#paquetes`, `#prompts`, `#configuracion`). Configuración va la última, separada por una línea, como en el panel de gobierno. El estado plegado o desplegado se recuerda y se comparte entre las dos páginas. El pie de la página es una línea fina, alineada con el menú.
+Es el mismo menú que el del panel de gobierno (`ui/shared/shell.js`), con el mismo ancho (248 px): al pie están el usuario de la demo («Ignacio Sánchez», sesión simulada) y el botón **Plegar menú**. Plegado deja solo los iconos. Cada sección ocupa la página entera y tiene su propio enlace (`#mensajes`, `#paquetes`, `#prompts`, `#configuracion`). Configuración va la última, separada por una línea, como en el panel de gobierno. El estado plegado o desplegado se recuerda y se comparte entre las dos páginas. El pie de la página es una línea fina, alineada con el menú.
 
 | Sección | Qué contiene | Para qué sirve |
 |---|---|---|
@@ -111,7 +111,7 @@ Uso típico: abrir un mensaje «A revisar» y enseñar **exactamente qué regla 
 
 ### 2.6 Respuesta cruda con metadatos de gobierno
 
-Debajo de la salida del modelo aparece el bloque **`_gobernanza`**, marcado como «añadido por la plataforma de gobierno, no generado por el modelo». Lo calcula `cumplimiento.js` de forma determinista y es **el mismo** que usa el Termómetro de cumplimiento del panel.
+Debajo de la salida del modelo aparece el bloque **`_gobernanza`**, marcado como «añadido por la plataforma de gobierno, no generado por el modelo». Lo calcula `core/cumplimiento.js` de forma determinista y es **el mismo** que usa el Termómetro de cumplimiento del panel.
 
 | Color | Qué marca | Norma a la que ayuda |
 |---|---|---|
@@ -321,7 +321,7 @@ Los datos de tiempos de revisión y tramitadores son de demostración; la cola s
 
 ### 3.8 bis Indicadores de fraude (bloque Riesgo, «Fraude» en el menú)
 
-**¿Hay indicios de fraude en lo que entra?** Un motor sin IA ([`fraude.js`](../../fraude.js)) calcula un score de 0 a 100 por mensaje con doce indicadores de comportamiento predefinidos. Los de relato llevan su cita literal del mensaje; los relacionales cruzan el lote y un histórico ficticio de pólizas, siniestros y proveedores (`data/demo/fraude.js`). **El indicio no acusa, prioriza**: no cambia la decisión del triaje, no se comunica al cliente (G-12) y un score alto lleva el caso a una persona de la Unidad de Investigación de Siniestros (SIU).
+**¿Hay indicios de fraude en lo que entra?** Un motor sin IA ([`core/fraude.js`](../../core/fraude.js)) calcula un score de 0 a 100 por mensaje con doce indicadores de comportamiento predefinidos. Los de relato llevan su cita literal del mensaje; los relacionales cruzan el lote y un histórico ficticio de pólizas, siniestros y proveedores (`data/demo/fraude.js`). **El indicio no acusa, prioriza**: no cambia la decisión del triaje, no se comunica al cliente (G-12) y un score alto lleva el caso a una persona de la Unidad de Investigación de Siniestros (SIU).
 
 | Nivel | Score | Qué pasa |
 |---|---|---|
@@ -482,7 +482,7 @@ El guion completo, paso a paso y con el texto para decir, es [guion-demo.md](es/
 - **Los cambios hechos en el panel** (kill switch, guardrails, caps nuevos, acciones correctivas, medidas aplicadas o verificadas, acciones sobre las Knowledge Bases y rúbricas editadas) son simulados y viven en `sessionStorage`: se pierden al cerrar la pestaña. El estado plegado del menú es una preferencia y se guarda en el navegador.
 - **Los datos personales de los mensajes son ficticios**: están para que se vea cómo se detectan, se seudonimizan y se protegen.
 - **Los adjuntos de MSG-A-01 también son ficticios**: las fotos se generaron con un modelo de imagen y el parte se genera en el navegador con los datos del mensaje, así que su fecha siempre coincide con la del email.
-- **Solo una knowledge base es real** («Reglas de negocio», los bloques de `prompts.js`); el resto aparece marcado como «simulada».
+- **Solo una knowledge base es real** («Reglas de negocio», los bloques de `core/prompts.js`); el resto aparece marcado como «simulada».
 - **Aplicación estática**: sin backend. La clave de IA solo se guarda en la sesión del navegador.
 - **Las fechas se mueven solas**: los datos se escribieron con «hoy» = 17/09/2026 y al abrir la página se desplazan al día de hoy (antes de las 09:45, a ayer). Para capturas estables, añadir `?fecha=2026-09-17` a la URL.
 - **Mensajes con resultado esperado**: el triaje compara cada resultado con un «esperado» interno que no se envía a la IA; de ahí los ✔/✖ de la columna Ramo.

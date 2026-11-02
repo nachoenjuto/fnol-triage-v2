@@ -8,7 +8,7 @@ I18N.registrar('es', {
   'comun.ramo.Hogar': 'Hogar',
   'comun.ramo.Salud': 'Salud',
   'comun.ramo.Indeterminado': 'Indeterminado',
-  // ── shell.js ──
+  // ── ui/shared/shell.js ──
   'shell.responsable_de_siniestros': 'Responsable de Siniestros',
   'shell.sesion_simulada': '{nombre} · {rol} (sesión simulada)',
   'shell.sesion_simulada_2': '{rol} · sesión simulada',
@@ -139,7 +139,7 @@ I18N.registrar('es', {
   'shell.todos_los_textos_restaurados': 'Todos los textos restaurados.',
   'shell.en_pausa_porque_has': 'En pausa porque has tocado la pantalla. Pulsa ▶ para seguir.',
   'shell.en_pausa_al_cambiar': 'En pausa al cambiar de página. Pulsa ▶ para seguir.',
-  // ── cumplimiento.js ──
+  // ── core/cumplimiento.js ──
   'cumpl.exigible_a_sistemas_de': 'Exigible a sistemas de alto riesgo desde el 02/12/2027 (Digital Omnibus); el triaje de siniestros no lo es, aquí se aplica como buena práctica.',
   'cumpl.norma.rgpd': 'RGPD',
   'cumpl.norma.solvencia': 'Solvencia II',
@@ -286,7 +286,7 @@ I18N.registrar('es', {
   'cumpl.gobierno_en_seguros': 'Gobierno en seguros',
   'cumpl.plegar': 'Plegar {clave}',
   'cumpl.desplegar': 'Desplegar {clave}',
-  // ── fraude.js ──
+  // ── core/fraude.js ──
   'fraude.escalado_a_la_siu': 'Escalado a la SIU',
   'fraude.vigilancia': 'Vigilancia',
   'fraude.sin_indicios': 'Sin indicios',
@@ -310,7 +310,7 @@ I18N.registrar('es', {
   'fraude.revision_con_el_indicio': 'Revisión con el indicio a la vista del tramitador',
   'fraude.pago_retenido_hasta_verificar': 'Pago retenido hasta verificar la titularidad de la cuenta (G-11)',
   'fraude.solo_se_registra': 'Solo se registra',
-  // ── evidencias.js ──
+  // ── core/evidencias.js ──
   'evid.indicio_del_ramo': 'Indicio del ramo',
   'evid.indicio_de': 'Indicio de {ramo}',
   'evid.poliza_identificada': 'Póliza identificada',
@@ -404,7 +404,7 @@ I18N.registrar('es', {
   'evid.falta_informacion_o_hay': 'Falta información o hay indicios que requieren una persona.',
   'evid.poliza': ' (póliza {poliza})',
   'evid.hola_hemos_recibido_su': 'Hola{split}, hemos recibido su aviso{poliza}. Para poder tramitarlo necesitamos que nos envíe:\n{lista}\nGracias, quedamos a su disposición.',
-  // ── adjuntos.js ──
+  // ── core/adjuntos.js ──
   'adj.estaba_estacionado_parado': 'estaba estacionado / parado',
   'adj.salia_de_un_estacionamiento': 'salía de un estacionamiento / abría una puerta',
   'adj.iba_a_estacionar': 'iba a estacionar',
@@ -458,11 +458,11 @@ I18N.registrar('es', {
   'adj.firma_del_conductor_a': 'Firma del conductor A',
   'adj.firma_del_conductor_b': 'Firma del conductor B',
   'adj.copia_escaneada_con_el': 'Copia escaneada con el móvil y enviada por email por el conductor A. Datos ficticios generados para la demo.',
-  // ── ahorro.js ──
+  // ── core/ahorro.js ──
   'ahorro.conservador': 'Conservador',
   'ahorro.base': 'Base',
   'ahorro.optimista': 'Optimista',
-  // ── prompts.js ──
+  // ── core/prompts.js ──
   'prompt.ramo_ya_clasificado_en': 'Ramo ya clasificado en el paso anterior: {ramoPrevio}',
   'prompt.fecha_de_recepcion': 'Fecha de recepción: {fecha}',
   'prompt.mensaje_a_evaluar_responde': 'Mensaje a evaluar. Responde solo con el objeto JSON indicado.{PROMPT_SEUDONIMOS}\n\n{cabecera}\n\nTexto del mensaje:\n"""\n{texto}\n"""',

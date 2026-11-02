@@ -1,4 +1,4 @@
-// Pasos del Recorrido de la demo (modo presentador, shell.js). GENERADO desde _docs/demo/es/guion-demo.md con
+// Pasos del Recorrido de la demo (modo presentador, ui/shared/shell.js). GENERADO desde _docs/demo/es/guion-demo.md con
 // `node scripts/generators/generar-recorrido.js` (o `make recorrido`): no editar a mano, cambiar el guion y regenerar.
 // Cada paso: minuto, página, título, pantalla («que»), frase clave, acción de «Ir», clics y subtítulos con su tipo
 // (intro · para: para qué sirve · que: qué es y qué hace · valor). Cada presentador puede editarlos en el engranaje

@@ -1,5 +1,5 @@
 // Resultado de los motores que leen el texto de los datos en un idioma, en JSON: por mensaje (motor local de reglas,
-// evidencias resaltadas, datos personales y antifraude) y por texto de los datos (fechas que encuentra fechas.js).
+// evidencias resaltadas, datos personales y antifraude) y por texto de los datos (fechas que encuentra core/fechas.js).
 // tests/motores-idioma.test.js lo lanza una vez por idioma y compara con el español.
 //   node tests/helpers/motores-idioma.js en
 const { fs, path, raiz, textosDatos, cargarTablaDatos } = require('../../scripts/i18n/i18n-comun.js');
@@ -20,11 +20,11 @@ const { RESULTADOS_GUARDADOS, expandir } = cargar('data/demo/resultados.js', '{ 
 traducir(RESULTADOS_GUARDADOS, 'datos-resultados.js');
 const FRAUDE_DEMO = traducir(cargar('data/demo/fraude.js', 'FRAUDE_DEMO'), 'datos-fraude.js');
 
-const MotorLocal = require(path.join(raiz, 'motor-local.js'));
-const Evidencias = require(path.join(raiz, 'evidencias.js'));
-const Cumplimiento = require(path.join(raiz, 'cumplimiento.js'));
-const Fraude = require(path.join(raiz, 'fraude.js'));
-const Fechas = require(path.join(raiz, 'fechas.js'));
+const MotorLocal = require(path.join(raiz, 'core/motor-local.js'));
+const Evidencias = require(path.join(raiz, 'core/evidencias.js'));
+const Cumplimiento = require(path.join(raiz, 'core/cumplimiento.js'));
+const Fraude = require(path.join(raiz, 'core/fraude.js'));
+const Fechas = require(path.join(raiz, 'core/fechas.js'));
 
 // Antifraude por paquete (los indicadores relacionales cruzan los mensajes del lote)
 const fraude = {};

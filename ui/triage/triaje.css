@@ -42,7 +42,7 @@
 }
 
 * { box-sizing: border-box; }
-/* Iconos Lucide inline (icons.js → lucide()): 1em por defecto, hereda color del texto */
+/* Iconos Lucide inline (ui/shared/icons.js → lucide()): 1em por defecto, hereda color del texto */
 svg.lucide-svg { width: 1em; height: 1em; flex: none; vertical-align: -.15em; }
 button svg.lucide-svg, a.btn svg.lucide-svg { vertical-align: -.15em; }
 html, body { margin: 0; }
@@ -56,13 +56,13 @@ code { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: .
 a { color: var(--primary); }
 .small { font-size: .8rem; }
 
-/* .topbar, .brand, .brand-icon y los botones de cabecera están en header.css (compartido con gobierno.html) */
+/* .topbar, .brand, .brand-icon y los botones de cabecera están en ui/shared/shell.css (compartido con gobierno.html) */
 /* Barra de submenú (fases del proceso): botones tipo breadcrumb sobre la barra clara .submenu */
 .submenu .arrow { color: var(--muted); width: 1em; height: 1em; flex: none; }
 .phase { font: inherit; font-weight: 600; color: var(--muted); background: transparent; border: 0; padding: .5rem .5rem; margin: 0; border-radius: 5px; cursor: pointer; line-height: inherit; white-space: nowrap; display: inline-flex; align-items: center; gap: .35rem; flex: 0 1 auto; min-width: 0; transition: background .12s, color .12s; }
 /* Texto de la fase: encoge con «…» cuando la barra no cabe; los más largos encogen más (flex-shrink ∝ ancho) */
 .phase-lbl { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-/* Medición (app.js · ajustarFases): ancho natural de cada fase, sin encoger */
+/* Medición (ui/triage/triaje.js · ajustarFases): ancho natural de cada fase, sin encoger */
 .submenu.midiendo .phase { flex: none; }
 .phase:hover, .phase:focus-visible, .phase.is-active { background: var(--bg); color: var(--primary); outline: none; }
 .phase:focus-visible { box-shadow: 0 0 0 2px var(--primary); }
@@ -102,10 +102,10 @@ a { color: var(--primary); }
 
 .card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 1.25rem; box-shadow: var(--shadow); }
 
-/* Columna principal (el marco común está en header.css) */
-.content { display: grid; gap: 1.25rem; min-width: 0; width: 100%; max-width: var(--main-max); margin: 0 auto; padding: var(--main-pad) var(--main-pad) 2rem; align-content: start; }  /* ancho común (header.css) */
+/* Columna principal (el marco común está en ui/shared/shell.css) */
+.content { display: grid; gap: 1.25rem; min-width: 0; width: 100%; max-width: var(--main-max); margin: 0 auto; padding: var(--main-pad) var(--main-pad) 2rem; align-content: start; }  /* ancho común (ui/shared/shell.css) */
 .content > * { min-width: 0; }
-/* Secciones a página completa del menú lateral (app.js · mostrarVista) */
+/* Secciones a página completa del menú lateral (ui/triage/triaje.js · mostrarVista) */
 .vista { display: grid; gap: 1.25rem; min-width: 0; align-content: start; }
 .vista[hidden] { display: none; }
 .vista > * { min-width: 0; }
@@ -113,7 +113,7 @@ a { color: var(--primary); }
 .vista-cab { margin-bottom: .8rem; }
 .vista-cab h2 { margin: 0; }
 .vista[data-vista="paquetes"] select { max-width: 26rem; margin-bottom: .6rem; }
-/* Configuración del triaje: conexión con Azure en dos columnas (el resto del formato es común, header.css) */
+/* Configuración del triaje: conexión con Azure en dos columnas (el resto del formato es común, ui/shared/shell.css) */
 .grid-2.cfg-azure { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 .cfg-azure > label:first-child { grid-column: 1 / -1; }
 @media (max-width: 700px) { .grid-2.cfg-azure { grid-template-columns: 1fr; } }

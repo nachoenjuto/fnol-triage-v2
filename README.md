@@ -4,6 +4,8 @@ Demo autosuficiente (HTML + JavaScript, sin backend, sin build) del **triaje de 
 
 **Demo en vivo:** https://nachoenjuto.github.io/fnol-triage-v2/
 
+[English](README.en.md) · [Deutsch](README.de.md)
+
 ## Caso de uso
 
 Llega un paquete de mensajes de clientes (emails, formularios web, chats, transcripciones telefónicas). Para cada mensaje el sistema:
@@ -35,7 +37,7 @@ Cuatro mensajes del Paquete A llevan **escenarios de fraude** (ver «Indicadores
 
 MSG-A-01 (email del golpe en la M-30) trae tres adjuntos: la **declaración amistosa de accidente** en PDF y **dos fotos** de los daños (paragolpes y faro delanteros derechos). Ningún otro mensaje lleva adjuntos.
 
-- **El parte** no es un PDF fijo: [`adjuntos.js`](adjuntos.js) lo genera en el navegador con [pdf-lib](https://pdf-lib.js.org) (copiado en `vendor/pdf-lib.min.js`, se carga solo al abrir el adjunto) a partir de `adjuntos[].contenido` de [`data/demo/mensajes.js`](data/demo/mensajes.js). Como `fechas.js` desplaza ese contenido igual que el mensaje, la fecha del parte siempre coincide con la del email. La generación es determinista: mismos datos, mismos bytes.
+- **El parte** no es un PDF fijo: [`core/adjuntos.js`](core/adjuntos.js) lo genera en el navegador con [pdf-lib](https://pdf-lib.js.org) (copiado en `vendor/pdf-lib.min.js`, se carga solo al abrir el adjunto) a partir de `adjuntos[].contenido` de [`data/demo/mensajes.js`](data/demo/mensajes.js). Como `core/fechas.js` desplaza ese contenido igual que el mensaje, la fecha del parte siempre coincide con la del email. La generación es determinista: mismos datos, mismos bytes.
 - **Las fotos** están en `data/attachments/`. Se generaron con un modelo de imagen para la demo; la matrícula no es legible.
 - **Pestaña «Adjuntos»** de la ficha: miniaturas, visor (el PDF con el visor del navegador; las fotos con zoom por botones, clic o Ctrl + rueda, y arrastre) y un panel con los datos extraídos de cada adjunto y su **contraste** con el texto del mensaje (coincide, no consta o discrepa, con la cita del email).
 - **Respuesta cruda**: la salida del modelo lleva un campo `adjuntos` con esos datos (los del tercero, marcados como dato personal). Con «+ Gobierno», `_gobernanza.adjuntos` registra cada archivo con su tamaño y su SHA-256 (calculado al recibirlo), los datos personales leídos en el parte, ya enmascarados, y que la seudonimización **solo se aplica al texto**: los adjuntos llegan al modelo con los datos que contengan. «Enviado al modelo» lista los archivos.
@@ -43,11 +45,11 @@ MSG-A-01 (email del golpe en la M-30) trae tres adjuntos: la **declaración amis
 
 ### Fechas siempre al día
 
-Los datos están escritos con «hoy» = 17/09/2026. [`fechas.js`](fechas.js) los desplaza al cargar la página hasta el día de hoy: fechas ISO, `dd/mm`, «sábado 12 de septiembre», «el jueves 10», «el pasado día 8» y `mm/aaaa`, recalculando el día de la semana. Las horas no cambian y los desfases entre hecho, recepción y procesado se mantienen, así que A2/H2 dan el mismo resultado y las citas de las evidencias siguen siendo literales. Antes de las 09:45 el «hoy» de la demo es ayer, porque el lote se procesa entre las 09:02 y las 09:41. Con `?fecha=AAAA-MM-DD` se fija el día (`?fecha=ancla` deja los datos como están escritos), útil para capturas. Las fechas normativas (AI Act art. 50, 02/08/2026) no se mueven. Los JSON de `data/` llevan `ancla` y se desplazan al cargarlos.
+Los datos están escritos con «hoy» = 17/09/2026. [`core/fechas.js`](core/fechas.js) los desplaza al cargar la página hasta el día de hoy: fechas ISO, `dd/mm`, «sábado 12 de septiembre», «el jueves 10», «el pasado día 8» y `mm/aaaa`, recalculando el día de la semana. Las horas no cambian y los desfases entre hecho, recepción y procesado se mantienen, así que A2/H2 dan el mismo resultado y las citas de las evidencias siguen siendo literales. Antes de las 09:45 el «hoy» de la demo es ayer, porque el lote se procesa entre las 09:02 y las 09:41. Con `?fecha=AAAA-MM-DD` se fija el día (`?fecha=ancla` deja los datos como están escritos), útil para capturas. Las fechas normativas (AI Act art. 50, 02/08/2026) no se mueven. Los JSON de `data/` llevan `ancla` y se desplazan al cargarlos.
 
 ## Prompts y reglas
 
-En [`prompts.js`](prompts.js): un **prompt base** (tarea, extracción, formato JSON) y **tres bloques de reglas** de negocio de seguros (Auto, Hogar, Salud: vigencia, plazo de comunicación del art. 16 LCS, conductor declarado, alcohol, lesionados, daños por agua súbitos vs. filtraciones, robo con fuerza y límites de joyas, carencias, preexistencias, autorización previa, cuadro médico, mutua laboral…). Los cuatro textos se editan en el menú lateral (sección «Prompt») y la llamada a la API usa siempre el texto vigente. La versión del prompt de reglas (`PROMPT_VERSION`, «reglas v2.3») se registra en cada traza.
+En [`core/prompts.js`](core/prompts.js): un **prompt base** (tarea, extracción, formato JSON) y **tres bloques de reglas** de negocio de seguros (Auto, Hogar, Salud: vigencia, plazo de comunicación del art. 16 LCS, conductor declarado, alcohol, lesionados, daños por agua súbitos vs. filtraciones, robo con fuerza y límites de joyas, carencias, preexistencias, autorización previa, cuadro médico, mutua laboral…). Los cuatro textos se editan en el menú lateral (sección «Prompt») y la llamada a la API usa siempre el texto vigente. La versión del prompt de reglas (`PROMPT_VERSION`, «reglas v2.3») se registra en cada traza.
 
 El modelo devuelve:
 
@@ -66,13 +68,13 @@ La ficha de cada mensaje muestra los tokens de entrada, salida y razonamiento po
 
 ### Evidencias en el texto del mensaje
 
-La ficha resalta en el mensaje los fragmentos en los que se basa cada dato, el ramo y las reglas (numerados, con fondo de color oscuro y texto blanco, y con su explicación). Al pasar el ratón o hacer clic en una evidencia, el título «Evidencias» se sustituye por su tipo; la leyenda de colores se abre desde el botón «Leyenda». El prompt pide entre 5 y 12 evidencias en el campo `evidencias: [{ "ref", "cita", "nota" }]`, con citas **literales** del mensaje; [`evidencias.js`](evidencias.js) las **comprueba** en el texto (exacta o normalizada: mayúsculas, tildes, espacios, comillas) antes de resaltarlas. Una cita que no aparece se marca «no localizada» y no se resalta. Nunca se piden posiciones numéricas al modelo. Si el modelo devuelve menos de 5 verificadas (o el prompt editado no las pide), se completan a partir de los datos extraídos, de las citas entre comillas de los criterios y de patrones de fecha, hora, vehículo con matrícula, centro sanitario y lesiones («reconstruida»). El «siguiente paso recomendado» sale de una tabla fija por regla incumplida, no del modelo.
+La ficha resalta en el mensaje los fragmentos en los que se basa cada dato, el ramo y las reglas (numerados, con fondo de color oscuro y texto blanco, y con su explicación). Al pasar el ratón o hacer clic en una evidencia, el título «Evidencias» se sustituye por su tipo; la leyenda de colores se abre desde el botón «Leyenda». El prompt pide entre 5 y 12 evidencias en el campo `evidencias: [{ "ref", "cita", "nota" }]`, con citas **literales** del mensaje; [`core/evidencias.js`](core/evidencias.js) las **comprueba** en el texto (exacta o normalizada: mayúsculas, tildes, espacios, comillas) antes de resaltarlas. Una cita que no aparece se marca «no localizada» y no se resalta. Nunca se piden posiciones numéricas al modelo. Si el modelo devuelve menos de 5 verificadas (o el prompt editado no las pide), se completan a partir de los datos extraídos, de las citas entre comillas de los criterios y de patrones de fecha, hora, vehículo con matrícula, centro sanitario y lesiones («reconstruida»). El «siguiente paso recomendado» sale de una tabla fija por regla incumplida, no del modelo.
 
 ### Capa de cumplimiento normativo
 
-[`cumplimiento.js`](cumplimiento.js) añade a cada decisión un bloque **`_gobernanza`** calculado por la plataforma (no por el modelo): datos personales detectados (identificativos, contacto, póliza y matrícula, dirección, IBAN, **salud**, **menores** y **terceros**) con su valor seudonimizado o enmascarado en la traza y si se usaron para decidir; explicabilidad (por qué este ramo y por qué no los otros); sello SHA-256 de entrada y salida; plazos de retención; y supervisión humana, cada parte con la norma a la que ayuda (AI Act, RGPD, LOPDGDD, LCS). Cada traza registra además las **knowledge bases** y versiones que usó. La ficha lo muestra en color en «Respuesta cruda» (con el conmutador «Salida del modelo / + Gobierno», los campos con datos personales marcados y la norma de cada clave al pasar el ratón) y el panel lo agrega en el **Termómetro de cumplimiento**. Las dos páginas usan el mismo módulo, así que la traza, los hashes y los datos coinciden.
+[`core/cumplimiento.js`](core/cumplimiento.js) añade a cada decisión un bloque **`_gobernanza`** calculado por la plataforma (no por el modelo): datos personales detectados (identificativos, contacto, póliza y matrícula, dirección, IBAN, **salud**, **menores** y **terceros**) con su valor seudonimizado o enmascarado en la traza y si se usaron para decidir; explicabilidad (por qué este ramo y por qué no los otros); sello SHA-256 de entrada y salida; plazos de retención; y supervisión humana, cada parte con la norma a la que ayuda (AI Act, RGPD, LOPDGDD, LCS). Cada traza registra además las **knowledge bases** y versiones que usó. La ficha lo muestra en color en «Respuesta cruda» (con el conmutador «Salida del modelo / + Gobierno», los campos con datos personales marcados y la norma de cada clave al pasar el ratón) y el panel lo agrega en el **Termómetro de cumplimiento**. Las dos páginas usan el mismo módulo, así que la traza, los hashes y los datos coinciden.
 
-**Seudonimización antes de enviar al modelo** (casilla de Configuración, activada por defecto; RGPD art. 4.5 y 5.1.c): antes de cada llamada, nombres, DNI, NIE, teléfono, email, IBAN, póliza, matrícula, dirección y expediente se sustituyen por marcadores estables (`[PERSONA_1]`, `[DNI_1]`, `[POLIZA_AU_1]`, que conserva el prefijo del ramo). Los datos de salud y la edad de los menores se mantienen porque hacen falta para decidir. El prompt (`PROMPT_SEUDONIMOS` en [`prompts.js`](prompts.js)) pide copiar los marcadores tal cual, y al volver la respuesta la plataforma reconstruye los valores reales en los datos extraídos y en las citas. La tabla de correspondencias solo vive en memoria durante la llamada. «Respuesta cruda» tiene una vista **Enviado al modelo** con los marcadores resaltados. `_gobernanza.datos_personales.envio_al_modelo` registra cuántos datos se sustituyeron, de qué tipo y el hash del texto enviado. Con «Resultados guardados» se simula sobre la respuesta guardada. En el panel, con la fuente «Sesión actual», el control de minimización pasa a verde y la medida M-08 se da por verificada.
+**Seudonimización antes de enviar al modelo** (casilla de Configuración, activada por defecto; RGPD art. 4.5 y 5.1.c): antes de cada llamada, nombres, DNI, NIE, teléfono, email, IBAN, póliza, matrícula, dirección y expediente se sustituyen por marcadores estables (`[PERSONA_1]`, `[DNI_1]`, `[POLIZA_AU_1]`, que conserva el prefijo del ramo). Los datos de salud y la edad de los menores se mantienen porque hacen falta para decidir. El prompt (`PROMPT_SEUDONIMOS` en [`core/prompts.js`](core/prompts.js)) pide copiar los marcadores tal cual, y al volver la respuesta la plataforma reconstruye los valores reales en los datos extraídos y en las citas. La tabla de correspondencias solo vive en memoria durante la llamada. «Respuesta cruda» tiene una vista **Enviado al modelo** con los marcadores resaltados. `_gobernanza.datos_personales.envio_al_modelo` registra cuántos datos se sustituyeron, de qué tipo y el hash del texto enviado. Con «Resultados guardados» se simula sobre la respuesta guardada. En el panel, con la fuente «Sesión actual», el control de minimización pasa a verde y la medida M-08 se da por verificada.
 
 Pruebas (sin dependencias, requieren Node): `make test`. Tras cambiar mensajes o resultados guardados, `make datos` regenera los JSON de `data/`.
 
@@ -112,40 +114,51 @@ Compatibilidad: para modelos de razonamiento (`gpt-5*`, `o*`) no se envían `tem
 
 ## Estructura
 
+Las carpetas tienen nombre en inglés y los módulos conservan el nombre de dominio en español (el mismo que sus funciones y variables). El glosario está en [`README.en.md`](README.en.md#glossary).
+
 ```
-intro.html        introducción en cinco secciones (#intro, #problema, #solucion, #actores, #demo): sustituye a las slides de contexto antes de la demo
-intro.css / intro.js estilos, cambio de sección y arranque de la introducción (mismo marco que el triaje)
-index.html        UI del triaje: conexión IA, menú lateral, contadores, registro, ficha modal
-app.js            motor local, cliente Azure, procesamiento con pausa, registro, render
-prompts.js        prompt base + bloques de reglas Auto / Hogar / Salud
-evidencias.js     evidencias del mensaje: anclado de citas, respaldo sin IA y siguiente paso (lógica pura, probada con `make test`)
-cumplimiento.js   capa de cumplimiento: datos personales, explicabilidad, SHA-256, retención, termómetro (lógica pura, probada con `make test`)
-cumplimiento.css  JSON coloreado con metadatos de gobierno y marcas de datos personales (lo usan las dos páginas)
-fraude.js         motor de indicadores de fraude: score antifraude sin IA, con citas literales y cruces del lote y del histórico (lógica pura, probada con `make test`)
-fechas.js         fechas siempre al día: desplaza los datos de la demo hasta hoy (lógica pura, probada con `make test`)
-adjuntos.js       adjuntos de los mensajes: genera el parte amistoso en PDF con pdf-lib, sirve los archivos al visor y calcula su SHA-256
-vendor/           pdf-lib 1.17.1 (MIT), cargado bajo demanda para generar el parte
-data/attachments/    fotos de los daños de MSG-A-01
-tests/            pruebas de evidencias.js, cumplimiento.js, fraude.js, fechas.js, adjuntos.js y del recorrido de la demo; medición con un modelo real (ia-real.js)
-scripts/          generar-datos.js: regenera los JSON de data/ (`make datos`) · capturas.mjs y componer-capturas.py: capturas de las slides con Chrome sin interfaz (`make capturas`)
-Makefile          `make run` (servidor local), `make test`, `make datos` y `make capturas`
-icons.js          iconos Lucide compartidos (lucide(name) + hidratación de [data-lucide])
-styles.css        estilos del triaje (claro/oscuro, responsive)
-header.css        marco común de las dos páginas: cabecera, barra de fases, menú lateral y pie
-shell.js          comportamiento del menú lateral común (plegado, usuario y botón al pie) y recorrido de la demo (modo presentador con contraseña, demo automática, subtítulos y subpasos con sus acciones, esperas y teclas Re Pág / Av Pág)
-gobierno.html     panel «Gobierno de Agentes» (portada Inicio y trece secciones en seis bloques del menú lateral)
-gobierno.js       render del panel: fuentes de datos, trazas, replay, gráficos SVG
-gobierno.css      estilos del panel (mismos tokens que styles.css)
-data/demo/mensajes.js  tres paquetes de mensajes
-data/demo/resultados.js fichas de triaje guardadas para reproducción
-data/generated/recorrido.js pasos del recorrido de la demo (24) con su acción, sus clics y 189 subtítulos por tipo; generado desde _docs/demo/es/guion-demo.md con `make recorrido`
-scripts/generators/generar-recorrido.js genera data/generated/recorrido.js a partir del guion
-scripts/generators/generar-guion-docx.js genera los Word de los dos guiones (`make guion-docx`)
-data/demo/gobierno.js  dataset de demostración del panel (Paquete A + 14 días, Knowledge Bases, rúbricas, controles declarados y medidas correctivas)
-data/demo/fraude.js    indicadores de fraude: catálogo IF-01…IF-12, escenarios EF-01…EF-08, histórico ficticio de pólizas y siniestros, cola de la SIU y evolución de 14 días
-data/import-samples/gobierno-paquete-A.json      el mismo dataset, para «Cargar JSON» en el panel
-data/import-samples/triage-registro-paquete-A.json  13 fichas del Paquete A en formato «Exportar JSON», para «Reproducir desde archivo»
-_docs/            arquitectura (C4 en Mermaid), guía de referencia de la demo, guion de la sesión, planes (cumplimiento, Knowledge Bases, agentes, portada y medidas correctivas) y slides (sesión FNOL y observabilidad y gobierno de la IA agéntica)
+index.html  intro.html  gobierno.html   las tres páginas (en la raíz: son las URL de GitHub Pages)
+
+ui/                  código de pantalla, solo navegador
+  shared/            marco común: shell.js (menú lateral, cabecera, selector de idioma, Recorrido de la demo),
+                     shell.css (cabecera, barra de fases, menú lateral y pie), icons.js (Lucide),
+                     cumplimiento.css (JSON coloreado con metadatos de gobierno, en las dos páginas)
+  triage/            triaje.js (motor local, cliente Azure, lote con pausa, registro, ficha) y triaje.css
+  governance/        gobierno.js (fuentes de datos, trazas, replay, gráficos SVG) y gobierno.css
+  intro/             intro.js e intro.css
+
+core/                lógica pura, la misma en navegador y en Node (es lo que prueba make test)
+  evidencias.js      anclado de citas, respaldo sin IA y siguiente paso
+  cumplimiento.js    _gobernanza: datos personales, explicabilidad, SHA-256, retención, termómetro
+  fraude.js          motor de indicadores de fraude sin IA
+  fechas.js          desplaza las fechas de la demo hasta hoy
+  ahorro.js          escenario de ahorro de FinOps
+  motor-local.js     triaje sin IA (palabras clave, expresiones regulares y reglas heurísticas)
+  adjuntos.js        parte amistoso en PDF con pdf-lib, visor y SHA-256 de los adjuntos
+  prompts.js         prompt base y bloques de reglas Auto / Hogar / Salud
+  i18n/              motor de idiomas: i18n.js, cargar.js (navegador), traducir-datos.js, node.js (pruebas y scripts)
+
+data/
+  demo/              fuentes en español, los hechos se escriben aquí una sola vez: mensajes.js (tres paquetes),
+                     resultados.js (fichas guardadas), gobierno.js (dataset del panel), fraude.js (IF-01…IF-12, EF-01…EF-08)
+  generated/         recorrido.js, generado desde el guion con make recorrido: no se edita a mano
+  import-samples/    JSON para «Cargar JSON» (panel) y «Reproducir desde archivo» (triaje), regenerados con make datos
+  attachments/       fotos de los daños de MSG-A-01
+
+locales/             solo traducciones (ver locales/README.md)
+  idiomas.js         idiomas disponibles
+  es/                textos de interfaz y expresiones del motor en español (los datos en español están en data/demo/)
+  en/  de/           traducciones de interfaz, motor, datos y guiones, y estado.json
+
+scripts/
+  i18n/              i18n-check, i18n-estado, i18n-importar, i18n-instantanea y guion (make i18n-*, make guion)
+  generators/        generar-datos, generar-recorrido, generar-guion-docx (make datos, recorrido, guion-docx)
+  browser/           Chrome sin interfaz: demo-cdp, capturas y componer-capturas (make capturas)
+  slides/            builders de las presentaciones en PowerPoint
+
+tests/               *.test.js (make test) · helpers/ · benchmark/ia-real.js (make test-ia, con un modelo real)
+vendor/              pdf-lib 1.17.1 (MIT), cargado bajo demanda para generar el parte
+_docs/               documentación (índice en _docs/README.md): architecture/, demo/, technical/, plans/, slides/
 ```
 
 ## Gobierno de Agentes
@@ -160,7 +173,7 @@ _docs/            arquitectura (C4 en Mermaid), guía de referencia de la demo, 
 | **Trazabilidad** | panel de detalle **fijo arriba de la sección** (waterfall de spans por agente, guardrail disparado, override humano) que no se oculta al recorrer la lista; lista de trazas filtrable por agente, canal, decisión y resultado (incluido «Con intervención humana»); «Ver razonamiento» y «Replay» abren Razonamiento y replay con esa traza |
 | **Autonomía** | KPI de autonomía, niveles L0 Manual · L1 Asistido · L2 Supervisado · L3 Autónomo coloreados de rojo a verde con los agentes de cada nivel, y auditoría de cambios de nivel (las tarjetas de los agentes están en el Resumen y su ficha completa, en **Agentes**) |
 | **Guardrails** | condiciones que limitan la autonomía (G-01…G-12; G-10 a G-12 son antifraude): agente, condición, acción, severidad, disparos por día y toggle activo/inactivo; ficha de detalle por guardrail, alta de **nuevos guardrails** y últimos disparos enlazados a su traza. Cualquier referencia a un guardrail o cap (G-04, CAP-03) en el panel muestra su descripción al pasar el ratón |
-| **Fraude** (Indicadores de fraude) | indicadores de comportamiento predefinidos (IF-01…IF-12) que un motor sin IA ([`fraude.js`](fraude.js)) calcula cruzando cada mensaje con el lote y con un histórico ficticio de pólizas y siniestros; score de 0 a 100 con tres niveles (sin indicios, **vigilancia** desde 40 con el pago retenido, **SIU** desde 70 sin despeje automático). KPI, casos del lote con su score frente a la decisión del triaje, **escenarios de fraude** EF-01…EF-08 (narrativa, indicadores, umbral, acción, falsos positivos y normas; los del lote con «Ver»), **mapa de relaciones** (casos → cuenta, proveedor o póliza → expedientes del histórico), **cola de la SIU**, catálogo con interruptor y peso editable (recalcula el lote en la sesión) y **Nuevo indicador** (formulario con frases que lo activan, peso, grupo y ramos, y vista previa de qué mensajes del lote cambiarían de nivel), guardrails G-10…G-12 y caps CAP-08…CAP-11 antifraude, evolución de 14 días, **equidad por canal** y gobierno del modelo. Ficha por caso con el desglose del score, las citas resaltadas en el mensaje, los contraindicios y el seguimiento. El indicio no cambia la decisión del triaje ni se comunica al cliente |
+| **Fraude** (Indicadores de fraude) | indicadores de comportamiento predefinidos (IF-01…IF-12) que un motor sin IA ([`core/fraude.js`](core/fraude.js)) calcula cruzando cada mensaje con el lote y con un histórico ficticio de pólizas y siniestros; score de 0 a 100 con tres niveles (sin indicios, **vigilancia** desde 40 con el pago retenido, **SIU** desde 70 sin despeje automático). KPI, casos del lote con su score frente a la decisión del triaje, **escenarios de fraude** EF-01…EF-08 (narrativa, indicadores, umbral, acción, falsos positivos y normas; los del lote con «Ver»), **mapa de relaciones** (casos → cuenta, proveedor o póliza → expedientes del histórico), **cola de la SIU**, catálogo con interruptor y peso editable (recalcula el lote en la sesión) y **Nuevo indicador** (formulario con frases que lo activan, peso, grupo y ramos, y vista previa de qué mensajes del lote cambiarían de nivel), guardrails G-10…G-12 y caps CAP-08…CAP-11 antifraude, evolución de 14 días, **equidad por canal** y gobierno del modelo. Ficha por caso con el desglose del score, las citas resaltadas en el mensaje, los contraindicios y el seguimiento. El indicio no cambia la decisión del triaje ni se comunica al cliente |
 | **Intervención humana** | supervisión humana (HITL) en una sola sección: escalados (causas, ranking de guardrails, por día), overrides (tasa con el umbral del 3 %, por agente, motivos), **cola de revisión** con estado, revisor y tiempo, **calidad de la revisión** (revisiones exprés de menos de 30 s, por tramitador y su formación en IA), mecanismos de supervisión enlazados a su sección y medidas correctivas relacionadas. Los KPI de escalados y overrides del Resumen llevan aquí |
 | **Razonamiento y replay** | la misma lista de trazas (colapsable, con filtros) y, para la seleccionada, el razonamiento estructurado por agente (cadena con lo que pasa de uno a otro, mensaje con las citas usadas como evidencia, pasos por tipo y un gráfico por agente: confianza por ramo, origen de cada campo extraído, matriz de reglas con el camino a la decisión y tokens frente al CAP-05) y el replay idéntico o what-if (otro modelo o versión de prompt) con diff de decisión, coste y latencia; histórico de replays |
 | **Knowledge Bases** | inventario de índices RAG, Markdown, runbooks, tablas y plantillas con su salud frente a umbrales (recall, fidelidad, citas, frescura, obsoletos, duplicados, deriva, datos personales); ficha con configuración (chunk, solapamiento, embeddings, índice, top-k, híbrida, reranker), **comparativa de configuraciones**, evaluación, fuente, uso y versiones; **rúbricas editables** (criterios con pesos y preguntas de referencia, versionadas) |
@@ -177,7 +190,7 @@ Fuentes de datos (selector de la cabecera):
 - **Sesión actual**: convierte el registro del triaje de esta pestaña (`sessionStorage`) en trazas reales: tokens y pasos → spans, ciclo, decisión, confianza, fallback como incidencia y coste según la tabla de precios por modelo. Cada traza conserva el id y el bloque `_gobernanza` de la ficha del triaje (en «Resultados guardados» del Paquete A, los mismos TRZ-4F2A… de la demo). Histórico, caps, guardrails y knowledge bases siguen siendo de demostración.
 - **Archivo JSON**: «Cargar JSON» con el esquema de `data/import-samples/gobierno-paquete-A.json` (`agentes[]` con `historial`, `modelos` y `variables`; `trazas[]` con `spans` y `motivo`; y opcionalmente `caps`, `politicas` con `descripcion`, `severidad`, `disparos_dia` y `ultimos`, `razonamiento`, `replays`, `diario`, `eventos`, `modelos`, `knowledge`, `rubricas`, `cumplimiento_declarado`…); las secciones ausentes se toman de la demo. «Exportar trazas» descarga el dataset activo con ese mismo esquema.
 
-Todos los iconos de la web (triaje y panel) son [Lucide](https://lucide.dev) (licencia ISC), inline desde `icons.js`. Los números de paso de la barra de fases son círculos dibujados con CSS (Lucide no tiene iconos de número).
+Todos los iconos de la web (triaje y panel) son [Lucide](https://lucide.dev) (licencia ISC), inline desde `ui/shared/icons.js`. Los números de paso de la barra de fases son círculos dibujados con CSS (Lucide no tiene iconos de número).
 
 ## Guía de referencia
 

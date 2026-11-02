@@ -3,7 +3,7 @@
 Estado: **aplicado** · 23/10/2026 · repo `fnol-triage/v2` · decisiones D2–D5 según la recomendación (10 / 3 sin cambios, Paquete A de 13, motor sin agente nuevo, corte de la mañana)
 
 > **Cambios respecto al borrador**
-> - Fechas en el texto: en lugar de marcas `⟦…⟧` en la fuente, `fechas.js` reconoce y desplaza las fechas escritas (`dd/mm`, «sábado 12 de septiembre», «el jueves 10», «día 8», `mm/aaaa`). Mismo resultado sin tocar los textos. Las fechas normativas (02/08/2026) no se mueven.
+> - Fechas en el texto: en lugar de marcas `⟦…⟧` en la fuente, `core/fechas.js` reconoce y desplaza las fechas escritas (`dd/mm`, «sábado 12 de septiembre», «el jueves 10», «día 8», `mm/aaaa`). Mismo resultado sin tocar los textos. Las fechas normativas (02/08/2026) no se mueven.
 > - No se reordenan las series por día de la semana: movería valores de días con superaciones y eventos fechados y descuadraría las fichas de los caps.
 > - Corte de la mañana a las 09:45 (el último evento del lote es de las 09:41), no a las 09:30.
 > - Sin cambio de prompt (sigue `reglas v2.3`): el motor detecta las señales de relato con sus citas literales sin pedírselas al modelo.
@@ -108,7 +108,7 @@ Va en el menú lateral, en un bloque nuevo **«Riesgo»** (pregunta: *¿Hay indi
 
 1. **KPIs**: mensajes analizados, con indicios (≥ 40), en vigilancia, escalados a SIU, pagos retenidos, confirmación SIU en 14 días e importe en riesgo retenido.
 2. **Escenarios de fraude**: tarjetas EF-01…EF-08 con narrativa, indicadores, umbral, acción, falsos positivos y normas. Las que están en el Paquete A llevan «Ver en el lote». La ficha muestra:
-   - el texto del mensaje con las citas de los indicadores resaltadas (reutiliza `evidencias.js`);
+   - el texto del mensaje con las citas de los indicadores resaltadas (reutiliza `core/evidencias.js`);
    - el **desglose del score** en barras por indicador hasta el umbral;
    - triaje frente a antifraude: decisión del triaje, nivel antifraude y acción final;
    - enlace a la traza, al replay y a la cola SIU.
@@ -127,13 +127,13 @@ Va en el menú lateral, en un bloque nuevo **«Riesgo»** (pregunta: *¿Hay indi
 - **Medidas correctivas**: M-18 «IF-09 dispara más en WhatsApp» con sus alternativas.
 - **Histórico**: eventos de escalado, retención de pago y cambio de peso.
 - **Recorrido de la demo**: paso nuevo (12 pasos) «Fraude: MSG-A-13 y el IBAN compartido».
-- **Fuente «Sesión actual»**: `fraude.js` calcula el score sobre el registro real, así que no depende solo del dataset de demo.
+- **Fuente «Sesión actual»**: `core/fraude.js` calcula el score sobre el registro real, así que no depende solo del dataset de demo.
 
 ### A.7 Arquitectura
 
-- `fraude.js`: módulo puro como `cumplimiento.js`: indicadores, cruce, score y nivel. Lo usan las dos páginas y se prueba con `make test`.
+- `core/fraude.js`: módulo puro como `core/cumplimiento.js`: indicadores, cruce, score y nivel. Lo usan las dos páginas y se prueba con `make test`.
 - `data/demo/gobierno.js` → bloque `fraude: { indicadores, escenarios, historico, evaluaciones, siu, diario }`.
-- `prompts.js`: en el prompt base se añade el campo opcional `indicios` (citas literales de las señales de relato IF-07…IF-10) y la versión pasa a **reglas v2.4**. Los resultados guardados del Paquete A incluyen esas citas.
+- `core/prompts.js`: en el prompt base se añade el campo opcional `indicios` (citas literales de las señales de relato IF-07…IF-10) y la versión pasa a **reglas v2.4**. Los resultados guardados del Paquete A incluyen esas citas.
 - C4 actualizado en `_docs/architecture/arquitectura.md` (componente «Motor de indicadores»).
 
 ---
@@ -144,7 +144,7 @@ Va en el menú lateral, en un bloque nuevo **«Riesgo»** (pregunta: *¿Hay indi
 
 Hay más de 200 fechas fijas en septiembre de 2026 (líneas con fecha: `mensajes.js` 51, `resultados.js` 44, `gobierno.js` 108, varias con más de una), además de fechas escritas en el texto: «El sábado 12 de septiembre», «Ayer 13/09», «el jueves 10», «Hecho el 12/09, comunicado el 14/09» o «Desactivado el 12/09».
 
-### B.2 Solución: `fechas.js`
+### B.2 Solución: `core/fechas.js`
 
 - **Ancla**: `2026-09-17` (el «hoy» del dataset; `generado`). Al cargar, `Δ = hoy − ancla` en días enteros.
 - **ISO**: un recorrido profundo desplaza Δ días todas las fechas `AAAA-MM-DD[THH:MM:SS]` de `PAQUETES`, `RESULTADOS_GUARDADOS` y `GOBIERNO` antes de que nadie las use. Las horas no cambian.
@@ -167,9 +167,9 @@ Hay más de 200 fechas fijas en septiembre de 2026 (líneas con fecha: `mensajes
 
 | Fase | Entregable | Esfuerzo |
 |---|---|---|
-| 1 | `fechas.js`, marcas en mensajes, resultados y gobierno, tests de propiedad | 1 d |
+| 1 | `core/fechas.js`, marcas en mensajes, resultados y gobierno, tests de propiedad | 1 d |
 | 2 | Paquete A modificado (A-04, A-09, A-11, A-13), resultados guardados, trazas, razonamiento, `make datos` | 0,5 d |
-| 3 | `fraude.js` + histórico ficticio + tests | 1 d |
+| 3 | `core/fraude.js` + histórico ficticio + tests | 1 d |
 | 4 | Sección «Indicadores de fraude» (KPIs, escenarios, catálogo, mapa, cola SIU, gobierno, evolución) | 1,5 d |
 | 5 | CAP-08…11 y G-10…12 en FinOps y Guardrails; integración en triaje, trazas, cumplimiento, medidas, histórico e Inicio | 1 d |
 | 6 | Recorrido (paso 12), README, guía de la demo, C4, prueba en navegador claro/oscuro y plegado | 0,5 d |

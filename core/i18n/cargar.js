@@ -38,6 +38,6 @@
   if (idioma !== BASE) I18N.FICHEROS_DATOS.forEach((f) => document.write(`<script src="locales/${idioma}/${f}?v=${v}"><\/script>`));
 
   // Los scripts van al final del <body>: el HTML ya está leído. Se rellena en cuanto llegan los textos y antes de
-  // que arranquen app.js, gobierno.js o intro.js, que leen parte de ese texto (títulos de sección, opciones…).
+  // que arranquen ui/triage/triaje.js, ui/governance/gobierno.js o ui/intro/intro.js, que leen parte de ese texto (títulos de sección, opciones…).
   document.write('<script>I18N.aplicar()<\/script>');
 })();

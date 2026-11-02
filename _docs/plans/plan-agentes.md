@@ -23,11 +23,11 @@ Justo después de **Resumen**: Resumen · **Agentes** · Trazabilidad · Reasoni
 | **Configuración** | Modelo, versión del prompt, reasoning effort, umbral de confianza, variables que le afectan | Ya existe (`modelo`, `prompt`, `variables`) |
 | **Contrato de entrada y salida** | Qué recibe y qué devuelve (esquema JSON resumido), con un ejemplo real de una traza del Paquete A | Nuevo, derivado de las trazas |
 | **Rendimiento (14 días)** | Volumen, latencia p50 y p95, tasa de JSON válido, reintentos, fallbacks; sparklines | Parte existe (`p95_ms`, modelos); series nuevas |
-| **Calidad** | Acierto frente al esperado del Paquete A, confianza media, escalados y overrides, evidencias verificadas por decisión | Calculado de las trazas y de `cumplimiento.js` |
+| **Calidad** | Acierto frente al esperado del Paquete A, confianza media, escalados y overrides, evidencias verificadas por decisión | Calculado de las trazas y de `core/cumplimiento.js` |
 | **Coste** | Coste de hoy frente al cap, coste por mensaje, tokens de entrada, salida y razonamiento; recomendación de FinOps si la hay | Ya existe (FinOps) |
 | **Límites** | Guardrails y caps que le aplican, con disparos de 14 días y enlace a cada ficha | Ya existe (Guardrails, caps) |
 | **Conocimiento** | Knowledge bases que consume, con su estado de salud y su versión (enlace a la sección KB) | Nueva sección KB |
-| **Datos y cumplimiento** | Categorías de datos personales que trata (salud en Extracción y Reglas), normas aplicables y controles del termómetro que dependen de él | `cumplimiento.js` + identidad |
+| **Datos y cumplimiento** | Categorías de datos personales que trata (salud en Extracción y Reglas), normas aplicables y controles del termómetro que dependen de él | `core/cumplimiento.js` + identidad |
 | **Historial** | Cambios de nivel, de modelo y de prompt con su motivo y quién los aprobó | Ya existe (`historial`) |
 
 ## 4. Qué cambia en el resto

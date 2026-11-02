@@ -1,10 +1,10 @@
-// Pruebas de fechas.js (fechas siempre al día) sin dependencias: `node tests/fechas.test.js` (o `make test`).
+// Pruebas de core/fechas.js (fechas siempre al día) sin dependencias: `node tests/fechas.test.js` (o `make test`).
 require('../core/i18n/node.js')();
 const assert = require('assert');
 const fs = require('fs');
 const path = require('path');
-const F = require('../fechas.js');
-const Ev = require('../evidencias.js');
+const F = require('../core/fechas.js');
+const Ev = require('../core/evidencias.js');
 
 const cargar = (f, exportar) => new Function(`${fs.readFileSync(path.join(__dirname, '..', f), 'utf8')}\nreturn ${exportar};`)();
 const fresco = () => ({

@@ -1,6 +1,6 @@
 # Arquitectura (C4)
 
-Demo estática servida por GitHub Pages: dos páginas HTML sin backend que comparten el marco visual (cabecera, menú lateral y pie: `header.css` + `shell.js`), los iconos, los datos y dos módulos de lógica pura (`evidencias.js` y `cumplimiento.js`). La única dependencia externa es Azure AI Foundry cuando el usuario configura una clave.
+Demo estática servida por GitHub Pages: dos páginas HTML sin backend que comparten el marco visual (cabecera, menú lateral y pie: `ui/shared/shell.css` + `ui/shared/shell.js`), los iconos, los datos y dos módulos de lógica pura (`core/evidencias.js` y `core/cumplimiento.js`). La única dependencia externa es Azure AI Foundry cuando el usuario configura una clave.
 
 ## Nivel 1 · Contexto
 
@@ -21,23 +21,23 @@ C4Container
   title Triage de mensajes — contenedores (todo en el navegador)
   Person(usuario, "Usuario de la demo")
   Container_Boundary(pages, "GitHub Pages (rama main)") {
-    Container(triage, "Triage · index.html + app.js", "HTML/JS", "Paquetes, prompts editables, motor local o IA, registro de decisiones y ficha")
-    Container(gobierno, "Gobierno de Agentes · gobierno.html + gobierno.js", "HTML/JS", "Inicio y trece secciones en seis bloques: operación (resumen, agentes, trazabilidad), control (autonomía, guardrails, intervención humana), riesgo (indicadores de fraude), calidad (razonamiento y replay, Knowledge Bases), cumplimiento y coste (termómetro, FinOps), mejora y auditoría (medidas correctivas, histórico)")
-    Container(icons, "icons.js", "JS", "Iconos Lucide compartidos")
-    Container(shell, "shell.js + header.css", "JS/CSS", "Marco común: cabecera con los enlaces entre intro.html, index.html y gobierno.html y el selector de idioma, menú lateral plegable (con encabezados de bloque en el panel) con usuario al pie, pie fino y Recorrido de la demo (modo presentador)")
-    Container(evid, "evidencias.js", "JS puro", "Ancla en el texto las citas del modelo y reconstruye evidencias sin IA")
-    Container(fraude, "fraude.js", "JS puro", "Motor de indicadores de fraude sin IA: score 0-100, citas literales, cruces del lote y del histórico, contraindicios y bloque _gobernanza.antifraude")
-    Container(fechas, "fechas.js", "JS puro", "Desplaza las fechas de la demo (ancla 17/09/2026) al día de hoy al cargar la página")
-    Container(cumpl, "cumplimiento.js + cumplimiento.css", "JS puro", "Detección de datos personales, seudonimización antes del modelo, explicabilidad, sellado SHA-256, retención y termómetro: bloque _gobernanza (con _gobernanza.adjuntos)")
-    Container(adj, "adjuntos.js + vendor/pdf-lib.min.js", "JS", "Adjuntos de los mensajes: genera el parte amistoso en PDF, sirve los archivos al visor de la ficha y calcula su SHA-256 al recibirlos")
-    ContainerDb(datos, "data/", "JS + JSON estáticos", "mensajes.js (con los adjuntos de MSG-A-01), adjuntos/ (fotos), resultados.js (y TRAZA_DEMO), recorrido.js (guion de 12 pasos), gobierno.js (trazas, knowledge, rúbricas, controles declarados, medidas), fraude.js (indicadores, escenarios, histórico ficticio, cola SIU), JSON regenerados con make datos")
+    Container(triage, "Triage · index.html + ui/triage/triaje.js", "HTML/JS", "Paquetes, prompts editables, motor local o IA, registro de decisiones y ficha")
+    Container(gobierno, "Gobierno de Agentes · gobierno.html + ui/governance/gobierno.js", "HTML/JS", "Inicio y trece secciones en seis bloques: operación (resumen, agentes, trazabilidad), control (autonomía, guardrails, intervención humana), riesgo (indicadores de fraude), calidad (razonamiento y replay, Knowledge Bases), cumplimiento y coste (termómetro, FinOps), mejora y auditoría (medidas correctivas, histórico)")
+    Container(icons, "ui/shared/icons.js", "JS", "Iconos Lucide compartidos")
+    Container(shell, "ui/shared/shell.js + ui/shared/shell.css", "JS/CSS", "Marco común: cabecera con los enlaces entre intro.html, index.html y gobierno.html y el selector de idioma, menú lateral plegable (con encabezados de bloque en el panel) con usuario al pie, pie fino y Recorrido de la demo (modo presentador)")
+    Container(evid, "core/evidencias.js", "JS puro", "Ancla en el texto las citas del modelo y reconstruye evidencias sin IA")
+    Container(fraude, "core/fraude.js", "JS puro", "Motor de indicadores de fraude sin IA: score 0-100, citas literales, cruces del lote y del histórico, contraindicios y bloque _gobernanza.antifraude")
+    Container(fechas, "core/fechas.js", "JS puro", "Desplaza las fechas de la demo (ancla 17/09/2026) al día de hoy al cargar la página")
+    Container(cumpl, "core/cumplimiento.js + ui/shared/cumplimiento.css", "JS puro", "Detección de datos personales, seudonimización antes del modelo, explicabilidad, sellado SHA-256, retención y termómetro: bloque _gobernanza (con _gobernanza.adjuntos)")
+    Container(adj, "core/adjuntos.js + vendor/pdf-lib.min.js", "JS", "Adjuntos de los mensajes: genera el parte amistoso en PDF, sirve los archivos al visor de la ficha y calcula su SHA-256 al recibirlos")
+    ContainerDb(datos, "data/", "JS + JSON estáticos", "demo/: mensajes.js (con los adjuntos de MSG-A-01), resultados.js (y TRAZA_DEMO), gobierno.js (trazas, knowledge, rúbricas, controles declarados, medidas), fraude.js (indicadores, escenarios, histórico ficticio, cola SIU) · attachments/ (fotos) · generated/recorrido.js (desde el guion) · import-samples/ (JSON regenerados con make datos)")
     ContainerDb(session, "sessionStorage / localStorage", "navegador", "sesión: configuración IA, prompts editados, registro del triaje con su _gobernanza (triage.log), cambios simulados del panel, modo presentador y avance del recorrido · navegador: menú plegado (shell.nav), configuración, textos y posición del recorrido")
   }
   System_Ext(foundry, "Azure AI Foundry")
   Rel(usuario, triage, "usa")
   Rel(usuario, gobierno, "usa")
-  Rel(triage, gobierno, "enlace de la cabecera común (shell.js)")
-  Rel(gobierno, triage, "enlace de la cabecera común (shell.js)")
+  Rel(triage, gobierno, "enlace de la cabecera común (ui/shared/shell.js)")
+  Rel(gobierno, triage, "enlace de la cabecera común (ui/shared/shell.js)")
   Rel(triage, datos, "lee paquetes y fichas guardadas")
   Rel(gobierno, datos, "lee el dataset de demo, los mensajes y resultados del Paquete A (termómetro) / carga JSON")
   Rel(triage, session, "escribe registro y configuración")
@@ -104,7 +104,7 @@ flowchart LR
   medidas -. aplicar medida de coste .-> estado3
   estado5 -. controles verificados .-> cumpl
   G --> historico[Histórico · línea de tiempo por tipo de evento]
-  frd[data/demo/fraude.js · FRAUDE_DEMO] --> motor[[fraude.js · motor de indicadores sin IA]]
+  frd[data/demo/fraude.js · FRAUDE_DEMO] --> motor[[core/fraude.js · motor de indicadores sin IA]]
   G --> motor
   motor --> fraude[Fraude · KPI, casos del lote, escenarios, mapa de relaciones, cola SIU, catálogo, límites, equidad por canal]
   fraude -. clic en caso .-> mFr([Modal · ficha del caso: desglose, citas, seguimiento])
@@ -131,7 +131,7 @@ flowchart LR
 
 ## Nivel 3 · Componentes de la capa de cumplimiento
 
-Una sola fuente de verdad para las dos páginas: `cumplimiento.js` calcula el bloque `_gobernanza` de cada decisión a partir del mensaje y de la salida del modelo, de forma determinista (no se le pide al modelo). La ficha del triaje lo muestra en «Respuesta cruda» y lo guarda en el registro; el panel lo lee del registro (fuente «Sesión actual») o lo recalcula para las 13 trazas de la demo. Como el hash de entrada y el de salida dependen solo del texto y de la respuesta, coinciden en las dos páginas.
+Una sola fuente de verdad para las dos páginas: `core/cumplimiento.js` calcula el bloque `_gobernanza` de cada decisión a partir del mensaje y de la salida del modelo, de forma determinista (no se le pide al modelo). La ficha del triaje lo muestra en «Respuesta cruda» y lo guarda en el registro; el panel lo lee del registro (fuente «Sesión actual») o lo recalcula para las 13 trazas de la demo. Como el hash de entrada y el de salida dependen solo del texto y de la respuesta, coinciden en las dos páginas.
 
 ```mermaid
 flowchart LR
@@ -144,7 +144,7 @@ flowchart LR
   seud -->|envio_al_modelo · tipos, hash del texto enviado| gob
   raw[Salida del modelo] --> hash[sha256 · entrada, salida y sello]
   msg --> hash
-  ev[evidencias.js · citas verificadas] --> expl[explicabilidad · por qué este ramo y por qué no los otros]
+  ev[core/evidencias.js · citas verificadas] --> expl[explicabilidad · por qué este ramo y por qué no los otros]
   det --> masc[enmascarar · tokens PER-/POL-/MAT-, teléfono e IBAN parciales]
   masc --> expl
   det --> gob[(_gobernanza)]

@@ -5,7 +5,7 @@ const DIAS_ES = ['domingo', 'lunes', 'martes', 'miércoles', 'jueves', 'viernes'
 const MESES_ES = ['enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio', 'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre'];
 
 I18N.registrarMotor('es', {
-  // Fechas escritas con nombres de días y meses (fechas.js). Cada forma recibe las alternativas de días y meses
+  // Fechas escritas con nombres de días y meses (core/fechas.js). Cada forma recibe las alternativas de días y meses
   // y devuelve la expresión con sus grupos: diaMes (día de la semana, día, mes, año), semanaDia (día de la
   // semana, día), diaSuelto (palabra, día) y mesAnio (mes, año). Los fmt* escriben la fecha ya desplazada `f`
   // ({ a, m, d, s }: año, mes 1-12, día y día de la semana 0-6).
@@ -21,7 +21,7 @@ I18N.registrarMotor('es', {
     fmtDiaSuelto: (f, palabra) => `${palabra} ${f.d}`,
     fmtMesAnio: (f) => `${MESES_ES[f.m - 1]} de ${f.a}`,
   },
-  // Datos personales (cumplimiento.js): lo que depende del idioma. direccion y salud son listas de expresiones /g;
+  // Datos personales (core/cumplimiento.js): lo que depende del idioma. direccion y salud son listas de expresiones /g;
   // nombreTercero recibe el patrón de un nombre propio y devuelve la expresión con el nombre en el grupo 1; menor son
   // pares [expresión /g, filtro opcional del resultado]. indicios: palabras que apuntan a cada ramo (/gi).
   cumplimiento: {
@@ -53,7 +53,7 @@ I18N.registrarMotor('es', {
       Salud: /\b(?:urgencias|hospital|m[eé]dico|radiograf[ií]a|traumat[oó]log[oa]|cuadro m[eé]dico|pediatra|fractura|asma|SA-\d{6})\b/gi,
     },
   },
-  // Antifraude (fraude.js). relato: frases que activan cada indicador (/g); conductorJoven: parentesco, nombre y edad
+  // Antifraude (core/fraude.js). relato: frases que activan cada indicador (/g); conductorJoven: parentesco, nombre y edad
   // en los grupos 1-3; noDeclarado: el tomador no sabe si lo declaró; acusatorio: términos que nunca llegan al cliente.
   fraude: {
     relato: {
@@ -68,7 +68,7 @@ I18N.registrarMotor('es', {
     noDeclarado: /no s[ée] si lo (?:incluimos|declaramos|pusimos)|no est[áa] declarad[oa]/i,
     acusatorio: /\b(fraude|fraudulent\w*|sospech\w*|SIU|indicio\w*|investigaci[óo]n)\b/i,
   },
-  // Evidencias de respaldo (evidencias.js): fragmentos del mensaje que se resaltan cuando el modelo cita poco o no
+  // Evidencias de respaldo (core/evidencias.js): fragmentos del mensaje que se resaltan cuando el modelo cita poco o no
   // hay modelo. fecha se prueba en orden; importe y docs llevan /g.
   evidencias: {
     fecha: [
@@ -104,7 +104,7 @@ I18N.registrarMotor('es', {
       S8: /\b(?:laboral|en el trabajo|mutua|accidente de tr[aá]fico)\b/i,
     },
   },
-  // Motor local de reglas (motor-local.js)
+  // Motor local de reglas (core/motor-local.js)
   local: {
     ramo: {
       Auto: /\b(coche|veh[ií]culo|moto|parabrisas|luna|taller|parking|aparc\w*|retrovisor|chapa|paragolpes|conductor\w*|carretera|rotonda|sem[aá]foro|granizo.*(cap[oó]|techo)|\d{4} [A-Z]{3}|AU-\d{6})\b/gi,

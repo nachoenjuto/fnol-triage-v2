@@ -3,3 +3,10 @@
 .DS_Store
 node_modules/
 locales/*/pendientes-*.json
+# Ficheros temporales de Office
+~$*
+# Salidas regenerables y versiones superadas (se conservan en local y en el historial)
+_docs/demo/*/*.docx
+_docs/slides/slides-sesion.pptx
+_docs/slides/slides-sesion-v2.pptx
+_docs/slides/revision-*.pdf
