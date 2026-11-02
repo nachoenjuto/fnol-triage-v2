@@ -36,7 +36,6 @@ En el desktop de Claude Code, `.claude/launch.json` define `static` (puerto 8792
 | `intro.html` | introducción en cinco secciones (`#intro`, `#problema`, `#solucion`, `#actores`, `#demo`) |
 | `index.html` | triaje |
 | `gobierno.html` | panel de Gobierno de Agentes |
-| `intro-fnol.html`, `intro-sistema.html` | redirigen a `intro.html#problema` y `#solucion` |
 
 Parámetros útiles:
 
