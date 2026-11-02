@@ -120,6 +120,7 @@ I18N.registrar('en', {
   "cumpl.norma.solvencia": ["Solvency II","38180881"],
   "cumpl.norma.y": ["and","fc0c4ef4"],
   "cumpl.norma.cons": ["recital","104f4a72"],
+  "cumpl.norma.art": ["art.","4fe55d2c"],
   "cumpl.alfabetizacion_en_ia_el": ["AI literacy: staff using the system must have sufficient training. Applicable since 02/02/2025.","d69fb2c9"],
   "cumpl.clasificacion_de_sistemas_de": ["Classification of high-risk systems. Annex III 5.c only covers risk assessment and pricing in life and health insurance: claims triage is not high-risk.","99082637"],
   "cumpl.sistema_de_gestion_de": ["Risk management system throughout the whole life cycle. {ALTO_RIESGO}","2d7edd01"],

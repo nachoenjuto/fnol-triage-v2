@@ -120,6 +120,7 @@ I18N.registrar('de', {
   "cumpl.norma.solvencia": ["Solvency II","38180881"],
   "cumpl.norma.y": ["und","fc0c4ef4"],
   "cumpl.norma.cons": ["ErwG","104f4a72"],
+  "cumpl.norma.art": ["Art.","4fe55d2c"],
   "cumpl.alfabetizacion_en_ia_el": ["KI-Kompetenz: Das Personal, das das System nutzt, muss ausreichend geschult sein. Anwendbar seit dem 02/02/2025.","d69fb2c9"],
   "cumpl.clasificacion_de_sistemas_de": ["Einstufung als Hochrisikosystem. Anhang III 5.c umfasst nur die Risikobewertung und Preisgestaltung in der Lebens- und Krankenversicherung: Die Schadentriage ist kein Hochrisiko.","99082637"],
   "cumpl.sistema_de_gestion_de": ["Risikomanagementsystem über den gesamten Lebenszyklus. {ALTO_RIESGO}","2d7edd01"],

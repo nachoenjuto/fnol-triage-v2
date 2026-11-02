@@ -145,6 +145,7 @@ I18N.registrar('es', {
   'cumpl.norma.solvencia': 'Solvencia II',
   'cumpl.norma.y': 'y',
   'cumpl.norma.cons': 'cons.',
+  'cumpl.norma.art': 'art.',
   'cumpl.alfabetizacion_en_ia_el': 'Alfabetización en IA: el personal que usa el sistema debe tener formación suficiente. Aplicable desde el 02/02/2025.',
   'cumpl.clasificacion_de_sistemas_de': 'Clasificación de sistemas de alto riesgo. El Anexo III 5.c solo incluye la evaluación de riesgos y la tarificación en seguros de vida y salud: el triaje de siniestros no es alto riesgo.',
   'cumpl.sistema_de_gestion_de': 'Sistema de gestión de riesgos durante todo el ciclo de vida. {ALTO_RIESGO}',

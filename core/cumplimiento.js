@@ -54,10 +54,10 @@
     'eiopa': ['EIOPA', I18N.t('cumpl.opinion_sobre_gobierno_y')],
     'sii-41': ['Solvencia II art. 41', I18N.t('cumpl.sistema_de_gobernanza_eficaz')],
   };
-  // Etiqueta de una norma en el idioma activo: cambian las siglas y los conectores (RGPD → GDPR), no los números.
+  // Etiqueta de una norma en el idioma activo: cambian las siglas, los conectores y «art.» (RGPD → GDPR), no los números.
   // Las de data/demo/*.js están en español y se pasan por aquí al pintarlas.
   const normaVisible = (e) => String(e).replace(/^RGPD\b/, I18N.t('cumpl.norma.rgpd')).replace(/^Solvencia II\b/, I18N.t('cumpl.norma.solvencia'))
-    .replace(/ y /g, ` ${I18N.t('cumpl.norma.y')} `).replace(/\bcons\./g, I18N.t('cumpl.norma.cons'));
+    .replace(/ y /g, ` ${I18N.t('cumpl.norma.y')} `).replace(/\bcons\./g, I18N.t('cumpl.norma.cons')).replace(/\bart\./g, I18N.t('cumpl.norma.art'));
   const N = (k) => normaVisible(NORMAS[k][0]);
   // Búsqueda inversa por etiqueta, en español o en el idioma activo (para pintar tooltips sobre las normas citadas)
   const NORMA_POR_ETIQUETA = Object.fromEntries(Object.values(NORMAS).flatMap(([e, t]) => [[e, t], [normaVisible(e), t]]));

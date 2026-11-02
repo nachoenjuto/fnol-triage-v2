@@ -49,6 +49,8 @@
 
   const agColor = (id) => `var(--ag-${id}, var(--primary))`;
   const agNombre = (id) => (AG[id] ? AG[id].nombre : id);
+  // Nombre corto, el de los filtros de agente (gob.t_agente.*); la clave de Multicanal es «multicanalidad»
+  const agCorto = (id) => I18N.t(`gob.t_agente.${id === 'multicanal' ? 'multicanalidad' : id}`);
   // «Agente de X» (o «Ag. de X» si ocupa dos líneas, ver ajustarAgentes) solo para los agentes del pipeline
   const esPrincipal = (id) => !!AG[id] && AG[id].cap_hoy != null;
   // Las dos formas van en la página (el orden de las palabras cambia con el idioma) y la clase .short elige cuál se ve
@@ -76,7 +78,7 @@
   // Marco normativo: etiquetas con tooltip junto al título de cada bloque (qué norma respalda lo que se ve)
   // Catálogo compartido con la ficha del triaje (core/cumplimiento.js): misma etiqueta y explicación en las dos páginas
   const NORMA = Cumplimiento.NORMAS;
-  const normas = (...ids) => `<span class="normas">${ids.map((k) => `<span class="norma" data-tip="${esc(NORMA[k][1])}">${ic('scale')} ${esc(NORMA[k][0])}</span>`).join('')}</span>`;
+  const normas = (...ids) => `<span class="normas">${ids.map((k) => `<span class="norma" data-tip="${esc(NORMA[k][1])}">${ic('scale')} ${esc(Cumplimiento.normaVisible(NORMA[k][0]))}</span>`).join('')}</span>`;
   const NORMAS_BLOQUE = {
     'h-agentes': ['ai-14'], 'h-alertas': ['eiopa'], 'h-trazas': ['ai-12', 'rgpd-5', 'dora-28'], 'h-reasoning': ['rgpd-15', 'ai-13'], 'h-replay': ['ai-15', 'eiopa'],
     'h-niveles': ['ai-14', 'rgpd-22'], 'h-cambios': ['rgpd-5', 'eiopa'], 'h-guardrails': ['ai-9', 'ai-14'], 'h-hitl-mec': ['ai-14', 'rgpd-22'], 'h-hitl-cola': ['ai-14', 'rgpd-22'], 'h-hitl-agentes': ['ai-14'], 'h-caps': ['sii-41'], 'h-fr-escenarios': ['rgpd-22', 'rgpd-c47'], 'h-fr-siu': ['ai-14', 'rgpd-22'], 'h-fr-gob': ['rgpd-22', 'lossear-99-7', 'eiopa'], 'h-fr-limites': ['ai-9'], 'h-modelos': ['dora-28'], 'h-hist': ['ai-12', 'rgpd-5'],
@@ -945,7 +947,7 @@
     const dias = diarioVisible(), hoy = G.diario[G.diario.length - 1], cap = capDiario();
     const totalMsgs = dias.reduce((a, d) => a + d[1], 0), coste = dias.reduce((a, d) => a + costeDia(d), 0);
     const porAgente = G.agentes.slice(0, 4).map((a, k) => [a.id, dias.reduce((s, d) => s + (d[2][k] || 0), 0)]);
-    const reparto = porAgente.sort((a, b) => b[1] - a[1]).map(([id, v]) => `${agnHtml(AG[id].nombre.split(' ')[0])} ${Math.round((v / coste) * 100)} %`).join(' · ');
+    const reparto = porAgente.sort((a, b) => b[1] - a[1]).map(([id, v]) => `${agnHtml(agCorto(id))} ${Math.round((v / coste) * 100)} %`).join(' · ');
     const superados = G.caps.filter((c) => c.estado === 'superado');
     $('kpis-fin').innerHTML = [
       kpi({ cls: 'warn', icono: 'euro', etiqueta: I18N.t('gob.coste_hoy_parcial'), valor: eur(costeDia(hoy)), sub: I18N.t('gob.del_cap_diario_mensajes', { cap: Math.round((costeDia(hoy) / cap) * 100), cap2: eur(cap, 0), hoy: num(hoy[1]) }), medidor: (costeDia(hoy) / cap) * 100, id: 'coste-hoy' }),

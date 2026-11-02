@@ -56,7 +56,7 @@ Leitfaden Schritt für Schritt für eine Sitzung von 30-35 Minuten: Einführung 
 
 **Hinweise**
 
-- Quellen: UNESPA (11 Mio. und «einer alle 3 s»); LCS art. 16 (7 Tage); III mit Daten der NAIC (~10 % der Kfz-Prämie in den USA, 2023). Für Spanien gibt es keine vergleichbare öffentliche Zahl: Das sagen, falls gefragt wird.
+- Quellen: UNESPA (11 Mio. und «einer alle 3 s»); LCS Art. 16 (7 Tage); III mit Daten der NAIC (~10 % der Kfz-Prämie in den USA, 2023). Für Spanien gibt es keine vergleichbare öffentliche Zahl: Das sagen, falls gefragt wird.
 - Nicht die «4 % der Agenten in Produktion» oder die Ersparnis von 25-30 % von McKinsey verwenden: Sie sind in der Originalquelle nicht belegt.
 
 ---
@@ -218,7 +218,7 @@ Fünf Ideen, eine pro Block der Seite:
 
 **Vorschriften und warum sie wichtig sind**
 
-- **AI Act art. 12 · Automatische Protokollierung.** Das System muss seine Ereignisse während seiner gesamten Lebensdauer automatisch protokollieren. Für Hochrisiko-Systeme ist das Pflicht, hier wird es als gute Praxis angewandt. **Risiko:** Ohne Protokoll lässt sich eine Entscheidung für eine Beschwerde oder eine Prüfung nicht rekonstruieren, und der Versicherer hat nichts, womit er sie verteidigen kann.
+- **AI Act Art. 12 · Automatische Protokollierung.** Das System muss seine Ereignisse während seiner gesamten Lebensdauer automatisch protokollieren. Für Hochrisiko-Systeme ist das Pflicht, hier wird es als gute Praxis angewandt. **Risiko:** Ohne Protokoll lässt sich eine Entscheidung für eine Beschwerde oder eine Prüfung nicht rekonstruieren, und der Versicherer hat nichts, womit er sie verteidigen kann.
 
 **Klicks**
 
@@ -262,7 +262,7 @@ Fünf Ideen, eine pro Block der Seite:
 
 **Vorschriften und warum sie wichtig sind**
 
-- **AI Act art. 13 · Transparenz.** Wer das System nutzt, muss seine Ergebnisse interpretieren können. Pflicht bei Hochrisiko; hier gute Praxis. **Risiko:** Ein Sachbearbeiter, der den Vorschlag nicht versteht, unterschreibt ihn oder verwirft ihn blind, und in beiden Fällen erreicht der Fehler den Kunden.
+- **AI Act Art. 13 · Transparenz.** Wer das System nutzt, muss seine Ergebnisse interpretieren können. Pflicht bei Hochrisiko; hier gute Praxis. **Risiko:** Ein Sachbearbeiter, der den Vorschlag nicht versteht, unterschreibt ihn oder verwirft ihn blind, und in beiden Fällen erreicht der Fehler den Kunden.
 - **DSGVO Art. 15 · Auskunftsrecht.** Der Kunde kann aussagekräftige Informationen über die Logik einer automatisierten Entscheidung verlangen, die ihn betrifft. **Risiko:** Lässt sie sich nicht erklären, droht eine Beschwerde bei der AEPD; Bußgelder nach DSGVO erreichen 20 Mio. € oder 4 % des weltweiten Umsatzes.
 
 **Klicks**
@@ -347,7 +347,7 @@ Fünf Ideen, eine pro Block der Seite:
 **Vorschriften und warum sie wichtig sind**
 
 - **DSGVO Art. 9 und Schutz von Minderjährigen (Art. 8 und ErwG 38).** Gesundheitsdaten sind eine besondere Kategorie, und Daten von Minderjährigen verdienen besonderen Schutz. **Risiko:** Sie zu verarbeiten, ohne zu wissen, dass sie da sind, macht es unmöglich, die gesetzlich verlangten Schutzmaßnahmen anzuwenden; der typische Fall einer verschärften Sanktion.
-- **AI Act art. 19 und LCS art. 23 · Aufbewahrung.** Protokolle werden mindestens sechs Monate aufbewahrt, die Akte so lange, wie Ansprüche geltend gemacht werden können: zwei Jahre bei Sachschäden und fünf bei Personenschäden. **Risiko:** Früher zu löschen, lässt den Versicherer in einem Rechtsstreit ohne Beweise; zu lange aufzubewahren, verstößt gegen den Grundsatz der Speicherbegrenzung.
+- **AI Act Art. 19 und LCS Art. 23 · Aufbewahrung.** Protokolle werden mindestens sechs Monate aufbewahrt, die Akte so lange, wie Ansprüche geltend gemacht werden können: zwei Jahre bei Sachschäden und fünf bei Personenschäden. **Risiko:** Früher zu löschen, lässt den Versicherer in einem Rechtsstreit ohne Beweise; zu lange aufzubewahren, verstößt gegen den Grundsatz der Speicherbegrenzung.
 
 **Klicks**
 
@@ -408,7 +408,7 @@ Fünf Ideen, eine pro Block der Seite:
 
 **Vorschriften und warum sie wichtig sind**
 
-- **AI Act art. 14 · Menschliche Aufsicht.** Das System muss einem Menschen erlauben, es zu überwachen, seine Ergebnisse zu verstehen und es mit einer Stopptaste anzuhalten. **Risiko:** Ohne Stopp wiederholt sich ein Modellfehler in Hunderten von Entscheidungen, bevor ihn jemand sieht.
+- **AI Act Art. 14 · Menschliche Aufsicht.** Das System muss einem Menschen erlauben, es zu überwachen, seine Ergebnisse zu verstehen und es mit einer Stopptaste anzuhalten. **Risiko:** Ohne Stopp wiederholt sich ein Modellfehler in Hunderten von Entscheidungen, bevor ihn jemand sieht.
 - **EIOPA.** Sie verlangt, dass Vorstand und Geschäftsleitung regelmäßig über die KI-Systeme informiert werden. **Risiko:** Eine Geschäftsleitung, die das System nicht sieht, kann gegenüber der Aufsicht nicht dafür einstehen.
 
 **Klicks**
@@ -449,7 +449,7 @@ Fünf Ideen, eine pro Block der Seite:
 
 **Vorschriften und warum sie wichtig sind**
 
-- **DORA art. 9 · Schutz und Prävention.** Verlangt, Zugriffe mit den minimal nötigen Berechtigungen zu verwalten. DORA gilt für Versicherer seit Januar 2025. **Risiko:** Ein Agent mit mehr Berechtigungen als nötig kann eine Zahlung anordnen oder eine Akte löschen, wenn er versagt oder angegriffen wird.
+- **DORA Art. 9 · Schutz und Prävention.** Verlangt, Zugriffe mit den minimal nötigen Berechtigungen zu verwalten. DORA gilt für Versicherer seit Januar 2025. **Risiko:** Ein Agent mit mehr Berechtigungen als nötig kann eine Zahlung anordnen oder eine Akte löschen, wenn er versagt oder angegriffen wird.
 - **DSGVO Art. 25 · Datenschutz durch Technikgestaltung.** Jede Komponente greift nur auf die Daten zu, die sie braucht. **Risiko:** Ein Agent, der mehr Daten sieht als nötig, ist ein Regelverstoß, auch ohne Datenpanne.
 
 **Klicks**
@@ -495,7 +495,7 @@ Fünf Ideen, eine pro Block der Seite:
 **Vorschriften und warum sie wichtig sind**
 
 - **DSGVO Art. 5.2 · Rechenschaftspflicht.** Einhalten reicht nicht: Der Versicherer muss es nachweisen können. **Risiko:** Die Beweislast liegt beim Versicherer; ohne Protokoll hat er vor der AEPD oder einem Richter keine Möglichkeit zu belegen, dass er richtig entschieden hat.
-- **DORA art. 11 · Reaktion und Wiederherstellung.** Kritische Dienste müssen weiterlaufen, wenn Dritte ausfallen. **Risiko:** Hängt man von einem einzigen KI-Anbieter ohne Wiederholungen oder Alternative ab, wird sein Ausfall zum Ausfall des Schadendienstes.
+- **DORA Art. 11 · Reaktion und Wiederherstellung.** Kritische Dienste müssen weiterlaufen, wenn Dritte ausfallen. **Risiko:** Hängt man von einem einzigen KI-Anbieter ohne Wiederholungen oder Alternative ab, wird sein Ausfall zum Ausfall des Schadendienstes.
 
 **Klicks**
 
@@ -530,7 +530,7 @@ Fünf Ideen, eine pro Block der Seite:
 
 **Vorschriften und warum sie wichtig sind**
 
-- **AI Act art. 14 · Menschliche Aufsicht im Verhältnis zum Risiko.** Der Grad der menschlichen Kontrolle muss zu Risiko und Autonomie des Systems passen. **Risiko:** Einem Agenten ohne Erfolgsbilanz volle Autonomie zu geben, macht seine Fehler zu endgültigen Entscheidungen.
+- **AI Act Art. 14 · Menschliche Aufsicht im Verhältnis zum Risiko.** Der Grad der menschlichen Kontrolle muss zu Risiko und Autonomie des Systems passen. **Risiko:** Einem Agenten ohne Erfolgsbilanz volle Autonomie zu geben, macht seine Fehler zu endgültigen Entscheidungen.
 - **DSGVO Art. 22.** Mehr Autonomie heißt mehr automatisierte Entscheidungen. **Risiko:** Einen Agenten hochzustufen, der ungünstige Entscheidungen ohne menschliche Prüfung trifft, fällt voll unter das Verbot des Artikels.
 
 **Klicks**
@@ -567,7 +567,7 @@ Fünf Ideen, eine pro Block der Seite:
 
 **Vorschriften und warum sie wichtig sind**
 
-- **AI Act art. 9 · Risikomanagement.** Die Risiken des Systems müssen erkannt und während seiner gesamten Lebensdauer mit Maßnahmen verringert werden. **Risiko:** Ein Modell ohne Grenzen kann einen Schaden über 20.000 € oder einen Personenschaden so leicht freigeben wie eine Windschutzscheibe über 280 €.
+- **AI Act Art. 9 · Risikomanagement.** Die Risiken des Systems müssen erkannt und während seiner gesamten Lebensdauer mit Maßnahmen verringert werden. **Risiko:** Ein Modell ohne Grenzen kann einen Schaden über 20.000 € oder einen Personenschaden so leicht freigeben wie eine Windschutzscheibe über 280 €.
 
 **Klicks**
 
@@ -610,7 +610,7 @@ Fünf Ideen, eine pro Block der Seite:
 **Vorschriften und warum sie wichtig sind**
 
 - **DSGVO Art. 22 und das SCHUFA-Urteil des EuGH (C-634/21, 2023).** Eine ungünstige Entscheidung braucht echtes menschliches Eingreifen, und der Gerichtshof hat gesagt, dass eine Person, die nur bestätigt, was die Maschine vorschlägt, nicht zählt. **Risiko:** Eine Prüfung von 10 Sekunden macht den Fall rechtlich zu einer automatisierten Entscheidung.
-- **AI Act art. 4 · KI-Kompetenz.** Wer mit KI-Systemen arbeitet, muss ausreichend geschult sein. Gilt seit Februar 2025 für alle Organisationen, unabhängig vom Risiko des Systems. **Risiko:** Ein ungeschulter Prüfer kann den Fehler des Agenten nicht erkennen.
+- **AI Act Art. 4 · KI-Kompetenz.** Wer mit KI-Systemen arbeitet, muss ausreichend geschult sein. Gilt seit Februar 2025 für alle Organisationen, unabhängig vom Risiko des Systems. **Risiko:** Ein ungeschulter Prüfer kann den Fehler des Agenten nicht erkennen.
 
 **Klicks**
 
@@ -703,7 +703,7 @@ MSG-A-02 (geplatzter Schlauch, 1.080 €) verlangt die Zahlung auf dasselbe Kont
 
 **Vorschriften und warum sie wichtig sind**
 
-- **AI Act art. 15 · Genauigkeit und Robustheit.** Das System muss während seiner gesamten Lebensdauer eine angemessene Genauigkeit halten, auch nach Änderungen. In diesem Fall gute Praxis. **Risiko:** Ein Modellwechsel zum Sparen, der die Entscheidungen still verschlechtert, ohne dass es jemand merkt, bis die Beschwerden kommen.
+- **AI Act Art. 15 · Genauigkeit und Robustheit.** Das System muss während seiner gesamten Lebensdauer eine angemessene Genauigkeit halten, auch nach Änderungen. In diesem Fall gute Praxis. **Risiko:** Ein Modellwechsel zum Sparen, der die Entscheidungen still verschlechtert, ohne dass es jemand merkt, bis die Beschwerden kommen.
 - **DSGVO Art. 15.** Der Kunde kann die Logik der Entscheidung verlangen. **Risiko:** Ohne protokolliertes Reasoning wird die Erklärung improvisiert und passt nicht zu dem, was passiert ist.
 
 **Klicks**
@@ -741,7 +741,7 @@ MSG-A-02 (geplatzter Schlauch, 1.080 €) verlangt die Zahlung auf dasselbe Kont
 
 **Vorschriften und warum sie wichtig sind**
 
-- **AI Act art. 10 · Daten und Daten-Governance.** Die Daten, mit denen das System arbeitet, müssen relevant, aktuell und kontrolliert sein. In diesem Fall gute Praxis. **Risiko:** Entscheidungen mit aufgehobenen Bedingungen, die der Versicherer korrigieren und entschädigen müsste.
+- **AI Act Art. 10 · Daten und Daten-Governance.** Die Daten, mit denen das System arbeitet, müssen relevant, aktuell und kontrolliert sein. In diesem Fall gute Praxis. **Risiko:** Entscheidungen mit aufgehobenen Bedingungen, die der Versicherer korrigieren und entschädigen müsste.
 - **DSGVO Art. 17 · Recht auf Löschung.** Verlangt ein Kunde die Löschung seiner Daten, müssen sie auch aus den Suchindizes gelöscht werden. **Risiko:** Das Handbuch der Schadenbearbeitung hat drei Fragmente mit echten Kundendaten; werden sie nicht aus dem Index entfernt, ist die Löschung unvollständig.
 
 **Klicks**
@@ -783,14 +783,14 @@ MSG-A-02 (geplatzter Schlauch, 1.080 €) verlangt die Zahlung auf dasselbe Kont
 **Vorschriften und warum sie wichtig sind**
 
 - **DSGVO Art. 35 · Datenschutz-Folgenabschätzung (DSFA).** Pflicht, wenn Gesundheitsdaten in großem Umfang mit neuer Technologie verarbeitet werden. **Risiko:** Ohne aktuelle DSFA zu verarbeiten, ist bereits ein Verstoß, auch ohne Vorfall.
-- **AI Act art. 50 · Transparenz gegenüber dem Kunden.** Wer mit einer KI spricht, muss es wissen. **Risiko:** In WhatsApp steht der Hinweis noch aus; ein Kunde, der nicht wusste, dass ihn eine KI bedient, kann sich beschweren.
-- **Integrität des Protokolls (AI Act art. 12, DSGVO Art. 32).** **Risiko:** Ein Protokoll, das sich ohne Spuren ändern lässt, ist als Beweis wertlos.
+- **AI Act Art. 50 · Transparenz gegenüber dem Kunden.** Wer mit einer KI spricht, muss es wissen. **Risiko:** In WhatsApp steht der Hinweis noch aus; ein Kunde, der nicht wusste, dass ihn eine KI bedient, kann sich beschweren.
+- **Integrität des Protokolls (AI Act Art. 12, DSGVO Art. 32).** **Risiko:** Ein Protokoll, das sich ohne Spuren ändern lässt, ist als Beweis wertlos.
 
 **Klicks**
 
 1. Kopfbereich: Abdeckung 87 %, 26 Kontrollen abgedeckt und 9 teilweise, 14 in den Spuren gemessen und 21 erklärt.
-2. Die vier Thermometer: AI Act 86 %, RGPD 87 %, DORA 100 %, EIOPA und Solvencia II 80 %. Auf eines klicken, um die Matrix zu filtern.
-3. **Matrix Vorschrift → Kontrolle**: Filter **Nur teilweise**. Auf die DSFA (RGPD art. 35) und den KI-Hinweis in WhatsApp (AI Act art. 50) hinweisen.
+2. Die vier Thermometer: AI Act 86 %, DSGVO 87 %, DORA 100 %, EIOPA und Solvency II 80 %. Auf eines klicken, um die Matrix zu filtern.
+3. **Matrix Vorschrift → Kontrolle**: Filter **Nur teilweise**. Auf die DSFA (DSGVO Art. 35) und den KI-Hinweis in WhatsApp (AI Act Art. 50) hinweisen.
 4. **Lebenszyklus einer Spur**: die acht Schritte mit ihrer Vorschrift und ihrer Frist.
 5. **Inventar personenbezogener Daten** → auf MSG-A-12 klicken: der Text mit den markierten Daten und sein Block `_gobernanza`.
 6. **Integrität des Protokolls** → **Manipulation simulieren**: Die Kette bricht und das Thermometer wird rot. Rückgängig machen.
@@ -866,7 +866,7 @@ MSG-A-02 (geplatzter Schlauch, 1.080 €) verlangt die Zahlung auf dasselbe Kont
 
 **Vorschriften und warum sie wichtig sind**
 
-- **AI Act art. 9 · Laufendes Risikomanagement.** Erkannte Risiken müssen Maßnahmen und Nachverfolgung haben. **Risiko:** Ein erkanntes Problem ohne Verantwortlichen wiegt bei einer Prüfung schwerer als ein unbekanntes, weil es zeigt, dass es bekannt war.
+- **AI Act Art. 9 · Laufendes Risikomanagement.** Erkannte Risiken müssen Maßnahmen und Nachverfolgung haben. **Risiko:** Ein erkanntes Problem ohne Verantwortlichen wiegt bei einer Prüfung schwerer als ein unbekanntes, weil es zeigt, dass es bekannt war.
 - **DSGVO Art. 5.2.** **Risiko:** Ohne Protokoll dessen, was korrigiert wurde und wer es genehmigt hat, lässt sich die Sorgfalt nicht nachweisen.
 
 **Klicks**
@@ -901,7 +901,7 @@ MSG-A-02 (geplatzter Schlauch, 1.080 €) verlangt die Zahlung auf dasselbe Kont
 
 **Vorschriften und warum sie wichtig sind**
 
-- **DSGVO Art. 5.2 und AI Act art. 12.** Es muss sich nachweisen lassen, wer was wann geändert hat. **Risiko:** Ohne Nachvollziehbarkeit der Änderungen lässt sich ein Fehler weder zuordnen noch an der Wurzel korrigieren, und der Versicherer kann nicht nachweisen, dass er sorgfältig gehandelt hat.
+- **DSGVO Art. 5.2 und AI Act Art. 12.** Es muss sich nachweisen lassen, wer was wann geändert hat. **Risiko:** Ohne Nachvollziehbarkeit der Änderungen lässt sich ein Fehler weder zuordnen noch an der Wurzel korrigieren, und der Versicherer kann nicht nachweisen, dass er sorgfältig gehandelt hat.
 
 **Klicks**
 
