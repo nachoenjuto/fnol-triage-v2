@@ -14,13 +14,13 @@ El panel describe una cadena de cuatro agentes (Multicanalidad → Clasificació
 | Coste de cada traza | calculado: tokens de los spans × `precios` |
 | Trazas con la fuente «Sesión actual» | convertidas del registro real del triaje |
 | Override y validación desde la ficha del triaje | reales en la sesión; cambian la tasa de override |
-| 14 días de histórico, caps, alertas, modelos, KB, rúbricas | datos inventados en `data/gobierno.js` |
+| 14 días de histórico, caps, alertas, modelos, KB, rúbricas | datos inventados en `data/demo/gobierno.js` |
 | Guardrails G-01…G-12 | descritos y contados; `app.js` no los ejecuta |
 | Kill switch | cambia el estado del agente en el panel; no detiene el triaje |
 | Replay idéntico y what-if | simulado con factores fijos (ver abajo) |
 | Aplicar o aprobar una acción correctiva | cambia el estado en la sesión y los KPI; no toca ninguna configuración |
 
-Lo inventado es coherente con el Paquete A: mismos ids, ramo, decisión, confianza y tokens que `data/resultados.js`.
+Lo inventado es coherente con el Paquete A: mismos ids, ramo, decisión, confianza y tokens que `data/demo/resultados.js`.
 
 ## Fuentes de datos
 

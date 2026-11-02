@@ -3,7 +3,7 @@
 const fs = require('fs');
 const path = require('path');
 const IDIOMAS = require('../../locales/idiomas.js');
-const I18N = require('../../locales/node.js')();   // con los textos del idioma base: prompts.js y otros los usan al cargar
+const I18N = require('../../core/i18n/node.js')();   // con los textos del idioma base: prompts.js y otros los usan al cargar
 
 const raiz = path.join(__dirname, '..', '..');
 const BASE = I18N.BASE;
@@ -36,12 +36,12 @@ function comparar(base, trad) {
 
 // Textos traducibles de los datos en el idioma base, por fichero de tabla: { 'datos-mensajes.js': Map(huella → texto) }
 const FUENTES_DATOS = {
-  'datos-mensajes.js': [['data/mensajes.js', 'PAQUETES']],
-  'datos-resultados.js': [['data/resultados.js', 'RESULTADOS_GUARDADOS'], ['data/resultados.js', 'REGLA_DESC']],
-  'datos-gobierno.js': [['data/gobierno.js', 'GOBIERNO_DEMO']],
-  'datos-fraude.js': [['data/fraude.js', 'FRAUDE_DEMO']],
+  'datos-mensajes.js': [['data/demo/mensajes.js', 'PAQUETES']],
+  'datos-resultados.js': [['data/demo/resultados.js', 'RESULTADOS_GUARDADOS'], ['data/demo/resultados.js', 'REGLA_DESC']],
+  'datos-gobierno.js': [['data/demo/gobierno.js', 'GOBIERNO_DEMO']],
+  'datos-fraude.js': [['data/demo/fraude.js', 'FRAUDE_DEMO']],
   'datos-prompts.js': [['prompts.js', 'PROMPT_BLOQUES']],
-  'datos-recorrido.js': [['data/recorrido.js', 'RECORRIDO_DEMO']],
+  'datos-recorrido.js': [['data/generated/recorrido.js', 'RECORRIDO_DEMO']],
   // Guiones de _docs (no se cargan en el navegador): una unidad por línea con texto, ver scripts/i18n/guion.js
   'datos-guion.js': () => require('./guion.js').textos(I18N),
 };

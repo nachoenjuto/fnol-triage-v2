@@ -1,6 +1,6 @@
 /* Panel «Gobierno de Agentes»: trazabilidad, Reasoning & Replay, autonomía, guardrails
  * y FinOps de los agentes del triaje. Sin backend: renderiza un dataset (demo embebida
- * en data/gobierno.js, un JSON cargado con el mismo esquema, o el registro de la sesión
+ * en data/demo/gobierno.js, un JSON cargado con el mismo esquema, o el registro de la sesión
  * actual del triaje leído de sessionStorage). Iconos: icons.js (Lucide).
  */
 (function () {
@@ -29,7 +29,7 @@
   // ---------------------------------------------------------------------------
   // Estado
   // ---------------------------------------------------------------------------
-  let G = GOBIERNO_DEMO;   // dataset activo (mismo esquema que data/gobierno-paquete-A.json)
+  let G = GOBIERNO_DEMO;   // dataset activo (mismo esquema que data/import-samples/gobierno-paquete-A.json)
   let AG = {};             // agentes por id (se recalcula en cada render)
   let POL = {};            // guardrails y caps por id (tooltips)
   let selId = null;        // traza seleccionada (compartida por Trazabilidad y Reasoning & Replay)
@@ -2477,7 +2477,7 @@
 
   // ---------------------------------------------------------------------------
   // Indicadores de fraude: score antifraude del lote (fraude.js), escenarios, catálogo, relaciones y cola de la SIU.
-  // El motor no usa IA: cruza el texto de cada mensaje con el resto del lote y con el histórico de data/fraude.js.
+  // El motor no usa IA: cruza el texto de cada mensaje con el resto del lote y con el histórico de data/demo/fraude.js.
   // ---------------------------------------------------------------------------
   const frCfg = ssGet('gobierno.fraude_cfg', {}); // cambios de la sesión en el catálogo: { 'IF-09': { activo, peso } }
   let FR = {}; let FRL = [];                         // evaluación por mensaje y entradas del lote

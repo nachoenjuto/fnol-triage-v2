@@ -310,7 +310,7 @@
 
   // ---------------------------------------------------------------------------
   // Conocimiento usado por cada decisión: catálogo común con la sección «Knowledge bases» del panel
-  // (data/gobierno.js · knowledge[] usa los mismos ids y versiones; lo comprueba tests/cumplimiento.test.js).
+  // (data/demo/gobierno.js · knowledge[] usa los mismos ids y versiones; lo comprueba tests/cumplimiento.test.js).
   // Solo KB-01 (los bloques de reglas de prompts.js) es real en la demo; el resto está simulado.
   // ---------------------------------------------------------------------------
   const CONOCIMIENTO = {

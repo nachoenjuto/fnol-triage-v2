@@ -1,6 +1,6 @@
-// Pruebas del núcleo de idiomas (locales/i18n.js) sin dependencias: `node tests/i18n.test.js` (o `make test`).
+// Pruebas del núcleo de idiomas (core/i18n/i18n.js) sin dependencias: `node tests/i18n.test.js` (o `make test`).
 const assert = require('assert');
-const I18N = require('../locales/i18n.js');
+const I18N = require('../core/i18n/i18n.js');
 
 let n = 0;
 const test = (nombre, fn) => { try { fn(); n++; console.log(`  ok   ${nombre}`); } catch (e) { console.error(`  FALLA ${nombre}\n       ${e.message}`); process.exitCode = 1; } };

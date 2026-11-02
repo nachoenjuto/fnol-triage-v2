@@ -1,7 +1,7 @@
 // Datos de demostración del panel «Gobierno de Agentes»: los 13 mensajes del Paquete A
-// (mismos ids, ramo, decisión, confianza y tokens que data/resultados.js) más 14 días de
+// (mismos ids, ramo, decisión, confianza y tokens que data/demo/resultados.js) más 14 días de
 // histórico, alertas, caps, guardrails, replays y eventos inventados para la demo.
-// Mismo esquema que data/gobierno-paquete-A.json («Cargar JSON» en el panel).
+// Mismo esquema que data/import-samples/gobierno-paquete-A.json («Cargar JSON» en el panel).
 
 const GOBIERNO_DEMO = {
   version: 1, generado: '2026-09-17T09:30:00', periodo: { desde: '2026-09-04', hasta: '2026-09-17' },
@@ -473,7 +473,7 @@ const CAPS_DETALLE = {
       { titulo: 'Escalonar el arranque de lotes para evitar ráfagas', detalle: 'La ráfaga del 15/09 coincidió con el arranque simultáneo de los lotes de Hogar y Auto.', impacto: 'Evita 429', tipo: 'proceso' },
     ],
   },
-  // Antifraude (data/fraude.js): las series coinciden con FRAUDE_DEMO.diario
+  // Antifraude (data/demo/fraude.js): las series coinciden con FRAUDE_DEMO.diario
   'CAP-08': {
     desde: '2026-08-25', propietario: 'SIU', agentes: { reglas: 1 },
     descripcion: 'Frecuencia anómala: más de 3 mensajes de la misma póliza en 24 horas suele ser un duplicado multicanal (EF-07) o una reclamación inflada.',

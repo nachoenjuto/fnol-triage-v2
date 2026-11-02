@@ -25,7 +25,7 @@ I18N.registrarDatos('de', {
   "92177707": "**Die Triage ist nach dem AI Act kein Hochrisiko.** Anhang III 5(c) umfasst Preisgestaltung und Risikobewertung in Leben und Gesundheit. Die Hochrisiko-Pflichten wurden auf den 2. Dezember 2027 verschoben. Das Argument von heute sind DSGVO, DORA und EIOPA; der AI Act wird als gute Praxis angewandt.",
   "98347603": "Score von 0 bis 100: unter 40 wird er protokolliert, zwischen 40 und 69 wird die Zahlung zurückgehalten und ab 70 geht der Fall an die SIU.",
   "8fd885de": "Demo-Leitfaden · FNOL-Triage mit gesteuerten Agenten",
-  "f2020ff7": "Leitfaden Schritt für Schritt für eine Sitzung von 30-35 Minuten: Einführung in den vier Abschnitten von `intro.html` und Demo mit Paket A (13 Meldungen) in `index.html` und `gobierno.html`. Grundlage: [guia-demo.md](guia-demo.md) und der Demo-Rundgang (`data/recorrido.js`).",
+  "8d844c4a": "Leitfaden Schritt für Schritt für eine Sitzung von 30-35 Minuten: Einführung in den vier Abschnitten von `intro.html` und Demo mit Paket A (13 Meldungen) in `index.html` und `gobierno.html`. Grundlage: [guia-demo.md](../guia-demo.md) und der Demo-Rundgang (`data/generated/recorrido.js`).",
   "afb4cabe": "**So liest man diesen Leitfaden**",
   "6815297b": "Die zitierten Absätze (mit dem Balken links) sind der **Text zum Vorlesen**. In der Word-Version erscheinen sie in Grün.",
   "9ddfeb68": "Der Rest sind Hinweise für den Präsentierenden: was zu öffnen ist, wo zu klicken ist und worauf zu achten ist.",

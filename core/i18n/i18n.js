@@ -10,7 +10,7 @@
 (function (root) {
   'use strict';
 
-  const IDIOMAS = root.IDIOMAS || (typeof require !== 'undefined' ? require('./idiomas.js') : {});
+  const IDIOMAS = root.IDIOMAS || (typeof require !== 'undefined' ? require('../../locales/idiomas.js') : {});
   const BASE = Object.keys(IDIOMAS).find((c) => IDIOMAS[c].base) || 'es';
   // Ficheros de textos de cada idioma (locales/<idioma>/…): los carga cargar.js y los compara scripts/i18n/i18n-check.js
   const FICHEROS = ['ui.js', 'ui-triaje.js', 'ui-gobierno.js', 'ui-intro.js'];

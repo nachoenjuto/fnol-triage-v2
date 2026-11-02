@@ -50,13 +50,13 @@ C4Container
   Rel(triage, foundry, "llamadas al modelo con el mensaje seudonimizado", "HTTPS")
   Rel(triage, evid, "Evidencias.construir()")
   Rel(triage, adj, "Adjuntos.huellas() al recibir · Adjuntos.url() en la pestaña Adjuntos")
-  Rel(adj, datos, "contenido del parte y fotos de data/adjuntos/")
+  Rel(adj, datos, "contenido del parte y fotos de data/attachments/")
   Rel(cumpl, evid, "evidencias verificadas")
   Rel(triage, cumpl, "_gobernanza por decisión (Respuesta cruda, registro)")
   Rel(gobierno, cumpl, "Termómetro de cumplimiento, inventario, cadena de integridad")
   Rel(triage, fraude, "Fraude.evaluar() sobre el registro: etiqueta y bloque de la ficha")
   Rel(gobierno, fraude, "Fraude.evaluar() sobre el lote: sección Fraude, ficha de traza")
-  Rel(fraude, datos, "catálogo, escenarios e histórico (data/fraude.js)")
+  Rel(fraude, datos, "catálogo, escenarios e histórico (data/demo/fraude.js)")
   Rel(fechas, datos, "desplaza PAQUETES, RESULTADOS_GUARDADOS, GOBIERNO_DEMO y FRAUDE_DEMO")
 ```
 
@@ -65,7 +65,7 @@ C4Container
 ```mermaid
 flowchart LR
   subgraph fuentes[Fuentes de datos]
-    demo[data/gobierno.js · GOBIERNO_DEMO]
+    demo[data/demo/gobierno.js · GOBIERNO_DEMO]
     json[Archivo JSON cargado]
     sesion[sessionStorage triage.log]
   end
@@ -104,7 +104,7 @@ flowchart LR
   medidas -. aplicar medida de coste .-> estado3
   estado5 -. controles verificados .-> cumpl
   G --> historico[Histórico · línea de tiempo por tipo de evento]
-  frd[data/fraude.js · FRAUDE_DEMO] --> motor[[fraude.js · motor de indicadores sin IA]]
+  frd[data/demo/fraude.js · FRAUDE_DEMO] --> motor[[fraude.js · motor de indicadores sin IA]]
   G --> motor
   motor --> fraude[Fraude · KPI, casos del lote, escenarios, mapa de relaciones, cola SIU, catálogo, límites, equidad por canal]
   fraude -. clic en caso .-> mFr([Modal · ficha del caso: desglose, citas, seguimiento])
@@ -153,15 +153,15 @@ flowchart LR
   ret[retención · 6 meses traza, 2 o 5 años expediente, bloqueo] --> gob
   sup[supervisión humana · REVISION → persona] --> gob
   kbcat[CONOCIMIENTO · KB y versiones usadas por la decisión] --> gob
-  kbcat -. mismos ids y versiones .- kbpanel[data/gobierno.js · knowledge]
+  kbcat -. mismos ids y versiones .- kbpanel[data/demo/gobierno.js · knowledge]
   gob --> ficha[index.html · Respuesta cruda coloreada]
   gob --> log[(sessionStorage triage.log · Exportar JSON)]
   log --> panel[gobierno.html · Termómetro de cumplimiento]
-  decl[data/gobierno.js · controles declarados] --> panel
+  decl[data/demo/gobierno.js · controles declarados] --> panel
   gob --> cadena[encadenar / verificarCadena · integridad del registro]
   cadena --> panel
 ```
 
 Las acciones del operador en el panel (kill switch, guardrails, caps nuevos, acciones correctivas, medidas aplicadas o verificadas, acciones sobre las Knowledge Bases y rúbricas editadas) se guardan en `sessionStorage` y dejan un evento en el histórico. El estado plegado del menú lateral es una preferencia del navegador (`localStorage`, clave `shell.nav`) y se comparte entre las dos páginas. El Recorrido de la demo guarda el desbloqueo del modo presentador y el paso actual en `sessionStorage` (`demo.presentador`, `demo.recorrido`) y su configuración, textos editados y posición en `localStorage` (`demo.recorrido.config`, `demo.recorrido.pos`). Todas las ventanas emergentes que se abren desde una lista comparten la navegación «‹ 3 de 13 ›» y la animación de sus gráficos. Ver [guia-demo.md](../demo/guia-demo.md) para la guía funcional de cada pantalla.
 
-Esquema del dataset (`data/gobierno-paquete-A.json`): `version`, `periodo`, `precios{modelo:{in,out}}`, `agentes[]` (con `historial[]`, `modelos[]`, `variables[]`), `niveles[]`, `politicas[]` (con `descripcion`, `severidad`, `disparos_dia[]`, `ultimos[]`), `cambios_autonomia[]`, `caps[]`, `kpis`, `alertas[]`, `modelos[]` (consumo, `coste_por_agente`, `tokens_por_agente{agente:{in,out,reasoning}}` —tokens × `precios` da `coste_por_agente`, y su suma por agente cuadra con `diario`—, `exito`), `trazas[]` (cada una con `motivo` y `spans: [[agente, inicio_ms, duracion_ms, modelo, tok_in, tok_out, tok_reasoning]]`), `razonamiento{trazaId: pasos[]}`, `replays[]`, `diario[[fecha, mensajes, [€ por agente]]]`, `eventos[]`, `recomendaciones[]`, `cumplimiento_declarado{ria, rgpd, dora, eiopa}` (controles documentales del Termómetro de cumplimiento), `knowledge[]` (KB con `fuente`, `config`, `metricas`, `serie`, `comparativa`, `uso`, `versiones`, `evaluacion`; mismos ids y versiones que `Cumplimiento.CONOCIMIENTO`) y `rubricas[]` (`criterios[[nombre, peso, descripción]]`, `preguntas[[pregunta, tipo, esperado, fuentes]]`, `acuerdo`, `historial`) y `medidas[]` (`dim`, `sev`, `agente`, `impacto`, `origen`, `controles`, `kb` y `alternativas[]` con `titulo`, `impacto`, `efecto`, `esfuerzo`, `aprueba`, `valida`, `rec`, `corr` —enlace a la acción correctiva de un cap, `CAP-03:1`— y `ahorro_mes`). Los dos JSON de `data/` se regeneran con `make datos`.
+Esquema del dataset (`data/import-samples/gobierno-paquete-A.json`): `version`, `periodo`, `precios{modelo:{in,out}}`, `agentes[]` (con `historial[]`, `modelos[]`, `variables[]`), `niveles[]`, `politicas[]` (con `descripcion`, `severidad`, `disparos_dia[]`, `ultimos[]`), `cambios_autonomia[]`, `caps[]`, `kpis`, `alertas[]`, `modelos[]` (consumo, `coste_por_agente`, `tokens_por_agente{agente:{in,out,reasoning}}` —tokens × `precios` da `coste_por_agente`, y su suma por agente cuadra con `diario`—, `exito`), `trazas[]` (cada una con `motivo` y `spans: [[agente, inicio_ms, duracion_ms, modelo, tok_in, tok_out, tok_reasoning]]`), `razonamiento{trazaId: pasos[]}`, `replays[]`, `diario[[fecha, mensajes, [€ por agente]]]`, `eventos[]`, `recomendaciones[]`, `cumplimiento_declarado{ria, rgpd, dora, eiopa}` (controles documentales del Termómetro de cumplimiento), `knowledge[]` (KB con `fuente`, `config`, `metricas`, `serie`, `comparativa`, `uso`, `versiones`, `evaluacion`; mismos ids y versiones que `Cumplimiento.CONOCIMIENTO`) y `rubricas[]` (`criterios[[nombre, peso, descripción]]`, `preguntas[[pregunta, tipo, esperado, fuentes]]`, `acuerdo`, `historial`) y `medidas[]` (`dim`, `sev`, `agente`, `impacto`, `origen`, `controles`, `kb` y `alternativas[]` con `titulo`, `impacto`, `efecto`, `esfuerzo`, `aprueba`, `valida`, `rec`, `corr` —enlace a la acción correctiva de un cap, `CAP-03:1`— y `ahorro_mes`). Los dos JSON de `data/` se regeneran con `make datos`.

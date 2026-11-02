@@ -25,7 +25,7 @@ I18N.registrarDatos('en', {
   "92177707": "**Triage is not high risk under the AI Act.** Annex III 5(c) covers pricing and risk assessment in Life and Health. The high-risk obligations were postponed to 2 December 2027. Today's argument is GDPR, DORA and EIOPA; the AI Act is applied as good practice.",
   "98347603": "Score from 0 to 100: below 40 it is recorded, between 40 and 69 the payment is withheld and from 70 it goes to the SIU.",
   "8fd885de": "Demo script · FNOL triage with governed agents",
-  "f2020ff7": "Step-by-step script for a 30-35 minute session: introduction in the four sections of `intro.html` and demo on Package A (13 messages) in `index.html` and `gobierno.html`. Based on: [guia-demo.md](guia-demo.md) and the demo walkthrough (`data/recorrido.js`).",
+  "8d844c4a": "Step-by-step script for a 30-35 minute session: introduction in the four sections of `intro.html` and demo on Package A (13 messages) in `index.html` and `gobierno.html`. Based on: [guia-demo.md](../guia-demo.md) and the demo walkthrough (`data/generated/recorrido.js`).",
   "afb4cabe": "**How to read this script**",
   "6815297b": "The quoted paragraphs (with the bar on the left) are the **text to say out loud**. In the Word version they appear in green.",
   "9ddfeb68": "The rest are directions for the presenter: what to open, where to click and what to look at.",

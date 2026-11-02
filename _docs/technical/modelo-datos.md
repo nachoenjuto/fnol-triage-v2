@@ -4,14 +4,14 @@ Todos los datos de la demo están en `data/` como scripts que declaran una const
 
 | Fichero | Constante | Lo usa | Contenido |
 |---|---|---|---|
-| `data/mensajes.js` | `PAQUETES` | triaje, panel | 3 paquetes, 51 mensajes |
-| `data/resultados.js` | `RESULTADOS_GUARDADOS`, `REGLA_DESC`, `TRAZA_DEMO`, `expandirResultadoGuardado()` | triaje, panel | una ficha de triaje por mensaje, en formato compacto |
-| `data/gobierno.js` | `GOBIERNO_DEMO` | panel | dataset del panel: Paquete A + 14 días de histórico |
-| `data/fraude.js` | `FRAUDE_DEMO` (y `GOBIERNO_DEMO.fraude`) | triaje, panel | catálogo antifraude, escenarios e histórico ficticio |
-| `data/recorrido.js` | `RECORRIDO_DEMO` | las tres páginas | pasos del modo presentador, **generado** desde `_docs/demo/es/guion-demo.md` |
-| `data/gobierno-paquete-A.json` | — | panel, «Cargar JSON» | `GOBIERNO_DEMO` + `FRAUDE_DEMO`, generado con `make datos` |
-| `data/triage-registro-paquete-A.json` | — | triaje, «Reproducir desde archivo» | 13 entradas del registro en formato «Exportar JSON», generado con `make datos` |
-| `data/adjuntos/*.jpg` | — | triaje | dos fotos de los daños de MSG-A-01 |
+| `data/demo/mensajes.js` | `PAQUETES` | triaje, panel | 3 paquetes, 51 mensajes |
+| `data/demo/resultados.js` | `RESULTADOS_GUARDADOS`, `REGLA_DESC`, `TRAZA_DEMO`, `expandirResultadoGuardado()` | triaje, panel | una ficha de triaje por mensaje, en formato compacto |
+| `data/demo/gobierno.js` | `GOBIERNO_DEMO` | panel | dataset del panel: Paquete A + 14 días de histórico |
+| `data/demo/fraude.js` | `FRAUDE_DEMO` (y `GOBIERNO_DEMO.fraude`) | triaje, panel | catálogo antifraude, escenarios e histórico ficticio |
+| `data/generated/recorrido.js` | `RECORRIDO_DEMO` | las tres páginas | pasos del modo presentador, **generado** desde `_docs/demo/es/guion-demo.md` |
+| `data/import-samples/gobierno-paquete-A.json` | — | panel, «Cargar JSON» | `GOBIERNO_DEMO` + `FRAUDE_DEMO`, generado con `make datos` |
+| `data/import-samples/triage-registro-paquete-A.json` | — | triaje, «Reproducir desde archivo» | 13 entradas del registro en formato «Exportar JSON», generado con `make datos` |
+| `data/attachments/*.jpg` | — | triaje | dos fotos de los daños de MSG-A-01 |
 
 Los datos personales de todos los ficheros son ficticios.
 
@@ -42,7 +42,7 @@ Cada paquete es `{ id, nombre, descripcion, mensajes }`. Reparto: A 13 mensajes 
   contenido: { fecha, hora, localizacion, heridos, danos_otros, testigos,
                a: { tomador, direccion, telefono, marca, matricula, aseguradora, poliza, conductor, dni, permiso, choque, danos, observaciones },
                b: { … }, circunstancias_a: [8], circunstancias_b: [], croquis_via, croquis_sentido } }
-{ id: 'ADJ-2', archivo: 'foto-danos-1.jpg', tipo: 'foto_danos', mime: 'image/jpeg', titulo: '…', src: 'data/adjuntos/foto-danos-1.jpg' }
+{ id: 'ADJ-2', archivo: 'foto-danos-1.jpg', tipo: 'foto_danos', mime: 'image/jpeg', titulo: '…', src: 'data/attachments/foto-danos-1.jpg' }
 ```
 
 El PDF no existe en el repositorio. `adjuntos.js` lo dibuja con pdf-lib a partir de `contenido`. Las circunstancias son índices (1–17) de la lista `CIRCUNSTANCIAS` del modelo oficial de declaración amistosa.
@@ -93,7 +93,7 @@ La exportación CSV solo lleva `paquete, id, asunto, ramo, importe, decision, mo
 
 ## Dataset del panel (`GOBIERNO_DEMO`)
 
-Mismo esquema que `data/gobierno-paquete-A.json`. Claves de primer nivel:
+Mismo esquema que `data/import-samples/gobierno-paquete-A.json`. Claves de primer nivel:
 
 | Clave | Forma resumida |
 |---|---|
@@ -114,7 +114,7 @@ Mismo esquema que `data/gobierno-paquete-A.json`. Claves de primer nivel:
 | `knowledge[]` | KB-01…KB-09 con `config`, `metricas`, `serie`, `uso`, `versiones`, `evaluacion` |
 | `rubricas[]` | rúbricas de evaluación de KB: `criterios` con pesos que suman 100 y `preguntas` |
 | `medidas[]` | 19 medidas correctivas `{ id, dim, sev, agente, impacto, origen, titulo, detalle, alternativas[] }` |
-| `fraude` | `FRAUDE_DEMO` (lo engancha `data/fraude.js`) |
+| `fraude` | `FRAUDE_DEMO` (lo engancha `data/demo/fraude.js`) |
 
 Los cuatro agentes son `multicanal` (gpt-5-nano + stt-es, L3), `clasificacion` (gpt-5-nano, L3), `extraccion` (gpt-5-mini, L2) y `reglas` (gpt-5, L2, prompt v2.3).
 
@@ -158,7 +158,7 @@ Como el texto del mensaje y las citas de las evidencias se desplazan con la mism
 
 | Cambio | Comando | Regenera |
 |---|---|---|
-| `data/mensajes.js`, `data/resultados.js`, `data/gobierno.js` o `data/fraude.js` | `make datos` | los dos JSON de `data/` |
-| `_docs/demo/es/guion-demo.md` | `make recorrido` | `data/recorrido.js` |
+| `data/demo/mensajes.js`, `data/demo/resultados.js`, `data/demo/gobierno.js` o `data/demo/fraude.js` | `make datos` | los dos JSON de `data/` |
+| `_docs/demo/es/guion-demo.md` | `make recorrido` | `data/generated/recorrido.js` |
 
-`tests/recorrido.test.js` falla si `data/recorrido.js` no está al día con el guion.
+`tests/recorrido.test.js` falla si `data/generated/recorrido.js` no está al día con el guion.

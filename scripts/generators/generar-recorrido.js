@@ -1,4 +1,4 @@
-// Genera data/recorrido.js (pasos del Recorrido de la demo, modo presentador) a partir de _docs/demo/es/guion-demo.md.
+// Genera data/generated/recorrido.js (pasos del Recorrido de la demo, modo presentador) a partir de _docs/demo/es/guion-demo.md.
 // Uso: `node scripts/generators/generar-recorrido.js` o `make recorrido`, cada vez que cambie el guion.
 // De cada paso del guion toma el título, el minuto, la pantalla, la frase clave, los clics y todo el texto para decir
 // (párrafos en cita), que se trocea en subtítulos de una o dos frases con su tipo: introducción, para qué sirve,
@@ -8,7 +8,7 @@ const path = require('path');
 
 const RAIZ = path.join(__dirname, '..', '..');
 const GUION = path.join(RAIZ, '_docs', 'demo', 'es', 'guion-demo.md');
-const SALIDA = path.join(RAIZ, 'data', 'recorrido.js');
+const SALIDA = path.join(RAIZ, 'data', 'generated', 'recorrido.js');
 const MAX_CHUNK = 230;   // caracteres por subtítulo (una o dos frases)
 const MAX_TXT = 400;     // límite de shell.js por subtítulo
 

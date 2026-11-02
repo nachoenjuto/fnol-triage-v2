@@ -1,4 +1,4 @@
-// Traducción de data/mensajes.js: { huella del texto en español: texto }. Pendientes: make i18n-estado IDIOMA=de
+// Traducción de data/demo/mensajes.js: { huella del texto en español: texto }. Pendientes: make i18n-estado IDIOMA=de
 I18N.registrarDatos('de', {
   "23074673": "Mein Hausarzt im Netzwerk (Centro Médico Chamartín) hat bei mir eine routinemäßige Blut- und Urinuntersuchung angeordnet. Kann ich direkt im Labor einen Termin machen? Police SA-223981.",
   "30370806": "Nerea Ibarra Lago",

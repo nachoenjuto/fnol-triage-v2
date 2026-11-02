@@ -1,6 +1,6 @@
 # Demo-Leitfaden · FNOL-Triage mit gesteuerten Agenten
 
-Leitfaden Schritt für Schritt für eine Sitzung von 30-35 Minuten: Einführung in den vier Abschnitten von `intro.html` und Demo mit Paket A (13 Meldungen) in `index.html` und `gobierno.html`. Grundlage: [guia-demo.md](guia-demo.md) und der Demo-Rundgang (`data/recorrido.js`).
+Leitfaden Schritt für Schritt für eine Sitzung von 30-35 Minuten: Einführung in den vier Abschnitten von `intro.html` und Demo mit Paket A (13 Meldungen) in `index.html` und `gobierno.html`. Grundlage: [guia-demo.md](../guia-demo.md) und der Demo-Rundgang (`data/generated/recorrido.js`).
 
 **So liest man diesen Leitfaden**
 

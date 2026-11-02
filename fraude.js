@@ -1,5 +1,5 @@
 // Motor de indicadores de fraude: calcula, sin IA y de forma determinista, el score antifraude de cada mensaje
-// cruzando su texto con el resto del lote y con el histórico de pólizas y siniestros (data/fraude.js).
+// cruzando su texto con el resto del lote y con el histórico de pólizas y siniestros (data/demo/fraude.js).
 // Lógica pura (sin DOM), compartida por index.html (ficha del triaje), gobierno.html (sección «Indicadores de
 // fraude») y Node (tests/fraude.test.js).
 //

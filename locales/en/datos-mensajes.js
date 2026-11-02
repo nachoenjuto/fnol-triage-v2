@@ -1,4 +1,4 @@
-// Traducción de data/mensajes.js: { huella del texto en español: texto }. Pendientes: make i18n-estado IDIOMA=en
+// Traducción de data/demo/mensajes.js: { huella del texto en español: texto }. Pendientes: make i18n-estado IDIOMA=en
 I18N.registrarDatos('en', {
   "23074673": "My GP in the network (Centro Médico Chamartín) has asked me for a routine blood and urine test. Can I book directly at the laboratory? Policy SA-223981.",
   "30370806": "Nerea Ibarra Lago",

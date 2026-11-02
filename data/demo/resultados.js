@@ -404,7 +404,7 @@ const RESULTADOS_GUARDADOS = {
   },
 };
 
-// Traza del panel de gobierno (data/gobierno.js) que corresponde a cada mensaje del Paquete A: la ficha del
+// Traza del panel de gobierno (data/demo/gobierno.js) que corresponde a cada mensaje del Paquete A: la ficha del
 // triaje y el panel muestran así el mismo identificador y el mismo bloque _gobernanza
 const TRAZA_DEMO = {
   'MSG-A-01': 'TRZ-4F2A', 'MSG-A-02': 'TRZ-4F2B', 'MSG-A-03': 'TRZ-4F2C', 'MSG-A-04': 'TRZ-4F2D', 'MSG-A-05': 'TRZ-4F2E',

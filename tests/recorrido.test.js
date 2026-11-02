@@ -1,12 +1,12 @@
-// Pruebas del Recorrido de la demo (shell.js + data/recorrido.js) sin dependencias: `node tests/recorrido.test.js` (o `make test`).
+// Pruebas del Recorrido de la demo (shell.js + data/generated/recorrido.js) sin dependencias: `node tests/recorrido.test.js` (o `make test`).
 const assert = require('assert');
 const crypto = require('crypto');
 const fs = require('fs');
 const path = require('path');
 
 const cargar = (f, exportar) => new Function(`${fs.readFileSync(path.join(__dirname, '..', f), 'utf8')}\nreturn ${exportar};`)();
-require('../locales/node.js')();
-globalThis.RECORRIDO_DEMO = cargar('data/recorrido.js', 'RECORRIDO_DEMO');
+require('../core/i18n/node.js')();
+globalThis.RECORRIDO_DEMO = cargar('data/generated/recorrido.js', 'RECORRIDO_DEMO');
 require('../shell.js');
 const R = globalThis.Shell.Recorrido;
 const N = R.PASOS.length;
@@ -28,12 +28,12 @@ const test = async (nombre, fn) => { try { await fn(); n++; console.log(`  ok   
     assert.deepStrictEqual(R.PASOS.slice(0, 4).map((p) => p.accion), ['sec:problema', 'sec:solucion', 'sec:actores', 'sec:demo']);
     assert.ok(['intro', 'para', 'que', 'valor'].every((t) => R.PASOS.some((p) => p.subtitulos.some((s) => s.tipo === t))), 'hay subtítulos de los cuatro tipos');
   });
-  await test('data/recorrido.js está al día con _docs/demo/es/guion-demo.md', () => {
+  await test('data/generated/recorrido.js está al día con _docs/demo/es/guion-demo.md', () => {
     const { execFileSync } = require('child_process');
-    const actual = fs.readFileSync(path.join(__dirname, '..', 'data', 'recorrido.js'), 'utf8');
+    const actual = fs.readFileSync(path.join(__dirname, '..', 'data', 'generated', 'recorrido.js'), 'utf8');
     execFileSync(process.execPath, [path.join(__dirname, '..', 'scripts', 'generators', 'generar-recorrido.js')], { stdio: 'ignore' });
-    const nuevo = fs.readFileSync(path.join(__dirname, '..', 'data', 'recorrido.js'), 'utf8');
-    if (nuevo !== actual) fs.writeFileSync(path.join(__dirname, '..', 'data', 'recorrido.js'), actual);
+    const nuevo = fs.readFileSync(path.join(__dirname, '..', 'data', 'generated', 'recorrido.js'), 'utf8');
+    if (nuevo !== actual) fs.writeFileSync(path.join(__dirname, '..', 'data', 'generated', 'recorrido.js'), actual);
     assert.strictEqual(nuevo, actual, 'regenera con «make recorrido» tras cambiar el guion');
   });
 

@@ -175,7 +175,7 @@ Fase 1: el modelo en vivo no recibe los adjuntos. Al procesar MSG-A-01 con IA, `
 
 ## Comprobación con un modelo real
 
-`tests/ia-real.js` (`make test-ia`) envía el Paquete A a un modelo real con los prompts por defecto y mide cuántas citas de evidencia se localizan en el texto. Lee la configuración de variables de entorno, nunca de un fichero:
+`tests/benchmark/ia-real.js` (`make test-ia`) envía el Paquete A a un modelo real con los prompts por defecto y mide cuántas citas de evidencia se localizan en el texto. Lee la configuración de variables de entorno, nunca de un fichero:
 
 ```bash
 export TRIAGE_ENDPOINT='https://<recurso>.openai.azure.com/openai/deployments/<despliegue>/chat/completions?api-version=<versión>'

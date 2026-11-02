@@ -1,5 +1,5 @@
 // Pruebas de los adjuntos (adjuntos.js, MSG-A-01 y su bloque _gobernanza.adjuntos) sin dependencias: `node tests/adjuntos.test.js` (o `make test`).
-require('../locales/node.js')();
+require('../core/i18n/node.js')();
 const assert = require('assert');
 const crypto = require('crypto');
 const fs = require('fs');
@@ -11,8 +11,8 @@ require('../adjuntos.js');
 const Adj = globalThis.Adjuntos;
 
 const cargar = (f, exportar) => new Function(`${fs.readFileSync(path.join(__dirname, '..', f), 'utf8')}\nreturn ${exportar};`)();
-const PAQUETES = cargar('data/mensajes.js', 'PAQUETES');
-const { RESULTADOS_GUARDADOS, expandir } = cargar('data/resultados.js', '{ RESULTADOS_GUARDADOS, expandir: expandirResultadoGuardado }');
+const PAQUETES = cargar('data/demo/mensajes.js', 'PAQUETES');
+const { RESULTADOS_GUARDADOS, expandir } = cargar('data/demo/resultados.js', '{ RESULTADOS_GUARDADOS, expandir: expandirResultadoGuardado }');
 const m = PAQUETES[0].mensajes.find((x) => x.id === 'MSG-A-01');
 const r = expandir(RESULTADOS_GUARDADOS['MSG-A-01']);
 const { usage, ...json } = r;
@@ -23,7 +23,7 @@ const test = async (nombre, fn) => { try { await fn(); n++; console.log(`  ok   
 
 (async () => {
   console.log('datos');
-  await test('solo MSG-A-01 lleva adjuntos: el parte en PDF y dos fotos que existen en data/adjuntos/', () => {
+  await test('solo MSG-A-01 lleva adjuntos: el parte en PDF y dos fotos que existen en data/attachments/', () => {
     const con = PAQUETES.flatMap((p) => p.mensajes).filter((x) => (x.adjuntos || []).length);
     assert.deepStrictEqual(con.map((x) => x.id), ['MSG-A-01']);
     assert.deepStrictEqual(m.adjuntos.map((a) => a.mime), ['application/pdf', 'image/jpeg', 'image/jpeg']);

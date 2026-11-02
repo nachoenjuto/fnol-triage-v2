@@ -14,7 +14,7 @@ make test
 | `tests/fechas.test.js` | 11 | `fechas.js` | formatos de fecha, día de la semana, cambio de año, corte de la mañana, citas literales |
 | `tests/ahorro.test.js` | 6 | `ahorro.js` | coste manual por mensaje, automatizados y escalados, escenarios |
 | `tests/adjuntos.test.js` | 10 | `adjuntos.js` | parte en PDF determinista, contraste con el email, `_gobernanza.adjuntos` |
-| `tests/recorrido.test.js` | 13 | `shell.js`, `data/recorrido.js` | guion sincronizado, configuración del recorrido, tiempos de subtítulos |
+| `tests/recorrido.test.js` | 13 | `shell.js`, `data/generated/recorrido.js` | guion sincronizado, configuración del recorrido, tiempos de subtítulos |
 
 ## Qué cubre cada suite
 
@@ -28,11 +28,11 @@ make test
 
 **Adjuntos.** Solo MSG-A-01 lleva adjuntos y sus ficheros existen. El parte cuadra con el mensaje y con lo extraído. El PDF es determinista y cambia si cambia la fecha. `_gobernanza.adjuntos` registra las tres huellas, marca los datos del tercero y no deja ninguno en claro.
 
-**Recorrido.** `data/recorrido.js` está al día con `_docs/demo/es/guion-demo.md` (24 pasos). La configuración guardada con valores fuera de rango o de un guion anterior se descarta. Cada subtítulo dura lo que se tarda en leerlo. La contraseña del modo presentador se guarda solo como SHA-256.
+**Recorrido.** `data/generated/recorrido.js` está al día con `_docs/demo/es/guion-demo.md` (24 pasos). La configuración guardada con valores fuera de rango o de un guion anterior se descarta. Cada subtítulo dura lo que se tarda en leerlo. La contraseña del modo presentador se guarda solo como SHA-256.
 
 ## Comprobación con un modelo real
 
-`tests/ia-real.js` no forma parte de `make test` porque llama a un modelo de pago. Envía el Paquete A (o los `N` primeros mensajes) con los prompts por defecto y mide, por mensaje y en total: evidencias pedidas, localizadas exactas, normalizadas, no localizadas, JSON inválido, respuestas sin campo `evidencias`, respuestas truncadas y tokens de salida. La configuración se lee de variables de entorno; ver [integracion-ia.md](integracion-ia.md#comprobación-con-un-modelo-real).
+`tests/benchmark/ia-real.js` no forma parte de `make test` porque llama a un modelo de pago. Envía el Paquete A (o los `N` primeros mensajes) con los prompts por defecto y mide, por mensaje y en total: evidencias pedidas, localizadas exactas, normalizadas, no localizadas, JSON inválido, respuestas sin campo `evidencias`, respuestas truncadas y tokens de salida. La configuración se lee de variables de entorno; ver [integracion-ia.md](integracion-ia.md#comprobación-con-un-modelo-real).
 
 ```bash
 make test-ia N=3

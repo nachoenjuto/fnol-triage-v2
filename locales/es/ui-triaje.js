@@ -195,7 +195,7 @@ I18N.registrar('es', {
   'triaje.archivo_cargado_fichas_35': 'Archivo cargado — {nombre} ({entradas} fichas, 3–5 s por mensaje)',
   'triaje.archivo_cargado_reproduccion_carga': 'Archivo cargado — reproducción (carga un JSON abajo)',
   'triaje.llama_a_la_ia': 'Llama a la IA si hay clave; si no, usa el motor local de reglas.',
-  'triaje.reproduce_fichas_generadas_con': 'Reproduce fichas generadas con IA y guardadas en data/resultados.js, sin llamar al modelo.',
+  'triaje.reproduce_fichas_generadas_con': 'Reproduce fichas generadas con IA y guardadas en data/demo/resultados.js, sin llamar al modelo.',
   'triaje.reproduce_las_fichas_del': 'Reproduce las fichas del JSON cargado en el orden en que se procesaron.',
   'triaje.editado': ' · editado',
   'triaje.caracteres': 'caracteres',

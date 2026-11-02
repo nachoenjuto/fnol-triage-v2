@@ -64,7 +64,7 @@ Todas con el mismo diseño, para que se lean como una serie:
 - **Pie**: las normas a las que responde y «En la demo: Gobierno › sección».
 - **Notas del ponente**: 30-40 segundos de discurso.
 
-Todas las cifras salen del dataset de la demo (`data/gobierno.js`) y coinciden con las capturas.
+Todas las cifras salen del dataset de la demo (`data/demo/gobierno.js`) y coinciden con las capturas.
 
 | Nº | Sección (bloque) | Qué hace (técnico) | Qué gana el negocio | Normas | Captura |
 |---|---|---|---|---|---|

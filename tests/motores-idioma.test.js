@@ -3,7 +3,7 @@
 const assert = require('assert');
 const path = require('path');
 const { execFileSync } = require('child_process');
-const I18N = require('../locales/i18n.js');
+const I18N = require('../core/i18n/i18n.js');
 const IDIOMAS = require('../locales/idiomas.js');
 
 let n = 0;

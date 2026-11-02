@@ -132,7 +132,7 @@ Va en el menú lateral, en un bloque nuevo **«Riesgo»** (pregunta: *¿Hay indi
 ### A.7 Arquitectura
 
 - `fraude.js`: módulo puro como `cumplimiento.js`: indicadores, cruce, score y nivel. Lo usan las dos páginas y se prueba con `make test`.
-- `data/gobierno.js` → bloque `fraude: { indicadores, escenarios, historico, evaluaciones, siu, diario }`.
+- `data/demo/gobierno.js` → bloque `fraude: { indicadores, escenarios, historico, evaluaciones, siu, diario }`.
 - `prompts.js`: en el prompt base se añade el campo opcional `indicios` (citas literales de las señales de relato IF-07…IF-10) y la versión pasa a **reglas v2.4**. Los resultados guardados del Paquete A incluyen esas citas.
 - C4 actualizado en `_docs/architecture/arquitectura.md` (componente «Motor de indicadores»).
 

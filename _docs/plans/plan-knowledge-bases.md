@@ -122,7 +122,7 @@ Hoy la demo **no usa RAG**: las reglas van en el prompt (reglas v2.3). En la pes
 
 ## 10. Fases
 
-1. Modelo de datos en `data/gobierno.js` (`knowledge[]`, `rubricas[]`) e inventario con su ficha.
+1. Modelo de datos en `data/demo/gobierno.js` (`knowledge[]`, `rubricas[]`) e inventario con su ficha.
 2. Salud y evaluación con rúbricas (series de 14 días, drill-down de fallos).
 3. Comparativa de configuraciones de chunking y versiones del índice.
 4. Enlace con las trazas (`conocimiento` en `_gobernanza`) y con el Termómetro (AI Act art. 10 y RGPD art. 17).

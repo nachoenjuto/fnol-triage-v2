@@ -1,8 +1,8 @@
 // Regenera los JSON de ejemplo de data/ a partir de las fuentes JS, para que «Cargar JSON» (panel de gobierno)
 // y «Reproducir desde archivo» (triaje) muestren lo mismo que la demo: `node scripts/generators/generar-datos.js` (o `make datos`).
-//   data/gobierno-paquete-A.json        ← GOBIERNO_DEMO (data/gobierno.js) + FRAUDE_DEMO (data/fraude.js)
-//   data/triage-registro-paquete-A.json ← Paquete A + resultados guardados, con el mismo formato que «Exportar JSON»
-require('../../locales/node.js')();
+//   data/import-samples/gobierno-paquete-A.json        ← GOBIERNO_DEMO (data/demo/gobierno.js) + FRAUDE_DEMO (data/demo/fraude.js)
+//   data/import-samples/triage-registro-paquete-A.json ← Paquete A + resultados guardados, con el mismo formato que «Exportar JSON»
+require('../../core/i18n/node.js')();
 const fs = require('fs');
 const path = require('path');
 const C = require('../../cumplimiento.js');
@@ -12,14 +12,14 @@ const raiz = path.join(__dirname, '..', '..');
 const cargar = (f, exportar) => new Function(`${fs.readFileSync(path.join(raiz, f), 'utf8')}\nreturn ${exportar};`)();
 const escribir = (f, datos) => { fs.writeFileSync(path.join(raiz, f), `${JSON.stringify(datos, null, 2)}\n`); console.log(`  ${f}`); };
 
-const G = cargar('data/gobierno.js', 'GOBIERNO_DEMO');
-const PAQUETES = cargar('data/mensajes.js', 'PAQUETES');
-const { RESULTADOS_GUARDADOS, TRAZA_DEMO, expandir } = cargar('data/resultados.js', '{ RESULTADOS_GUARDADOS, TRAZA_DEMO, expandir: expandirResultadoGuardado }');
+const G = cargar('data/demo/gobierno.js', 'GOBIERNO_DEMO');
+const PAQUETES = cargar('data/demo/mensajes.js', 'PAQUETES');
+const { RESULTADOS_GUARDADOS, TRAZA_DEMO, expandir } = cargar('data/demo/resultados.js', '{ RESULTADOS_GUARDADOS, TRAZA_DEMO, expandir: expandirResultadoGuardado }');
 const PROMPT_VERSION = cargar('prompts.js', 'PROMPT_VERSION');
-const FRAUDE_DEMO = cargar('data/fraude.js', 'FRAUDE_DEMO');
+const FRAUDE_DEMO = cargar('data/demo/fraude.js', 'FRAUDE_DEMO');
 
 // `ancla`: fecha en la que están escritos los datos; al cargarlos, fechas.js los desplaza al día de hoy
-escribir('data/gobierno-paquete-A.json', { ancla: '2026-09-17', ...G, fraude: FRAUDE_DEMO });
+escribir('data/import-samples/gobierno-paquete-A.json', { ancla: '2026-09-17', ...G, fraude: FRAUDE_DEMO });
 
 // Registro del triaje: misma hora de inicio y duración que la traza del panel de gobierno
 const registro = PAQUETES[0].mensajes.map((m) => {
@@ -42,4 +42,4 @@ const registro = PAQUETES[0].mensajes.map((m) => {
 const FR = F.evaluar(registro, FRAUDE_DEMO);
 registro.forEach((e) => { e.gobernanza = C.gobernanza(e, { ...e.gob_opts, antifraude: F.paraGobernanza(FR[e.id]) }); });
 registro.reverse();
-escribir('data/triage-registro-paquete-A.json', registro);
+escribir('data/import-samples/triage-registro-paquete-A.json', registro);

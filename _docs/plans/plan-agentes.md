@@ -36,7 +36,7 @@ Justo después de **Resumen**: Resumen · **Agentes** · Trazabilidad · Reasoni
 - **Ficha modal del agente**: se retira, porque su contenido pasa a la sección. La ficha que se abre desde Guardrails o FinOps («Ver agente») también lleva a la sección.
 - **Autonomía**: se queda con los niveles y la auditoría de cambios de nivel.
 
-## 5. Datos nuevos (`data/gobierno.js`)
+## 5. Datos nuevos (`data/demo/gobierno.js`)
 
 Por agente: series de 14 días de volumen, latencia p95 y tasa de JSON válido; latencia p50; contrato de entrada y salida; ids de las KB que consume. El resto se calcula en vivo a partir de las trazas, así que con la fuente «Sesión actual» también refleja el lote real.
 

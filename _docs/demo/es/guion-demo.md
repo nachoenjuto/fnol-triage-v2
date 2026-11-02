@@ -1,6 +1,6 @@
 # Guion de la demo · Triaje FNOL con agentes gobernados
 
-Guion paso a paso para una sesión de 30-35 minutos: introducción en las cuatro secciones de `intro.html` y demo sobre el Paquete A (13 mensajes) en `index.html` y `gobierno.html`. Base: [guia-demo.md](../guia-demo.md) y el Recorrido de la demo (`data/recorrido.js`).
+Guion paso a paso para una sesión de 30-35 minutos: introducción en las cuatro secciones de `intro.html` y demo sobre el Paquete A (13 mensajes) en `index.html` y `gobierno.html`. Base: [guia-demo.md](../guia-demo.md) y el Recorrido de la demo (`data/generated/recorrido.js`).
 
 **Cómo leer este guion**
 

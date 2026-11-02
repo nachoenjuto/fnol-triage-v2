@@ -1,5 +1,5 @@
 // Elige el idioma de la página y carga sus textos antes que el resto de scripts (solo navegador).
-// Orden en los HTML: locales/idiomas.js → locales/i18n.js → locales/cargar.js → resto.
+// Orden en los HTML: locales/idiomas.js → core/i18n/i18n.js → core/i18n/cargar.js → resto.
 // Idioma: ?lang=xx (se guarda) → el guardado en este navegador → el idioma base. Cambiar de idioma recarga la
 // página (I18N.cambiar), así ningún módulo tiene que repintarse en caliente.
 // document.write a propósito: carga síncrona sin servidor ni compilación, también abriendo los HTML desde disco.

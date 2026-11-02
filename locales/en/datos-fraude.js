@@ -1,4 +1,4 @@
-// Traducción de data/fraude.js: { huella del texto en español: texto }. Pendientes: make i18n-estado IDIOMA=en
+// Traducción de data/demo/fraude.js: { huella del texto en español: texto }. Pendientes: make i18n-estado IDIOMA=en
 I18N.registrarDatos('en', {
   "36886649": "Antonio Navarro Blanco",
   "40584094": "IBAN shared between unrelated policyholders",

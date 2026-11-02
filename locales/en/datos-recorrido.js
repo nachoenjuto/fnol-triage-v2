@@ -1,4 +1,4 @@
-// Traducción de data/recorrido.js (generado desde _docs/demo/es/guion-demo.md): { huella del texto en español: texto }.
+// Traducción de data/generated/recorrido.js (generado desde _docs/demo/es/guion-demo.md): { huella del texto en español: texto }.
 // Pendientes: make i18n-estado IDIOMA=en
 I18N.registrarDatos('en', {
   "19871762": "Before going into the detail, one important point. What we are going to show you is an example of Logicalis's experience implementing AI governance and observability solutions for customers in different industries.",

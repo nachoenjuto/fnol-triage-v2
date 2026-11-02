@@ -40,7 +40,7 @@ FONDO, CELESTE, BLANCO, BORDE = RGBColor(0xF4, 0xF6, 0xFB), RGBColor(0xE8, 0xEE,
 NS = {'p': 'http://schemas.openxmlformats.org/presentationml/2006/main', 'a': 'http://schemas.openxmlformats.org/drawingml/2006/main',
       'r': 'http://schemas.openxmlformats.org/officeDocument/2006/relationships', 'asvg': 'http://schemas.microsoft.com/office/drawing/2016/SVG/main'}
 
-# ── Contenido de las slides por sección (cifras del dataset de la demo, data/gobierno.js) ──
+# ── Contenido de las slides por sección (cifras del dataset de la demo, data/demo/gobierno.js) ──
 SECCIONES = [
     dict(bloque='Operación', icono='layout-dashboard', titulo='Resumen: el estado del sistema en diez segundos',
          hace='Ocho indicadores en vivo: autonomía efectiva, escalados, overrides, coste frente al presupuesto, alertas, cumplimiento y conocimiento. Una tarjeta por agente con su modelo, su coste del día y un interruptor de pausa. Las alertas de coste, conocimiento y cumplimiento, cada una enlazada a su origen.',

@@ -1,12 +1,12 @@
 // Pruebas de ahorro.js sin dependencias: `node tests/ahorro.test.js` (o `make test`).
-require('../locales/node.js')();
+require('../core/i18n/node.js')();
 const assert = require('assert');
 const fs = require('fs');
 const path = require('path');
 const A = require('../ahorro.js');
 
 const cargar = (f, exportar) => new Function(`${fs.readFileSync(path.join(__dirname, '..', f), 'utf8')}\nreturn ${exportar};`)();
-const G = cargar('data/gobierno.js', 'GOBIERNO_DEMO');
+const G = cargar('data/demo/gobierno.js', 'GOBIERNO_DEMO');
 
 let n = 0;
 const test = (nombre, fn) => { try { fn(); n++; console.log(`  ok   ${nombre}`); } catch (e) { console.error(`  FALLA ${nombre}\n       ${e.message}`); process.exitCode = 1; } };

@@ -31,7 +31,7 @@
   }
 
   // Una expresión por idioma, con los grupos en el mismo orden en todos
-  const I18N = raiz.I18N || require('./locales/node.js')();
+  const I18N = raiz.I18N || require('./core/i18n/node.js')();
   const cache = {};
   function formas() {
     if (cache[I18N.idioma]) return cache[I18N.idioma];

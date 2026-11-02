@@ -1,5 +1,5 @@
 // Pruebas de fechas.js (fechas siempre al día) sin dependencias: `node tests/fechas.test.js` (o `make test`).
-require('../locales/node.js')();
+require('../core/i18n/node.js')();
 const assert = require('assert');
 const fs = require('fs');
 const path = require('path');
@@ -8,10 +8,10 @@ const Ev = require('../evidencias.js');
 
 const cargar = (f, exportar) => new Function(`${fs.readFileSync(path.join(__dirname, '..', f), 'utf8')}\nreturn ${exportar};`)();
 const fresco = () => ({
-  P: cargar('data/mensajes.js', 'PAQUETES'),
-  R: cargar('data/resultados.js', 'RESULTADOS_GUARDADOS'),
-  G: cargar('data/gobierno.js', 'GOBIERNO_DEMO'),
-  FD: cargar('data/fraude.js', 'FRAUDE_DEMO'),
+  P: cargar('data/demo/mensajes.js', 'PAQUETES'),
+  R: cargar('data/demo/resultados.js', 'RESULTADOS_GUARDADOS'),
+  G: cargar('data/demo/gobierno.js', 'GOBIERNO_DEMO'),
+  FD: cargar('data/demo/fraude.js', 'FRAUDE_DEMO'),
 });
 
 let n = 0;

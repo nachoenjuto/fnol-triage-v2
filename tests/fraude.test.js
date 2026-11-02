@@ -1,15 +1,15 @@
 // Pruebas de fraude.js (motor de indicadores) sin dependencias: `node tests/fraude.test.js` (o `make test`).
-require('../locales/node.js')();
+require('../core/i18n/node.js')();
 const assert = require('assert');
 const fs = require('fs');
 const path = require('path');
 const F = require('../fraude.js');
 
 const cargar = (f, exportar) => new Function(`${fs.readFileSync(path.join(__dirname, '..', f), 'utf8')}\nreturn ${exportar};`)();
-const PAQUETES = cargar('data/mensajes.js', 'PAQUETES');
-const { RESULTADOS_GUARDADOS, expandir } = cargar('data/resultados.js', '{ RESULTADOS_GUARDADOS, expandir: expandirResultadoGuardado }');
-const FD = cargar('data/fraude.js', 'FRAUDE_DEMO');
-const G = cargar('data/gobierno.js', 'GOBIERNO_DEMO');
+const PAQUETES = cargar('data/demo/mensajes.js', 'PAQUETES');
+const { RESULTADOS_GUARDADOS, expandir } = cargar('data/demo/resultados.js', '{ RESULTADOS_GUARDADOS, expandir: expandirResultadoGuardado }');
+const FD = cargar('data/demo/fraude.js', 'FRAUDE_DEMO');
+const G = cargar('data/demo/gobierno.js', 'GOBIERNO_DEMO');
 
 let n = 0;
 const test = (nombre, fn) => { try { fn(); n++; console.log(`  ok   ${nombre}`); } catch (e) { console.error(`  FALLA ${nombre}\n       ${e.message}`); process.exitCode = 1; } };

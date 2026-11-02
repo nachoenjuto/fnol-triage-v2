@@ -14,7 +14,7 @@
 
   // Selector de idioma al final de la cabecera, generado desde locales/idiomas.js (un idioma nuevo aparece solo):
   // un botón con la bandera y el código del idioma actual que abre la lista de idiomas. Cambiar recarga la página
-  // en el idioma elegido (I18N.cambiar, locales/cargar.js).
+  // en el idioma elegido (I18N.cambiar, core/i18n/cargar.js).
   function initIdiomas() {
     const destino = document.querySelector('.topbar .topbar-actions');
     if (!destino || typeof I18N === 'undefined' || destino.querySelector('.idiomas')) return;
@@ -196,7 +196,7 @@
   }
 
   // ---------------------------------------------------------------------------
-  // Recorrido de la demo (modo presentador): los pasos del guion (data/recorrido.js) con un botón «Ir» que lleva a la
+  // Recorrido de la demo (modo presentador): los pasos del guion (data/generated/recorrido.js) con un botón «Ir» que lleva a la
   // pantalla exacta, aunque esté en la otra página. El Auto Tour (modo presentador) se activa con contraseña en la sección Tour de la introducción.
   // Panel flotante que se arrastra por la cabecera y se minimiza en una barra al pie. El engranaje lleva a la
   // configuración: demo automática (un tiempo por pantalla común a todas), subtítulos (pie o arriba) y editor de los
@@ -205,7 +205,7 @@
   // ---------------------------------------------------------------------------
   const PAGINA_URL = { intro: 'intro.html', triaje: 'index.html', gobierno: 'gobierno.html' };
   const PAGINA_LBL = { intro: I18N.t('shell.introduccion'), triaje: I18N.t('shell.triaje'), gobierno: I18N.t('shell.gobierno') };
-  // Tipos de subtítulo (data/recorrido.js, generado desde _docs/demo/es/guion-demo.md): cada uno se puede mostrar u ocultar
+  // Tipos de subtítulo (data/generated/recorrido.js, generado desde _docs/demo/es/guion-demo.md): cada uno se puede mostrar u ocultar
   const TIPOS = { intro: ['message-circle', I18N.t('shell.introduccion')], para: ['lightbulb', I18N.t('shell.para_que_sirve')], que: ['cpu', I18N.t('shell.que_es_y_que')], valor: ['shield-check', I18N.t('shell.valor')] };
   const CPS = 15; const CUE_MIN = 4000;   // velocidad de lectura (caracteres por segundo) y tiempo mínimo por subtítulo
   const PASOS = (typeof RECORRIDO_DEMO !== 'undefined' ? RECORRIDO_DEMO : root.RECORRIDO_DEMO || { pasos: [] }).pasos;

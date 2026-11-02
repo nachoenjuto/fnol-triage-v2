@@ -1,6 +1,6 @@
 # Demo script · FNOL triage with governed agents
 
-Step-by-step script for a 30-35 minute session: introduction in the four sections of `intro.html` and demo on Package A (13 messages) in `index.html` and `gobierno.html`. Based on: [guia-demo.md](guia-demo.md) and the demo walkthrough (`data/recorrido.js`).
+Step-by-step script for a 30-35 minute session: introduction in the four sections of `intro.html` and demo on Package A (13 messages) in `index.html` and `gobierno.html`. Based on: [guia-demo.md](../guia-demo.md) and the demo walkthrough (`data/generated/recorrido.js`).
 
 **How to read this script**
 

@@ -5733,7 +5733,7 @@
           "tipo": "foto_danos",
           "mime": "image/jpeg",
           "titulo": "Foto: frontal del vehículo",
-          "src": "data/adjuntos/foto-danos-1.jpg"
+          "src": "data/attachments/foto-danos-1.jpg"
         },
         {
           "id": "ADJ-3",
@@ -5741,7 +5741,7 @@
           "tipo": "foto_danos",
           "mime": "image/jpeg",
           "titulo": "Foto: faro y paragolpes derechos",
-          "src": "data/adjuntos/foto-danos-2.jpg"
+          "src": "data/attachments/foto-danos-2.jpg"
         }
       ]
     },

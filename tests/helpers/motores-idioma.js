@@ -4,7 +4,7 @@
 //   node tests/helpers/motores-idioma.js en
 const { fs, path, raiz, textosDatos, cargarTablaDatos } = require('../../scripts/i18n/i18n-comun.js');
 const idioma = process.argv[2];
-const I18N = require(path.join(raiz, 'locales/node.js'))(idioma);
+const I18N = require(path.join(raiz, 'core/i18n/node.js'))(idioma);
 const cargar = (f, exportar) => new Function(`${fs.readFileSync(path.join(raiz, f), 'utf8')}\nreturn ${exportar};`)();
 // Los datos en español, traducidos en el sitio con locales/<idioma>/<fichero> si el idioma no es el base
 const traducir = (obj, fichero) => {
@@ -13,12 +13,12 @@ const traducir = (obj, fichero) => {
   I18N.traducirDatos(obj);
   return obj;
 };
-const PAQUETES = cargar('data/mensajes.js', 'PAQUETES');
+const PAQUETES = cargar('data/demo/mensajes.js', 'PAQUETES');
 const original = new Map(PAQUETES.flatMap((p) => p.mensajes).map((m) => [m.id, m.texto]));
 traducir(PAQUETES, 'datos-mensajes.js');
-const { RESULTADOS_GUARDADOS, expandir } = cargar('data/resultados.js', '{ RESULTADOS_GUARDADOS, expandir: expandirResultadoGuardado }');
+const { RESULTADOS_GUARDADOS, expandir } = cargar('data/demo/resultados.js', '{ RESULTADOS_GUARDADOS, expandir: expandirResultadoGuardado }');
 traducir(RESULTADOS_GUARDADOS, 'datos-resultados.js');
-const FRAUDE_DEMO = traducir(cargar('data/fraude.js', 'FRAUDE_DEMO'), 'datos-fraude.js');
+const FRAUDE_DEMO = traducir(cargar('data/demo/fraude.js', 'FRAUDE_DEMO'), 'datos-fraude.js');
 
 const MotorLocal = require(path.join(raiz, 'motor-local.js'));
 const Evidencias = require(path.join(raiz, 'evidencias.js'));

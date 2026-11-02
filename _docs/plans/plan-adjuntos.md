@@ -126,7 +126,7 @@ La vista «Enviado al modelo» lista los adjuntos enviados (nombre, tipo, tamañ
 
 | Motor | Qué pasa con los adjuntos |
 |---|---|
-| Resultados guardados (el de la demo) | Los datos de `adjuntos` se guardan en `data/resultados.js` junto al resto de MSG-A-01. Es lo que se ve en la demo. |
+| Resultados guardados (el de la demo) | Los datos de `adjuntos` se guardan en `data/demo/resultados.js` junto al resto de MSG-A-01. Es lo que se ve en la demo. |
 | IA real | **Fase 1:** se reproducen los datos guardados y la ficha indica «extraído de los resultados guardados». **Fase 2 (opcional):** las fotos se envían como `image_url` en la llamada de extracción (Azure OpenAI con un modelo con visión) y el PDF como imagen de su página. Esto toca `buildUserPrompt`, `buildBody`, el prompt y la validación del JSON. |
 | Motor local | Sin extracción de adjuntos: la pestaña muestra los archivos y «sin datos extraídos (motor local)». |
 
@@ -136,14 +136,14 @@ Recomiendo hacer solo la fase 1 ahora. La fase 2 tiene sentido si se va a enseñ
 
 | Archivo | Cambio |
 |---|---|
-| `data/adjuntos/` (nuevo) | El PDF (o su plantilla) y las dos fotos, optimizadas (< 300 KB cada una). |
-| `data/mensajes.js` | `adjuntos: [{ id, archivo, tipo, mime, tamano }]` en MSG-A-01. |
-| `data/resultados.js` | Bloque `adj` de MSG-A-01 en el formato compacto del archivo. |
+| `data/attachments/` (nuevo) | El PDF (o su plantilla) y las dos fotos, optimizadas (< 300 KB cada una). |
+| `data/demo/mensajes.js` | `adjuntos: [{ id, archivo, tipo, mime, tamano }]` en MSG-A-01. |
+| `data/demo/resultados.js` | Bloque `adj` de MSG-A-01 en el formato compacto del archivo. |
 | `index.html` | Panel `#tab-adjuntos` y versión de los scripts. |
 | `app.js` | Pestaña condicional en `TABS`/`openModal`, `pintarAdjuntos`, visor, `adjuntos` en `pintarRaw` y `pintarEnviado`. |
 | `styles.css` | Estilos de la pestaña, el visor y el panel. |
 | `cumplimiento.js` | Hash y datos personales de los adjuntos en `_gobernanza`. |
-| `data/gobierno.js` | TRZ-4F2A: «3 adjuntos» en el agente multicanal y una línea en extracción. |
+| `data/demo/gobierno.js` | TRZ-4F2A: «3 adjuntos» en el agente multicanal y una línea en extracción. |
 | `_docs/demo/es/guion-demo.md` y `guion-demo-corto.md` | Paso 3: un clic más en «Adjuntos». Después, `make recorrido` y `make guion-docx`. |
 | `README.md` | Una línea en «Caso de uso» (la ficha pasa de cinco a seis pestañas cuando hay adjuntos). |
 | `tests/` | Pruebas de los datos del adjunto en `_gobernanza`; `tests/recorrido.test.js` debe seguir en verde. |

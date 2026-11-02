@@ -22,8 +22,8 @@ Abrir `index.html` con `file://` no funciona del todo: `adjuntos.js` lee las fot
 | `make run` | sirve la demo en `http://localhost:8792` |
 | `make test` | ejecuta las 7 suites de `tests/*.test.js` (ver [pruebas.md](pruebas.md)) |
 | `make test-ia N=3` | mide las evidencias con un modelo real; necesita `TRIAGE_ENDPOINT` y `TRIAGE_API_KEY` |
-| `make datos` | regenera `data/gobierno-paquete-A.json` y `data/triage-registro-paquete-A.json` |
-| `make recorrido` | regenera `data/recorrido.js` desde `_docs/demo/es/guion-demo.md` |
+| `make datos` | regenera `data/import-samples/gobierno-paquete-A.json` y `data/import-samples/triage-registro-paquete-A.json` |
+| `make recorrido` | regenera `data/generated/recorrido.js` desde `_docs/demo/es/guion-demo.md` |
 | `make guion-docx` | genera `_docs/demo/es/guion-demo.docx` y `_docs/demo/es/guion-demo-corto.docx` desde sus markdown |
 | `make capturas` | regenera las capturas de `_docs/slides/img/observabilidad/` y las compuestas; necesita `make run` en otra terminal |
 
@@ -46,11 +46,11 @@ Parámetros útiles:
 Los módulos se comunican por variables globales, así que el orden de las etiquetas `<script>` importa. En `index.html`:
 
 ```text
-icons.js → data/recorrido.js → shell.js → data/mensajes.js → data/resultados.js → data/fraude.js
+icons.js → data/generated/recorrido.js → shell.js → data/demo/mensajes.js → data/demo/resultados.js → data/demo/fraude.js
 → fechas.js → prompts.js → evidencias.js → cumplimiento.js → fraude.js → adjuntos.js → app.js
 ```
 
-En `gobierno.html`, igual pero con `data/gobierno.js` antes de `data/fraude.js`, sin `adjuntos.js`, con `ahorro.js` y `gobierno.js` al final. Dos dependencias obligatorias:
+En `gobierno.html`, igual pero con `data/demo/gobierno.js` antes de `data/demo/fraude.js`, sin `adjuntos.js`, con `ahorro.js` y `gobierno.js` al final. Dos dependencias obligatorias:
 
 - `fechas.js` va después de todos los `data/*.js`, porque los desplaza al cargarse, y antes de la lógica.
 - `cumplimiento.js` va después de `evidencias.js`, porque lo lee de `window.Evidencias`.

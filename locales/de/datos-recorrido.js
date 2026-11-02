@@ -1,4 +1,4 @@
-// Traducción de data/recorrido.js (generado desde _docs/demo/es/guion-demo.md): { huella del texto en español: texto }.
+// Traducción de data/generated/recorrido.js (generado desde _docs/demo/es/guion-demo.md): { huella del texto en español: texto }.
 // Pendientes: make i18n-estado IDIOMA=de
 I18N.registrarDatos('de', {
   "19871762": "Bevor wir ins Detail gehen, ein wichtiger Punkt. Was wir Ihnen zeigen, ist ein Beispiel für die Erfahrung von Logicalis bei der Einführung von Lösungen für KI-Governance und -Observability bei Kunden aus verschiedenen Branchen.",

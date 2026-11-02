@@ -26,8 +26,8 @@ const PAQUETES = [
               croquis_via: 'M-30 · calzada sentido A-5 · retención', croquis_sentido: 'A-5',
             },
           },
-          { id: 'ADJ-2', archivo: 'foto-danos-1.jpg', tipo: 'foto_danos', mime: 'image/jpeg', titulo: 'Foto: frontal del vehículo', src: 'data/adjuntos/foto-danos-1.jpg' },
-          { id: 'ADJ-3', archivo: 'foto-danos-2.jpg', tipo: 'foto_danos', mime: 'image/jpeg', titulo: 'Foto: faro y paragolpes derechos', src: 'data/adjuntos/foto-danos-2.jpg' },
+          { id: 'ADJ-2', archivo: 'foto-danos-1.jpg', tipo: 'foto_danos', mime: 'image/jpeg', titulo: 'Foto: frontal del vehículo', src: 'data/attachments/foto-danos-1.jpg' },
+          { id: 'ADJ-3', archivo: 'foto-danos-2.jpg', tipo: 'foto_danos', mime: 'image/jpeg', titulo: 'Foto: faro y paragolpes derechos', src: 'data/attachments/foto-danos-2.jpg' },
         ],
       },
       {

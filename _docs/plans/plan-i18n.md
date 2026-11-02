@@ -5,7 +5,7 @@ Estado: **fases 0 y 1 aplicadas** · 30/10/2026 · repo `fnol-triage/v2` · aña
 Objetivo: la demo funciona igual en ES, EN y DE. Cambia la lengua y nada más: mismos mensajes, mismas decisiones, mismos números en el panel de gobierno, mismo recorrido. Ningún texto visible en los HTML. Añadir un cuarto idioma se reduce a crear una carpeta y pasar un validador.
 
 
-> **Cambio en la fase 1 (datos):** en lugar de partir los datos en `data/base/` + texto por idioma, el español de `data/*.js` y `prompts.js` hace de base y es la única copia de los hechos. Cada idioma aporta tablas `{ huella del texto español: traducción }` (`locales/<idioma>/datos-*.js`) que `locales/traducir-datos.js` aplica sobre esos objetos al cargar, antes de `fechas.js`. Mismo resultado (los números no se duplican; si cambia un texto español, su traducción queda pendiente) sin reestructurar 134 KB de datos. El validador comprueba además que cada traducción lleva las mismas cifras que su original.
+> **Cambio en la fase 1 (datos):** en lugar de partir los datos en `data/base/` + texto por idioma, el español de `data/*.js` y `prompts.js` hace de base y es la única copia de los hechos. Cada idioma aporta tablas `{ huella del texto español: traducción }` (`locales/<idioma>/datos-*.js`) que `core/i18n/traducir-datos.js` aplica sobre esos objetos al cargar, antes de `fechas.js`. Mismo resultado (los números no se duplican; si cambia un texto español, su traducción queda pendiente) sin reestructurar 134 KB de datos. El validador comprueba además que cada traducción lleva las mismas cifras que su original.
 
 ---
 
@@ -15,11 +15,11 @@ Objetivo: la demo funciona igual en ES, EN y DE. Cambia la lengua y nada más: m
 |---|---|---|
 | `index.html`, `gobierno.html`, `intro.html` | ~1.330 líneas | Títulos, etiquetas, placeholders, `aria-label`, `<title>`, `meta description` |
 | `app.js`, `gobierno.js`, `shell.js`, `cumplimiento.js`, `fraude.js`, `intro.js` | ~6.700 líneas | Literales dentro de las plantillas HTML; ~15 llamadas con `'es-ES'` fijo |
-| `data/mensajes.js` | 51 mensajes en 3 paquetes, 38 KB | Texto del cliente, asuntos, adjuntos (parte amistoso, facturas) |
-| `data/resultados.js` | 83 KB | Citas literales, notas, motivos, criterios, contraste con adjuntos |
-| `data/gobierno.js` | 134 KB | Textos del panel mezclados con números ya formateados (`'99,5 %'`, 105 casos) |
-| `data/fraude.js` | 19 KB | Catálogo de indicadores, escenarios, cola de la SIU |
-| `data/recorrido.js` ← `_docs/demo/es/guion-demo.md` | 78 KB / 80 KB | Pasos y subtítulos del modo presentador |
+| `data/demo/mensajes.js` | 51 mensajes en 3 paquetes, 38 KB | Texto del cliente, asuntos, adjuntos (parte amistoso, facturas) |
+| `data/demo/resultados.js` | 83 KB | Citas literales, notas, motivos, criterios, contraste con adjuntos |
+| `data/demo/gobierno.js` | 134 KB | Textos del panel mezclados con números ya formateados (`'99,5 %'`, 105 casos) |
+| `data/demo/fraude.js` | 19 KB | Catálogo de indicadores, escenarios, cola de la SIU |
+| `data/generated/recorrido.js` ← `_docs/demo/es/guion-demo.md` | 78 KB / 80 KB | Pasos y subtítulos del modo presentador |
 | `prompts.js` | 12 KB | Instrucciones al modelo |
 | Motor local (`app.js`) | — | Palabras clave por ramo, meses, «ayer», negaciones de «heridos» |
 | `fechas.js` | — | Reconoce fechas escritas en español («sábado 12 de septiembre») para desplazarlas a hoy |
@@ -71,7 +71,7 @@ Reglas de diseño:
 
 - **Valores internos sin traducir.** `'Auto'`, `'Hogar'`, `'Salud'`, `'DESPEJADO'`, `'REVISION'`, A1…S8, IF-01…, G-01… siguen siendo claves. Solo cambia la etiqueta que se muestra. El JSON exportado, los filtros y los tests no se tocan.
 - **HTML sin texto.** Solo estructura y atributos `data-i18n="clave"` y `data-i18n-attr="title:clave;aria-label:clave"`. `i18n.js` los rellena al cargar. El validador falla si encuentra un nodo de texto visible en un HTML.
-- **Números como números.** Los `'99,5 %'` y `'0,0006 €'` de `data/gobierno.js` pasan a `0.995` y `0.0006`, y se formatean con el locale del idioma activo (`99.5%` en EN, `99,5 %` en DE).
+- **Números como números.** Los `'99,5 %'` y `'0,0006 €'` de `data/demo/gobierno.js` pasan a `0.995` y `0.0006`, y se formatean con el locale del idioma activo (`99.5%` en EN, `99,5 %` en DE).
 - **Motor local partido en dos.** La lógica de las reglas (umbrales, combinaciones, decisión) se queda en `app.js`. Las expresiones van en `motor.js` de cada idioma. En alemán, límites de palabra Unicode (flag `u`, `\b` no reconoce «Ä») y búsqueda de raíz dentro de palabras compuestas («Wasserrohrbruch»).
 - **Si falta una clave**, se muestra la del español y se avisa en consola. El validador no deja pasar ninguna.
 - **Cambio de idioma con recarga.** Se guarda en `localStorage` y se puede forzar con `?lang=en`. Recargar evita tener que repintar en caliente el estado de tres páginas. Funciona igual abriendo los HTML desde disco, sin servidor ni paso de compilación.

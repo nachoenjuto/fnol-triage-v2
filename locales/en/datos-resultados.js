@@ -1,4 +1,4 @@
-// Traducción de data/resultados.js: { huella del texto en español: texto }. Pendientes: make i18n-estado IDIOMA=en
+// Traducción de data/demo/resultados.js: { huella del texto en español: texto }. Pendientes: make i18n-estado IDIOMA=en
 I18N.registrarDatos('en', {
   "16728998": "Policy SA-664120",
   "16994228": "Hospital Vithas, a regular network provider",

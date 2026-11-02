@@ -31,13 +31,13 @@ i18n-importar: ## Incorpora traducciones (FICHERO=traducciones.json con claves d
 i18n-instantanea: ## Guarda el texto visible de la demo en ~700 estados (SALIDA=fichero.json, IDIOMA=es); compara dos con node scripts/i18n/i18n-instantanea.mjs --comparar a.json b.json (requiere make run y Chrome)
 	node scripts/i18n/i18n-instantanea.mjs $(SALIDA) $(IDIOMA)
 
-test-ia: ## Mide las evidencias con un modelo real (variables TRIAGE_*, ver tests/ia-real.js)
-	N=$(N) node tests/ia-real.js
+test-ia: ## Mide las evidencias con un modelo real (variables TRIAGE_*, ver tests/benchmark/ia-real.js)
+	N=$(N) node tests/benchmark/ia-real.js
 
 datos: ## Regenera los JSON de ejemplo de data/ desde las fuentes JS (tras cambiar mensajes o resultados)
 	node scripts/generators/generar-datos.js
 
-recorrido: ## Regenera los pasos y subtítulos del Recorrido de la demo (data/recorrido.js) desde _docs/demo/es/guion-demo.md
+recorrido: ## Regenera los pasos y subtítulos del Recorrido de la demo (data/generated/recorrido.js) desde _docs/demo/es/guion-demo.md
 	node scripts/generators/generar-recorrido.js
 
 guion: ## Escribe los guiones en otro idioma (_docs/demo/<idioma>/) con sus traducciones: make guion IDIOMA=en

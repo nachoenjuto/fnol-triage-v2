@@ -1,5 +1,5 @@
 // Pruebas de cumplimiento.js sin dependencias: `node tests/cumplimiento.test.js` (o `make test`).
-require('../locales/node.js')();
+require('../core/i18n/node.js')();
 const assert = require('assert');
 const crypto = require('crypto');
 const fs = require('fs');
@@ -7,8 +7,8 @@ const path = require('path');
 const C = require('../cumplimiento.js');
 
 const cargar = (f, exportar) => new Function(`${fs.readFileSync(path.join(__dirname, '..', f), 'utf8')}\nreturn ${exportar};`)();
-const PAQUETES = cargar('data/mensajes.js', 'PAQUETES');
-const { RESULTADOS_GUARDADOS, TRAZA_DEMO, expandir } = cargar('data/resultados.js', '{ RESULTADOS_GUARDADOS, TRAZA_DEMO, expandir: expandirResultadoGuardado }');
+const PAQUETES = cargar('data/demo/mensajes.js', 'PAQUETES');
+const { RESULTADOS_GUARDADOS, TRAZA_DEMO, expandir } = cargar('data/demo/resultados.js', '{ RESULTADOS_GUARDADOS, TRAZA_DEMO, expandir: expandirResultadoGuardado }');
 const A = PAQUETES[0].mensajes;
 
 let n = 0;
@@ -150,7 +150,7 @@ test('el JSON plegable tampoco altera el texto y lleva un botón por objeto o li
 });
 
 console.log('conocimiento (Knowledge bases)');
-const GOB = cargar('data/gobierno.js', 'GOBIERNO_DEMO');
+const GOB = cargar('data/demo/gobierno.js', 'GOBIERNO_DEMO');
 test('el catálogo común y el panel tienen las mismas KB, nombres y versiones', () => {
   assert.deepStrictEqual(GOB.knowledge.map((k) => k.id).sort(), Object.keys(C.CONOCIMIENTO).sort());
   for (const k of GOB.knowledge) { assert.strictEqual(k.nombre, C.CONOCIMIENTO[k.id].nombre, k.id); assert.strictEqual(k.version, C.CONOCIMIENTO[k.id].version, k.id); assert.strictEqual(k.simulada, C.CONOCIMIENTO[k.id].simulada, k.id); }

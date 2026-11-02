@@ -1,15 +1,15 @@
 // Pruebas de evidencias.js sin dependencias: `node tests/evidencias.test.js` (o `make test`).
 // Incluye respuestas del modelo simuladas, también defectuosas (parafraseo, acentos, JSON raro, citas inventadas).
-require('../locales/node.js')();
+require('../core/i18n/node.js')();
 const assert = require('assert');
 const fs = require('fs');
 const path = require('path');
 const E = require('../evidencias.js');
 
 const cargar = (f, exportar) => new Function(`${fs.readFileSync(path.join(__dirname, '..', f), 'utf8')}\nreturn ${exportar};`)();
-const PAQUETES = cargar('data/mensajes.js', 'PAQUETES');
+const PAQUETES = cargar('data/demo/mensajes.js', 'PAQUETES');
 const { RESULTADOS_GUARDADOS, expandir } = (() => {
-  const src = fs.readFileSync(path.join(__dirname, '..', 'data/resultados.js'), 'utf8');
+  const src = fs.readFileSync(path.join(__dirname, '..', 'data/demo/resultados.js'), 'utf8');
   return new Function(`${src}\nreturn { RESULTADOS_GUARDADOS, expandir: expandirResultadoGuardado };`)();
 })();
 const mensajes = PAQUETES.flatMap((p) => p.mensajes);

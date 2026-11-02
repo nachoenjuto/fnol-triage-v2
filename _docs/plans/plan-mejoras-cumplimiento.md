@@ -12,9 +12,9 @@
 |---|---|---|---|
 | 1 | Ajustes rápidos de la ficha y del menú de `index.html` | S | `styles.css`, `index.html`, `app.js`, `icons.js` |
 | 2 | Menú lateral colapsable en observabilidad | S-M | `gobierno.html`, `gobierno.js`, `gobierno.css`, `header.css` |
-| 3 | Paquete A ampliado y más evidencias, coherente en las dos páginas | M | `data/mensajes.js`, `data/resultados.js`, `data/gobierno.js`, `prompts.js`, `evidencias.js`, JSON de `data/`, tests |
+| 3 | Paquete A ampliado y más evidencias, coherente en las dos páginas | M | `data/demo/mensajes.js`, `data/demo/resultados.js`, `data/demo/gobierno.js`, `prompts.js`, `evidencias.js`, JSON de `data/`, tests |
 | 4 | **Capa de cumplimiento**: motor común, «Respuesta cruda» y pestaña «Termómetro de cumplimiento» | L | nuevo `cumplimiento.js`, `app.js`, `gobierno.*`, tests |
-| 5 | Pestaña «Knowledge bases» | M | `gobierno.*`, `data/gobierno.js` |
+| 5 | Pestaña «Knowledge bases» | M | `gobierno.*`, `data/demo/gobierno.js` |
 | 6 | Documentación y C4 | S | `_docs/architecture/arquitectura.md`, `_docs/demo/guia-demo.md`, `README.md` |
 
 Las fases 1 y 2 no dependen de nada. La 4 necesita la 3, porque los mensajes ampliados son los que traen los datos personales y de salud que la capa de cumplimiento tiene que detectar.
@@ -76,9 +76,9 @@ Reescribo los 13 mensajes con **2-3 veces más texto** y con datos realistas, to
 
 ### 3.3 Coherencia entre las dos páginas (importante)
 Cuando cambian los textos, dejan de ser válidas las citas guardadas, los tamaños y los tokens. Hay que actualizar:
-- `data/resultados.js`: `ev` (entre 6 y 10 citas literales por mensaje), `d`, `cr` y `c` de A-01…A-13.
-- `data/gobierno.js`: en cada traza de A, el paso `multicanal` (caracteres, adjuntos), las entradas y pasos del razonamiento por agente, los **tokens de entrada** (escalados según la longitud nueva) y, a partir de ellos, el **coste**. Compruebo que CAP-04/05 siguen saltando en A-08 y en ninguna otra.
-- `data/gobierno-paquete-A.json` y `data/triage-registro-paquete-A.json`: se regeneran desde los datos anteriores con un script, no a mano.
+- `data/demo/resultados.js`: `ev` (entre 6 y 10 citas literales por mensaje), `d`, `cr` y `c` de A-01…A-13.
+- `data/demo/gobierno.js`: en cada traza de A, el paso `multicanal` (caracteres, adjuntos), las entradas y pasos del razonamiento por agente, los **tokens de entrada** (escalados según la longitud nueva) y, a partir de ellos, el **coste**. Compruebo que CAP-04/05 siguen saltando en A-08 y en ninguna otra.
+- `data/import-samples/gobierno-paquete-A.json` y `data/import-samples/triage-registro-paquete-A.json`: se regeneran desde los datos anteriores con un script, no a mano.
 - `tests/evidencias.test.js`: todas las citas guardadas deben aparecer en el texto y cada mensaje de A debe tener al menos 6 evidencias resaltadas. Se ejecuta con `make test`.
 - Opcional: si me pasas las variables `TRIAGE_*`, ejecuto `make test-ia` para medir las evidencias con el modelo real sobre los textos nuevos.
 

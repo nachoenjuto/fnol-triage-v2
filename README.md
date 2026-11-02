@@ -17,7 +17,7 @@ La pantalla son tres contadores — **aprobados**, **a revisar**, **tiempo medio
 
 ## Paquetes de mensajes
 
-Tres paquetes fijos y mixtos en [`data/mensajes.js`](data/mensajes.js). Cada mensaje lleva un `esperado` (ramo y si debería ir a revisión) que **no se envía a la IA**; solo sirve para contrastar en la ficha y en la columna Ramo (✔/✖).
+Tres paquetes fijos y mixtos en [`data/demo/mensajes.js`](data/demo/mensajes.js). Cada mensaje lleva un `esperado` (ramo y si debería ir a revisión) que **no se envía a la IA**; solo sirve para contrastar en la ficha y en la columna Ramo (✔/✖).
 
 | Paquete | Mensajes | Auto / Hogar / Salud | A revisar (esperado) |
 |---|---|---|---|
@@ -35,11 +35,11 @@ Cuatro mensajes del Paquete A llevan **escenarios de fraude** (ver «Indicadores
 
 MSG-A-01 (email del golpe en la M-30) trae tres adjuntos: la **declaración amistosa de accidente** en PDF y **dos fotos** de los daños (paragolpes y faro delanteros derechos). Ningún otro mensaje lleva adjuntos.
 
-- **El parte** no es un PDF fijo: [`adjuntos.js`](adjuntos.js) lo genera en el navegador con [pdf-lib](https://pdf-lib.js.org) (copiado en `vendor/pdf-lib.min.js`, se carga solo al abrir el adjunto) a partir de `adjuntos[].contenido` de [`data/mensajes.js`](data/mensajes.js). Como `fechas.js` desplaza ese contenido igual que el mensaje, la fecha del parte siempre coincide con la del email. La generación es determinista: mismos datos, mismos bytes.
-- **Las fotos** están en `data/adjuntos/`. Se generaron con un modelo de imagen para la demo; la matrícula no es legible.
+- **El parte** no es un PDF fijo: [`adjuntos.js`](adjuntos.js) lo genera en el navegador con [pdf-lib](https://pdf-lib.js.org) (copiado en `vendor/pdf-lib.min.js`, se carga solo al abrir el adjunto) a partir de `adjuntos[].contenido` de [`data/demo/mensajes.js`](data/demo/mensajes.js). Como `fechas.js` desplaza ese contenido igual que el mensaje, la fecha del parte siempre coincide con la del email. La generación es determinista: mismos datos, mismos bytes.
+- **Las fotos** están en `data/attachments/`. Se generaron con un modelo de imagen para la demo; la matrícula no es legible.
 - **Pestaña «Adjuntos»** de la ficha: miniaturas, visor (el PDF con el visor del navegador; las fotos con zoom por botones, clic o Ctrl + rueda, y arrastre) y un panel con los datos extraídos de cada adjunto y su **contraste** con el texto del mensaje (coincide, no consta o discrepa, con la cita del email).
 - **Respuesta cruda**: la salida del modelo lleva un campo `adjuntos` con esos datos (los del tercero, marcados como dato personal). Con «+ Gobierno», `_gobernanza.adjuntos` registra cada archivo con su tamaño y su SHA-256 (calculado al recibirlo), los datos personales leídos en el parte, ya enmascarados, y que la seudonimización **solo se aplica al texto**: los adjuntos llegan al modelo con los datos que contengan. «Enviado al modelo» lista los archivos.
-- **Motores**: con «Resultados guardados» los datos vienen de [`data/resultados.js`](data/resultados.js) (`adj`). Con un modelo en vivo todavía no se envían los adjuntos (fase 1): sus datos se toman de los resultados guardados y la ficha lo indica. El motor local no lee adjuntos.
+- **Motores**: con «Resultados guardados» los datos vienen de [`data/demo/resultados.js`](data/demo/resultados.js) (`adj`). Con un modelo en vivo todavía no se envían los adjuntos (fase 1): sus datos se toman de los resultados guardados y la ficha lo indica. El motor local no lee adjuntos.
 
 ### Fechas siempre al día
 
@@ -81,7 +81,7 @@ Pruebas (sin dependencias, requieren Node): `make test`. Tras cambiar mensajes o
 En el menú lateral, **Motor de triaje** permite elegir:
 
 - **Automático**: IA si hay clave; si no, motor local.
-- **Resultados guardados**: reproduce las fichas de [`data/resultados.js`](data/resultados.js), generadas con IA para los 51 mensajes con el mismo esquema que devuelve el modelo (ramo, indicios, datos extraídos, criterios con evidencia, decisión, motivo, confianza y tokens). Cada mensaje tarda entre 3 y 5 s, con el mismo estado en vivo, pausa y reinicio.
+- **Resultados guardados**: reproduce las fichas de [`data/demo/resultados.js`](data/demo/resultados.js), generadas con IA para los 51 mensajes con el mismo esquema que devuelve el modelo (ramo, indicios, datos extraídos, criterios con evidencia, decisión, motivo, confianza y tokens). Cada mensaje tarda entre 3 y 5 s, con el mismo estado en vivo, pausa y reinicio.
 - **Archivo cargado**: con **Reproducir desde archivo** puedes cargar un JSON generado con «Exportar JSON» de un lote real y repetirlo con la misma cadencia.
 
 ## Motor local (sin IA)
@@ -125,7 +125,7 @@ fraude.js         motor de indicadores de fraude: score antifraude sin IA, con c
 fechas.js         fechas siempre al día: desplaza los datos de la demo hasta hoy (lógica pura, probada con `make test`)
 adjuntos.js       adjuntos de los mensajes: genera el parte amistoso en PDF con pdf-lib, sirve los archivos al visor y calcula su SHA-256
 vendor/           pdf-lib 1.17.1 (MIT), cargado bajo demanda para generar el parte
-data/adjuntos/    fotos de los daños de MSG-A-01
+data/attachments/    fotos de los daños de MSG-A-01
 tests/            pruebas de evidencias.js, cumplimiento.js, fraude.js, fechas.js, adjuntos.js y del recorrido de la demo; medición con un modelo real (ia-real.js)
 scripts/          generar-datos.js: regenera los JSON de data/ (`make datos`) · capturas.mjs y componer-capturas.py: capturas de las slides con Chrome sin interfaz (`make capturas`)
 Makefile          `make run` (servidor local), `make test`, `make datos` y `make capturas`
@@ -136,15 +136,15 @@ shell.js          comportamiento del menú lateral común (plegado, usuario y bo
 gobierno.html     panel «Gobierno de Agentes» (portada Inicio y trece secciones en seis bloques del menú lateral)
 gobierno.js       render del panel: fuentes de datos, trazas, replay, gráficos SVG
 gobierno.css      estilos del panel (mismos tokens que styles.css)
-data/mensajes.js  tres paquetes de mensajes
-data/resultados.js fichas de triaje guardadas para reproducción
-data/recorrido.js pasos del recorrido de la demo (24) con su acción, sus clics y 189 subtítulos por tipo; generado desde _docs/demo/es/guion-demo.md con `make recorrido`
-scripts/generators/generar-recorrido.js genera data/recorrido.js a partir del guion
+data/demo/mensajes.js  tres paquetes de mensajes
+data/demo/resultados.js fichas de triaje guardadas para reproducción
+data/generated/recorrido.js pasos del recorrido de la demo (24) con su acción, sus clics y 189 subtítulos por tipo; generado desde _docs/demo/es/guion-demo.md con `make recorrido`
+scripts/generators/generar-recorrido.js genera data/generated/recorrido.js a partir del guion
 scripts/generators/generar-guion-docx.js genera los Word de los dos guiones (`make guion-docx`)
-data/gobierno.js  dataset de demostración del panel (Paquete A + 14 días, Knowledge Bases, rúbricas, controles declarados y medidas correctivas)
-data/fraude.js    indicadores de fraude: catálogo IF-01…IF-12, escenarios EF-01…EF-08, histórico ficticio de pólizas y siniestros, cola de la SIU y evolución de 14 días
-data/gobierno-paquete-A.json      el mismo dataset, para «Cargar JSON» en el panel
-data/triage-registro-paquete-A.json  13 fichas del Paquete A en formato «Exportar JSON», para «Reproducir desde archivo»
+data/demo/gobierno.js  dataset de demostración del panel (Paquete A + 14 días, Knowledge Bases, rúbricas, controles declarados y medidas correctivas)
+data/demo/fraude.js    indicadores de fraude: catálogo IF-01…IF-12, escenarios EF-01…EF-08, histórico ficticio de pólizas y siniestros, cola de la SIU y evolución de 14 días
+data/import-samples/gobierno-paquete-A.json      el mismo dataset, para «Cargar JSON» en el panel
+data/import-samples/triage-registro-paquete-A.json  13 fichas del Paquete A en formato «Exportar JSON», para «Reproducir desde archivo»
 _docs/            arquitectura (C4 en Mermaid), guía de referencia de la demo, guion de la sesión, planes (cumplimiento, Knowledge Bases, agentes, portada y medidas correctivas) y slides (sesión FNOL y observabilidad y gobierno de la IA agéntica)
 ```
 
@@ -173,9 +173,9 @@ Todas las ventanas emergentes tienen el mismo tamaño en las dos páginas. Las q
 
 Fuentes de datos (selector de la cabecera):
 
-- **Demo**: `data/gobierno.js`, datos inventados coherentes con los 13 mensajes del Paquete A (mismos ids, ramo, decisión, confianza y tokens que `data/resultados.js`) más 14 días de histórico.
+- **Demo**: `data/demo/gobierno.js`, datos inventados coherentes con los 13 mensajes del Paquete A (mismos ids, ramo, decisión, confianza y tokens que `data/demo/resultados.js`) más 14 días de histórico.
 - **Sesión actual**: convierte el registro del triaje de esta pestaña (`sessionStorage`) en trazas reales: tokens y pasos → spans, ciclo, decisión, confianza, fallback como incidencia y coste según la tabla de precios por modelo. Cada traza conserva el id y el bloque `_gobernanza` de la ficha del triaje (en «Resultados guardados» del Paquete A, los mismos TRZ-4F2A… de la demo). Histórico, caps, guardrails y knowledge bases siguen siendo de demostración.
-- **Archivo JSON**: «Cargar JSON» con el esquema de `data/gobierno-paquete-A.json` (`agentes[]` con `historial`, `modelos` y `variables`; `trazas[]` con `spans` y `motivo`; y opcionalmente `caps`, `politicas` con `descripcion`, `severidad`, `disparos_dia` y `ultimos`, `razonamiento`, `replays`, `diario`, `eventos`, `modelos`, `knowledge`, `rubricas`, `cumplimiento_declarado`…); las secciones ausentes se toman de la demo. «Exportar trazas» descarga el dataset activo con ese mismo esquema.
+- **Archivo JSON**: «Cargar JSON» con el esquema de `data/import-samples/gobierno-paquete-A.json` (`agentes[]` con `historial`, `modelos` y `variables`; `trazas[]` con `spans` y `motivo`; y opcionalmente `caps`, `politicas` con `descripcion`, `severidad`, `disparos_dia` y `ultimos`, `razonamiento`, `replays`, `diario`, `eventos`, `modelos`, `knowledge`, `rubricas`, `cumplimiento_declarado`…); las secciones ausentes se toman de la demo. «Exportar trazas» descarga el dataset activo con ese mismo esquema.
 
 Todos los iconos de la web (triaje y panel) son [Lucide](https://lucide.dev) (licencia ISC), inline desde `icons.js`. Los números de paso de la barra de fases son círculos dibujados con CSS (Lucide no tiene iconos de número).
 

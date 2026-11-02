@@ -6,13 +6,13 @@
 //   export TRIAGE_MODEL='<despliegue o modelo>'     # opcional si va en la URL
 //   export TRIAGE_REASONING=low                     # opcional (modelos de razonamiento)
 //   make test-ia            # Paquete A (13 mensajes);  make test-ia N=3 para probar con 3
-require('../locales/node.js')();
+require('../../core/i18n/node.js')();
 const fs = require('fs');
 const path = require('path');
-const E = require('../evidencias.js');
+const E = require('../../evidencias.js');
 
-const cargar = (f, exportar) => new Function(`${fs.readFileSync(path.join(__dirname, '..', f), 'utf8')}\nreturn ${exportar};`)();
-const PAQUETES = cargar('data/mensajes.js', 'PAQUETES');
+const cargar = (f, exportar) => new Function(`${fs.readFileSync(path.join(__dirname, '..', '..', f), 'utf8')}\nreturn ${exportar};`)();
+const PAQUETES = cargar('data/demo/mensajes.js', 'PAQUETES');
 const P = cargar('prompts.js', '{ PROMPT_BLOQUES, buildSystemPrompt, buildUserPrompt }');
 
 const { TRIAGE_ENDPOINT: url, TRIAGE_API_KEY: key, TRIAGE_MODEL: modelo, TRIAGE_REASONING: razonamiento } = process.env;

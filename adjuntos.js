@@ -1,6 +1,6 @@
 // Adjuntos de los mensajes: la declaración amistosa de accidente se genera en el navegador con pdf-lib (vendor/) a
 // partir de `contenido`, ya desplazado por fechas.js, así que la fecha del parte siempre cuadra con la del mensaje.
-// Las fotos son archivos estáticos de data/adjuntos/. `huellas` calcula tamaño y SHA-256 de cada archivo tal y como
+// Las fotos son archivos estáticos de data/attachments/. `huellas` calcula tamaño y SHA-256 de cada archivo tal y como
 // se recibe, para el bloque _gobernanza.adjuntos.
 (function (raiz) {
   const PDF_LIB = 'vendor/pdf-lib.min.js';
@@ -150,7 +150,7 @@
     return doc.save({ useObjectStreams: false });
   }
 
-  // Bytes de un adjunto: el PDF se genera; la imagen se descarga de data/adjuntos/
+  // Bytes de un adjunto: el PDF se genera; la imagen se descarga de data/attachments/
   const bytesCache = new Map();
   async function bytes(adj, msg) {
     const k = `${msg.id}/${adj.id}`;

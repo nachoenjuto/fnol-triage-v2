@@ -184,7 +184,7 @@ I18N.registrar('en', {
   "triaje.archivo_cargado_fichas_35": ["Loaded file — {nombre} ({entradas} records, 3–5 s per message)","10e1c620"],
   "triaje.archivo_cargado_reproduccion_carga": ["Loaded file — replay (load a JSON below)","2942b5c6"],
   "triaje.llama_a_la_ia": ["Calls the AI if there is a key; otherwise it uses the local rules engine.","92975da0"],
-  "triaje.reproduce_fichas_generadas_con": ["Replays records generated with AI and saved in data/resultados.js, without calling the model.","5d6601fe"],
+  "triaje.reproduce_fichas_generadas_con": ["Replays records generated with AI and saved in data/demo/resultados.js, without calling the model.","f90e62f4"],
   "triaje.reproduce_las_fichas_del": ["Replays the records from the loaded JSON in the order they were processed.","a82b1a9a"],
   "triaje.editado": [" · edited","82c2e442"],
   "triaje.caracteres": ["characters","96fe6028"],
