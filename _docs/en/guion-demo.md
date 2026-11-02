@@ -19,7 +19,7 @@ Step-by-step script for a 30-35 minute session: introduction in the four section
 2. In a second tab, open `index.html`. In the side menu, **Settings → Triage engine → Saved results** (does not depend on the network) and **Packages → Package A**. Check that «Pseudonymise before sending to the model» is turned on.
 3. Do not process the batch yet: it is done live in step 2.
 4. If you are going to take screenshots, add `?fecha=2026-09-17` to the URL. Without that parameter the dates in the messages are shifted to today.
-5. Optional: turn on **Presenter mode** on the panel Home (password `password`) to have the walkthrough to hand with its «Go» button.
+5. Optional: turn on **Auto Tour** in `index.html`, side menu → **Tour** (password `password`), to have the walkthrough to hand with its «Go» button.
 
 **Timings**
 

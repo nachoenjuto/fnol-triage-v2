@@ -16,6 +16,7 @@ I18N.registrar('es', {
   'triaje.nav.mensajes_fnol': 'Mensajes FNOL',
   'triaje.nav.paquetes': 'Paquetes',
   'triaje.nav.prompts_y_reglas': 'Prompts y Reglas',
+  'triaje.nav.tour': 'Tour',
   'triaje.paq.orden': 'Nº',
   'triaje.paq.desplegar': 'Desplegar',
   'triaje.paq.ver': 'Ver el mensaje {id}',

@@ -77,8 +77,8 @@
 
   // ---------------------------------------------------------------------------
   // Recorrido de la demo (modo presentador): los pasos del guion (data/recorrido.js) con un botón «Ir» que lleva a la
-  // pantalla exacta, aunque esté en la otra página. El modo presentador se activa en Inicio con contraseña.
-  // Panel flotante que se arrastra por la cabecera y se minimiza en una barra al pie. El engranaje abre la
+  // pantalla exacta, aunque esté en la otra página. El Auto Tour (modo presentador) se activa con contraseña en la sección Tour del triaje.
+  // Panel flotante que se arrastra por la cabecera y se minimiza en una barra al pie. El engranaje lleva a la
   // configuración: demo automática (un tiempo por pantalla común a todas), subtítulos (pie o arriba) y editor de los
   // textos de cada paso, que solo ve quien los edita (se guardan en su navegador).
   // Con una ventana modal abierta, el panel y los subtítulos se mueven dentro de ella para seguir visibles y usables.
@@ -225,7 +225,7 @@
   };
 
   const Recorrido = {
-    PASOS, acciones: {}, pagina: null, aviso: '', vista: 'pasos', edPaso: 0,
+    PASOS, acciones: {}, pagina: null, aviso: '', edPaso: 0,
     presentador,
     // Pruebas (tests/recorrido.test.js)
     _normalizarConfig: normalizarConfig, _cueEn: cueEn, _pasoDe: pasoDe, _durMs: durMs, _subsVisibles: subsVisibles, _inicioCue: inicioCue, _tipoAcc: tipoAcc, CONF_DEF, TIPOS, HASH_CLAVE, sha256Hex,
@@ -472,11 +472,11 @@
       if (typeof document === 'undefined') return;
       let el = byId('recorrido');
       const r = leerRec(); const conf = leerConf();
+      this.pintarAjustes();
       if (!presentador() || !r.activo) { if (el) el.remove(); const s = byId('rec-subs'); if (s) s.remove(); return; }
       if (!el) { el = Object.assign(document.createElement('aside'), { id: 'recorrido', className: 'recorrido' }); el.setAttribute('aria-label', I18N.t('shell.recorrido_de_la_demo')); document.body.appendChild(el); }
       const scroll = (el.querySelector('.rec-cuerpo') || {}).scrollTop || 0;
-      const cfg = this.vista === 'config' && !r.min;
-      el.classList.toggle('min', !!r.min); el.classList.toggle('cfg', cfg);
+      el.classList.toggle('min', !!r.min);
       const p = pasoDe(r.paso, conf); const N = PASOS.length;
       const marcas = this.marcasHtml(conf, r);
       const play = conf.auto ? `<button type="button" class="rec-btn rec-play" data-rec="${r.reproduciendo ? 'pausa' : 'play'}" title="${r.reproduciendo ? I18N.t('shell.pausar_la_demo') : I18N.t('shell.reproducir_la_demo_automatica')}" aria-label="${r.reproduciendo ? I18N.t('shell.pausar') : I18N.t('shell.reproducir')}">${lucide(r.reproduciendo ? 'pause' : 'play')}</button>` : '';
@@ -488,11 +488,11 @@
             <button type="button" class="rec-btn" data-rec="cerrar" title="${I18N.t('shell.cerrar_el_recorrido')}" aria-label="${I18N.t('shell.cerrar_el_recorrido')}">${lucide('x')}</button></div>`;
       } else {
         el.innerHTML = `<div class="rec-cab" title="${I18N.t('shell.arrastra_para_mover_doble')}"><b>${lucide('route')} ${I18N.t('shell.recorrido_de_la_demo')}</b><span class="rec-pos" title="${I18N.t('shell.paso_de', { paso: r.paso + 1, N })}">${r.paso + 1} / ${N}</span><span class="rec-subpos" title="${I18N.t('shell.subtitulo_del_paso')}"></span>${play}
-            <button type="button" class="rec-btn" data-rec="config" title="${I18N.t('shell.configuracion')}" aria-label="${I18N.t('shell.configuracion')}" aria-pressed="${cfg}">${lucide('settings')}</button>
+            <a class="rec-btn" href="index.html#tour" title="${I18N.t('shell.cfg.ir_a_la_configuracion')}" aria-label="${I18N.t('shell.cfg.ir_a_la_configuracion')}">${lucide('settings')}</a>
             <button type="button" class="rec-btn" data-rec="minimizar" title="${I18N.t('shell.minimizar_al_pie')}" aria-label="${I18N.t('shell.minimizar')}">${lucide('minus')}</button>
             <button type="button" class="rec-btn" data-rec="cerrar" title="${I18N.t('shell.cerrar_el_recorrido')}" aria-label="${I18N.t('shell.cerrar_el_recorrido')}">${lucide('x')}</button></div>
           <div class="rec-prog" role="slider" tabindex="0" aria-label="${I18N.t('shell.posicion_dentro_del_paso')}" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" title="${I18N.t('shell.arrastra_o_pulsa_para')}"><i></i>${marcas}<b class="rec-tirador"></b></div><div class="rec-estado" aria-live="off"></div>
-          <div class="rec-cuerpo">${cfg ? this.htmlConfig(conf) : this.htmlPasos(conf, r, p)}</div>`;
+          <div class="rec-cuerpo">${this.htmlPasos(conf, r, p)}</div>`;
         el.querySelector('.rec-cuerpo').scrollTop = scroll;
       }
       anclar(); this.posicionar(); this.vivo(conf, r);
@@ -526,48 +526,74 @@
         return `<li><button type="button" data-rec-cue="${k}" title="${escR(u.texto)}"><span class="rec-sp-n">${k + 1}</span><span class="rec-sp-t">${escR(u.texto)}</span>${ico ? `<span class="rec-sp-i" title="${tit}">${lucide(ico)}</span>` : ''}</button></li>`;
       }).join('')}</ol></details>`;
     },
-    htmlConfig(conf) {
+    // Sección Tour del triaje (index.html, #rec-config): activar con contraseña, abrir el recorrido y, ya
+    // activado, sus ajustes (reproducción, subtítulos y los textos del guion de este presentador)
+    pintarAjustes() {
+      const host = typeof document !== 'undefined' && byId('rec-config'); if (!host) return;
+      // Mientras se escribe un texto del guion no se repinta (el avance de la demo no quita el foco)
+      const act = document.activeElement;
+      if (act && host.contains(act) && act.matches('textarea, input[type="text"], input[type="number"]')) return;
+      const on = presentador();
+      host.innerHTML = this.htmlPresentador(on, leerRec()) + (on ? this.htmlAjustes(leerConf()) : '');
+    },
+    htmlPresentador(on, r) {
+      const botones = on
+        ? `<button type="button" class="btn btn-primary" data-rec="abrir">${lucide('route')} ${I18N.t(r.activo ? 'shell.cfg.recorrido_abierto' : 'shell.cfg.abrir_el_recorrido')}</button><button type="button" class="btn btn-ghost" data-rec="desactivar">${lucide('power')} ${I18N.t('shell.cfg.desactivar')}</button>`
+        : `<button type="button" class="btn btn-primary" data-rec="activar">${lucide('lock')} ${I18N.t('shell.activar_el_modo_presentador')}</button>`;
+      return `<section class="card cfg-grupo">
+        <div class="row wrap between vista-cab"><h2>${I18N.t('shell.cfg.modo_presentador')}</h2><span class="ai-estado"><span class="dot ${on ? 'dot-on' : 'dot-off'}" aria-hidden="true"></span> ${I18N.t(on ? 'shell.cfg.activado' : 'shell.cfg.desactivado')}</span></div>
+        <p class="hint">${I18N.t('shell.cfg.ayuda')}</p>
+        <div class="rec-fila">${botones}</div>
+      </section>`;
+    },
+    htmlAjustes(conf) {
       const n = clamp(this.edPaso, 0, PASOS.length - 1); const p = pasoDe(n, conf);
       const opt = (v, l, cur) => `<option value="${escR(v)}"${String(v) === String(cur) ? ' selected' : ''}>${escR(l)}</option>`;
-      const chk = (k, l, sub) => `<label class="rec-chk"><input type="checkbox" data-conf="${k}"${conf[k] ? ' checked' : ''}><span>${l}</span>${sub ? `<small>${sub}</small>` : ''}</label>`;
-      return `<div class="rec-conf">
-        <div class="rec-conf-cab"><button type="button" class="rec-volver" data-rec="pasos">${lucide('chevron-left')} ${I18N.t('shell.pasos')}</button><b>${I18N.t('shell.configuracion')}</b></div>
-        <fieldset><legend>${I18N.t('shell.reproduccion')}</legend>
+      const chk = (k, l, sub) => `<label class="check-row"><span class="check-line"><input type="checkbox" data-conf="${k}"${conf[k] ? ' checked' : ''}> <span>${l}</span></span>${sub ? `<small>${sub}</small>` : ''}</label>`;
+      const campo = (l, ctl, sub) => `<label><span>${l}</span>${ctl}${sub ? `<small>${sub}</small>` : ''}</label>`;
+      const tipos = Object.entries(TIPOS).map(([k, [ico, lbl]]) => `<label class="check-row"><span class="check-line"><input type="checkbox" data-conf-tipo="${k}"${conf.subTipos[k] !== false ? ' checked' : ''}${conf.subtitulos ? '' : ' disabled'}> <span>${lucide(ico)} ${lbl}</span><small class="rec-n">${PASOS.reduce((a, x) => a + (x.subtitulos || []).filter((u) => u.tipo === k).length, 0)}</small></span></label>`).join('');
+      const cues = p.subtitulos.map((u, k) => `<div class="rec-cue"><div class="rec-cue-cab"><b>${I18N.t('shell.subtitulo', { v: k + 1 })}</b><select data-ed-cue="${k}" data-campo="tipo" aria-label="${I18N.t('shell.tipo_del_subtitulo', { v: k + 1 })}">${Object.entries(TIPOS).map(([t, [, l]]) => opt(t, l, u.tipo)).join('')}</select><button type="button" class="rec-btn" data-rec="quitar-cue" data-k="${k}" title="${I18N.t('shell.quitar_este_subtitulo')}" aria-label="${I18N.t('shell.quitar_el_subtitulo', { v: k + 1 })}">${lucide('trash-2')}</button></div>
+            <textarea rows="3" maxlength="${MAX_TXT}" data-ed-cue="${k}" data-campo="texto" aria-label="${I18N.t('shell.texto_del_subtitulo', { v: k + 1 })}">${escR(u.texto)}</textarea></div>`).join('');
+      return `<div class="cfg-dos">
+        <section class="card cfg-grupo"><h2>${I18N.t('shell.reproduccion')}</h2>
           ${chk('auto', I18N.t('shell.demo_automatica'), I18N.t('shell.anade_a_la_cabecera'))}
-          <label class="rec-campo">${I18N.t('shell.tiempo_minimo_por_pantalla')} <span><input type="number" min="${SEG.min}" max="${SEG.max}" step="5" value="${conf.segundos}" data-conf="segundos"> ${I18N.t('shell.s')}</span></label>
-          <small>${I18N.t('shell.de_a_s_con', { min: SEG.min, max: SEG.max })}</small>
-          <label class="rec-campo">${I18N.t('shell.al_terminar')} <select data-conf="alTerminar">${opt('parar', I18N.t('shell.parar'), conf.alTerminar)}${opt('repetir', I18N.t('shell.volver_a_empezar'), conf.alTerminar)}</select></label>
+          ${campo(I18N.t('shell.tiempo_minimo_por_pantalla'), `<input type="number" class="rec-num" min="${SEG.min}" max="${SEG.max}" step="5" value="${conf.segundos}" data-conf="segundos">`, I18N.t('shell.de_a_s_con', { min: SEG.min, max: SEG.max }))}
+          ${campo(I18N.t('shell.al_terminar'), `<select data-conf="alTerminar">${opt('parar', I18N.t('shell.parar'), conf.alTerminar)}${opt('repetir', I18N.t('shell.volver_a_empezar'), conf.alTerminar)}</select>`)}
           ${chk('pausarAlTocar', I18N.t('shell.pausar_si_toco_la'), I18N.t('shell.un_clic_o_una'))}
-        </fieldset>
-        <fieldset><legend>${I18N.t('shell.subtitulos')}</legend>
+        </section>
+        <section class="card cfg-grupo"><h2>${I18N.t('shell.subtitulos')}</h2>
           ${chk('subtitulos', I18N.t('shell.mostrar_subtitulos'), I18N.t('shell.el_texto_del_guion'))}
-          <div class="rec-tipos"><span>${I18N.t('shell.que_subtitulos_se_muestran')}</span>${Object.entries(TIPOS).map(([k, [ico, lbl]]) => `<label class="rec-chk"><input type="checkbox" data-conf-tipo="${k}"${conf.subTipos[k] !== false ? ' checked' : ''}${conf.subtitulos ? '' : ' disabled'}><span>${lucide(ico)} ${lbl}</span><small>${PASOS.reduce((a, x) => a + (x.subtitulos || []).filter((u) => u.tipo === k).length, 0)}</small></label>`).join('')}</div>
-          <label class="rec-campo">${I18N.t('shell.posicion')} <select data-conf="subPos">${opt('pie', I18N.t('shell.pie_de_pantalla'), conf.subPos)}${opt('arriba', I18N.t('shell.parte_superior'), conf.subPos)}</select></label>
-          <label class="rec-campo">${I18N.t('shell.tamano')} <select data-conf="subTam">${opt('normal', I18N.t('shell.normal'), conf.subTam)}${opt('grande', I18N.t('shell.grande'), conf.subTam)}</select></label>
-        </fieldset>
-        <fieldset><legend>${I18N.t('shell.textos_del_guion')}</legend>
-          <small>${lucide('lock')} ${I18N.t('shell.solo_los_ves_tu')}</small>
-          <label class="rec-campo">${I18N.t('shell.paso_2')} <select data-ed-paso>${PASOS.map((x, i) => opt(i, `${i + 1}. ${x.titulo}${conf.textos[i] ? I18N.t('shell.editado') : ''}`, n)).join('')}</select></label>
-          <label class="rec-campo rec-col">${I18N.t('shell.frase_clave')}<input type="text" maxlength="${MAX_TXT}" data-ed="frase" value="${escR(p.frase)}"></label>
-          ${p.subtitulos.map((u, k) => `<div class="rec-cue"><div class="rec-cue-cab"><b>${I18N.t('shell.subtitulo', { v: k + 1 })}</b><select data-ed-cue="${k}" data-campo="tipo" aria-label="${I18N.t('shell.tipo_del_subtitulo', { v: k + 1 })}">${Object.entries(TIPOS).map(([t, [, l]]) => opt(t, l, u.tipo)).join('')}</select><button type="button" class="rec-btn" data-rec="quitar-cue" data-k="${k}" title="${I18N.t('shell.quitar_este_subtitulo')}" aria-label="${I18N.t('shell.quitar_el_subtitulo', { v: k + 1 })}">${lucide('trash-2')}</button></div>
-            <textarea rows="3" maxlength="${MAX_TXT}" data-ed-cue="${k}" data-campo="texto" aria-label="${I18N.t('shell.texto_del_subtitulo', { v: k + 1 })}">${escR(u.texto)}</textarea></div>`).join('')}
-          ${p.subtitulos.length < MAX_SUBS ? `<button type="button" class="btn btn-sm" data-rec="add-cue">${lucide('plus')} ${I18N.t('shell.anadir_subtitulo')}</button>` : ''}
-          <div class="rec-fila"><button type="button" class="btn btn-sm" data-rec="restaurar-paso" ${conf.textos[n] ? '' : 'disabled'}>${lucide('rotate-ccw')} ${I18N.t('shell.restaurar_este_paso')}</button><button type="button" class="btn btn-sm" data-rec="restaurar-todo" ${Object.keys(conf.textos).length ? '' : 'disabled'}>${I18N.t('shell.restaurar_todos')}</button></div>
-          <div class="rec-fila"><button type="button" class="btn btn-sm" data-rec="exportar">${lucide('download')} ${I18N.t('shell.exportar_json')}</button><label class="btn btn-sm">${lucide('upload')} ${I18N.t('shell.importar_json')}<input type="file" accept="application/json,.json" data-rec-importar hidden></label></div>
-          <p class="rec-conf-msg" role="status"></p>
-        </fieldset></div>`;
+          <div class="rec-tipos"><span>${I18N.t('shell.que_subtitulos_se_muestran')}</span>${tipos}</div>
+          ${campo(I18N.t('shell.posicion'), `<select data-conf="subPos">${opt('pie', I18N.t('shell.pie_de_pantalla'), conf.subPos)}${opt('arriba', I18N.t('shell.parte_superior'), conf.subPos)}</select>`)}
+          ${campo(I18N.t('shell.tamano'), `<select data-conf="subTam">${opt('normal', I18N.t('shell.normal'), conf.subTam)}${opt('grande', I18N.t('shell.grande'), conf.subTam)}</select>`)}
+        </section>
+      </div>
+      <section class="card cfg-grupo rec-textos"><h2>${I18N.t('shell.textos_del_guion')}</h2>
+        <p class="hint">${lucide('lock')} ${I18N.t('shell.solo_los_ves_tu')}</p>
+        <div class="rec-textos-cab">
+          ${campo(I18N.t('shell.paso_2'), `<select data-ed-paso>${PASOS.map((x, i) => opt(i, `${i + 1}. ${x.titulo}${conf.textos[i] ? I18N.t('shell.editado') : ''}`, n)).join('')}</select>`)}
+          ${campo(I18N.t('shell.frase_clave'), `<input type="text" maxlength="${MAX_TXT}" data-ed="frase" value="${escR(p.frase)}">`)}
+        </div>
+        <div class="rec-cues">${cues}</div>
+        ${p.subtitulos.length < MAX_SUBS ? `<div class="rec-fila"><button type="button" class="btn btn-sm" data-rec="add-cue">${lucide('plus')} ${I18N.t('shell.anadir_subtitulo')}</button></div>` : ''}
+        <div class="rec-fila"><button type="button" class="btn btn-sm" data-rec="restaurar-paso" ${conf.textos[n] ? '' : 'disabled'}>${lucide('rotate-ccw')} ${I18N.t('shell.restaurar_este_paso')}</button><button type="button" class="btn btn-sm" data-rec="restaurar-todo" ${Object.keys(conf.textos).length ? '' : 'disabled'}>${I18N.t('shell.restaurar_todos')}</button>
+          <button type="button" class="btn btn-sm" data-rec="exportar">${lucide('download')} ${I18N.t('shell.exportar_json')}</button><label class="btn btn-sm">${lucide('upload')} ${I18N.t('shell.importar_json')}<input type="file" accept="application/json,.json" data-rec-importar hidden></label></div>
+        <p class="rec-conf-msg" role="status"></p>
+      </section>`;
     },
     // Lee del editor el paso que se está editando y lo guarda como textos propios de este presentador
     guardarTextos() {
-      const el = byId('recorrido'); if (!el) return;
+      const el = byId('rec-config'); if (!el) return;
       const conf = leerConf(); const n = this.edPaso;
       const prev = pasoDe(n, conf).subtitulos;
       const subs = []; el.querySelectorAll('[data-ed-cue]').forEach((t) => { const k = Number(t.dataset.edCue); subs[k] = subs[k] || { tipo: 'intro', ...(prev[k] && prev[k].etiqueta ? { etiqueta: prev[k].etiqueta } : {}), ...(prev[k] && prev[k].accion ? { accion: prev[k].accion } : {}), texto: '' }; subs[k][t.dataset.campo] = t.value; });
       conf.textos[n] = { frase: (el.querySelector('[data-ed="frase"]') || {}).value ?? pasoDe(n, conf).frase, subtitulos: subs.filter(Boolean) };
       guardarConf(conf);
+      // Sin repintar (se está escribiendo): ya hay algo que restaurar
+      el.querySelectorAll('[data-rec="restaurar-paso"], [data-rec="restaurar-todo"]').forEach((b) => { b.disabled = false; });
       if (leerRec().paso === n) { reloj.cue = -1; this.pintarSubs(); }
     },
-    mensajeConf(t) { const m = document.querySelector('#recorrido .rec-conf-msg'); if (m) m.textContent = t; },
+    mensajeConf(t) { const m = document.querySelector('#rec-config .rec-conf-msg'); if (m) m.textContent = t; },
     exportar() {
       const conf = leerConf();
       const blob = new Blob([JSON.stringify({ recorrido: 'fnol-triage', exportado: new Date().toISOString(), ...conf }, null, 2)], { type: 'application/json' });
@@ -585,6 +611,7 @@
       this.acciones = acciones;
       this.pagina = (document.querySelector('.shell') || {}).dataset ? document.querySelector('.shell').dataset.pagina : null;
       ls.del(CLAVE_PRES);   // la antigua preferencia permanente del modo presentador: ahora pide contraseña en cada sesión
+      this.edPaso = leerRec().paso;   // el editor de textos de la Configuración empieza en el paso en curso
       document.addEventListener('click', (ev) => {
         const ir = ev.target.closest('[data-rec-ir]'); if (ir) { this.ir(Number(ir.dataset.recIr)); return; }
         const cue = ev.target.closest('[data-rec-cue]');
@@ -593,8 +620,9 @@
         const r = leerRec(); const conf = leerConf(); const a = b.dataset.rec;
         if (a === 'cerrar') return this.cerrar();
         if (a === 'minimizar' || a === 'restaurar') { r.min = a === 'minimizar'; guardarRec(r); return this.pintar(); }
-        if (a === 'config') { this.vista = this.vista === 'config' ? 'pasos' : 'config'; this.edPaso = r.paso; return this.pintar(); }
-        if (a === 'pasos') { this.vista = 'pasos'; return this.pintar(); }
+        if (a === 'activar') return this.setPresentador(true);
+        if (a === 'desactivar') return this.setPresentador(false);
+        if (a === 'abrir') return this.empezar();
         if (a === 'play') return this.reproducir();
         if (a === 'pausa') return this.pausar('');
         if (a === 'sub-sig') return this.subSig();
@@ -617,10 +645,10 @@
         if (a === 'restaurar-todo') { if (!confirm(I18N.t('shell.restaurar_todos_los_textos'))) return; conf.textos = {}; guardarConf(conf); reloj.cue = -1; this.pintar(); return this.mensajeConf(I18N.t('shell.todos_los_textos_restaurados')); }
         if (a === 'exportar') return this.exportar();
       });
-      document.addEventListener('input', (ev) => { if (ev.target.closest && ev.target.closest('#recorrido [data-ed], #recorrido [data-ed-cue]')) this.guardarTextos(); });
-      document.addEventListener('change', (ev) => { if (ev.target.matches && ev.target.matches('#recorrido select[data-ed-cue]')) this.guardarTextos(); });
+      document.addEventListener('input', (ev) => { if (ev.target.closest && ev.target.closest('#rec-config [data-ed], #rec-config [data-ed-cue]')) this.guardarTextos(); });
+      document.addEventListener('change', (ev) => { if (ev.target.matches && ev.target.matches('#rec-config select[data-ed-cue]')) this.guardarTextos(); });
       document.addEventListener('change', (ev) => {
-        const t = ev.target; if (!t.closest || !t.closest('#recorrido')) return;
+        const t = ev.target; if (!t.closest || !t.closest('#rec-config')) return;
         if (t.matches('[data-ed-paso]')) { this.edPaso = Number(t.value); return this.pintar(); }
         if (t.matches('[data-rec-importar]')) { if (t.files[0]) this.importar(t.files[0]); return; }
         if (t.matches('[data-conf-tipo]')) { const c = leerConf(); c.subTipos[t.dataset.confTipo] = t.checked; guardarConf(c); reloj.cue = -1; return this.pintar(); }

@@ -2822,9 +2822,7 @@
     $('inicio-hero').innerHTML = `<div><h2>${ic('house')} ${I18N.t('gob.gobierno_de_los_agentes')}</h2>
         <p>${I18N.t('gob.que_esta_pasando_cuanto')}</p>
         <div class="row" style="margin-top:.6rem">${crit ? `<span class="pill pill-crit">${ic('triangle-alert')} ${crit} ${crit === 1 ? I18N.t('gob.alerta_critica') : I18N.t('gob.alertas_criticas')}</span>` : ''}<span class="pill pill-warn">${ic('circle-alert')} ${I18N.t('gob.avisos_2', { avisos })}</span><span class="pill" style="background:color-mix(in srgb, ${colorPct(T.global)} 14%, transparent);color:${colorPct(T.global)}">${ic('thermometer')} ${I18N.t('gob.cumplimiento_3', { global: T.global })}</span><span class="pill pill-muted">${ic('book-open')} ${I18N.t('gob.de_kb_sanas', { kbOk, E: E.length })}</span></div></div>
-      <div class="inicio-acc"><button class="btn btn-primary" type="button" data-goto="resumen">${ic('layout-dashboard')} ${I18N.t('gob.ver_el_resumen')}</button>
-        <div class="inicio-pres"><label class="switch${Shell.Recorrido.presentador() ? '' : ' off'}" data-presentador role="switch" aria-checked="${Shell.Recorrido.presentador()}" tabindex="0" title="${I18N.t('gob.activa_el_recorrido_guiado')}"><i></i>${I18N.t('gob.modo_presentador')}</label>
-        ${Shell.Recorrido.presentador() ? `<button class="btn btn-sm" type="button" data-rec-empezar>${ic('route')} ${I18N.t('gob.recorrido_de_la_demo')}</button>` : ''}</div></div>`;
+      <div class="inicio-acc"><button class="btn btn-primary" type="button" data-goto="resumen">${ic('layout-dashboard')} ${I18N.t('gob.ver_el_resumen')}</button></div>`;
     // Fichas agrupadas por bloque, con su nombre y su pregunta. En cada ficha manda la cifra; el estado solo se marca
     // cuando hay algo que mirar (al día = un punto verde; revisar y atención = etiqueta)
     $('inicio-grupos').innerHTML = GRUPOS.map(([g, pregG, vs]) => `<div class="inicio-grupo"><div class="inicio-grupo-cab"><h3>${esc(g)}</h3><p class="inicio-grupo-preg">${esc(pregG)}</p></div><div class="inicio-fichas">${vs.map((v) => {
@@ -3225,7 +3223,6 @@
       // Estado del lote del triaje (misma pestaña) para los avisos de espera del recorrido
       lote: () => ({ total: ((PAQUETES.find((x) => x.id === 'A') || {}).mensajes || []).length, hechos: (ssGet('triage.log', []) || []).filter((e) => e.paquete === 'A').length, procesando: false }),
     });
-    document.addEventListener('recorrido:presentador', () => renderInicio());
     $('tabs').addEventListener('click', (e) => { const b = e.target.closest('.tab'); if (b) goto(b.dataset.view); });
     // Navegación, modales, kill switch, guardrails y leyendas: un único delegado de clic
     document.addEventListener('click', (e) => {
@@ -3251,8 +3248,6 @@
       const co = e.target.closest('[data-corr]'); if (co) { const [cid, k] = co.dataset.corr.split(':'); aplicarCorrectiva(cid, Number(k)); return; }
       const cp = e.target.closest('[data-cap]'); if (cp) { abrirModalCap(cp.dataset.cap); return; }
       const lg = e.target.closest('[data-legend]'); if (lg) { const set = lg.dataset.legend === 'agente' ? ocultos : tokOcultos; set.has(lg.dataset.key) ? set.delete(lg.dataset.key) : set.add(lg.dataset.key); renderCharts(); return; }
-      const pr = e.target.closest('[data-presentador]'); if (pr) { e.preventDefault(); Shell.Recorrido.setPresentador(!Shell.Recorrido.presentador()); return; }
-      if (e.target.closest('[data-rec-empezar]')) { Shell.Recorrido.empezar(); return; }
       const at = e.target.closest('[data-ag-tab]'); if (at) { agSel = at.dataset.agTab; ssSet('gobierno.agente', agSel); renderAgentes(); return; }
       const ma = e.target.closest('[data-med-acc]'); if (ma) { e.stopPropagation(); const [t, id, k] = ma.dataset.medAcc.split(':'); accionMedida(id, t, Number(k)); return; }
       const md = e.target.closest('[data-med-dim]'); if (md) { medDim = md.dataset.medDim; renderMedidas(); return; }
