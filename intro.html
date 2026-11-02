@@ -6,7 +6,7 @@
   <title data-i18n="intro.pagina.fnol_introduccion"></title>
   <meta name="description" data-i18n-attr="content:intro.pagina.introduccion_a_la_demo">
   <link rel="stylesheet" href="styles.css?v=40">
-  <link rel="stylesheet" href="header.css?v=50">
+  <link rel="stylesheet" href="header.css?v=52">
   <link rel="stylesheet" href="intro.css?v=14">
 </head>
 <body>
@@ -30,8 +30,9 @@
         <a class="nav-item" href="#problema" data-sec="problema" data-i18n-attr="title:intro.shell.2_el_problema"><span data-lucide="triangle-alert" aria-hidden="true"></span><span class="lbl" data-i18n="intro.shell.2_el_problema"></span></a>
         <a class="nav-item" href="#solucion" data-sec="solucion" data-i18n-attr="title:intro.shell.3_la_solucion"><span data-lucide="workflow" aria-hidden="true"></span><span class="lbl" data-i18n="intro.shell.3_la_solucion"></span></a>
         <a class="nav-item" href="#actores" data-sec="actores" data-i18n-attr="title:intro.shell.4_los_actores"><span data-lucide="users" aria-hidden="true"></span><span class="lbl" data-i18n="intro.shell.4_los_actores"></span></a>
-        <a class="nav-item" href="#demo" data-sec="demo" data-i18n-attr="title:intro.shell.5_la_demo"><span data-lucide="route" aria-hidden="true"></span><span class="lbl" data-i18n="intro.shell.5_la_demo"></span></a>
+        <a class="nav-item" href="#demo" data-sec="demo" data-i18n-attr="title:intro.shell.5_la_demo"><span data-lucide="rocket" aria-hidden="true"></span><span class="lbl" data-i18n="intro.shell.5_la_demo"></span></a>
         <div class="nav-grupo" data-i18n="intro.shell.demo"></div>
+        <a class="nav-item" href="#tour" data-sec="tour" data-i18n-attr="title:intro.shell.tour"><span data-lucide="route" aria-hidden="true"></span><span class="lbl" data-i18n="intro.shell.tour"></span></a>
         <a class="nav-item" href="index.html" data-i18n-attr="title:intro.shell.triaje_fnol"><span data-lucide="inbox" aria-hidden="true"></span><span class="lbl" data-i18n="intro.shell.triaje_fnol"></span></a>
         <a class="nav-item" href="gobierno.html" data-i18n-attr="title:intro.shell.gobierno_de_agentes"><span data-lucide="shield-check" aria-hidden="true"></span><span class="lbl" data-i18n="intro.shell.gobierno_de_agentes"></span></a>
       </div>
@@ -478,17 +479,22 @@
           </nav>
         </section>
 
+        <!-- Tour: Auto Tour con contraseña, el recorrido y sus ajustes (los pinta shell.js · Recorrido.pintarAjustes). Sin número: no es parte de la introducción -->
+        <section class="intro-sec" id="sec-tour" data-sec="tour" data-sin-numero hidden data-i18n-attr="data-titulo:intro.shell.tour">
+          <div id="rec-config" class="rec-config"></div>
+        </section>
+
       </main>
       <footer class="pie" data-i18n-html="intro.shell.demo_estatica_html_javascript"></footer>
     </div>
   </div>
   <script src="locales/idiomas.js?v=2"></script>
   <script src="locales/i18n.js?v=5"></script>
-  <script src="locales/cargar.js?v=13"></script>
+  <script src="locales/cargar.js?v=16"></script>
   <script src="icons.js?v=41"></script>
   <script src="data/recorrido.js?v=48"></script>
-  <script src="shell.js?v=59"></script>
+  <script src="shell.js?v=63"></script>
   <script src="locales/traducir-datos.js?v=1"></script>
-  <script src="intro.js?v=5"></script>
+  <script src="intro.js?v=6"></script>
 </body>
 </html>

@@ -500,7 +500,6 @@ I18N.registrar('en', {
   "triaje.pii.direccion": [{"one":"address","other":"addresses"},"64276d33"],
   "triaje.nav.mensajes_fnol": ["FNOL messages","a0ac902a"],
   "triaje.nav.paquetes": ["Packages","e3e0efc1"],
-  "triaje.nav.tour": ["Tour","b7b03c83"],
   "triaje.nav.prompts_y_reglas": ["Prompts and Rules","3908bd63"],
   "triaje.paq.orden": ["No.","0ee63b71"],
   "triaje.paq.desplegar": ["Expand","e2641084"],

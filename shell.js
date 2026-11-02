@@ -77,7 +77,7 @@
 
   // ---------------------------------------------------------------------------
   // Recorrido de la demo (modo presentador): los pasos del guion (data/recorrido.js) con un botón «Ir» que lleva a la
-  // pantalla exacta, aunque esté en la otra página. El Auto Tour (modo presentador) se activa con contraseña en la sección Tour del triaje.
+  // pantalla exacta, aunque esté en la otra página. El Auto Tour (modo presentador) se activa con contraseña en la sección Tour de la introducción.
   // Panel flotante que se arrastra por la cabecera y se minimiza en una barra al pie. El engranaje lleva a la
   // configuración: demo automática (un tiempo por pantalla común a todas), subtítulos (pie o arriba) y editor de los
   // textos de cada paso, que solo ve quien los edita (se guardan en su navegador).
@@ -93,6 +93,7 @@
   const CLAVE_REC = 'demo.recorrido';           // sessionStorage: { activo, paso, vistos, min, reproduciendo }
   const CLAVE_CONF = 'demo.recorrido.config';   // localStorage: configuración y textos editados (solo este navegador)
   const CLAVE_POS = 'demo.recorrido.pos';       // localStorage: posición del panel arrastrado
+  const CLAVE_IR_TEXTOS = 'demo.recorrido.textos';   // sessionStorage: al llegar a intro.html#tour, bajar a «Textos del guion»
   // SHA-256 de la contraseña del modo presentador (no se guarda en claro). En una demo estática solo disuade:
   // quien abra las herramientas del navegador puede saltárselo. Protegerlo de verdad exige un servidor.
   const HASH_CLAVE = '5e884898da28047151d0e56f8dc6292773603d0d6aabbdd62a11ef721d1542d8';
@@ -488,7 +489,7 @@
             <button type="button" class="rec-btn" data-rec="cerrar" title="${I18N.t('shell.cerrar_el_recorrido')}" aria-label="${I18N.t('shell.cerrar_el_recorrido')}">${lucide('x')}</button></div>`;
       } else {
         el.innerHTML = `<div class="rec-cab" title="${I18N.t('shell.arrastra_para_mover_doble')}"><b>${lucide('route')} ${I18N.t('shell.recorrido_de_la_demo')}</b><span class="rec-pos" title="${I18N.t('shell.paso_de', { paso: r.paso + 1, N })}">${r.paso + 1} / ${N}</span><span class="rec-subpos" title="${I18N.t('shell.subtitulo_del_paso')}"></span>${play}
-            <a class="rec-btn" href="index.html#tour" title="${I18N.t('shell.cfg.ir_a_la_configuracion')}" aria-label="${I18N.t('shell.cfg.ir_a_la_configuracion')}">${lucide('settings')}</a>
+            <button type="button" class="rec-btn" data-rec="ajustes" title="${I18N.t('shell.cfg.ir_a_la_configuracion')}" aria-label="${I18N.t('shell.cfg.ir_a_la_configuracion')}">${lucide('settings')}</button>
             <button type="button" class="rec-btn" data-rec="minimizar" title="${I18N.t('shell.minimizar_al_pie')}" aria-label="${I18N.t('shell.minimizar')}">${lucide('minus')}</button>
             <button type="button" class="rec-btn" data-rec="cerrar" title="${I18N.t('shell.cerrar_el_recorrido')}" aria-label="${I18N.t('shell.cerrar_el_recorrido')}">${lucide('x')}</button></div>
           <div class="rec-prog" role="slider" tabindex="0" aria-label="${I18N.t('shell.posicion_dentro_del_paso')}" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" title="${I18N.t('shell.arrastra_o_pulsa_para')}"><i></i>${marcas}<b class="rec-tirador"></b></div><div class="rec-estado" aria-live="off"></div>
@@ -526,7 +527,7 @@
         return `<li><button type="button" data-rec-cue="${k}" title="${escR(u.texto)}"><span class="rec-sp-n">${k + 1}</span><span class="rec-sp-t">${escR(u.texto)}</span>${ico ? `<span class="rec-sp-i" title="${tit}">${lucide(ico)}</span>` : ''}</button></li>`;
       }).join('')}</ol></details>`;
     },
-    // Sección Tour del triaje (index.html, #rec-config): activar con contraseña, abrir el recorrido y, ya
+    // Sección Tour de la introducción (intro.html, #rec-config): activar con contraseña, abrir el recorrido y, ya
     // activado, sus ajustes (reproducción, subtítulos y los textos del guion de este presentador)
     pintarAjustes() {
       const host = typeof document !== 'undefined' && byId('rec-config'); if (!host) return;
@@ -535,6 +536,17 @@
       if (act && host.contains(act) && act.matches('textarea, input[type="text"], input[type="number"]')) return;
       const on = presentador();
       host.innerHTML = this.htmlPresentador(on, leerRec()) + (on ? this.htmlAjustes(leerConf()) : '');
+      if (on && ss.get(CLAVE_IR_TEXTOS, false)) { ss.del(CLAVE_IR_TEXTOS); const t = host.querySelector('.rec-textos'); if (t) requestAnimationFrame(() => t.scrollIntoView({ block: 'start' })); }
+    },
+    // Engranaje del panel: «Textos del guion» del Tour (intro.html#tour), con el paso en curso en el editor
+    irATextos() {
+      this.edPaso = leerRec().paso; ss.set(CLAVE_IR_TEXTOS, true);
+      // En la propia intro: primero cambia de sección (su hashchange sube arriba) y después se baja a los textos
+      if (byId('rec-config')) {
+        if (location.hash === '#tour') return this.pintar();
+        addEventListener('hashchange', () => this.pintar(), { once: true }); location.hash = '#tour';
+      }
+      else location.href = 'intro.html#tour';
     },
     htmlPresentador(on, r) {
       const botones = on
@@ -622,7 +634,14 @@
         if (a === 'minimizar' || a === 'restaurar') { r.min = a === 'minimizar'; guardarRec(r); return this.pintar(); }
         if (a === 'activar') return this.setPresentador(true);
         if (a === 'desactivar') return this.setPresentador(false);
-        if (a === 'abrir') return this.empezar();
+        // «Abrir el Tour» muestra el panel; con el panel ya abierto, «Comenzar el Tour» lanza el paso en curso
+        // (con la demo automática, además empieza a reproducir)
+        if (a === 'abrir') {
+          if (!r.activo) return this.empezar();
+          if (r.min) { r.min = false; guardarRec(r); }
+          return conf.auto ? this.reproducir() : this.ir(r.paso);
+        }
+        if (a === 'ajustes') return this.irATextos();
         if (a === 'play') return this.reproducir();
         if (a === 'pausa') return this.pausar('');
         if (a === 'sub-sig') return this.subSig();

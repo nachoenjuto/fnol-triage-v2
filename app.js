@@ -359,10 +359,10 @@
   }
 
   // ---------------------------------------------------------------------------
-  // Secciones a página completa (menú lateral): Mensajes FNOL, Paquetes, Prompts y Reglas, Tour y Configuración, cada una
+  // Secciones a página completa (menú lateral): Mensajes FNOL, Paquetes, Prompts y Reglas y Configuración, cada una
   // con su enlace (#mensajes…). «#demo=N» (llegada desde otra página del recorrido) lo consume shell.js: no se pisa.
   // ---------------------------------------------------------------------------
-  const VISTAS = ['mensajes', 'paquetes', 'configuracion', 'prompts', 'tour'];
+  const VISTAS = ['mensajes', 'paquetes', 'configuracion', 'prompts'];
   function mostrarVista(v, { scroll = true } = {}) {
     if (!VISTAS.includes(v)) v = VISTAS[0];
     document.querySelectorAll('.vista').forEach((s) => { s.hidden = s.dataset.vista !== v; });

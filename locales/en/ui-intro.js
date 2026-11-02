@@ -12,6 +12,7 @@ I18N.registrar('en', {
   "intro.shell.3_la_solucion": ["3 · The solution","7b3210ea"],
   "intro.shell.4_los_actores": ["4 · The people","8f94bf25"],
   "intro.shell.5_la_demo": ["5 · The demo","73e753af"],
+  "intro.shell.tour": ["Auto Tour","fb996b1c"],
   "intro.shell.demo": ["Demo","15dccc56"],
   "intro.shell.triaje_fnol": ["FNOL triage","63dc4e77"],
   "intro.shell.gobierno_de_agentes": ["Agent Governance","c89010e0"],

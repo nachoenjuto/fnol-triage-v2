@@ -14,6 +14,7 @@ I18N.registrar('es', {
   'intro.shell.4_los_actores': '4 · Los actores',
   'intro.shell.5_la_demo': '5 · La demo',
   'intro.shell.demo': 'Demo',
+  'intro.shell.tour': 'Auto Tour',
   'intro.shell.triaje_fnol': 'Triaje FNOL',
   'intro.shell.gobierno_de_agentes': 'Gobierno de Agentes',
   'intro.sec_intro.intro': 'Intro',

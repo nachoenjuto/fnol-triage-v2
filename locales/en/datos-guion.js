@@ -37,7 +37,7 @@ I18N.registrarDatos('en', {
   "d3bf108a": "In a second tab, open `index.html`. In the side menu, **Settings → Triage engine → Saved results** (does not depend on the network) and **Packages → Package A**. Check that «Pseudonymise before sending to the model» is turned on.",
   "550688c3": "Do not process the batch yet: it is done live in step 2.",
   "1372fb53": "If you are going to take screenshots, add `?fecha=2026-09-17` to the URL. Without that parameter the dates in the messages are shifted to today.",
-  "4e202157": "Optional: turn on **Auto Tour** in `index.html`, side menu → **Tour** (password `password`), to have the walkthrough to hand with its «Go» button.",
+  "1264d0c5": "Optional: turn on **Auto Tour** in `intro.html`, side menu → **Demo** → **Auto Tour** (password `password`), to have the walkthrough to hand with its «Go» button.",
   "2c3fb8c2": "**Timings**",
   "2e9445f7": "Min",
   "0d955b49": "Block",
