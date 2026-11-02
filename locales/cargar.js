@@ -22,8 +22,12 @@
   I18N.cambiar = (nuevo) => {
     if (!IDIOMAS[nuevo] || nuevo === I18N.idioma) return;
     guardar(nuevo);
-    url.searchParams.delete('lang');
-    location.replace(url.toString());
+    // La dirección actual, no la de la carga: la intro cambia el #sección mientras se navega. Sin ?lang= que quitar
+    // se recarga (ir a la misma dirección con #sección solo movería la página, no la recargaría)
+    const destino = new URL(location.href);
+    if (!destino.searchParams.has('lang')) { location.reload(); return; }
+    destino.searchParams.delete('lang');
+    location.replace(destino.toString());
   };
 
   // Misma versión de caché que este script (?v=N)

@@ -23,7 +23,7 @@
     grupo.setAttribute('aria-label', I18N.t('comun.idioma'));
     grupo.innerHTML = Object.entries(I18N.IDIOMAS).map(([cod, i]) => {
       const txt = I18N.t('comun.idioma.cambiar', { nombre: i.nombre });
-      return `<button type="button" lang="${cod}" data-idioma="${cod}" aria-pressed="${cod === I18N.idioma}" title="${txt}" aria-label="${txt}">${i.corto}</button>`;
+      return `<button type="button" lang="${cod}" data-idioma="${cod}" aria-pressed="${cod === I18N.idioma}" title="${txt}" aria-label="${txt}">${i.bandera || i.corto}</button>`;
     }).join('');
     grupo.addEventListener('click', (ev) => { const b = ev.target.closest('[data-idioma]'); if (b) I18N.cambiar(b.dataset.idioma); });
     destino.appendChild(grupo);
