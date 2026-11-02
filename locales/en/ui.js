@@ -452,4 +452,8 @@ I18N.registrar('en', {
   "cumpl.marcador_menor": ["[minor]","176809cd"],
   "cumpl.marcador_salud": ["[encrypted health data]","878fa94f"],
   "cumpl.marcador_firma": ["[handwritten signature: not extracted]","1a487f37"],
+  "shell.cab.paginas": ["Demo pages","8c1660f5"],
+  "shell.cab.introduccion": ["Introduction","477e4eae"],
+  "shell.cab.triaje": ["FNOL triage","63dc4e77"],
+  "shell.cab.gobierno": ["Agent governance","f938ec80"],
 });

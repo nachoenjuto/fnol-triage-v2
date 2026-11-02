@@ -16,7 +16,7 @@ Step-by-step script for a 30-35 minute session: introduction in the four section
 **Preparation (5 minutes before)**
 
 1. Serve the demo (`make run`) and open `intro.html`.
-2. In a second tab, open `index.html`. In the side menu, **Settings → Triage engine → Saved results** (does not depend on the network) and **Message package → Package A**. Check that «Pseudonymise before sending to the model» is turned on.
+2. In a second tab, open `index.html`. In the side menu, **Settings → Triage engine → Saved results** (does not depend on the network) and **Packages → Package A**. Check that «Pseudonymise before sending to the model» is turned on.
 3. Do not process the batch yet: it is done live in step 2.
 4. If you are going to take screenshots, add `?fecha=2026-09-17` to the URL. Without that parameter the dates in the messages are shifted to today.
 5. Optional: turn on **Presenter mode** on the panel Home (password `password`) to have the walkthrough to hand with its «Go» button.
@@ -191,7 +191,7 @@ Five ideas, one per block of the page:
 1. Click **1 · Multichannel**: the pop-up card with the five channels and their unification into a single format.
 2. Click **2 · Line-of-business classification**, **3 · Data extraction** and **4 · Business rules**: on each card, the «Generative AI» or «Business logic» label at the bottom.
 3. Click **5 · Traceability** and **6 · Automation**.
-4. Side menu → **Message package**: the list of the 13 with the icon of their channel. Point out MSG-A-11 (WhatsApp) and MSG-A-08 (phone).
+4. Side menu → **Packages**: the list of the 13 with the icon of their channel. Point out MSG-A-11 (WhatsApp) and MSG-A-08 (phone).
 
 **If asked:** what about attachments or audio? The call is transcribed with a speech-to-text model. Attachments are recorded with their fingerprint and their data is checked against the text: we will see it in the record of MSG-A-01, which comes with the accident statement and two photos. Guardrail G-09 can escalate low-confidence transcripts to a person.
 
@@ -274,7 +274,7 @@ Five ideas, one per block of the page:
 5. **Business rules** tab: A1 to A8, all «met» or «not applicable», each with its evidence.
 6. **Reasoning** tab: line of business, decision, recommended next step and timeline.
 
-**If asked:** who writes the rules? The business. They are in the side menu, **Prompt** section, and can be edited without programming («Edit full size» button). The call to the model always uses the current text.
+**If asked:** who writes the rules? The business. They are in the side menu, **Prompts and Rules** section, and can be edited without programming («Edit full size» button). The call to the model always uses the current text.
 
 **If asked:** does the model really read the attachments? In this demo, the attachment data comes from the saved results, also when a live model is connected; the next step is to send it the photos and the PDF in the extraction call. And note: pseudonymisation only applies to the text, so the attachments reach the model with whatever personal data they contain. The trace records it that way in `_gobernanza.adjuntos`.
 
@@ -357,7 +357,7 @@ Five ideas, one per block of the page:
 4. Blue `trazabilidad` block: trace, model, prompt version and chained SHA-256 hash.
 5. Ochre `retencion` block: 6 months for the trace; 5 years for the personal injury file.
 6. Violet `supervision_humana` block. Hover over a regulation to see what it requires.
-7. **Transition:** header → **Agent Governance**. On the panel, **Source → Current session**, so that the traces are those of the batch we have just processed.
+7. **Transition:** header → **Agent governance**. On the panel, side menu → **Configuration → Source → Current session**, so that the traces are those of the batch we have just processed.
 
 ---
 

@@ -3042,7 +3042,7 @@
     ajustarAgentes();
   }
 
-  const TABS = [['inicio', 'house', I18N.t('gob.inicio')], ['resumen', 'layout-dashboard', I18N.t('gob.resumen')], ['agentes', 'bot', I18N.t('gob.agentes')], ['trazas', 'route', I18N.t('gob.trazabilidad')], ['replay', 'brain', I18N.t('gob.razonamiento_y_replay')], ['autonomia', 'sliders-horizontal', I18N.t('gob.autonomia')], ['guardrails', 'shield-check', I18N.t('gob.guardrails')], ['fraude', 'shield-alert', I18N.t('gob.fraude')], ['hitl', 'user-check', I18N.t('gob.intervencion_humana')], ['knowledge', 'book-open', I18N.t('gob.knowledge_bases')], ['cumplimiento', 'thermometer', I18N.t('gob.cumplimiento')], ['finops', 'coins', I18N.t('gob.finops_2')], ['medidas', 'wrench', I18N.t('gob.medidas_correctivas')], ['historico', 'history', I18N.t('gob.historico_2')]];
+  const TABS = [['inicio', 'house', I18N.t('gob.inicio')], ['resumen', 'layout-dashboard', I18N.t('gob.resumen')], ['agentes', 'bot', I18N.t('gob.agentes')], ['trazas', 'route', I18N.t('gob.trazabilidad')], ['replay', 'brain', I18N.t('gob.razonamiento_y_replay')], ['autonomia', 'sliders-horizontal', I18N.t('gob.autonomia')], ['guardrails', 'shield-check', I18N.t('gob.guardrails')], ['fraude', 'shield-alert', I18N.t('gob.fraude')], ['hitl', 'user-check', I18N.t('gob.intervencion_humana')], ['knowledge', 'book-open', I18N.t('gob.knowledge_bases')], ['cumplimiento', 'thermometer', I18N.t('gob.cumplimiento')], ['finops', 'coins', I18N.t('gob.finops_2')], ['medidas', 'wrench', I18N.t('gob.medidas_correctivas')], ['historico', 'history', I18N.t('gob.historico_2')], ['config', 'settings', I18N.t('gob.configuracion')]];
   // Menú lateral e Inicio comparten los mismos grupos: [nombre, pregunta a la que responde, secciones]
   const MENU = [
     [I18N.t('gob.operacion'), I18N.t('gob.que_esta_pasando'), ['resumen', 'agentes', 'trazas']],
@@ -3164,7 +3164,8 @@
     document.addEventListener('keydown', (e) => { if (e.key === 'Enter' && e.target.matches && e.target.matches('[data-kb], tr[data-rub], tr[data-traza]')) e.target.click(); });
     const tabMenu = Object.fromEntries(TABS.map(([v, i, l]) => [v, [i, l]]));
     const botonMenu = (v) => { const [i, l] = tabMenu[v]; return `<button class="tab nav-item${v === 'inicio' ? ' is-active' : ''}" type="button" role="tab" data-view="${v}" aria-selected="${v === 'inicio'}" aria-label="${l}" title="${l}">${ic(i)}<span class="lbl">${l}</span>${v === 'finops' || v === 'fraude' ? I18N.t('gob.texto_5') : ''}</button>`; };
-    $('tabs').innerHTML = botonMenu('inicio') + MENU.map(([g, , vs]) => `<div class="nav-grupo" role="presentation">${esc(g)}</div>${vs.map(botonMenu).join('')}`).join('');
+    // Configuración (fuente de datos, periodo y archivo de trazas) va aparte, al final del menú y sin ficha en Inicio
+    $('tabs').innerHTML = botonMenu('inicio') + MENU.map(([g, , vs]) => `<div class="nav-grupo" role="presentation">${esc(g)}</div>${vs.map(botonMenu).join('')}`).join('') + `<div class="nav-sep" role="presentation"></div>${botonMenu('config')}`;
     // Menú lateral común con el triaje (shell.js); al plegar o desplegar se reajustan las tarjetas de agentes
     Shell.initShell({ onChange: () => ajustarAgentes() });
     // Recorrido de la demo (modo presentador): acciones de los pasos que ocurren en el panel
@@ -3313,7 +3314,6 @@
     $('btn-new-cap').addEventListener('click', abrirModalCapNuevo);
     $('btn-new-policy').addEventListener('click', abrirModalGrNuevo);
     document.querySelectorAll('dialog.modal').forEach((d) => d.addEventListener('click', (e) => { if (e.target === d) d.close(); }));
-    $('btn-back').innerHTML = I18N.t('gob.volver_al_triaje', { left: ic('arrow-left') });
     $('btn-json').innerHTML = I18N.t('gob.cargar_json', { icono: ic('upload') });
     $('btn-json').addEventListener('click', () => $('file-json').click());
     $('file-json').addEventListener('change', () => { const f = $('file-json').files[0]; if (f) cargarArchivo(f); $('file-json').value = ''; });

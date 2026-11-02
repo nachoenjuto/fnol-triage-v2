@@ -346,7 +346,7 @@ const RECORRIDO_DEMO = {
         "Clic en 1 · Multicanalidad: la ficha emergente con los cinco canales y la unificación en un único formato.",
         "Clic en 2 · Clasificación por ramo, 3 · Extracción de datos y 4 · Reglas de negocio: en cada ficha, la etiqueta «IA generativa» o «Lógica de negocio» al pie.",
         "Clic en 5 · Trazabilidad y 6 · Automatización.",
-        "Menú lateral → Paquete de mensajes: la lista de los 13 con el icono de su canal. Señalar MSG-A-11 (WhatsApp) y MSG-A-08 (teléfono)."
+        "Menú lateral → Paquetes: la lista de los 13 con el icono de su canal. Señalar MSG-A-11 (WhatsApp) y MSG-A-08 (teléfono)."
       ],
       "subtitulos": [
         {
@@ -380,8 +380,8 @@ const RECORRIDO_DEMO = {
           "accion": [
             "fase:cerrar",
             "paquete",
-            "ver:#paquete-lista li~MSG-A-11",
-            "ver:#paquete-lista li~MSG-A-08"
+            "ver:#paquete-lista tr.paq-fila~MSG-A-11",
+            "ver:#paquete-lista tr.paq-fila~MSG-A-08"
           ]
         },
         {
@@ -628,7 +628,7 @@ const RECORRIDO_DEMO = {
         "Bloque azul trazabilidad: traza, modelo, versión de prompt y hash SHA-256 encadenado.",
         "Bloque ocre retencion: 6 meses la traza; 5 años el expediente de personas.",
         "Bloque violeta supervision_humana. Pasar el ratón por una norma para ver qué exige.",
-        "Transición: cabecera → Gobierno de Agentes. En el panel, Fuente → Sesión actual, para que las trazas sean las del lote que acabamos de procesar."
+        "Transición: cabecera → Gobierno de agentes. En el panel, menú lateral → Configuración → Fuente → Sesión actual, para que las trazas sean las del lote que acabamos de procesar."
       ],
       "subtitulos": [
         {

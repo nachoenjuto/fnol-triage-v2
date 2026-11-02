@@ -2,7 +2,7 @@
 
 Guía práctica de las dos pantallas de la demo: **Triaje FNOL** (`index.html`) y **Gobierno de Agentes** (`gobierno.html`). Para cada sección explica qué es, qué información muestra y para qué sirve.
 
-Las dos pantallas comparten el mismo marco: cabecera azul, **menú lateral** a la izquierda (se pliega con el botón de su pie y queda solo con iconos; el estado se mantiene al cambiar de pantalla), el usuario de la demo al pie del menú («Ignacio Sánchez», sesión simulada) y un pie de página fino al final del contenido.
+Las dos pantallas, y la introducción (`intro.html`), comparten el mismo marco: cabecera azul con los enlaces **Introducción · Triaje FNOL · Gobierno de agentes** y el selector de idioma, **menú lateral** a la izquierda (se pliega con el botón de su pie y queda solo con iconos; el estado se mantiene al cambiar de pantalla), el usuario de la demo al pie del menú («Ignacio Sánchez», sesión simulada) y un pie de página fino al final del contenido.
 
 ---
 
@@ -26,7 +26,7 @@ Las dos pantallas comparten el mismo marco: cabecera azul, **menú lateral** a l
 | Extracción de datos | Convierte el texto libre en datos estructurados; si falta un dato queda nulo, nunca se inventa |
 | Reglas de negocio | Evalúa las reglas del ramo y decide Aprobado / A revisar |
 
-Se navega entre pantallas con el botón **Gobierno de Agentes** de la cabecera del triaje y el botón de volver del panel.
+Se navega entre pantallas con los enlaces de la cabecera, iguales en las tres páginas: el de la página en la que se está aparece en blanco. Cada enlace lleva el mismo icono que el logo de su página (brújula para la introducción, bandeja para el triaje, escudo para el gobierno).
 
 ---
 
@@ -34,11 +34,7 @@ Se navega entre pantallas con el botón **Gobierno de Agentes** de la cabecera d
 
 ### 2.1 Cabecera
 
-| Elemento | Para qué sirve |
-|---|---|
-| **Badge «Motor»** | Indica qué motor procesa: IA, reglas locales o resultados guardados |
-| **Configurar IA** | Abre el panel de conexión a Azure AI Foundry (endpoint, deployment, ruta de API, versión y clave). Se guarda solo en `sessionStorage`; incluye *Probar conexión* y *Borrar clave*. El punto de color indica si hay IA conectada |
-| **Gobierno de Agentes** | Salta al panel de gobierno |
+Es la cabecera común: título de la pantalla y enlaces a la introducción y al panel de gobierno. Los ajustes del triaje están en la sección **Configuración** del menú lateral.
 
 > Sin clave la demo sigue funcionando: usa el motor local (palabras clave y heurísticas) o los **resultados guardados**, que reproducen fichas ya generadas con IA. Es la forma recomendada de enseñarla sin depender de red.
 
@@ -55,17 +51,18 @@ Seis botones numerados (del 1 al 6, en un círculo del color de la cabecera con 
 | **Trazabilidad** | Qué se registra (ramo, decisión, motivo, criterios, motor, tokens, tiempo) y qué se puede hacer con ello | Lógica |
 | **Automatización** | Las dos salidas: Aprobado (sigue sin intervención) y A revisar (va a un tramitador con la información preparada) | Lógica |
 
-### 2.3 Menú lateral (tres secciones plegables)
+### 2.3 Menú lateral (cuatro secciones a página completa)
 
-Es el mismo menú que el del panel de gobierno (`shell.js`), con el mismo ancho (248 px): al pie están el usuario de la demo («Ignacio Sánchez», sesión simulada) y el botón **Plegar menú**. Plegado deja solo los iconos; un clic en un icono despliega el menú y abre esa sección. El estado plegado o desplegado se recuerda y se comparte entre las dos páginas. El pie de la página es una línea fina, alineada con el menú.
+Es el mismo menú que el del panel de gobierno (`shell.js`), con el mismo ancho (248 px): al pie están el usuario de la demo («Ignacio Sánchez», sesión simulada) y el botón **Plegar menú**. Plegado deja solo los iconos. Cada sección ocupa la página entera y tiene su propio enlace (`#mensajes`, `#paquetes`, `#prompts`, `#configuracion`). Configuración va la última, separada por una línea, como en el panel de gobierno. El estado plegado o desplegado se recuerda y se comparte entre las dos páginas. El pie de la página es una línea fina, alineada con el menú.
 
 | Sección | Qué contiene | Para qué sirve |
 |---|---|---|
-| **Paquete de mensajes** | Selector de tres paquetes fijos (A: 13 mensajes, B: 23, C: 15) con su lista | Elegir el lote de la demo. Son mixtos en ramos y canales, e incluyen casos que deben ir a revisión. Los del Paquete A son más largos y llevan datos personales ficticios (DNI, teléfonos, IBAN, salud, menores, terceros) para la capa de cumplimiento |
-| **Configuración** | **Motor de triaje** (Automático / Resultados guardados / Archivo cargado), **Reproducir desde archivo**, **Llamadas a la IA por mensaje** (1 paso / 2 pasos) y **Seudonimizar antes de enviar al modelo** (activada por defecto) | Decidir cómo se procesa. «2 pasos» ahorra tokens de entrada (solo se envía el bloque de reglas del ramo) a cambio de dos llamadas. La seudonimización cambia los datos personales por marcadores antes de cada llamada (apartado 2.7) |
-| **Prompt** | Prompt base y los tres bloques de reglas (Auto, Hogar, Salud), editables. Como el menú es estrecho, **Editar en grande** abre cada bloque en un editor ancho (con «Restaurar original» y «Guardar») | Cambiar las reglas de negocio en caliente y ver cómo cambian las decisiones: la llamada usa siempre el texto vigente |
+| **Mensajes FNOL** | Contadores, botón de procesar el paquete elegido y registro de decisiones (apartado 2.4). Es la sección que se abre por defecto | Lanzar el lote y revisar el resultado |
+| **Paquetes** | Selector de tres paquetes fijos (A: 13 mensajes, B: 23, C: 15) y tabla de sus mensajes (nº, mensaje, canal, remitente, recibido, asunto, adjuntos), ordenable por cualquier columna; cada fila despliega el texto del mensaje, el contacto y los adjuntos | Elegir el lote de la demo. Son mixtos en ramos y canales, e incluyen casos que deben ir a revisión. Los del Paquete A son más largos y llevan datos personales ficticios (DNI, teléfonos, IBAN, salud, menores, terceros) para la capa de cumplimiento |
+| **Configuración** | **Motor de triaje** (Automático / Resultados guardados / Archivo cargado), **Reproducir desde archivo**, **Llamadas a la IA por mensaje** (1 paso / 2 pasos) y **Seudonimizar antes de enviar al modelo** (activada por defecto), en dos bloques: **Procesamiento** y **Envío al modelo**. Debajo, siempre abierta, la conexión a **Azure AI Foundry** (endpoint, deployment, ruta de API, versión y clave), que se guarda solo en `sessionStorage` e incluye *Probar conexión* y *Borrar clave*; el punto de color y su texto indican si hay IA configurada | Decidir cómo se procesa. Sin clave la demo usa el motor local o los resultados guardados. «2 pasos» ahorra tokens de entrada (solo se envía el bloque de reglas del ramo) a cambio de dos llamadas. La seudonimización cambia los datos personales por marcadores antes de cada llamada (apartado 2.7) |
+| **Prompts y Reglas** | Prompt base y los tres bloques de reglas (Auto, Hogar, Salud), editables en la propia página. **Editar en grande** abre cada bloque a pantalla completa (con «Restaurar original» y «Guardar») | Cambiar las reglas de negocio en caliente y ver cómo cambian las decisiones: la llamada usa siempre el texto vigente |
 
-### 2.4 Panel principal
+### 2.4 Mensajes FNOL
 
 **Contadores**
 - **Aprobados**: mensajes que continúan sin intervención humana (cifra y %).
@@ -158,14 +155,15 @@ El JSON se pliega por nodos: cada objeto o lista lleva una flecha a la izquierda
 
 Panel de control de los cuatro agentes. Sus trece secciones, más una portada (**Inicio**), se agrupan en seis bloques: **Operación** (qué está pasando), **Control** (cuánto decide la máquina y cuánto una persona), **Riesgo** (si hay indicios de fraude), **Calidad** (si deciden bien y con buen conocimiento), **Cumplimiento y coste** y **Mejora y auditoría**. Las secciones están en el mismo **menú lateral** que el triaje, con el nombre de cada bloque como encabezado: plegado muestra solo los iconos, con una línea entre bloques (el nombre sale al pasar el ratón) y los nombres largos se recortan con «…». Las tarjetas de los agentes están en el **Resumen** y su ficha completa, en la sección **Agentes**.
 
-### 3.1 Cabecera: fuente y periodo
+### 3.1 Configuración: fuente, periodo y archivo de trazas
+
+Sección **Configuración**, al final del menú lateral (no tiene ficha en Inicio). Tiene el mismo formato que la del triaje: dos bloques, **Origen de los datos** (fuente y archivo de trazas) y **Periodo de análisis**, y una explicación bajo cada campo.
 
 | Control | Opciones y uso |
 |---|---|
 | **Fuente** | **Demo**: Paquete A + 14 días de histórico inventado pero coherente con el triaje. **Sesión actual**: convierte el lote que acabas de procesar en el triaje en trazas reales (tokens, ciclo, decisión, coste), con el mismo id de traza y el mismo bloque `_gobernanza` que su ficha; el histórico, caps, guardrails y knowledge bases siguen siendo de demostración. **Archivo JSON**: dataset cargado |
 | **Periodo** | Últimos 14 días / 7 días / Hoy. Reescala KPIs y gráficos |
-| **Cargar JSON / Exportar trazas** | Carga un dataset propio o descarga el activo con el mismo esquema |
-| **Volver al triaje** | Regresa a `index.html` |
+| **Archivo de trazas → Cargar JSON** | Carga un dataset propio con el mismo esquema que **Exportar trazas** (sección Trazabilidad) |
 
 > Recomendación para una demo completa: procesa el Paquete A en el triaje y abre el panel con **Sesión actual** para que el cliente vea sus propios mensajes convertidos en trazas.
 

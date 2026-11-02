@@ -1,6 +1,6 @@
 // Pendiente de traducir: make i18n-estado IDIOMA=en
 I18N.registrar('en', {
-  "gob.pagina.gobierno_observabilidad_y_finops": ["Governance, Observability and FinOps for FNOL AI Agents","cd104704"],
+  "gob.pagina.gobierno_observabilidad_y_finops": ["Observability and Governance","fc1f681c"],
   "gob.pagina.panel_de_control_agentico": ["Agentic control panel for insurance triage: agent traceability and observability, Reasoning & Replay, Autonomy engine and FinOps with consumption caps.","a35e259e"],
   "gob.pagina.control_total_auditoria_en": ["Full control, real-time audit and cost optimisation in the automation of FNOL claims.","aa2574c1"],
   "gob.pagina.fuente": ["Source","c8f3e984"],
@@ -1654,7 +1654,6 @@ I18N.registrar('en', {
   "gob.siguiente_3": ["Next (→)","9cca8eb9"],
   "gob.texto_5": ["<span class=\"n\"></span>","b9792c03"],
   "gob.sin_lote_procesado_en": ["No batch processed in this tab: you are seeing the demonstration data.","6dcd79ff"],
-  "gob.volver_al_triaje": ["{left} Back to triage","749d0ea2"],
   "gob.como_va_el_gasto": ["How each agent's spending is going","1ef9bf45"],
   "gob.donde_se_va_el": ["Where the money goes and why","31acf071"],
   "gob.razonamiento_registrado": ["Recorded reasoning","c67ec778"],
@@ -1712,4 +1711,10 @@ I18N.registrar('en', {
   "gob.origen_texto.kb": ["knowledge","5469abcc"],
   "gob.origen_texto.cumplimiento": ["compliance","259becc7"],
   "gob.filtro_ramo": ["line of business","889926e4"],
+  "gob.config.archivo_de_trazas": ["Trace file","e88d0f33"],
+  "gob.config.origen_de_los_datos": ["Data source","4e9a01df"],
+  "gob.config.fuente_ayuda": ["Demo: Package A and 14 days of sample history. Current session: the batch processed in triage, turned into traces. JSON file: the traces you load below.","efb5fa8f"],
+  "gob.config.archivo_ayuda": ["JSON with the same schema as «Export traces» (Traceability section). Once loaded, it becomes the data source.","1a6c1597"],
+  "gob.config.periodo_de_analisis": ["Analysis period","b565c4c2"],
+  "gob.config.periodo_ayuda": ["Days shown by the indicators and charts in Summary and FinOps.","93c2fd1a"],
 });

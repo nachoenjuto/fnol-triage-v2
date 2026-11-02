@@ -452,4 +452,8 @@ I18N.registrar('de', {
   "cumpl.marcador_menor": ["[minderjährig]","176809cd"],
   "cumpl.marcador_salud": ["[verschlüsselte Gesundheitsangabe]","878fa94f"],
   "cumpl.marcador_firma": ["[handschriftliche Unterschrift: nicht extrahiert]","1a487f37"],
+  "shell.cab.paginas": ["Seiten der Demo","8c1660f5"],
+  "shell.cab.introduccion": ["Einführung","477e4eae"],
+  "shell.cab.triaje": ["FNOL-Triage","63dc4e77"],
+  "shell.cab.gobierno": ["Agenten-Governance","f938ec80"],
 });

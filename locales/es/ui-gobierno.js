@@ -1,7 +1,7 @@
 // Textos de interfaz del panel de gobierno (gobierno.html y gobierno.js) en español, idioma base.
 // Claves generadas desde el HTML (contexto = id más cercano); los valores con etiquetas van con data-i18n-html.
 I18N.registrar('es', {
-  'gob.pagina.gobierno_observabilidad_y_finops': 'Gobierno, Observabilidad y FinOps de Agentes IA para FNOL',
+  'gob.pagina.gobierno_observabilidad_y_finops': 'Observabilidad y Gobierno',
   'gob.pagina.panel_de_control_agentico': 'Panel de control agéntico del triaje de seguros: trazabilidad y observabilidad de los agentes, Reasoning & Replay, Autonomy engine y FinOps con caps de consumo.',
   'gob.pagina.control_total_auditoria_en': 'Control total, auditoría en tiempo real y optimización de costes en la automatización de siniestros FNOL.',
   'gob.pagina.fuente': 'Fuente',
@@ -13,6 +13,12 @@ I18N.registrar('es', {
   'gob.periodo.ultimos_14_dias': 'Últimos 14 días',
   'gob.periodo.ultimos_7_dias': 'Últimos 7 días',
   'gob.periodo.hoy': 'Hoy',
+  'gob.config.archivo_de_trazas': 'Archivo de trazas',
+  'gob.config.origen_de_los_datos': 'Origen de los datos',
+  'gob.config.fuente_ayuda': 'Demo: el Paquete A y 14 días de histórico de ejemplo. Sesión actual: el lote procesado en el triaje, convertido en trazas. Archivo JSON: las trazas que cargues aquí debajo.',
+  'gob.config.archivo_ayuda': 'JSON con el mismo esquema que «Exportar trazas» (sección Trazabilidad). Al cargarlo pasa a ser la fuente de datos.',
+  'gob.config.periodo_de_analisis': 'Periodo de análisis',
+  'gob.config.periodo_ayuda': 'Días que muestran los indicadores y gráficos de Resumen y FinOps.',
   'gob.shell.secciones': 'Secciones',
   'gob.shell.estado_en_vivo_nivel': 'Estado en vivo · nivel de autonomía · consumo del día frente al cap · interruptor de pausa por agente · clic en un agente para ver su ficha completa en «Agentes»',
   'gob.coste_sub.dia_linea_discontinua_cap': '€/día · línea discontinua = cap diario',
@@ -1656,7 +1662,6 @@ I18N.registrar('es', {
   'gob.siguiente_3': 'Siguiente (→)',
   'gob.texto_5': '<span class="n"></span>',
   'gob.sin_lote_procesado_en': 'Sin lote procesado en esta pestaña: se ven los datos de demostración.',
-  'gob.volver_al_triaje': '{left} Volver al triaje',
   'gob.como_va_el_gasto': 'Cómo va el gasto de cada agente',
   'gob.donde_se_va_el': 'Dónde se va el dinero y por qué',
   'gob.razonamiento_registrado': 'Razonamiento registrado',

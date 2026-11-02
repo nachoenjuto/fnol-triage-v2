@@ -16,7 +16,7 @@ Leitfaden Schritt für Schritt für eine Sitzung von 30-35 Minuten: Einführung 
 **Vorbereitung (5 Minuten vorher)**
 
 1. Die Demo bereitstellen (`make run`) und `intro.html` öffnen.
-2. In einem zweiten Tab `index.html` öffnen. Im Seitenmenü **Einstellungen → Triage-Engine → Gespeicherte Ergebnisse** (hängt nicht vom Netz ab) und **Meldungspaket → Paket A**. Prüfen, dass «Vor dem Senden an das Modell pseudonymisieren» eingeschaltet ist.
+2. In einem zweiten Tab `index.html` öffnen. Im Seitenmenü **Einstellungen → Triage-Engine → Gespeicherte Ergebnisse** (hängt nicht vom Netz ab) und **Pakete → Paket A**. Prüfen, dass «Vor dem Senden an das Modell pseudonymisieren» eingeschaltet ist.
 3. Den Stapel noch nicht verarbeiten: Das geschieht live in Schritt 2.
 4. Wer Screenshots machen will, hängt `?fecha=2026-09-17` an die URL an. Ohne diesen Parameter werden die Daten in den Meldungen auf heute verschoben.
 5. Optional: Auf der Startseite des Panels den **Präsentationsmodus** einschalten (Passwort `password`), um den Rundgang mit seiner Schaltfläche «Aufrufen» griffbereit zu haben.
@@ -191,7 +191,7 @@ Fünf Ideen, eine pro Block der Seite:
 1. Auf **1 · Mehrkanal** klicken: die aufklappende Karte mit den fünf Kanälen und ihrer Vereinheitlichung in ein einziges Format.
 2. Auf **2 · Spartenzuordnung**, **3 · Datenextraktion** und **4 · Geschäftsregeln** klicken: auf jeder Karte unten das Etikett «Generative KI» oder «Geschäftslogik».
 3. Auf **5 · Nachvollziehbarkeit** und **6 · Automatisierung** klicken.
-4. Seitenmenü → **Meldungspaket**: die Liste der 13 mit dem Symbol ihres Kanals. Auf MSG-A-11 (WhatsApp) und MSG-A-08 (Telefon) hinweisen.
+4. Seitenmenü → **Pakete**: die Liste der 13 mit dem Symbol ihres Kanals. Auf MSG-A-11 (WhatsApp) und MSG-A-08 (Telefon) hinweisen.
 
 **Falls gefragt wird:** Und Anhänge oder Audio? Der Anruf wird mit einem Sprache-zu-Text-Modell transkribiert. Anhänge werden mit ihrem Fingerabdruck protokolliert, und ihre Daten werden mit dem Text abgeglichen: Wir sehen es in der Akte von MSG-A-01, die mit dem Unfallbericht und zwei Fotos kommt. Der Guardrail G-09 kann Transkripte mit geringer Konfidenz an einen Menschen eskalieren.
 
@@ -274,7 +274,7 @@ Fünf Ideen, eine pro Block der Seite:
 5. Reiter **Geschäftsregeln**: A1 bis A8, alle «erfüllt» oder «nicht anwendbar», jede mit ihrem Beleg.
 6. Reiter **Begründung**: Sparte, Entscheidung, empfohlener nächster Schritt und zeitlicher Ablauf.
 
-**Falls gefragt wird:** Wer schreibt die Regeln? Das Geschäft. Sie stehen im Seitenmenü, Bereich **Prompt**, und lassen sich ohne Programmierung bearbeiten (Schaltfläche «Groß bearbeiten»). Der Aufruf an das Modell nutzt immer den aktuellen Text.
+**Falls gefragt wird:** Wer schreibt die Regeln? Das Geschäft. Sie stehen im Seitenmenü, Bereich **Prompts und Regeln**, und lassen sich ohne Programmierung bearbeiten (Schaltfläche «Groß bearbeiten»). Der Aufruf an das Modell nutzt immer den aktuellen Text.
 
 **Falls gefragt wird:** Liest das Modell die Anhänge wirklich? In dieser Demo kommen die Daten der Anhänge aus den gespeicherten Ergebnissen, auch wenn ein Live-Modell verbunden ist; der nächste Schritt ist, ihm Fotos und PDF im Extraktionsaufruf zu schicken. Und Achtung: Die Pseudonymisierung gilt nur für den Text, die Anhänge erreichen das Modell also mit allen personenbezogenen Daten, die sie enthalten. Die Spur vermerkt es so in `_gobernanza.adjuntos`.
 
@@ -357,7 +357,7 @@ Fünf Ideen, eine pro Block der Seite:
 4. Blauer Block `trazabilidad`: Spur, Modell, Prompt-Version und verketteter SHA-256-Hash.
 5. Ockerfarbener Block `retencion`: 6 Monate für die Spur; 5 Jahre für die Akte des Personenschadens.
 6. Violetter Block `supervision_humana`. Mit der Maus über eine Vorschrift fahren, um zu sehen, was sie verlangt.
-7. **Übergang:** Kopfbereich → **Agenten-Governance**. Im Panel **Quelle → Aktuelle Sitzung**, damit die Spuren die des gerade verarbeiteten Stapels sind.
+7. **Übergang:** Kopfbereich → **Agenten-Governance**. Im Panel Seitenmenü → **Konfiguration → Quelle → Aktuelle Sitzung**, damit die Spuren die des gerade verarbeiteten Stapels sind.
 
 ---
 

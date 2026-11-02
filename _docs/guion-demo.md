@@ -16,7 +16,7 @@ Guion paso a paso para una sesión de 30-35 minutos: introducción en las cuatro
 **Preparación (5 minutos antes)**
 
 1. Servir la demo (`make run`) y abrir `intro.html`.
-2. En una segunda pestaña, abrir `index.html`. En el menú lateral, **Configuración → Motor de triaje → Resultados guardados** (no depende de red) y **Paquete de mensajes → Paquete A**. Comprobar que «Seudonimizar antes de enviar al modelo» está activada.
+2. En una segunda pestaña, abrir `index.html`. En el menú lateral, **Configuración → Motor de triaje → Resultados guardados** (no depende de red) y **Paquetes → Paquete A**. Comprobar que «Seudonimizar antes de enviar al modelo» está activada.
 3. No procesar el lote todavía: se hace en directo en el paso 2.
 4. Si se van a hacer capturas, añadir `?fecha=2026-09-17` a la URL. Sin ese parámetro las fechas de los mensajes se desplazan al día de hoy.
 5. Opcional: activar el **Modo presentador** en Inicio del panel (contraseña `password`) para tener a mano el Recorrido con su botón «Ir».
@@ -191,7 +191,7 @@ Cinco ideas, una por bloque de la página:
 1. Clic en **1 · Multicanalidad**: la ficha emergente con los cinco canales y la unificación en un único formato.
 2. Clic en **2 · Clasificación por ramo**, **3 · Extracción de datos** y **4 · Reglas de negocio**: en cada ficha, la etiqueta «IA generativa» o «Lógica de negocio» al pie.
 3. Clic en **5 · Trazabilidad** y **6 · Automatización**.
-4. Menú lateral → **Paquete de mensajes**: la lista de los 13 con el icono de su canal. Señalar MSG-A-11 (WhatsApp) y MSG-A-08 (teléfono).
+4. Menú lateral → **Paquetes**: la lista de los 13 con el icono de su canal. Señalar MSG-A-11 (WhatsApp) y MSG-A-08 (teléfono).
 
 **Si preguntan:** ¿y los adjuntos o los audios? La llamada se transcribe con un modelo de voz a texto. Los adjuntos se registran con su huella y sus datos se contrastan con el texto: lo veremos en la ficha de MSG-A-01, que trae el parte amistoso y dos fotos. El guardrail G-09 puede escalar a una persona las transcripciones con confianza baja.
 
@@ -274,7 +274,7 @@ Cinco ideas, una por bloque de la página:
 5. Pestaña **Reglas de negocio**: A1 a A8, todas en «cumple» o «no aplica», cada una con su evidencia.
 6. Pestaña **Razonamiento**: ramo, decisión, siguiente paso recomendado y cronología.
 
-**Si preguntan:** ¿quién escribe las reglas? Negocio. Están en el menú lateral, sección **Prompt**, y se editan sin programar (botón «Editar en grande»). La llamada al modelo usa siempre el texto vigente.
+**Si preguntan:** ¿quién escribe las reglas? Negocio. Están en el menú lateral, sección **Prompts y Reglas**, y se editan sin programar (botón «Editar en grande»). La llamada al modelo usa siempre el texto vigente.
 
 **Si preguntan:** ¿el modelo lee de verdad los adjuntos? En esta demo, los datos de los adjuntos salen de los resultados guardados, también cuando se conecta un modelo en vivo; el paso siguiente es enviarle las fotos y el PDF en la llamada de extracción. Y ojo: la seudonimización solo se aplica al texto, así que los adjuntos llegan al modelo con los datos personales que contengan. La traza lo registra así en `_gobernanza.adjuntos`.
 
@@ -357,7 +357,7 @@ Cinco ideas, una por bloque de la página:
 4. Bloque azul `trazabilidad`: traza, modelo, versión de prompt y hash SHA-256 encadenado.
 5. Bloque ocre `retencion`: 6 meses la traza; 5 años el expediente de personas.
 6. Bloque violeta `supervision_humana`. Pasar el ratón por una norma para ver qué exige.
-7. **Transición:** cabecera → **Gobierno de Agentes**. En el panel, **Fuente → Sesión actual**, para que las trazas sean las del lote que acabamos de procesar.
+7. **Transición:** cabecera → **Gobierno de agentes**. En el panel, menú lateral → **Configuración → Fuente → Sesión actual**, para que las trazas sean las del lote que acabamos de procesar.
 
 ---
 

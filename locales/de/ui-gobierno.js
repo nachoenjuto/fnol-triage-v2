@@ -1,6 +1,6 @@
 // Pendiente de traducir: make i18n-estado IDIOMA=de
 I18N.registrar('de', {
-  "gob.pagina.gobierno_observabilidad_y_finops": ["Governance, Observability und FinOps für KI-Agenten im FNOL","cd104704"],
+  "gob.pagina.gobierno_observabilidad_y_finops": ["Observability und Governance","fc1f681c"],
   "gob.pagina.panel_de_control_agentico": ["Agenten-Kontrollzentrum für die Versicherungstriage: Nachvollziehbarkeit und Observability der Agenten, Reasoning & Replay, Autonomy Engine und FinOps mit Verbrauchsgrenzen.","a35e259e"],
   "gob.pagina.control_total_auditoria_en": ["Volle Kontrolle, Audit in Echtzeit und Kostenoptimierung bei der Automatisierung von FNOL-Schäden.","aa2574c1"],
   "gob.pagina.fuente": ["Quelle","c8f3e984"],
@@ -1654,7 +1654,6 @@ I18N.registrar('de', {
   "gob.siguiente_3": ["Weiter (→)","9cca8eb9"],
   "gob.texto_5": ["<span class=\"n\"></span>","b9792c03"],
   "gob.sin_lote_procesado_en": ["Kein Stapel in diesem Reiter verarbeitet: Es werden die Demodaten angezeigt.","6dcd79ff"],
-  "gob.volver_al_triaje": ["{left} Zurück zur Triage","749d0ea2"],
   "gob.como_va_el_gasto": ["Wie sich die Ausgaben jedes Agenten entwickeln","1ef9bf45"],
   "gob.donde_se_va_el": ["Wohin das Geld geht und warum","31acf071"],
   "gob.razonamiento_registrado": ["Protokolliertes Reasoning","c67ec778"],
@@ -1712,4 +1711,10 @@ I18N.registrar('de', {
   "gob.origen_texto.kb": ["Wissen","5469abcc"],
   "gob.origen_texto.cumplimiento": ["Compliance","259becc7"],
   "gob.filtro_ramo": ["Sparte","889926e4"],
+  "gob.config.archivo_de_trazas": ["Spurendatei","e88d0f33"],
+  "gob.config.origen_de_los_datos": ["Datenherkunft","4e9a01df"],
+  "gob.config.fuente_ayuda": ["Demo: Paket A und 14 Tage Beispielhistorie. Aktuelle Sitzung: der in der Triage verarbeitete Stapel, in Spuren umgewandelt. JSON-Datei: die Spuren, die Sie unten laden.","efb5fa8f"],
+  "gob.config.archivo_ayuda": ["JSON mit demselben Schema wie «Spuren exportieren» (Bereich Nachvollziehbarkeit). Nach dem Laden wird es zur Datenquelle.","1a6c1597"],
+  "gob.config.periodo_de_analisis": ["Analysezeitraum","b565c4c2"],
+  "gob.config.periodo_ayuda": ["Tage, die die Kennzahlen und Diagramme in Übersicht und FinOps zeigen.","93c2fd1a"],
 });

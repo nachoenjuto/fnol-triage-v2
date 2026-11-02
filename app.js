@@ -351,18 +351,32 @@
   }
   const aiEnabled = (cfg) => Boolean(cfg.endpoint && cfg.apiKey && (cfg.deployment || /chat\/completions|\/responses/i.test(cfg.endpoint)));
 
-  function updateModeBadge() {
-    const cfg = readConfigFromForm();
-    const on = aiEnabled(cfg);
-    if (state.motor === 'guardado') $('mode-badge').textContent = I18N.t('triaje.motor_resultados_guardados');
-    else if (state.motor === 'archivo') $('mode-badge').textContent = `Motor: archivo (${state.archivo?.nombre || '—'})`;
-    else $('mode-badge').textContent = on ? `Motor: IA (${cfg.deployment || 'endpoint'})` : I18N.t('triaje.motor_reglas_locales_sin');
+  // Punto de estado del botón «Configurar IA» (sección Configuración)
+  function updateAiDot() {
+    const on = aiEnabled(readConfigFromForm());
     $('ai-dot').className = `dot ${on ? 'dot-on' : 'dot-off'}`;
-    $('ai-dot').title = on ? I18N.t('triaje.ia_configurada') : I18N.t('triaje.ia_sin_configurar');
+    $('ai-estado').textContent = on ? I18N.t('triaje.ia_configurada') : I18N.t('triaje.ia_sin_configurar');
   }
 
   // ---------------------------------------------------------------------------
-  // Barra lateral: paquete y prompts
+  // Secciones a página completa (menú lateral): Mensajes FNOL, Paquetes, Configuración y Prompts y Reglas, cada una
+  // con su enlace (#mensajes…). «#demo=N» (llegada desde otra página del recorrido) lo consume shell.js: no se pisa.
+  // ---------------------------------------------------------------------------
+  const VISTAS = ['mensajes', 'paquetes', 'configuracion', 'prompts'];
+  function mostrarVista(v, { scroll = true } = {}) {
+    if (!VISTAS.includes(v)) v = VISTAS[0];
+    document.querySelectorAll('.vista').forEach((s) => { s.hidden = s.dataset.vista !== v; });
+    document.querySelectorAll('.nav-item[data-vista]').forEach((a) => {
+      const activo = a.dataset.vista === v;
+      a.classList.toggle('is-active', activo);
+      if (activo) a.setAttribute('aria-current', 'page'); else a.removeAttribute('aria-current');
+    });
+    if (location.hash !== `#${v}` && !/demo=\d+/.test(location.hash)) history.replaceState(null, '', `#${v}`);
+    if (scroll) window.scrollTo({ top: 0 });
+  }
+
+  // ---------------------------------------------------------------------------
+  // Paquetes y prompts
   // ---------------------------------------------------------------------------
   function renderPaquete() {
     const sel = $('sel-paquete');
@@ -370,12 +384,7 @@
     sel.value = state.paqueteId;
     const p = paqueteActual();
     $('paquete-desc').textContent = p.descripcion;
-    $('paquete-lista').replaceChildren(...p.mensajes.map((m) => {
-      const li = document.createElement('li');
-      li.innerHTML = `${canalIcon(m.canal)} <span class="msg-id">${escapeHtml(m.id)}</span> <span class="msg-canal">${escapeHtml(CANAL_LABEL[m.canal] || m.canal)}</span><br><span class="msg-asunto">${escapeHtml(m.asunto)}</span>`;
-      li.title = m.texto;
-      return li;
-    }));
+    renderPaqueteLista();
     $('btn-run').innerHTML = state.motor === 'archivo' && state.archivo
       ? `${lucide('play')} Reproducir archivo (${state.archivo.entradas.length})`
       : `${lucide('play')} Procesar ${escapeHtml(p.nombre)} (${p.mensajes.length})`;
@@ -383,6 +392,44 @@
     $('chk-seud').checked = state.seudonimizar;
     syncEstrategiaUI();
     syncMotorUI();
+  }
+
+  // Lista del paquete: tabla ordenable por columna; cada fila despliega el texto del mensaje, el contacto y los adjuntos
+  const paq = { sort: { key: 'n', dir: 'asc' }, abiertos: new Set() };
+  const PAQ_VALOR = {
+    n: (m, i) => i, id: (m) => m.id, canal: (m) => CANAL_LABEL[m.canal] || m.canal, remitente: (m) => m.remitente?.nombre || '',
+    fecha: (m) => m.fecha_recepcion || '', asunto: (m) => m.asunto || '', adjuntos: (m) => (m.adjuntos || []).length,
+  };
+  function renderPaqueteLista() {
+    const { key, dir } = paq.sort;
+    const mul = dir === 'asc' ? 1 : -1;
+    const filas = paqueteActual().mensajes.map((m, i) => ({ m, n: i + 1, v: PAQ_VALOR[key](m, i) }))
+      .sort((a, b) => (typeof a.v === 'number' ? a.v - b.v : String(a.v).localeCompare(String(b.v), I18N.locale)) * mul);
+    document.querySelectorAll('#paquete-tabla th[data-sort]').forEach((th) => {
+      const activa = th.dataset.sort === key;
+      th.classList.toggle('sorted', activa);
+      th.dataset.dir = activa ? dir : '';
+      th.setAttribute('aria-sort', activa ? (dir === 'asc' ? 'ascending' : 'descending') : 'none');
+    });
+    $('paquete-lista').innerHTML = filas.map(({ m, n }) => {
+      const abierto = paq.abiertos.has(m.id);
+      const adj = m.adjuntos || [];
+      const txt = I18N.t(abierto ? 'triaje.paq.ocultar' : 'triaje.paq.ver', { id: m.id });
+      return `<tr class="paq-fila${abierto ? ' abierta' : ''}" data-msg="${escapeHtml(m.id)}">
+        <td class="paq-exp"><button type="button" class="paq-btn" aria-expanded="${abierto}" aria-controls="paq-det-${escapeHtml(m.id)}" title="${escapeHtml(txt)}" aria-label="${escapeHtml(txt)}">${lucide('chevron-right')}</button></td>
+        <td class="paq-n">${n}</td>
+        <td class="msg-id">${escapeHtml(m.id)}</td>
+        <td>${canalIcon(m.canal)} ${escapeHtml(CANAL_LABEL[m.canal] || m.canal)}</td>
+        <td>${escapeHtml(m.remitente?.nombre || '—')}</td>
+        <td>${m.fecha_recepcion ? I18N.fmt.fechaHora(m.fecha_recepcion, { dateStyle: 'short', timeStyle: 'short' }) : '—'}</td>
+        <td class="paq-asunto">${escapeHtml(m.asunto)}</td>
+        <td class="paq-n">${adj.length || '—'}</td>
+      </tr>
+      <tr class="paq-detalle" id="paq-det-${escapeHtml(m.id)}"${abierto ? '' : ' hidden'}><td colspan="8">
+        <dl class="kv"><dt>${I18N.t('triaje.contacto')}</dt><dd>${escapeHtml(m.remitente?.contacto || '—')}</dd>${adj.length ? `<dt>${I18N.t('triaje.adjuntos')}</dt><dd>${adj.map((a) => escapeHtml(a.titulo || a.archivo)).join(' · ')}</dd>` : ''}</dl>
+        <p class="msg-text">${escapeHtml(m.texto)}</p>
+      </td></tr>`;
+    }).join('');
   }
 
   function syncMotorUI() {
@@ -401,7 +448,7 @@
       guardado: I18N.t('triaje.reproduce_fichas_generadas_con'),
       archivo: I18N.t('triaje.reproduce_las_fichas_del'),
     }[state.motor];
-    updateModeBadge();
+    updateAiDot();
   }
 
   // La sección del prompt de clasificación (paso 1) solo aplica en modo 2 pasos
@@ -432,7 +479,7 @@
     root.querySelector(`[data-grande="${key}"]`).addEventListener('click', () => abrirEditorPrompt(def, ta));
   }
 
-  // Editor ancho de un bloque de prompt: el menú lateral es estrecho, así que se edita aquí y se devuelve al guardar
+  // Editor a pantalla completa de un bloque de prompt: se edita aquí y se devuelve al guardar
   function abrirEditorPrompt(def, ta) {
     const dlg = $('modal-prompt'); const area = $('prompt-grande');
     $('modal-prompt-title').textContent = def.titulo;
@@ -1111,7 +1158,7 @@
     if (state.running) return;
     const cfg = readConfigFromForm();
     saveConfig(cfg);
-    updateModeBadge();
+    updateAiDot();
     const paquete = paqueteActual();
     let mensajes = paquete.mensajes;
     if (state.motor === 'archivo') {
@@ -1251,6 +1298,7 @@
         const hechos = () => state.log.filter((e) => e.paquete === 'A').length;
         // El paso no termina hasta que están los 13 mensajes: el recorrido no deja avanzar mientras tanto
         const listo = () => !state.running && hechos() >= total;
+        mostrarVista('mensajes');
         if (state.running) return { aviso: '', listo };                                   // ya en marcha: se espera a que acabe
         if (hechos() >= total) return I18N.t('triaje.el_paquete_a_ya');
         if (hechos()) resetBatch();   // lote cortado (por ejemplo, al cambiar de página a mitad): se vuelve a procesar entero
@@ -1261,6 +1309,7 @@
       },
       ficha: (id, tab) => {
         cerrarFase();
+        mostrarVista('mensajes', { scroll: false });
         const e = state.log.find((x) => x.id === id);
         if (!e) return I18N.t('triaje.todavia_no_hay_ficha', { id });
         openModal(e); if (tab) setTab(tab);
@@ -1274,26 +1323,36 @@
         if (b && (pop.hidden || !b.classList.contains('is-active'))) b.click();
         return '';
       },
-      // Subpasos: despliega el menú lateral y la sección «Paquete de mensajes»
-      paquete: () => {
-        const shell = document.querySelector('.shell');
-        if (shell && shell.classList.contains('nav-collapsed')) { const t = document.querySelector('.sidenav-toggle'); if (t) t.click(); }
-        const d = document.querySelector('.nav-sec summary[title="Paquete de mensajes"]'); if (d && !d.parentElement.open) d.parentElement.open = true;
-        return '';
-      },
+      // Subpasos: abre la sección Paquetes, con la lista de mensajes del paquete
+      paquete: () => { mostrarVista('paquetes'); return ''; },
       // Estado del lote para los avisos de espera del recorrido
       lote: () => ({ total: ((PAQUETES.find((p) => p.id === 'A') || {}).mensajes || []).length, hechos: state.log.filter((e) => e.paquete === 'A').length, procesando: !!state.running }),
     });
-    $('btn-toggle-config').addEventListener('click', () => {
-      const panel = $('config-panel');
-      panel.hidden = !panel.hidden;
-      $('btn-toggle-config').setAttribute('aria-expanded', String(!panel.hidden));
+    document.querySelectorAll('#paquete-tabla th[data-sort]').forEach((th) => {
+      th.addEventListener('click', () => {
+        const key = th.dataset.sort;
+        paq.sort = { key, dir: paq.sort.key === key && paq.sort.dir === 'asc' ? 'desc' : 'asc' };
+        renderPaqueteLista();
+      });
+    });
+    // Un clic en la fila (o en su flecha) despliega o pliega el mensaje sin repintar la tabla
+    $('paquete-lista').addEventListener('click', (ev) => {
+      const tr = ev.target.closest('tr.paq-fila');
+      if (!tr) return;
+      const id = tr.dataset.msg;
+      const abierto = !paq.abiertos.has(id);
+      if (abierto) paq.abiertos.add(id); else paq.abiertos.delete(id);
+      const txt = I18N.t(abierto ? 'triaje.paq.ocultar' : 'triaje.paq.ver', { id });
+      const b = tr.querySelector('.paq-btn');
+      b.setAttribute('aria-expanded', String(abierto)); b.title = txt; b.setAttribute('aria-label', txt);
+      tr.classList.toggle('abierta', abierto);
+      tr.nextElementSibling.hidden = !abierto;
     });
     ['cfg-endpoint', 'cfg-deployment', 'cfg-route', 'cfg-api-version', 'cfg-api-key'].forEach((id) => {
       $(id).addEventListener(id === 'cfg-route' ? 'change' : 'input', () => {
         if (id === 'cfg-endpoint') { const r = routeFromUrl($('cfg-endpoint').value); if (r) $('cfg-route').value = r; }
         saveConfig(readConfigFromForm());
-        updateModeBadge();
+        updateAiDot();
       });
     });
     $('btn-test-ai').addEventListener('click', async () => {
@@ -1311,7 +1370,7 @@
         $('btn-test-ai').disabled = false;
       }
     });
-    $('btn-clear-ai').addEventListener('click', () => { $('cfg-api-key').value = ''; saveConfig(readConfigFromForm()); updateModeBadge(); setStatus('ai-status', I18N.t('triaje.clave_eliminada_de_la')); });
+    $('btn-clear-ai').addEventListener('click', () => { $('cfg-api-key').value = ''; saveConfig(readConfigFromForm()); updateAiDot(); setStatus('ai-status', I18N.t('triaje.clave_eliminada_de_la')); });
 
     $('sel-motor').addEventListener('change', () => { state.motor = $('sel-motor').value; ssSet(SS.motor, state.motor); renderPaquete(); });
     $('file-replay').addEventListener('change', async () => {
@@ -1706,7 +1765,9 @@
   renderPaquete();
   bind();
   bindPhases();
-  updateModeBadge();
+  mostrarVista(location.hash.slice(1), { scroll: false });
+  addEventListener('hashchange', () => { if (!/demo=\d+/.test(location.hash)) mostrarVista(location.hash.slice(1)); });
+  updateAiDot();
   setRunButtons();
   renderCounters();
   renderLog();

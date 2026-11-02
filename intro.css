@@ -1,7 +1,7 @@
 /* Introducción (intro.html): cinco secciones (la idea, el problema, la solución, los actores y la demo) para contar el FNOL
    y el sistema antes de la demo. Usa los tokens de styles.css y el marco de header.css; aquí solo lo propio de estas páginas. */
 
-.intro { display: grid; gap: 1.25rem; padding: 1.5rem 1.5rem 2.5rem; max-width: 1180px; width: 100%; margin: 0 auto; align-content: start; }
+.intro { display: grid; gap: 1.25rem; padding: var(--main-pad) var(--main-pad) 2.5rem; max-width: var(--main-max); width: 100%; margin: 0 auto; align-content: start; }  /* ancho común (header.css) */
 .intro > * { min-width: 0; }
 
 /* Cabecera de la página: número de bloque, titular y entradilla */
@@ -35,8 +35,6 @@
 .bloque-lista { padding-left: 1.1rem; display: grid; gap: .2rem; }
 
 /* Una sección visible cada vez (intro.js) */
-/* Hueco de la barra de scroll siempre reservado: una sección corta (Los actores) no la tiene y todo se movería de lado */
-html { scrollbar-gutter: stable; }
 .intro-sec { display: grid; gap: 1.25rem; min-width: 0; }
 .intro-sec > * { min-width: 0; }
 .intro-sec[hidden] { display: none; }
@@ -184,8 +182,6 @@ html { scrollbar-gutter: stable; }
 .intro-nav .btn svg { width: 1.1rem; height: 1.1rem; }
 .intro-nav .derecha { display: flex; gap: .6rem; flex-wrap: wrap; }
 
-/* Menú lateral: enlaces como .nav-item (las páginas de intro no tienen secciones plegables) */
-a.nav-item { text-decoration: none; }
 
 @media (max-width: 900px) {
   .intro-hero.con-puntos { grid-template-columns: 1fr; }

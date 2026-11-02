@@ -15,7 +15,7 @@
   // Selector de idioma al final de la cabecera, generado desde locales/idiomas.js (un idioma nuevo aparece solo).
   // Cambiar recarga la página en el idioma elegido (I18N.cambiar, locales/cargar.js).
   function initIdiomas() {
-    const destino = document.querySelector('.topbar .topbar-actions, .topbar .right');
+    const destino = document.querySelector('.topbar .topbar-actions');
     if (!destino || typeof I18N === 'undefined' || destino.querySelector('.idiomas')) return;
     const grupo = document.createElement('div');
     grupo.className = 'idiomas';
@@ -28,6 +28,25 @@
     grupo.addEventListener('click', (ev) => { const b = ev.target.closest('[data-idioma]'); if (b) I18N.cambiar(b.dataset.idioma); });
     destino.appendChild(grupo);
   }
+
+  // Cabecera común de las tres páginas: el logo de la página y los enlaces entre ellas llevan el mismo icono que
+  // el menú lateral de intro.html. Se monta al cargar shell.js, antes de que cada página mida la altura de la cabecera.
+  const PAGINAS = [['intro', 'intro.html', 'compass', 'shell.cab.introduccion'], ['triaje', 'index.html', 'inbox', 'shell.cab.triaje'], ['gobierno', 'gobierno.html', 'shield-check', 'shell.cab.gobierno']];
+  function initCabecera() {
+    const cab = document.querySelector('.topbar');
+    const shell = document.querySelector('.shell');
+    if (!cab || !shell || cab.querySelector('.topnav')) return;
+    const actual = PAGINAS.find(([p]) => p === shell.dataset.pagina);
+    const logo = cab.querySelector('.brand-icon');
+    if (logo && actual) logo.innerHTML = lucide(actual[2]);
+    const nav = document.createElement('nav');
+    nav.className = 'topnav';
+    nav.setAttribute('aria-label', I18N.t('shell.cab.paginas'));
+    nav.innerHTML = PAGINAS.map(([p, url, icono, clave]) => `<a class="topnav-item" href="${url}"${p === shell.dataset.pagina ? ' aria-current="page"' : ''}>${lucide(icono)}<span>${I18N.t(clave)}</span></a>`).join('');
+    cab.querySelector('.topbar-actions').prepend(nav);
+    initIdiomas();
+  }
+  if (typeof document !== 'undefined') initCabecera();   // en Node (tests del recorrido) no hay página
 
   function initShell({ onChange } = {}) {
     initIdiomas();
@@ -51,14 +70,6 @@
       if (onChange) setTimeout(() => onChange(abierto), 200);
     };
     boton.addEventListener('click', () => set(shell.classList.contains('nav-collapsed')));
-
-    // Plegado: un clic en el icono de una sección (index.html) despliega el menú y abre esa sección
-    shell.querySelectorAll('.nav-sec > summary').forEach((s) => s.addEventListener('click', (ev) => {
-      if (!shell.classList.contains('nav-collapsed')) return;
-      ev.preventDefault();
-      set(true);
-      s.parentElement.open = true;
-    }));
 
     set(leer(), { guardarEstado: false });
     return { set, abierto: () => !shell.classList.contains('nav-collapsed') };
