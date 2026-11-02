@@ -309,9 +309,10 @@ label.f { display: grid; gap: .2rem; font-size: .72rem; font-weight: 700; text-t
 .norma:hover { border-color: var(--primary); color: var(--primary); }
 
 /* ─── Fichas modales de caps, guardrails y auditoría de autonomía; formularios de alta ─── */
-/* «Agente de» se acorta a «Ag. de» (clase .short, la pone ajustarAgentes) cuando el nombre ocuparía dos líneas */
-.agn .pre::before { content: 'Agente de '; }
-.agn.short .pre::before { content: 'Ag. de '; }
+/* «Agente de X» se acorta a «Ag. de X» (clase .short, la pone ajustarAgentes) cuando ocuparía dos líneas; los dos textos
+   vienen de locales/ (gob.agente_de_2, gob.ag_de) */
+.agn .corta, .agn.short .larga { display: none; }
+.agn.short .corta { display: inline; }
 .sub-head { margin-top: 1.1rem; padding-top: 1rem; border-top: 1px solid var(--border); }
 .modal.wide { width: min(1120px, 94vw); }
 /* Todas las ventanas modales con las mismas dimensiones: cabecera fija y cuerpo con scroll.

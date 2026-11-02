@@ -244,7 +244,7 @@ I18N.registrar('en', {
   "gob.coste_hoy": ["Cost today","5e5c85a3"],
   "gob.ver_el_agente_en": ["See the agent in the Agents section","1fe3f11e"],
   "gob.agente": ["Agent","d5af7919"],
-  "gob.agente_de": ["Agent: ","409a9b48"],
+  "gob.reanudado": ["resumed","5c970194"],
   "gob.pausado_con_el_kill": ["paused with the kill switch","5ce8a5b9"],
   "gob.los_mensajes_que_dependen": ["Messages that depend on this agent are queued until it is resumed; none is lost.","9228139a"],
   "gob.se_procesa_la_cola": ["The queue built up during the pause is processed.","a580a039"],

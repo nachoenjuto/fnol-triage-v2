@@ -51,7 +51,9 @@
   const agNombre = (id) => (AG[id] ? AG[id].nombre : id);
   // «Agente de X» (o «Ag. de X» si ocupa dos líneas, ver ajustarAgentes) solo para los agentes del pipeline
   const esPrincipal = (id) => !!AG[id] && AG[id].cap_hoy != null;
-  const agLbl = (id) => (esPrincipal(id) ? `<span class="agn"><span class="pre"></span>${esc(agNombre(id))}</span>` : esc(agNombre(id)));
+  // Las dos formas van en la página (el orden de las palabras cambia con el idioma) y la clase .short elige cuál se ve
+  const agnHtml = (nombre) => `<span class="agn"><span class="larga">${esc(I18N.t('gob.agente_de_2', { nombre }))}</span><span class="corta">${esc(I18N.t('gob.ag_de', { id: nombre }))}</span></span>`;
+  const agLbl = (id) => (esPrincipal(id) ? agnHtml(agNombre(id)) : esc(agNombre(id)));
   const svgAg = (id) => (esPrincipal(id) ? I18N.t('gob.ag_de', { id: agNombre(id) }) : agNombre(id)); // en SVG no hay saltos de línea: siempre abreviado
   const agTag = (id) => `<span class="ag" style="--c:${agColor(id)}"><i class="dot"></i>${agLbl(id)}</span>`;
   const CANAL = { email: ['mail', I18N.t('gob.email')], web: ['globe', I18N.t('gob.formulario_web')], chat: ['messages-square', I18N.t('gob.chat')], telefono: ['phone', I18N.t('gob.telefono')], whatsapp: ['message-circle', I18N.t('gob.whatsapp')] };
@@ -271,7 +273,7 @@
     const a = AG[id]; if (!a) return;
     const nuevo = estadoAgente(a) === 'pausado' ? (a.estado === 'pausado' ? 'activo' : a.estado) : 'pausado';
     estados[id] = nuevo; ssSet('gobierno.estados', estados);
-    G.eventos.unshift({ fecha: new Date().toISOString(), tipo: 'operacion', sev: nuevo === 'pausado' ? 'warn' : 'ok', agente: id, titulo: `${esPrincipal(id) ? I18N.t('gob.agente_de') : ''}${a.nombre}: ${nuevo === 'pausado' ? I18N.t('gob.pausado_con_el_kill') : 'reanudado'}`, detalle: nuevo === 'pausado' ? I18N.t('gob.los_mensajes_que_dependen') : I18N.t('gob.se_procesa_la_cola'), usuario: I18N.t('gob.operador_esta_sesion') });
+    G.eventos.unshift({ fecha: new Date().toISOString(), tipo: 'operacion', sev: nuevo === 'pausado' ? 'warn' : 'ok', agente: id, titulo: `${esPrincipal(id) ? I18N.t('gob.agente_de_2', { nombre: a.nombre }) : a.nombre}: ${nuevo === 'pausado' ? I18N.t('gob.pausado_con_el_kill') : I18N.t('gob.reanudado')}`, detalle: nuevo === 'pausado' ? I18N.t('gob.los_mensajes_que_dependen') : I18N.t('gob.se_procesa_la_cola'), usuario: I18N.t('gob.operador_esta_sesion') });
     renderAll();
   }
 
@@ -943,7 +945,7 @@
     const dias = diarioVisible(), hoy = G.diario[G.diario.length - 1], cap = capDiario();
     const totalMsgs = dias.reduce((a, d) => a + d[1], 0), coste = dias.reduce((a, d) => a + costeDia(d), 0);
     const porAgente = G.agentes.slice(0, 4).map((a, k) => [a.id, dias.reduce((s, d) => s + (d[2][k] || 0), 0)]);
-    const reparto = porAgente.sort((a, b) => b[1] - a[1]).map(([id, v]) => `<span class="agn"><span class="pre"></span>${esc(AG[id].nombre.split(' ')[0])}</span> ${Math.round((v / coste) * 100)} %`).join(' · ');
+    const reparto = porAgente.sort((a, b) => b[1] - a[1]).map(([id, v]) => `${agnHtml(AG[id].nombre.split(' ')[0])} ${Math.round((v / coste) * 100)} %`).join(' · ');
     const superados = G.caps.filter((c) => c.estado === 'superado');
     $('kpis-fin').innerHTML = [
       kpi({ cls: 'warn', icono: 'euro', etiqueta: I18N.t('gob.coste_hoy_parcial'), valor: eur(costeDia(hoy)), sub: I18N.t('gob.del_cap_diario_mensajes', { cap: Math.round((costeDia(hoy) / cap) * 100), cap2: eur(cap, 0), hoy: num(hoy[1]) }), medidor: (costeDia(hoy) / cap) * 100, id: 'coste-hoy' }),
@@ -1749,7 +1751,7 @@
       <p class="small muted">${I18N.t('gob.un_cap_limita_el')}</p>
       <div class="form-grid">
         <form id="form-cap" class="form" autocomplete="off" novalidate>
-          <label class="f">${I18N.t('gob.ambito')}<select id="nc-ambito">${ambitos.map((a) => `<option value="${esc(a)}">${agenteDeAmbito(a) ? I18N.t('gob.agente_de') : ''}${esc(a)}</option>`).join('')}</select></label>
+          <label class="f">${I18N.t('gob.ambito')}<select id="nc-ambito">${ambitos.map((a) => `<option value="${esc(a)}">${agenteDeAmbito(a) ? I18N.t('gob.agente_de_2', { nombre: esc(I18N.dato(a)) }) : esc(I18N.dato(a))}</option>`).join('')}</select></label>
           <label class="f">${I18N.t('gob.que_se_mide')}<select id="nc-tipo">${TIPOS_CAP.map((t) => `<option>${esc(t.v)}</option>`).join('')}</select></label>
           <label class="f">${I18N.t('gob.limite_2')}<span class="input-unit"><input id="nc-limite" type="number" min="0" step="any" inputmode="decimal" aria-describedby="nc-err"><b id="nc-unidad">€</b></span></label>
           <label class="f"><span>${I18N.t('gob.umbral_de_aviso')} <b id="nc-aviso-v" class="tnum">80 %</b> ${I18N.t('gob.del_limite_2')}</span><input id="nc-aviso" type="range" min="50" max="95" step="5" value="80"></label>

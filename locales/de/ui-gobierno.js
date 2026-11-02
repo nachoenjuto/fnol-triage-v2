@@ -244,7 +244,7 @@ I18N.registrar('de', {
   "gob.coste_hoy": ["Kosten heute","5e5c85a3"],
   "gob.ver_el_agente_en": ["Agent im Abschnitt Agenten anzeigen","1fe3f11e"],
   "gob.agente": ["Agent","d5af7919"],
-  "gob.agente_de": ["Agent ","409a9b48"],
+  "gob.reanudado": ["fortgesetzt","5c970194"],
   "gob.pausado_con_el_kill": ["mit dem Kill Switch pausiert","5ce8a5b9"],
   "gob.los_mensajes_que_dependen": ["Die Meldungen, die von diesem Agenten abhängen, warten in der Warteschlange, bis er fortgesetzt wird; keine geht verloren.","9228139a"],
   "gob.se_procesa_la_cola": ["Die während der Pause angesammelte Warteschlange wird verarbeitet.","a580a039"],

@@ -252,7 +252,7 @@ I18N.registrar('es', {
   'gob.coste_hoy': 'Coste hoy',
   'gob.ver_el_agente_en': 'Ver el agente en la sección Agentes',
   'gob.agente': 'Agente',
-  'gob.agente_de': 'Agente de ',
+  'gob.reanudado': 'reanudado',
   'gob.pausado_con_el_kill': 'pausado con el kill switch',
   'gob.los_mensajes_que_dependen': 'Los mensajes que dependen de este agente se encolan hasta reanudarlo; no se pierde ninguno.',
   'gob.se_procesa_la_cola': 'Se procesa la cola acumulada durante la pausa.',
