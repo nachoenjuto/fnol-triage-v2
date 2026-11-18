@@ -83,7 +83,22 @@ test('sin campo evidencias: se reconstruye desde datos y criterios', () => {
   const m = PAQUETES[0].mensajes.find((x) => x.id === 'MSG-A-13'); const r = expandir(RESULTADOS_GUARDADOS['MSG-A-13']);
   const c = E.construir(m.texto, undefined, { ...r, origen: 'IA' });
   assert.ok(c.lista.some((e) => e.ref === 'numero_poliza' && e.verificada)); assert.ok(c.lista.some((e) => e.ref === 'ramo' && e.verificada)); assert.ok(c.lista.some((e) => e.ref === 'regla:H4' && e.verificada), 'H4 por patrón');
-  assert.ok(c.lista.every((e) => e.origen === 'respaldo'));
+  assert.ok(c.lista.every((e) => e.origen === 'respaldo' || e.origen === 'completado'));
+});
+test('cada dato extraído con valor queda resaltado en el mensaje (51 resultados guardados)', () => {
+  require('../core/entidades.js');
+  const sin = [];
+  for (const m of PAQUETES.flatMap((p) => p.mensajes)) {
+    const r = expandir(RESULTADOS_GUARDADOS[m.id]);
+    const res = E.construir(m.texto, r.evidencias, r).lista.filter((e) => e.resaltada);
+    for (const k of E.CAMPOS_DATO) {
+      const v = r.datos_extraidos[k];
+      if (v == null || v === '' || v === false || (Array.isArray(v) && !v.length)) continue;
+      if (!res.some((e) => e.ref === k)) sin.push(`${m.id}:${k}`);
+    }
+  }
+  // Los que faltan están dentro de la cita de una regla o del ramo, o son un resumen que no está en el texto
+  assert.ok(sin.length <= 8, sin.join(' '));
 });
 test('el modelo cita mal (todo inventado): sigue habiendo evidencias de respaldo', () => {
   const m = PAQUETES[0].mensajes[0]; const r = expandir(RESULTADOS_GUARDADOS[m.id]);

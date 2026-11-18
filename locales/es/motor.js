@@ -2,6 +2,11 @@
 // I18N.motor('<módulo>'). Otro idioma define las mismas claves en locales/<idioma>/motor.js; la lógica no cambia.
 // tests/motores-idioma.test.js comprueba que, con su idioma, cada mensaje da el mismo resultado que en español.
 const DIAS_ES = ['domingo', 'lunes', 'martes', 'miércoles', 'jueves', 'viernes', 'sábado'];
+// Direcciones postales con número (entidades y datos personales)
+const DIRECCIONES_ES = [
+  /\b(?:C\/|[Cc]alle|[Aa]venida|[Aa]vda?\.|[Pp]laza|[Pp]aseo(?: de(?: la)?)?|[Cc]amino|[Rr]onda|[Tt]ravesía)\s(?:de(?:l| la| los)?\s)?[\p{Lu}][\p{L}]+(?:\s(?:de(?:l| la| los)?\s)?[\p{Lu}][\p{L}]+){0,3}\s\d{1,3}(?:,\s*\d{1,2}\.º\s?[A-Z])?(?:,?\s*\d{5}(?:\s[\p{Lu}][\p{L}]+(?:\s(?:de(?:l)?\s)?[\p{Lu}][\p{L}]+){0,2})?)?(?:,\s(?:Madrid)\b)?/gu,
+  /\bn\.º\s\d{1,3}\sde\sla\scalle\s[\p{Lu}][\p{L}]+(?:\s[\p{Lu}][\p{L}]+)*/gu,
+];
 const MESES_ES = ['enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio', 'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre'];
 
 I18N.registrarMotor('es', {
@@ -25,11 +30,8 @@ I18N.registrarMotor('es', {
   // nombreTercero recibe el patrón de un nombre propio y devuelve la expresión con el nombre en el grupo 1; menor son
   // pares [expresión /g, filtro opcional del resultado]. indicios: palabras que apuntan a cada ramo (/gi).
   cumplimiento: {
-    direccion: [
-      /\b(?:C\/|[Cc]alle|[Aa]venida|[Pp]laza)\s[A-ZÁÉÍÓÚ][\wÁÉÍÓÚáéíóúñ ]{1,30}?\s\d{1,3}(?:,\s*\d{1,2}\.º\s?[A-Z])?(?:,?\s*\d{5})?(?:,?\s+Madrid)?/g,
-      /\bn\.º\s\d{1,3}\sde\sla\scalle\s[A-ZÁÉÍÓÚ][\wáéíóúñ]+(?:\s[A-ZÁÉÍÓÚ][\wáéíóúñ]+)*/g,
-    ],
-    nombreTercero: (NOMBRE) => new RegExp(`\\b(?:mi (?:hijo|hija|marido|mujer|esposa?|padre|madre)|[Ee]l vecino|el otro conductor es|\\bDra?\\.)(?:,)?\\s(${NOMBRE})`, 'g'),
+    direccion: DIRECCIONES_ES,
+    nombreTercero: (NOMBRE) => new RegExp(`\\b(?:mi (?:hijo|hija|marido|mujer|esposa?|padre|madre)|[Ee]l vecino(?: de (?:abajo|arriba))?|[Ee]l otro conductor es|[Ll]a otra conductora es|[Ll]a conductora se llama|[Ee]l vecino se llama|[Mm]i acompañante se llama|[Ee]l niño se llama|[Mm]i hijo se llama|\\bDra?\\.)(?:,)?\\s(${NOMBRE})`, 'g'),
     menor: [
       [/\b[Ll]os niños del vecino\b/g],
       [/\((\d{1,2}) años\)/g, (m) => Number(m[1]) < 18],
@@ -83,6 +85,10 @@ I18N.registrarMotor('es', {
     // «Calle Mayor de Alcalá» → «Alcalá»: lo que va antes del nombre propio del lugar
     antesDelLugar: /^.*?\b(?:de|del|en)\s+(?=[A-ZÁÉÍÓÚ])/,
     lesion: /\b(?:fractura de [a-záéíóúñ]+(?: y [^,.;]{1,20})?|esguince(?: de grado [IV]+)?|herid[oa]s? (?:leve|grave)s?|ingresad[oa]\b|contusi[oó]n[^,.;]{0,20}|\d+ puntos)/i,
+    sinTerceros: /\b(?:no hay (?:nadie más|otro veh[ií]culo) implicado|nadie más ha tenido que ver|sin terceros)/i,
+    // Solo para anclar los datos de terceros y lesionados que el modelo no citó
+    terceros: /\b(?:alguien|el otro|otro coche|otra conductora|un coche)\b(?:\s(?!y\b)[a-záéíóúñ]+){0,3}/i,
+    lesionExtra: /\b(?:lesi[oó]n|me hice daño[^,.;]{0,20}|me duele[^,.;]{0,20}|dolor lumbar|fractura[^,.;]{0,20})/i,
     sinLesion: /\b(?:no hubo heridos|nadie (?:se ha hecho|ha resultado) (?:da[ñn]o|herido)|sin heridos|nadie herido)\b/i,
     docs: /\b(parte amistoso|atestado|denuncia|facturas?|presupuesto|informe(?: de [a-záéíóúñ]+)?|fotos?|tarjeta(?: sanitaria)?(?: [\d ]{9,})?|prescripci[oó]n|volante)\b/gi,
     // Solo para el motor local, que no cita: el fragmento que justifica cada regla incumplida
@@ -103,6 +109,97 @@ I18N.registrarMotor('es', {
       S7: /\breembols(?:\w|[áéíóú])+/i,
       S8: /\b(?:laboral|en el trabajo|mutua|accidente de tr[aá]fico)\b/i,
     },
+  },
+  // Entidades del mensaje (core/entidades.js). NOMBRE es el patrón de un nombre propio; las listas de pares
+  // [tipo, expresión] se prueban todas y gana la palabra más cercana a la entidad dentro de su frase.
+  entidades: {
+    // Fechas relativas a la recepción: [expresión, días que se suman]
+    relativas: [
+      [/\b(?:hoy|esta (?:mañana|tarde|noche|madrugada)|ahora mismo|acabo de)\b/gi, 0],
+      [/\b(?:ayer|anoche)\b/gi, -1],
+      [/(?<!esta |pasado |la )\bmañana\b(?! a primera| por la)/gi, 1],
+    ],
+    haceN: /\bhace\s+(?:solo\s+)?(\d+|un|una|dos|tres|cuatro|cinco|seis)\s+(d[ií]as?|semanas?)\b/gi,
+    numeros: { un: 1, una: 1, dos: 2, tres: 3, cuatro: 4, cinco: 5, seis: 6 },
+    semana: /semana/i,
+    // Hora tras la fecha: «sobre las 18:30», «a las 19h», «hacia las 23:40», «a las 9:00»
+    hora: /\b(?:sobre|hacia|a)\s+las\s+(\d{1,2})(?::(\d{2}))?\s*h?\b/i,
+    // Abreviaturas cuyo punto no cierra la frase
+    abreviaturas: /(?:\bDra?|\bSra?|\bAvda?|\bn\.º|\baprox|\bpág)$/i,
+    // Papel de cada fecha: palabra más cercana dentro de la frase. «medico» se convierte en atencion_medica (pasado)
+    // o cita_medica (futuro).
+    contexto: [
+      ['contratacion_poliza', /\bcontrat\w*|\btengo (?:la póliza )?desde\b|\bla tengo desde\b|\bcon vosotros desde\b|\bpóliza desde\b/gi],
+      ['renovacion_poliza', /\brenov\w+/gi],
+      ['permiso_conducir', /\bcarn[eé]\b|\bpermiso de conducir\b/gi],
+      ['denuncia', /\bdenuncia\w*|\bdiligencias\b|\batestado\b/gi],
+      ['ultima_estancia', /\bnos fuimos\b|\bsalimos\b|\bestuvimos fuera\b|\bhemos estado fuera\b/gi],
+      ['descubrimiento_dano', /\bal volver\b|\bnos encontramos\b|\bhemos llegado\b|\bla primera mancha\b|\bla vi\b|\bme di cuenta\b/gi],
+      ['robo', /\brob(?!les)\w+|\bnos han entrado\b|\bse han llevado\b|\bfaltaban\b|\bpara llevarse\b/gi],
+      ['cirugia', /\boper\p{L}*|\bcirug[ií]a\b/gi],
+      ['ingreso', /\bingresad[oa]\b|\bingreso\b/gi],
+      ['alta_medica', /\bel alta\b/gi],
+      ['baja_laboral', /\bde baja\b/gi],
+      ['peritacion', /\bperito\b/gi],
+      ['presupuesto', /\bpresupuest\w+/gi],
+      ['factura', /\bfactura\b/gi],
+      ['reparacion', /\bme ha dado cita\b|\btaller\b|\bcristaler[oa]\b|\bparquetista\b|\bpintor\b|\bfontanero\b|\bt[eé]cnico\b|\bme lo cambia\w*|\bme cita\b|\bme da cita\b|\bla cita ser[ií]a\b|\ble he dado cita\b/gi],
+      ['siniestro_anterior', /\bya me pas[oó]\b/gi],
+      ['medico', /\bconsulta\b|\brevisi[oó]n\b|\burgencias\b|\bme atendi[oó]\b|\bnos atiende\b|\bme vio\b|\bpediatra\b|\balerg[oó]logo\b|\bneum[oó]loga\b|\bresonancia\b|\bradiograf[ií]a\b|\becograf[ií]a\b|\bpuntos\b|\bprescrib\w+|\bprescrit\w+/gi],
+      ['accidente', /\baccidente\b|\bchoque\b|\bgolpe\b|\btoque\b|\bme dio\b|\bme ha dado por\b|\bme ha alcanzado\b|\bme hice\b|\bro[zc][oó]\b|\bme ca[ií]\b|\bse ha ca[ií]do\b|\bse cay[oó]\b|\bme sal[ií]\b|\blesi[oó]n\b|\bme he cortado\b|\bme he torcido\b|\bme hice daño\b|\bse le ha cruzado\b|\bhe dado contra\b/gi],
+      ['hecho', /\bse rompi\w+|\bse ha roto\b|\bhan roto\b|\bme rompieron\b|\brevent\w+|\btormenta\b|\bgranizo\b|\bsubida de tensi[oó]n\b|\bcorte de luz\b|\bse solt[oó]\b|\bimpacto\b|\bme ha saltado\b|\bme ray[oó]\b|\bintentado robar\b|\barrancado\b|\bcrisis\b|\bfiebre\b|\bse ha cerrado de golpe\b|\bse me ha ca[ií]do\b|\bcae agua\b|\bmancha de humedad\b|\bse ha quemado\b|\bhe roto\b|\bcay[oó] una rama\b|\breacci[oó]n al[eé]rgica\b/gi],
+    ],
+    // Personas: [expresión con el nombre en el grupo 1, papel]. Se prueban en orden; un nombre ya visto no se repite.
+    personas: (NOMBRE) => [
+      [new RegExp(`\\b(?:[Mm]e llamo|[Ss]oy|[Tt]itular:|[Mm]is datos:|a nombre de)\\s(${NOMBRE})`, 'gu'), 'tomador'],
+      [new RegExp(`\\b(?:[Ee]l otro conductor es|[Ll]a otra conductora es|[Ll]a conductora se llama)\\s(${NOMBRE})`, 'gu'), 'conductor_contrario'],
+      [new RegExp(`\\bmi (?:hijo|hija|marido|mujer|esposa?)(?:,)?\\s(${NOMBRE})`, 'gu'), 'familiar'],
+      [new RegExp(`\\b(?:[Mm]i hijo se llama|[Ee]l niño se llama|[Mm]i hija se llama)\\s(${NOMBRE})`, 'gu'), 'familiar'],
+      [new RegExp(`\\b[Mm]i acompañante se llama\\s(${NOMBRE})`, 'gu'), 'lesionado'],
+      [new RegExp(`\\b(?:[Ee]l vecino(?: de abajo| de arriba)?(?:,| se llama)|[Ll]a vecina del [^,]{1,10},|[Ee]l vecino, )\\s?(${NOMBRE})`, 'gu'), 'vecino'],
+      [new RegExp(`\\b(Dra?\\.\\s${NOMBRE})`, 'gu'), 'medico'],
+    ],
+    // Palabras que se cuelan al final de un nombre («Soy Ana Belén Cortés, la…» no, pero sí «…Pino. Póliza»)
+    finNombre: /\s(?:Póliza|DNI|Soy|Mi|Es)$/u,
+    // DNI o teléfono del propio remitente («Mi DNI es») o de otra persona ya nombrada («Su DNI es»)
+    propio: /\b(?:[Mm]i (?:DNI|tel[eé]fono|m[oó]vil)|[Mm]is datos|[Ss]oy|me llam[aé]is|ll[aá]madme|llamarme)\b[^.]{0,40}$/u,
+    ajeno: /\b[Ss]u (?:DNI|tel[eé]fono)\b[^.]{0,40}$/u,
+    // Vehículos: marca y modelo justo antes de la matrícula; palabras que no son parte del modelo; tercero
+    modelo: /((?:[\p{Lu}\d][\p{L}\d-]*|[a-z]\d+)(?:\s(?:[\p{Lu}\d][\p{L}\d-]*|[a-z]\d+)){0,2})(?:\s(?:blanco|gris|negro|rojo|azul))?,?(?:\s(?:con )?matrícula)?\s\(?$/u,
+    noModelo: ['Coche', 'Mi', 'Es', 'El', 'La', 'Moto', 'Vehículo'],
+    contrario: /\b(?:otr[oa] conductor[a]?|otro coche|conductora se llama|el coche es de otro)\b/i,
+    // Direcciones postales (con número) y carreteras
+    direcciones: DIRECCIONES_ES,
+    carretera: /\b(?:AP|[AMN])-\d{1,3}\b(?:,?\s(?:(?:en )?dirección (?:a )?(?:la )?(?:(?:AP|[AMN])-\d{1,3}|[\p{Lu}][\p{L}]+)|a la altura (?:de|del) (?:la |el )?[\p{Lu}][\p{L}]+(?:\s(?:de(?:l)?\s)?[\p{Lu}][\p{L}]+){0,3})){0,2}/gu,
+    cpMunicipio: /\b(\d{5})(?:\s([\p{Lu}][\p{L}]+(?:\s(?:de(?:l)?\s)?[\p{Lu}][\p{L}]+){0,2}))?/u,
+    tipoLugar: [
+      ['domicilio', /\bviv(?:o|imos) en\b|\bmi dirección\b|\bdomicilio\b|\bresido\b|\bmi vivienda\b|\bla vivienda\b|\bvivienda en\b|\bla casa es\b|\bmi piso\b|\bmi calle\b|\bmis datos\b|\bla dirección es\b|\bmi vivienda es\b|\bsoy\b|\bDNI\b/gi],
+      ['empresa', /\bempresa\b/gi],
+      ['lugar_hecho', /\bfue en\b|\baparcad[oa]\b|\bestaba en\b|\bfrente al\b|\biba por\b|\bimpacto\b|\ben la\b/gi],
+    ],
+    // Organizaciones: [expresión con el nombre completo en el grupo 1, tipo]
+    organizaciones: (ORG) => [
+      [new RegExp(`\\b((?:Hospital|Clínica|Centro Médico)\\s${ORG})`, 'gu'), 'centro_medico'],
+      [new RegExp(`\\b((?:Talleres|Autos|Chapa y Pintura|Carrocerías|Lunas)\\s${ORG})`, 'gu'), 'taller'],
+      [new RegExp(`\\b((?:Cristalería|Cristales|Fontanería|Parquets|Servitec|Frigoservicios)\\s${ORG})`, 'gu'), 'reparador'],
+      [new RegExp(`\\b(?:técnico|fontanero|perito) de (${ORG})`, 'gu'), 'reparador'],
+      [new RegExp(`\\b(Mutua\\s${ORG})`, 'gu'), 'aseguradora'],
+      [new RegExp(`\\b(Guardia Civil|Policía Nacional|[Cc]omisaría de ${ORG})`, 'gu'), 'policia'],
+      [new RegExp(`\\b(Eléctrica\\s${ORG})`, 'gu'), 'suministradora'],
+      [new RegExp(`\\b(Fincas\\s${ORG})`, 'gu'), 'administrador'],
+      [new RegExp(`\\b((?:Áridos|Logística|Reformas)\\s${ORG})`, 'gu'), 'empresa'],
+      [new RegExp(`\\bparking del (${ORG})`, 'gu'), 'comercio'],
+    ],
+    // Importes: concepto por la palabra más cercana dentro de la frase
+    importe: /(\d{1,3}(?:\.\d{3})+|\d+(?:,\d+)?)\s?(?:€|euros?)/gi,
+    importeNumero: (s) => Number(s.replace(/\./g, '').replace(',', '.')),
+    conceptos: [
+      ['factura', /\bfactura\b/gi],
+      ['reembolso', /\breembols\w+/gi],
+      ['valor_bienes', /\bvaldr[áa]n\b|\baprox\.|\bse han llevado\b|\bfaltaban\b/gi],
+      ['franquicia', /\bfranquicia\b/gi],
+      ['presupuesto', /\bpresupuest\w+|\bdice\b|\bestima\b|\bpropone\b|\bme pasa\b|\bson\b|\bme dicen\b|\breparación\b|\bel pintor\b|\bme ha dicho\b|\bsegún\b|\btaller\b|\bcristalero\b/gi],
+    ],
   },
   // Motor local de reglas (core/motor-local.js)
   local: {

@@ -406,7 +406,7 @@
     const m = entry.mensaje || {};
     const texto = String(m.texto || '');
     const ts = opts.timestamp || entry.timestamp || new Date().toISOString();
-    const ev = Ev ? Ev.construir(texto, entry.evidencias, entry) : { lista: [] };
+    const ev = Ev ? Ev.construir(texto, entry.evidencias, entry, { completar: false }) : { lista: [] };
     const verificadas = ev.lista.filter((e) => e.verificada && e.resaltada);
 
     // Datos personales: posición en el texto, valor en la traza y si se usó para decidir

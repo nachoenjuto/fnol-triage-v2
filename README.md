@@ -66,6 +66,10 @@ Seleccionable en el menú lateral (sección «Configuración»):
 
 La ficha de cada mensaje muestra los tokens de entrada, salida y razonamiento por paso para comparar.
 
+### Entidades del mensaje
+
+Además de los 10 campos de siempre, la extracción devuelve todas las entidades del mensaje con su cita literal: cada fecha con lo que es (accidente, robo, denuncia, contratación de la póliza, cita médica…), las personas con su papel y su DNI o NIE, teléfono y email, vehículos con matrícula, direcciones y lugares, organizaciones, identificadores (póliza, diligencias, atestado, IBAN) e importes con su concepto. La pestaña «Datos extraídos» de la ficha junta los 10 campos y estos datos por secciones: personas con su papel (tomador, contrario, vecino, médico…), histórico de fechas en orden con la recepción del mensaje en su sitio, dónde (lugar del hecho, domicilio, otras direcciones), qué ha pasado, importes, vehículos, organizaciones, referencias y documentación. Cada fila dice si es un campo de las reglas, un dato del mensaje o un dato esperado que falta (frente a `esperado.ner`); a la derecha está el mensaje original, y al pulsar un dato se marcan sus fragmentos. En «Mensaje con evidencias» cada campo con valor y cada DNI o NIE quedan resaltados, aunque el modelo no los haya citado. Sin IA las saca `core/entidades.js` con expresiones regulares; con IA, el modelo, y la plataforma descarta lo que no esté en el texto.
+
 ### Evidencias en el texto del mensaje
 
 La ficha resalta en el mensaje los fragmentos en los que se basa cada dato, el ramo y las reglas (numerados, con fondo de color oscuro y texto blanco, y con su explicación). Al pasar el ratón o hacer clic en una evidencia, el título «Evidencias» se sustituye por su tipo; la leyenda de colores se abre desde el botón «Leyenda». El prompt pide entre 5 y 12 evidencias en el campo `evidencias: [{ "ref", "cita", "nota" }]`, con citas **literales** del mensaje; [`core/evidencias.js`](core/evidencias.js) las **comprueba** en el texto (exacta o normalizada: mayúsculas, tildes, espacios, comillas) antes de resaltarlas. Una cita que no aparece se marca «no localizada» y no se resalta. Nunca se piden posiciones numéricas al modelo. Si el modelo devuelve menos de 5 verificadas (o el prompt editado no las pide), se completan a partir de los datos extraídos, de las citas entre comillas de los criterios y de patrones de fecha, hora, vehículo con matrícula, centro sanitario y lesiones («reconstruida»). El «siguiente paso recomendado» sale de una tabla fija por regla incumplida, no del modelo.
@@ -129,6 +133,7 @@ ui/                  código de pantalla, solo navegador
 
 core/                lógica pura, la misma en navegador y en Node (es lo que prueba make test)
   evidencias.js      anclado de citas, respaldo sin IA y siguiente paso
+  entidades.js       entidades del mensaje (NER): fechas con su papel, personas con DNI, vehículos, lugares, organizaciones, importes
   cumplimiento.js    _gobernanza: datos personales, explicabilidad, SHA-256, retención, termómetro
   fraude.js          motor de indicadores de fraude sin IA
   fechas.js          desplaza las fechas de la demo hasta hoy

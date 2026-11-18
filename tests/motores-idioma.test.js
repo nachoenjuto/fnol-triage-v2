@@ -41,6 +41,12 @@ for (const idioma of Object.keys(IDIOMAS).filter((i) => i !== I18N.BASE)) {
       .map((id) => `${id} ${JSON.stringify(base[id].evidencias)} ≠ ${JSON.stringify(otro[id].evidencias)}`);
     assert.deepStrictEqual(distintos, []);
   });
+  console.log(`entidades en ${idioma}`);
+  test('el motor local acierta las entidades esperadas igual que en español (±2 puntos)', () => {
+    const cob = (M) => { let a = 0; let e = 0; Object.values(M).forEach((x) => x.entidades.split(' ').filter(Boolean).forEach((g) => { const [u, v] = g.split(':')[1].split('/').map(Number); a += u; e += v; })); return a / e; };
+    const [es, otra] = [cob(base), cob(otro)];
+    assert.ok(Math.abs(es - otra) <= 0.02, `${(otra * 100).toFixed(1)} % frente a ${(es * 100).toFixed(1)} % en español`);
+  });
   console.log(`antifraude en ${idioma}`);
   test('misma puntuación, nivel e indicadores, activados por el mismo número de frases', () => {
     const distintos = traducidos.filter((id) => otro[id].fraude !== base[id].fraude).map((id) => `${id} ${base[id].fraude} ≠ ${otro[id].fraude}`);

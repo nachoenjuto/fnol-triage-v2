@@ -636,7 +636,7 @@
   // Etiquetas y colores de cada tipo de evidencia
   const REF_LABEL = {
     numero_poliza: I18N.t('triaje.no_de_poliza'), tipo_siniestro: I18N.t('triaje.tipo_de_siniestro'), fecha_hecho: I18N.t('triaje.fecha_del_hecho'), importe_estimado_eur: I18N.t('triaje.importe'), lugar: I18N.t('triaje.lugar'),
-    nombre_cliente: I18N.t('triaje.cliente'), documentacion_mencionada: I18N.t('triaje.documentacion'), lesionados: I18N.t('triaje.lesionados'), terceros_implicados: I18N.t('triaje.terceros'), observaciones: I18N.t('triaje.observaciones'), ramo: I18N.t('triaje.ramo'),
+    nombre_cliente: I18N.t('triaje.cliente'), dni: I18N.t('triaje.ent.col.dni'), documentacion_mencionada: I18N.t('triaje.documentacion'), lesionados: I18N.t('triaje.lesionados'), terceros_implicados: I18N.t('triaje.terceros'), observaciones: I18N.t('triaje.observaciones'), ramo: I18N.t('triaje.ramo'),
   };
   function refInfo(ref, entry) {
     if (String(ref).startsWith('regla:')) {
@@ -695,7 +695,7 @@
     const lista = ev.lista.map((e) => {
       const info = refInfo(e.ref, entry);
       const tag = !e.verificada ? I18N.t('triaje.no_localizada')
-        : e.origen === 'respaldo' ? I18N.t('triaje.reconstruida')
+        : e.origen === 'respaldo' || e.origen === 'completado' ? I18N.t('triaje.reconstruida')
         : I18N.t('triaje.verificada');
       return `<li class="ev-item ${info.clase}${e.resaltada ? '' : ' ev-sin'}" data-n="${e.n}"><span class="ev-num">${e.n}</span><div><strong>${escapeHtml(info.label)}</strong> <q>${escapeHtml(e.cita)}</q>${e.nota ? `<small>${escapeHtml(e.nota)}</small>` : ''}</div>${tag}</li>`;
     }).join('') + faltan.map((k) => `<li class="ev-item ev-falta"><span class="ev-num">–</span><div><strong>${escapeHtml(REF_LABEL[k])}</strong><small>${I18N.t('triaje.no_consta_en_el')}</small></div></li>`).join('');
@@ -710,6 +710,155 @@
     });
     $('modal-evid-resumen').textContent = resumen;
     $('modal-evid').innerHTML = lista;
+  }
+
+  // Pestaña «Datos extraídos»: los 10 campos que usan las reglas y los datos del mensaje (entidades, core/entidades.js)
+  // en una sola vista, agrupados por quién, cuándo, dónde, qué, cuánto… Cada fila dice si es un campo, un dato o un
+  // dato esperado que falta; debajo, el mensaje con los campos en verde, los datos en morado y las fechas en ámbar.
+  const sinTildes = (s) => String(s || '').normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase();
+  const entTipo = (g, v) => (v ? I18N.t(`triaje.ent.${g}.${v}`) : '—');
+  const GRUPO_CLAVE = { fecha: 'fechas', persona: 'personas', vehiculo: 'vehiculos', lugar: 'lugares', organizacion: 'organizaciones', id: 'identificadores', importe: 'importes' };
+  // Clave de una entidad esperada («persona|vecino|pilar sanz ortega») en palabras
+  function claveEnPalabras(k) {
+    const [g, t, ...v] = k.split('|');
+    const grupo = GRUPO_CLAVE[g];
+    if (!grupo) return `${I18N.t(`triaje.ent.col.${g}`)} ${t}`;
+    const valor = g === 'fecha' && v[0] !== '?' ? fechaCorta(v[0]) : g === 'importe' ? fmtEur(Number(v[0]))
+      : g === 'persona' ? v.join(' ').replace(/(^|\s)\p{Ll}/gu, (x) => x.toUpperCase()) : v.join(' ');
+    return `${entTipo(grupo, t)}: ${valor === '?' ? '—' : valor}`;
+  }
+  const fechaCorta = (f, precision) => I18N.fmt.fecha(`${f}T12:00:00`, precision === 'aproximada' ? { month: 'long', year: 'numeric' } : { day: 'numeric', month: 'short', year: 'numeric' });
+  const mismoNombre = (a, b) => { const x = sinTildes(a).replace(/^dra?\.?\s+/, ''); const y = sinTildes(b).replace(/^dra?\.?\s+/, ''); return !!x && !!y && (x === y || x.startsWith(`${y} `) || y.startsWith(`${x} `)); };
+  const palabras = (s) => new Set(sinTildes(s).split(/[^a-z0-9ñ]+/).filter((w) => w.length >= 4));
+  const parecido = (a, b) => { const p = palabras(a); return [...palabras(b)].some((w) => p.has(w)); };
+
+  function pintarEntidades(entry, m) {
+    const t = m.texto;
+    const d = entry.datos_extraidos || {};
+    const ent = d.entidades || Object.fromEntries(Entidades.GRUPOS.map((g) => [g, []]));
+    const local = entry.entidades_origen === 'motor local' || !/^IA/.test(entry.origen || '');
+    // Resumen: cuántos datos, quién los extrajo y exactitud frente a lo esperado
+    let resumen = I18N.t('triaje.ent.resumen', { n: Entidades.total(ent), origen: local ? I18N.t('triaje.ent.origen_local') : I18N.t('triaje.ent.origen_modelo') });
+    const ner = (m.esperado || entry.esperado || {}).ner;
+    const cmp = Array.isArray(ner) && ner.length ? Entidades.comparar(ner, ent) : null;
+    if (cmp) resumen += I18N.t('triaje.ent.exactitud', { acertadas: cmp.acertadas, esperadas: cmp.esperadas, pct: I18N.fmt.pct(cmp.cobertura || 0, 0) });
+    $('ent-resumen').textContent = resumen;
+    $('ent-leyenda').innerHTML = [['campo', 'triaje.dat.ley_campo'], ['dato', 'triaje.dat.ley_dato'], ['fecha', 'triaje.dat.ley_fecha'], ['falta', 'triaje.dat.ley_falta']]
+      .map(([k, l]) => `<li><span class="dpill dpill-${k}">${I18N.t(`triaje.dat.${k}`)}</span>${I18N.t(l)}</li>`).join('');
+
+    // Evidencias verdes de cada campo (las mismas de la pestaña «Mensaje»): se usan para marcar el texto
+    const evs = Evidencias.construir(t, entry.evidencias, entry).lista.filter((e) => e.resaltada);
+    const citasDe = (ref) => evs.filter((e) => e.ref === ref).map((e) => e.cita);
+    // Filas: { sec, etiqueta, html, marca, citas, orden }
+    const filas = []; const usadas = new Set();
+    const fila = (sec, etiqueta, html, marca, citas = [], orden = 0) => filas.push({ sec, etiqueta, html, marca, citas: citas.filter(Boolean), orden });
+    const contacto = (x) => [x.dni ? `${I18N.t('triaje.ent.col.dni')} ${escapeHtml(x.dni)}${Entidades.dniValido(x.dni) ? '' : ` ${lucide('triangle-alert')}`}` : '', x.telefono && escapeHtml(x.telefono), x.email && escapeHtml(x.email)].filter(Boolean);
+    const citasPersona = (x) => [x.cita || x.nombre_propio, x.dni, x.telefono, x.email];
+
+    // Personas: una fila por persona con su papel como etiqueta; el cliente del campo, con el suyo
+    const clienteNombre = String(d.nombre_cliente || '').replace(/\s*\(.*$/, '');
+    const cliente = (ent.personas || []).find((x) => mismoNombre(x.nombre_propio, clienteNombre));
+    if (d.nombre_cliente) {
+      if (cliente) usadas.add(cliente);
+      fila('personas', cliente ? entTipo('personas', cliente.rol) : I18N.t('triaje.cliente'), [escapeHtml(d.nombre_cliente), ...(cliente ? contacto(cliente) : [])].join(' · '), 'campo', [...citasDe('nombre_cliente'), ...(cliente ? citasPersona(cliente) : [clienteNombre])]);
+    }
+    (ent.personas || []).filter((x) => !usadas.has(x)).forEach((x) => fila('personas', entTipo('personas', x.rol), [escapeHtml(x.nombre_propio), ...contacto(x)].join(' · '), 'dato', citasPersona(x)));
+
+    // Histórico de fechas: todas en orden, con la recepción del mensaje en su sitio y lo que va después (citas previstas)
+    const recep = m.fecha_recepcion.slice(0, 10);
+    const hecho = (ent.fechas || []).find((f) => f.fecha === d.fecha_hecho && ['accidente', 'robo', 'hecho', 'descubrimiento_dano'].includes(f.tipo)) || (ent.fechas || []).find((f) => f.fecha === d.fecha_hecho);
+    const cuando = (f, hora, precision) => `${escapeHtml(f ? fechaCorta(f, precision) : I18N.t('triaje.ent.sin_fecha'))}${hora ? ` · ${hora}` : ''}`;
+    if (d.fecha_hecho) {
+      if (hecho) usadas.add(hecho);
+      const dias = Math.round((Date.parse(recep) - Date.parse(d.fecha_hecho)) / 864e5);
+      fila('fechas', hecho ? entTipo('fechas', hecho.tipo) : I18N.t('triaje.fecha_del_hecho'), `<b>${cuando(d.fecha_hecho, hecho && hecho.hora)}</b> · ${I18N.t('triaje.dat.dias_hasta', { n: dias })}`, 'campo', [...citasDe('fecha_hecho'), hecho && hecho.cita], `${d.fecha_hecho}${hecho && hecho.hora ? hecho.hora : '00:00'}`);
+    }
+    (ent.fechas || []).filter((f) => !usadas.has(f)).forEach((f) => fila('fechas', entTipo('fechas', f.tipo),
+      `${cuando(f.fecha, f.hora, f.precision)}${f.precision && f.precision !== 'exacta' ? ` <span class="muted">(${escapeHtml(entTipo('precision', f.precision))})</span>` : ''} <q>${escapeHtml(f.cita || '')}</q>`, 'fecha', [f.cita], f.fecha ? `${f.fecha}${f.hora || '00:00'}` : '9999'));
+    fila('fechas', I18N.t('triaje.ent.recepcion'), `${cuando(recep, m.fecha_recepcion.slice(11, 16))} · ${escapeHtml(CANAL_LABEL[m.canal] || m.canal)}`, 'recepcion', [], `${recep}${m.fecha_recepcion.slice(11, 16)}~`);
+
+    // Dónde: lugar del hecho, domicilio y otras direcciones; el lugar del campo casa con el del hecho antes que con el
+    // domicilio, y no basta con compartir el municipio
+    const sinMunicipio = (s, mu) => (mu ? String(s).split(mu).join(' ') : String(s));
+    const lugarCampo = d.lugar ? [...(ent.lugares || [])].sort((a, b) => (b.tipo === 'lugar_hecho') - (a.tipo === 'lugar_hecho')).find((x) => parecido(sinMunicipio(x.lugar, x.municipio), sinMunicipio(d.lugar, x.municipio))) : null;
+    if (d.lugar) { if (lugarCampo) usadas.add(lugarCampo); fila('lugares', entTipo('lugares', lugarCampo ? lugarCampo.tipo : 'lugar_hecho'), escapeHtml(d.lugar), 'campo', [...citasDe('lugar'), lugarCampo && lugarCampo.cita]); }
+    const ORDEN_LUGAR = ['lugar_hecho', 'domicilio', 'centro_medico', 'taller', 'comisaria', 'empresa', 'otro'];
+    [...(ent.lugares || [])].filter((x) => !usadas.has(x)).sort((a, b) => ORDEN_LUGAR.indexOf(a.tipo) - ORDEN_LUGAR.indexOf(b.tipo))
+      .forEach((x) => fila('lugares', entTipo('lugares', x.tipo), `${escapeHtml(x.lugar)}${x.municipio && !x.lugar.includes(x.municipio) ? ` · ${escapeHtml(x.municipio)}` : ''}`, 'dato', [x.cita]));
+
+    // Qué ha pasado
+    if (d.tipo_siniestro) fila('que', I18N.t('triaje.tipo_de_siniestro'), escapeHtml(d.tipo_siniestro), 'campo', citasDe('tipo_siniestro'));
+    if (d.terceros_implicados != null) fila('que', I18N.t('triaje.terceros_implicados'), fmtValue(d.terceros_implicados), 'campo', citasDe('terceros_implicados'));
+    if (d.lesionados != null) fila('que', I18N.t('triaje.lesionados'), fmtValue(d.lesionados), 'campo', citasDe('lesionados'));
+
+    // Importes: el total del campo y cada importe con su concepto
+    if (d.importe_estimado_eur != null) fila('importes', I18N.t('triaje.importe_estimado'), `<b>${fmtEur(d.importe_estimado_eur)}</b>`, 'campo', citasDe('importe_estimado_eur'));
+    (ent.importes || []).forEach((x) => fila('importes', entTipo('importes', x.concepto), fmtEur(x.importe), 'dato', [x.cita]));
+    // Vehículos y organizaciones
+    (ent.vehiculos || []).forEach((x) => fila('vehiculos', I18N.t(`triaje.dat.vehiculo.${x.rol}`), `${escapeHtml(x.matricula)}${x.modelo_vehiculo ? ` · ${escapeHtml(x.modelo_vehiculo)}` : ''}`, 'dato', [x.cita, x.matricula]));
+    (ent.organizaciones || []).forEach((x) => fila('organizaciones', entTipo('organizaciones', x.tipo), escapeHtml(x.organizacion), 'dato', [x.cita]));
+    // Referencias, documentación y notas
+    if (d.numero_poliza) fila('referencias', I18N.t('triaje.no_de_poliza'), escapeHtml(d.numero_poliza), 'campo', [...citasDe('numero_poliza'), d.numero_poliza]);
+    (ent.identificadores || []).filter((x) => !(x.tipo === 'poliza' && x.codigo === d.numero_poliza)).forEach((x) => fila('referencias', entTipo('identificadores', x.tipo), escapeHtml(x.codigo), 'dato', [x.cita]));
+    if ((d.documentacion_mencionada || []).length) fila('papeles', I18N.t('triaje.documentacion_mencionada'), escapeHtml(d.documentacion_mencionada.join(' · ')), 'campo', citasDe('documentacion_mencionada'));
+    if (d.observaciones) fila('papeles', I18N.t('triaje.observaciones'), escapeHtml(d.observaciones), 'campo');
+    // Lo esperado que no se extrajo, en su sección y con su papel
+    if (cmp) cmp.faltan.forEach((k) => {
+      const [g, tipo] = k.split('|'); const grupo = GRUPO_CLAVE[g];
+      const sec = grupo || (['dni', 'telefono', 'email'].includes(g) ? 'personas' : 'referencias');
+      const valor = claveEnPalabras(k).replace(/^[^:]*:\s*/, '');
+      fila(sec, grupo ? entTipo(grupo, tipo) : I18N.t(`triaje.ent.col.${g}`), escapeHtml(grupo ? valor : tipo), 'falta', [], g === 'fecha' ? `${k.split('|')[2]}` : 0);
+    });
+
+    // Pintado por secciones; el histórico de fechas, en orden cronológico
+    const SECCIONES = ['personas', 'fechas', 'lugares', 'que', 'importes', 'vehiculos', 'organizaciones', 'referencias', 'papeles'];
+    let n = 0;
+    $('ent-filas').innerHTML = SECCIONES.map((sec) => {
+      const lista = filas.filter((f) => f.sec === sec);
+      if (sec === 'fechas') lista.sort((a, b) => String(a.orden).localeCompare(String(b.orden)));
+      if (!lista.length) return '';
+      return `<section class="dsec"><h4>${I18N.t(`triaje.dat.sec.${sec}`)}</h4>${lista.map((f) => { f.id = n++; return `<div class="dfila${f.marca === 'recepcion' ? ' dfila-recep' : ''}${f.citas.length ? ' dfila-sel' : ''}" data-fila="${f.id}"${f.citas.length ? ' tabindex="0" role="button"' : ''}><span class="dgrupo">${escapeHtml(f.etiqueta)}</span><span class="dvalor">${f.html}</span>${f.marca === 'recepcion' ? '<span></span>' : `<span class="dpill dpill-${f.marca}">${I18N.t(`triaje.dat.${f.marca}`)}</span>`}</div>`; }).join('')}</section>`;
+    }).join('') || `<p class="small muted">${I18N.t('triaje.ent.sin_entidades')}</p>`;
+
+    // Mensaje original: cada fila marca sus fragmentos (primero los campos, luego los datos), sin solaparse
+    const tramos = [];
+    const libre = (i, f) => !tramos.some((y) => i < y.fin && y.inicio < f);
+    const colocar = (cita, clase, fid, titulo) => {
+      if (!cita) return;
+      if (!t.includes(cita) && /^Dra?\.\s/.test(cita)) cita = cita.replace(/^Dra?\.\s/, '');
+      let i = t.indexOf(cita);
+      while (i >= 0 && !libre(i, i + cita.length)) i = t.indexOf(cita, i + 1);
+      if (i >= 0) { tramos.push({ inicio: i, fin: i + cita.length, clase, fids: [fid], titulo }); return; }
+      // Dentro de un fragmento ya marcado («el otro conductor es Raúl Méndez»): ese fragmento sirve también para este dato
+      const j = t.indexOf(cita); const dentro = j >= 0 && tramos.find((y) => y.inicio <= j && j + cita.length <= y.fin);
+      if (dentro && !dentro.fids.includes(fid)) dentro.fids.push(fid);
+    };
+    const prioridad = { campo: 0, dato: 1, fecha: 2, falta: 3, recepcion: 4 };
+    [...filas].sort((a, b) => prioridad[a.marca] - prioridad[b.marca])
+      .forEach((f) => f.citas.forEach((c) => colocar(c, f.marca === 'campo' ? 'campo' : f.marca === 'fecha' ? 'fecha' : 'dato', f.id, f.etiqueta)));
+    tramos.sort((a, b) => a.inicio - b.inicio);
+    const cont = $('ent-texto'); cont.replaceChildren();
+    let pos = 0;
+    tramos.forEach((x) => {
+      if (x.inicio > pos) cont.append(document.createTextNode(t.slice(pos, x.inicio)));
+      const mk = Object.assign(document.createElement('mark'), { className: `dmark dmark-${x.clase}`, title: x.titulo });
+      mk.dataset.fila = x.fids[0]; mk.dataset.filas = x.fids.join(' '); mk.textContent = t.slice(x.inicio, x.fin);
+      cont.append(mk); pos = x.fin;
+    });
+    cont.append(document.createTextNode(t.slice(pos)));
+  }
+
+  // Seleccionar una fila resalta sus fragmentos en el mensaje original (y al revés)
+  function seleccionarDato(fid) {
+    const panel = $('tab-datos');
+    const ya = fid != null && panel.querySelector(`.dfila[data-fila="${fid}"].d-sel`);
+    panel.querySelectorAll('.d-sel').forEach((x) => x.classList.remove('d-sel'));
+    if (fid == null || ya) return;
+    panel.querySelectorAll(`.dfila[data-fila="${fid}"]`).forEach((x) => x.classList.add('d-sel'));
+    const marcas = [...panel.querySelectorAll('mark.dmark')].filter((x) => x.dataset.filas.split(' ').includes(String(fid)));
+    marcas.forEach((x) => x.classList.add('d-sel'));
+    const mk = marcas[0];
+    if (mk) mk.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
   }
 
   // Bloque _gobernanza de una decisión (determinista: se recalcula y se guarda en la propia entrada)
@@ -1043,8 +1192,7 @@
       [I18N.t('triaje.recibido'), new Date(m.fecha_recepcion).toLocaleString(I18N.locale)],
       [I18N.t('triaje.asunto'), escapeHtml(m.asunto)],
     ]);
-    const keys = [...Object.keys(DATOS_LABELS), ...Object.keys(datos).filter((k) => !DATOS_LABELS[k])];
-    $('modal-datos').innerHTML = kv(keys.filter((k) => k in datos).map((k) => [DATOS_LABELS[k] || k, k === 'importe_estimado_eur' ? fmtEur(datos[k]) : fmtValue(datos[k])]));
+    pintarEntidades(entry, m);
 
     const ramoOk = esperado.ramo ? (esperado.ramo === entry.ramo ? `<span class="mark ok">${lucide('check')} ${I18N.t('triaje.coincide_2')}</span>` : `<span class="mark ko">${lucide('x')} ${I18N.t('triaje.esperado_2', { ramo: escapeHtml(I18N.etiqueta('ramo', esperado.ramo)) })}</span>`) : '';
     const colorRamo = { Auto: 'var(--auto)', Hogar: 'var(--hogar)', Salud: 'var(--salud)' }[entry.ramo] || 'var(--muted)';
@@ -1115,6 +1263,15 @@
     }
   }
 
+  // Entidades del modelo validadas contra el mensaje (citas literales, catálogos, fechas ISO); si no las devuelve o
+  // ninguna es válida, las del motor local, y la ficha lo dice
+  function conEntidades(r, msg) {
+    const d = r.datos_extraidos || {};
+    const v = Entidades.validar(d.entidades, msg);
+    const delModelo = !!v && Entidades.total(v) > 0;
+    return { ...r, datos_extraidos: { ...d, entidades: delModelo ? v : Entidades.detectar(msg) }, entidades_origen: delModelo ? 'modelo' : 'motor local' };
+  }
+
   async function triageOne(msg, cfg, onProgress) {
     if (state.motor === 'guardado') {
       const guardado = RESULTADOS_GUARDADOS[msg.id];
@@ -1138,7 +1295,7 @@
       return { ...localTriage(msg), origen: 'reglas locales' };
     }
     try {
-      return { ...(await aiTriage(msg, cfg, onProgress)), origen: 'IA' };
+      return { ...conEntidades(await aiTriage(msg, cfg, onProgress), msg), origen: 'IA' };
     } catch (err) {
       if (err instanceof PermanentError) throw err; // credenciales/endpoint mal: abortar lote
       console.warn('[triage][llm] fallback a reglas locales', msg.id, err.message);
@@ -1203,6 +1360,7 @@
           criterios_ramo: result.criterios_ramo || [],
           pasos: result.pasos || null,
           datos_extraidos: result.datos_extraidos,
+          entidades_origen: result.entidades_origen || (/^IA/.test(result.origen || '') ? 'modelo' : 'motor local'),
           evidencias: result.evidencias || [],
           raw: result.raw || null,
           seudonimizacion: result.seudonimizacion || null,
@@ -1448,6 +1606,9 @@
     $('modal-prev').addEventListener('click', () => navegarModal(-1));
     $('modal-next').addEventListener('click', () => navegarModal(1));
     $('modal-tabs').addEventListener('click', (ev) => { const b = ev.target.closest('.ficha-tab'); if (b) setTab(b.dataset.tab); });
+    // Datos extraídos: una fila o un fragmento marcado seleccionan el dato en las dos columnas
+    $('tab-datos').addEventListener('click', (ev) => { const el = ev.target.closest('[data-fila]'); if (el || ev.target.closest('#ent-filas, #ent-texto')) seleccionarDato(el ? el.dataset.fila : null); });
+    $('tab-datos').addEventListener('keydown', (ev) => { const el = ev.target.closest('.dfila[data-fila]'); if (el && (ev.key === 'Enter' || ev.key === ' ')) { ev.preventDefault(); seleccionarDato(el.dataset.fila); } });
     $('modal').addEventListener('keydown', (ev) => {
       if (ev.target.closest('input, textarea, select')) return;
       if (ev.key === 'ArrowLeft') { ev.preventDefault(); navegarModal(-1); } else if (ev.key === 'ArrowRight') { ev.preventDefault(); navegarModal(1); }

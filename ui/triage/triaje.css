@@ -451,6 +451,33 @@ mark.ev.is-on { box-shadow: 0 0 0 2px var(--surface), 0 0 0 4px var(--es); filte
 @keyframes ficha-in { from { opacity: 0; transform: translateY(3px); } }
 
 .kv-wide { grid-template-columns: max-content 1fr; gap: .5rem 1.5rem; font-size: .9rem; }
+/* Pestaña Datos extraídos: campos (verde), datos del mensaje (morado), fechas (ámbar) y lo esperado que falta (rojo) */
+:root { --dcampo: var(--ok); --ddato: var(--hogar); --dfecha: var(--review); --dfalta: var(--error); }
+.ent-leyenda { list-style: none; margin: 0 0 .6rem; padding: 0; display: flex; flex-wrap: wrap; gap: .35rem 1.1rem; font-size: .78rem; color: var(--muted); }
+.ent-leyenda li { display: inline-flex; align-items: center; gap: .4rem; }
+.dlayout { display: grid; grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr); gap: 0 1.5rem; align-items: start; }
+.daside { position: sticky; top: 0; }
+@media (max-width: 900px) { .dlayout { grid-template-columns: 1fr; } .daside { position: static; } }
+.dsecciones { display: grid; gap: .6rem; }
+.dsec { background: var(--bg); border: 1px solid var(--border); border-radius: 5px; padding: .35rem .75rem .45rem; }
+.dsec h4 { margin: .2rem 0 .25rem; font-size: .78rem; text-transform: uppercase; letter-spacing: .05em; color: var(--muted); }
+.dfila-sel { cursor: pointer; border-radius: 4px; }
+.dfila-sel:hover { background: color-mix(in srgb, var(--primary) 6%, transparent); }
+.dfila.d-sel { background: color-mix(in srgb, var(--primary) 12%, transparent); box-shadow: inset 3px 0 0 var(--primary); }
+.dfila-recep .dgrupo, .dfila-recep .dvalor { color: var(--primary); font-weight: 600; }
+mark.dmark.d-sel { outline: 2px solid var(--gc); outline-offset: 1px; filter: brightness(1.05); background: color-mix(in srgb, var(--gc) 32%, transparent); }
+.ev-explica { margin: 0 0 .4rem; color: var(--muted); }
+.dfila { display: grid; grid-template-columns: 10rem minmax(0, 1fr) auto; gap: .4rem .9rem; align-items: baseline; padding: .3rem .35rem; font-size: .88rem; }
+.dgrupo { color: var(--muted); font-size: .8rem; }
+.dvalor { overflow-wrap: anywhere; }
+.dvalor q { color: var(--muted); font-size: .8rem; }
+.dvalor svg.lucide-svg { color: var(--error); }
+.dpill { font-size: .72rem; font-weight: 600; padding: .05rem .45rem; border-radius: 4px; white-space: nowrap; border: 1px solid currentColor; }
+.dpill-campo { color: var(--dcampo); } .dpill-dato { color: var(--ddato); } .dpill-fecha { color: var(--dfecha); } .dpill-falta { color: var(--dfalta); }
+@media (max-width: 640px) { .dfila { grid-template-columns: 1fr auto; } .dgrupo { grid-column: 1 / -1; } }
+.ent-texto { line-height: 1.85; font-size: .9rem; white-space: pre-wrap; background: var(--bg); border: 1px solid var(--border); border-radius: 5px; padding: .75rem; }
+mark.dmark { color: inherit; border-radius: 2px; padding: 0 1px; cursor: help; -webkit-box-decoration-break: clone; box-decoration-break: clone; background: color-mix(in srgb, var(--gc) 16%, transparent); border-bottom: 2px solid var(--gc); }
+mark.dmark-campo { --gc: var(--dcampo); } mark.dmark-dato { --gc: var(--ddato); } mark.dmark-fecha { --gc: var(--dfecha); }
 
 /* Cabecera de la columna Evidencias: el título se sustituye por el tipo activo y «Leyenda» abre un popover */
 .ev-head { display: flex; align-items: center; justify-content: space-between; gap: .6rem; position: relative; }

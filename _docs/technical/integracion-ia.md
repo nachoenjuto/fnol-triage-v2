@@ -87,14 +87,14 @@ Todos los textos están en `core/prompts.js`, fuera de la lógica:
 | Constante | Bloque editable | Contenido |
 |---|---|---|
 | `PROMPT_RAMO` | `ramo` | clasificación de ramo (paso 1 de la estrategia de dos pasos) |
-| `PROMPT_BASE` | `base` | tarea, extracción, formato JSON y reglas de las evidencias |
+| `PROMPT_BASE` | `base` | tarea, extracción (10 campos y `entidades`), formato JSON, catálogo de tipos de fecha y papeles, y reglas de las evidencias |
 | `REGLAS_AUTO` | `auto` | A1–A8 |
 | `REGLAS_HOGAR` | `hogar` | H1–H9 |
 | `REGLAS_SALUD` | `salud` | S1–S8 |
 | `PROMPT_SEUDONIMOS` | — | aviso que se añade al mensaje de usuario cuando va seudonimizado |
-| `PROMPT_VERSION` | — | `'reglas v2.3'`, se registra en cada traza |
+| `PROMPT_VERSION` | — | `'reglas v2.4'` (v2.4 añade las entidades), se registra en cada traza |
 
-Los cinco bloques se editan en el menú lateral y se guardan en `sessionStorage['triage.prompts']`. La llamada usa siempre el texto vigente. Editar un bloque no cambia `PROMPT_VERSION`, así que una traza hecha con un prompt editado se registra igualmente como «reglas v2.3».
+Los cinco bloques se editan en el menú lateral y se guardan en `sessionStorage['triage.prompts']`. La llamada usa siempre el texto vigente. Editar un bloque no cambia `PROMPT_VERSION`, así que una traza hecha con un prompt editado se registra igualmente como «reglas v2.4».
 
 - `buildSystemPrompt(bloques, ramo)` concatena `base` con el bloque del ramo, o con los tres si `ramo` es `null`.
 - `buildUserPrompt(mensaje, ramoPrevio, seudonimizado)` arma canal, fecha de recepción, remitente, asunto y el texto entre `"""`. No incluye `esperado`, `id` ni los adjuntos.

@@ -9,6 +9,7 @@ make test
 | Suite | Casos | Módulo | Qué fija |
 |---|---|---|---|
 | `tests/evidencias.test.js` | 22 | `core/evidencias.js` | localización exacta y normalizada, rechazo de paráfrasis, respaldo, siguiente paso |
+| `tests/entidades.test.js` | 14 | `core/entidades.js` | letra del DNI, formatos al 100 %, papel de cada fecha, dueño de cada DNI, citas literales de los resultados guardados, fallos previstos de la extracción, validación de la respuesta del modelo |
 | `tests/cumplimiento.test.js` | 28 | `core/cumplimiento.js` | SHA-256, detección de datos personales, seudonimización, `_gobernanza`, cadena, termómetro, override |
 | `tests/fraude.test.js` | 18 | `core/fraude.js` | scores y niveles del Paquete A, cruces, indicadores nuevos, G-12, caps antifraude |
 | `tests/fechas.test.js` | 11 | `core/fechas.js` | formatos de fecha, día de la semana, cambio de año, corte de la mañana, citas literales |

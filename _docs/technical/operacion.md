@@ -47,7 +47,7 @@ Los módulos se comunican por variables globales, así que el orden de las etiqu
 
 ```text
 ui/shared/icons.js → data/generated/recorrido.js → ui/shared/shell.js → data/demo/mensajes.js → data/demo/resultados.js → data/demo/fraude.js
-→ core/fechas.js → core/prompts.js → core/evidencias.js → core/cumplimiento.js → core/fraude.js → core/adjuntos.js → ui/triage/triaje.js
+→ core/fechas.js → core/prompts.js → core/evidencias.js → core/cumplimiento.js → core/fraude.js → core/adjuntos.js → core/entidades.js → core/motor-local.js → core/registro.js → ui/triage/triaje.js
 ```
 
 En `gobierno.html`, igual pero con `data/demo/gobierno.js` antes de `data/demo/fraude.js`, sin `core/adjuntos.js`, con `core/ahorro.js` y `ui/governance/gobierno.js` al final. Dos dependencias obligatorias:

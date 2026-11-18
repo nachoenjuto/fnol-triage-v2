@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title data-i18n="triaje.pagina.fnol_primer_aviso_de"></title>
   <meta name="description" data-i18n-attr="content:triaje.pagina.demo_de_triaje_multicanal">
-  <link rel="stylesheet" href="ui/triage/triaje.css?v=55">
+  <link rel="stylesheet" href="ui/triage/triaje.css?v=58">
   <link rel="stylesheet" href="ui/shared/shell.css?v=59">
   <link rel="stylesheet" href="ui/shared/cumplimiento.css?v=37">
   <!-- Menú lateral plegado antes de pintar (ui/shared/shell.js · CLAVE) -->
@@ -292,6 +292,7 @@
                 <p class="small muted"><span data-i18n="triaje.ev_pop.etiquetas"></span> <span class="ev-tag ok" data-i18n="triaje.ev_pop.verificada"></span> <span data-i18n="triaje.ev_pop.el_modelo_la_cito"></span> <span class="ev-tag aprox" data-i18n="triaje.ev_pop.reconstruida"></span> <span data-i18n="triaje.ev_pop.deducida_de_los_datos"></span> <span class="ev-tag ko" data-i18n="triaje.ev_pop.no_localizada"></span> <span data-i18n="triaje.ev_pop.la_cita_no_aparece"></span></p>
               </div>
             </div>
+            <p class="small ev-explica" data-i18n="triaje.tab_mensaje.que_es_una_evidencia"></p>
             <p class="small muted" id="modal-evid-resumen"></p>
             <ol id="modal-evid" class="ev-list"></ol>
           </div>
@@ -308,8 +309,19 @@
         </div>
       </section>
       <section class="ficha-panel" id="tab-datos" role="tabpanel" hidden>
-        <h3 data-i18n="triaje.tab_datos.datos_extraidos"></h3>
-        <div class="box"><dl id="modal-datos" class="kv kv-wide"></dl></div>
+        <div class="dlayout">
+          <div class="dcol">
+            <h3 data-i18n="triaje.tab_datos.datos_extraidos"></h3>
+            <p class="small muted" id="ent-resumen"></p>
+            <div id="ent-filas" class="dsecciones"></div>
+          </div>
+          <aside class="dcol daside">
+            <h3 data-i18n="triaje.tab_datos.mensaje_original"></h3>
+            <ul class="ent-leyenda" id="ent-leyenda" data-i18n-attr="aria-label:triaje.tab_datos.tipos_de_entidad"></ul>
+            <div id="ent-texto" class="msg-text ent-texto"></div>
+            <p class="small muted" data-i18n="triaje.tab_datos.pulsa_un_dato"></p>
+          </aside>
+        </div>
       </section>
       <section class="ficha-panel" id="tab-reglas" role="tabpanel" hidden>
         <h3 id="modal-reglas-h" data-i18n="triaje.modal_reglas_h.reglas_de_negocio_del"></h3>
@@ -361,23 +373,24 @@
   </dialog>
 
   <script src="locales/idiomas.js?v=2"></script>
-  <script src="core/i18n/i18n.js?v=5"></script>
-  <script src="core/i18n/cargar.js?v=24"></script>
+  <script src="core/i18n/i18n.js?v=6"></script>
+  <script src="core/i18n/cargar.js?v=27"></script>
   <script src="ui/shared/icons.js?v=41"></script>
   <script src="data/generated/recorrido.js?v=50"></script>
   <script src="ui/shared/shell.js?v=74"></script>
-  <script src="data/demo/mensajes.js?v=37"></script>
-  <script src="data/demo/resultados.js?v=37"></script>
+  <script src="data/demo/mensajes.js?v=39"></script>
+  <script src="data/demo/resultados.js?v=39"></script>
   <script src="data/demo/fraude.js?v=37"></script>
-  <script src="core/prompts.js?v=37"></script>
+  <script src="core/prompts.js?v=38"></script>
   <script src="core/i18n/traducir-datos.js?v=1"></script>
   <script src="core/fechas.js?v=37"></script>
-  <script src="core/evidencias.js?v=40"></script>
-  <script src="core/cumplimiento.js?v=46"></script>
+  <script src="core/evidencias.js?v=42"></script>
+  <script src="core/cumplimiento.js?v=47"></script>
   <script src="core/fraude.js?v=39"></script>
   <script src="core/adjuntos.js?v=2"></script>
-  <script src="core/motor-local.js?v=3"></script>
+  <script src="core/entidades.js?v=2"></script>
+  <script src="core/motor-local.js?v=4"></script>
   <script src="core/registro.js?v=2"></script>
-  <script src="ui/triage/triaje.js?v=61"></script>
+  <script src="ui/triage/triaje.js?v=66"></script>
 </body>
 </html>

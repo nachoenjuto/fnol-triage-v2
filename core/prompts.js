@@ -20,7 +20,7 @@ const PROMPT_BASE = `Eres un tramitador senior del departamento de siniestros de
 Recibes un mensaje de un cliente (email, formulario web, chat o transcripción telefónica) y debes hacer el triaje:
 
 1. CLASIFICAR EL RAMO del mensaje: "Auto", "Hogar" o "Salud". Si el mensaje afecta a varios ramos, elige el ramo principal según el bien dañado o la prestación solicitada y explícalo en el motivo. Si no puede determinarse, usa "Indeterminado" y envía a revisión.
-2. EXTRAER LOS DATOS del texto. Usa null cuando el dato no aparezca; no inventes nada.
+2. EXTRAER LOS DATOS del texto y TODAS SUS ENTIDADES (personas, documentos de identidad, vehículos, lugares, organizaciones, identificadores, importes y fechas con su papel). Usa null cuando el dato no aparezca; no inventes nada.
 3. APLICAR EL BLOQUE DE REGLAS del ramo clasificado (solo ese bloque). Evalúa cada regla del bloque y cita la evidencia textual del mensaje en la que te basas. Si el ramo ya viene clasificado en el mensaje y solo se adjunta su bloque de reglas, aplícalo; si estás seguro de que la clasificación es errónea, indícalo en el motivo y envía a REVISION.
 4. DECIDIR: "DESPEJADO" si no incumple ninguna regla y hay información suficiente para tramitar; "REVISION" si incumple alguna regla, falta información esencial, hay contradicciones, indicios de fraude o el ramo es ambiguo.
 
@@ -38,7 +38,16 @@ Responde EXCLUSIVAMENTE con un objeto JSON válido con esta forma exacta:
     "terceros_implicados": boolean,
     "lesionados": boolean,
     "documentacion_mencionada": string[],
-    "observaciones": string | null
+    "observaciones": string | null,
+    "entidades": {
+      "fechas": [{ "fecha": "YYYY-MM-DD" | null, "hora": "HH:MM" | null, "tipo": "<tipo de fecha>", "precision": "exacta" | "relativa" | "aproximada", "cita": "<expresión LITERAL de la fecha>" }],
+      "personas": [{ "nombre_propio": "<nombre LITERAL>", "rol": "<papel>", "dni": string | null, "telefono": string | null, "email": string | null }],
+      "vehiculos": [{ "matricula": string, "modelo_vehiculo": string | null, "rol": "asegurado" | "contrario" | "otro" }],
+      "lugares": [{ "lugar": "<fragmento LITERAL>", "tipo": "<tipo de lugar>", "cp": string | null, "municipio": string | null }],
+      "organizaciones": [{ "organizacion": "<nombre LITERAL>", "tipo": "<tipo de organización>" }],
+      "identificadores": [{ "tipo": "poliza" | "denuncia" | "atestado" | "iban" | "tarjeta_sanitaria" | "incidencia" | "expediente" | "factura" | "otro", "codigo": string }],
+      "importes": [{ "importe": number, "concepto": "presupuesto" | "factura" | "reembolso" | "valor_bienes" | "franquicia" | "otro", "cita": "<fragmento LITERAL>" }]
+    }
   },
   "criterios": [
     { "regla": "<código, p. ej. A2>", "descripcion": "<resumen corto de la regla>", "resultado": "cumple" | "incumple" | "no_aplica", "evidencia": "<cita o razonamiento breve>" }
@@ -52,6 +61,13 @@ Responde EXCLUSIVAMENTE con un objeto JSON válido con esta forma exacta:
 }
 
 Incluye en "criterios" TODAS las reglas del bloque aplicado, aunque su resultado sea "no_aplica".
+
+ENTIDADES: en "entidades" lista todas las que aparecen en el mensaje, sin repetir.
+- Fechas: todas, también las relativas («ayer», «esta mañana», «el jueves 10», «hace tres semanas»), resueltas a partir de la fecha de recepción; "precision" es "relativa" si el cliente no da el día y "aproximada" si solo da el mes o un periodo. "tipo" dice qué es esa fecha: accidente, robo, hecho (otro daño o suceso), descubrimiento_dano, ultima_estancia (última vez en la vivienda), denuncia, contratacion_poliza, renovacion_poliza, permiso_conducir, atencion_medica, cirugia, ingreso, alta_medica, cita_medica (prevista), baja_laboral, presupuesto, factura, reparacion (visita o cita del taller o del profesional), peritacion, siniestro_anterior u otra.
+- Personas: "rol" es tomador, asegurado, comunicante (quien escribe en nombre de otro), conductor, conductor_contrario, familiar, lesionado, testigo, vecino, medico, perito u otro. El DNI o NIE, el teléfono y el email van en la persona a la que pertenecen.
+- Lugares: direcciones postales, carreteras y sitios concretos; "tipo" es domicilio, lugar_hecho, centro_medico, taller, comisaria, empresa u otro.
+- Organizaciones: talleres, hospitales, clínicas, policía, aseguradoras, empresas y comercios con nombre; "tipo" es centro_medico, taller, reparador, aseguradora, policia, suministradora, administrador, comercio, empresa u otra.
+- "cita", "nombre_propio", "lugar" y "organizacion" se copian carácter a carácter del mensaje. No hace falta añadir evidencias de las entidades: su cita ya lo es.
 
 EVIDENCIAS: en "evidencias" lista entre 5 y 12 fragmentos del mensaje: al menos uno que justifique el ramo, uno por cada dato no nulo de datos_extraidos (póliza, fecha, importe, tipo de siniestro, lugar, documentación, terceros, lesionados) y uno por cada regla que incumple; si hay sitio, añade también las reglas que se cumplen gracias a un fragmento concreto. Cada "cita" debe ser un fragmento LITERAL del texto del mensaje, copiado carácter a carácter (mismas mayúsculas, tildes y espacios), de entre 2 y 12 palabras; nunca parafrasees ni resumas dentro de "cita" (la explicación va en "nota"). En "ref" usa el nombre del campo de datos_extraidos al que da soporte, "ramo" para los indicios del ramo o "regla:" seguido del código (p. ej. "regla:H4"). Si un dato esencial no aparece en el texto, no inventes ninguna cita: déjalo a null en datos_extraidos y explícalo en el criterio correspondiente. No añadas texto fuera del JSON.`;
 
@@ -122,4 +138,4 @@ const PROMPT_SEUDONIMOS = I18N.t('prompt.los_datos_personales_del')
   + I18N.t('prompt.el_marcador_de_poliza');
 
 // Versión del prompt de reglas: se registra en cada traza (_gobernanza.trazabilidad.prompt) y coincide con el panel de gobierno
-const PROMPT_VERSION = 'reglas v2.3';
+const PROMPT_VERSION = 'reglas v2.4';
