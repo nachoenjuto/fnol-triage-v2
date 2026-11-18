@@ -187,8 +187,93 @@
     return out;
   }
 
-  // Evidencias finales de una ficha: las del modelo (verificadas) y, si hay pocas, las de respaldo
-  function construir(texto, evidenciasModelo, entry = {}) {
+  // Campos de datos_extraidos que se resaltan en verde: cada uno con valor tiene que quedar anclado en el texto
+  const CAMPOS_DATO = ['nombre_cliente', 'numero_poliza', 'tipo_siniestro', 'fecha_hecho', 'importe_estimado_eur', 'lugar', 'terceros_implicados', 'lesionados', 'documentacion_mencionada'];
+  const conValor = (v) => v != null && v !== '' && !(Array.isArray(v) && !v.length);
+  const ENT = () => root.Entidades || (typeof require !== 'undefined' ? require('./entidades.js') : null);
+
+  // Fragmentos candidatos para cada campo que el modelo no citó, en orden de preferencia
+  function candidatosDato(texto, entry, campo) {
+    const t = String(texto ?? ''); const d = entry.datos_extraidos || {}; const ent = d.entidades || {};
+    const p = P(); const loc = I18N.motor('local');
+    const primera = (re) => { if (!re) return null; const m = new RegExp(re.source, re.flags.replace('g', '')).exec(t); return m ? m[0] : null; };
+    const citas = (g, filtro = () => true) => (ent[g] || []).filter(filtro).map((x) => x.cita).filter(Boolean);
+    const v = d[campo];
+    switch (campo) {
+      case 'nombre_cliente': { const n = String(v).replace(/\s*\(.*$/, '').trim(); return [n, ...citas('personas', (x) => x.rol === 'tomador' || x.rol === 'comunicante'), n.split(/\s+/).slice(0, 2).join(' ')]; }
+      case 'numero_poliza': return [String(v)];
+      case 'tipo_siniestro': { const E = ENT(); return E ? E.sucesos(t) : []; }
+      case 'fecha_hecho': return [...citas('fechas', (x) => x.fecha === v), ...p.fecha.map(primera)];
+      case 'importe_estimado_eur': return [...citas('importes'), primera(p.importe)];
+      case 'lugar': { const l = String(v); return [l, l.split(',')[0], ...citas('lugares', (x) => x.tipo === 'lugar_hecho'), ...citas('lugares'), ...citas('organizaciones', (x) => x.tipo === 'centro_medico')]; }
+      case 'terceros_implicados': return v ? [primera(loc.terceros), primera(p.terceros), ...citas('personas', (x) => x.rol === 'conductor_contrario' || x.rol === 'vecino'), ...citas('vehiculos', (x) => x.rol === 'contrario')] : [primera(p.sinTerceros)];
+      case 'lesionados': return v ? [primera(p.lesion), primera(p.lesionExtra), primera(loc.lesionados)] : [primera(p.sinLesion)];
+      case 'documentacion_mencionada': {
+        // El modelo resume («presupuesto del cristalero»): se prueban sus trozos, de más largo a más corto
+        const trozos = (Array.isArray(v) ? v : [v]).map(String).flatMap((x) => {
+          const w = x.split(/\s+/); const out = [];
+          for (let n = w.length; n >= 1; n--) for (let i = 0; i + n <= w.length; i++) { const z = w.slice(i, i + n).join(' '); if (n > 1 || z.length >= 6) out.push(z); }
+          return out;
+        });
+        return [primera(p.docs), ...trozos];
+      }
+      default: return [];
+    }
+  }
+  const NOTA_DATO = { nombre_cliente: 'evid.cliente_identificado', numero_poliza: 'evid.poliza_identificada', tipo_siniestro: 'evid.que_ha_pasado', fecha_hecho: 'evid.fecha_del_hecho', importe_estimado_eur: 'evid.importe_del_siniestro', lugar: 'evid.lugar_del_hecho', documentacion_mencionada: 'evid.documentacion_mencionada' };
+  const notaDato = (campo, v) => (campo === 'lesionados' ? I18N.t(v ? 'evid.lesion_mencionada' : 'evid.sin_lesionados') : campo === 'terceros_implicados' ? I18N.t(v ? 'evid.terceros_implicados' : 'evid.sin_terceros') : I18N.t(NOTA_DATO[campo]));
+
+  // Completa la lista: cada campo con valor que no tenga ya un fragmento resaltado recibe el primer candidato que
+  // aparezca en el texto sin pisar otro resaltado
+  function completarDatos(texto, previas, entry) {
+    const t = String(texto ?? ''); const d = entry.datos_extraidos || {};
+    const lista = previas.filter((e) => e.resaltada);
+    const ocupado = (i, f) => lista.some((e) => i < e.fin && f > e.inicio);
+    const extra = [];
+    for (const campo of CAMPOS_DATO) {
+      if (!conValor(d[campo]) || lista.some((e) => e.ref === campo)) continue;
+      // Cada candidato entero y, si pisa otro resaltado, su comienzo de 5, 4 o 3 palabras
+      const variantes = candidatosDato(t, entry, campo).filter(Boolean).flatMap((c) => {
+        const w = limpiarCita(c).split(/\s+/); const out = [w.join(' ')];
+        for (let n = Math.min(5, w.length - 1); n >= 3; n--) out.push(w.slice(0, n).join(' '));
+        if (w.length > 1 && w[0].length >= 6) out.push(w[0]);
+        return out;
+      });
+      for (const c of variantes) {
+        const cita = limpiarCita(c);
+        if (cita.length < MIN_CITA) continue;
+        let i = t.indexOf(cita); let pos = null;
+        while (i >= 0 && !pos) { if (!ocupado(i, i + cita.length)) pos = { inicio: i, fin: i + cita.length }; else i = t.indexOf(cita, i + 1); }
+        if (!pos) { const l = localizar(t, cita); if (l && !ocupado(l.inicio, l.fin)) pos = l; }
+        if (!pos) continue;
+        // Sin palabras cortadas ni cola de palabras vacías («la puerta de» → «la puerta»), sin signos al final
+        let { inicio, fin } = pos;
+        if (/\p{L}/u.test(t[fin] || '') && /\p{L}/u.test(t[fin - 1] || '')) { const k = t.lastIndexOf(' ', fin); if (k > inicio) fin = k; }
+        let z = t.slice(inicio, fin);
+        const VACIAS = /\s(?:de|del|la|las|el|los|en|un|una|y|a|al|con|of|the|in|on|and|to|a|der|die|das|dem|den|im|am|mit|und)$/i;
+        while (VACIAS.test(z) || /[\s:;,]$/.test(z)) z = z.replace(VACIAS, '').replace(/[\s:;,]+$/, '');
+        if (z.length < MIN_CITA) continue;
+        pos = { inicio, fin: inicio + z.length };
+        const e = { ref: campo, nota: notaDato(campo, d[campo]), cita: t.slice(pos.inicio, pos.fin), inicio: pos.inicio, fin: pos.fin, verificada: true, origen: 'completado' };
+        lista.push(e); extra.push(e);
+        break;
+      }
+    }
+    // DNI y NIE del texto, con el nombre de su titular si las entidades lo saben
+    const titular = Object.fromEntries(((d.entidades && d.entidades.personas) || []).filter((x) => x.dni).map((x) => [x.dni, x.nombre_propio]));
+    for (const mm of t.matchAll(/\b\d{8}-?[A-HJ-NP-TV-Z]\b|\b[XYZ]-?\d{7}-?[A-Z]\b/g)) {
+      const i = mm.index; const f = i + mm[0].length;
+      if (ocupado(i, f)) continue;
+      const e = { ref: 'dni', nota: titular[mm[0]] ? I18N.t('evid.dni_de', { nombre: titular[mm[0]] }) : I18N.t('evid.dni'), cita: mm[0], inicio: i, fin: f, verificada: true, origen: 'completado' };
+      lista.push(e); extra.push(e);
+    }
+    return extra;
+  }
+
+  // Evidencias finales de una ficha: las del modelo (verificadas), las de respaldo si hay pocas y, al final, un
+  // fragmento para cada dato extraído que siga sin resaltar (origen «completado»; `completar: false` lo omite, como hace
+  // core/cumplimiento.js para no contar como «usado para decidir» un dato que solo se señala)
+  function construir(texto, evidenciasModelo, entry = {}, { completar = true } = {}) {
     const delModelo = anclar(texto, evidenciasModelo, 'modelo');
     const verificadasModelo = delModelo.filter((e) => e.verificada).length;
     let lista = delModelo;
@@ -197,11 +282,11 @@
         .filter((e) => e.verificada && !delModelo.some((m) => m.verificada && m.inicio < e.fin && m.fin > e.inicio));
       lista = [...delModelo, ...extra];
     }
-    const final = resolver(lista);
+    const final = resolver(completar ? [...lista, ...completarDatos(texto, resolver(lista), entry)] : lista);
     const verificadas = final.filter((e) => e.verificada).length;
     return {
       lista: final,
-      resumen: { total: final.length, verificadas, resaltadas: final.filter((e) => e.resaltada).length, modelo: final.filter((e) => e.origen === 'modelo' && e.verificada).length, respaldo: final.filter((e) => e.origen === 'respaldo').length, pedidas: delModelo.length },
+      resumen: { total: final.length, verificadas, resaltadas: final.filter((e) => e.resaltada).length, modelo: final.filter((e) => e.origen === 'modelo' && e.verificada).length, respaldo: final.filter((e) => e.origen === 'respaldo' || e.origen === 'completado').length, pedidas: delModelo.length },
     };
   }
 
@@ -259,7 +344,7 @@
     return I18N.t('evid.hola_hemos_recibido_su', { split: nombre ? ` ${nombre.split(' ')[0]}` : '', poliza: poliza ? I18N.t('evid.poliza', { poliza }) : '', lista: lista.map((x) => `- ${x}`).join('\n') });
   }
 
-  const API = { MAX_EVIDENCIAS, validar, normalizar, localizar, anclar, resolver, segmentos, respaldo, construir, siguientePaso, borradorSolicitud, ACCIONES };
+  const API = { MAX_EVIDENCIAS, CAMPOS_DATO, validar, normalizar, localizar, anclar, resolver, segmentos, respaldo, construir, siguientePaso, borradorSolicitud, ACCIONES };
   if (typeof module !== 'undefined' && module.exports) module.exports = API;
   root.Evidencias = API;
 })(typeof window !== 'undefined' ? window : globalThis);

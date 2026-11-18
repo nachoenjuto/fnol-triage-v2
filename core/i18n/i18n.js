@@ -96,7 +96,9 @@
   const tablasDatos = {};
   const NO_TRADUCIR = new Set(['id', 'ramo', 'ramos', 'dec', 'decision', 'canal', 'mime', 'src', 'archivo', 'ref', 'reglas',
     'prompt', 'modelo', 'generado', 'dni', 'matricula', 'iban', 'permiso', 'nivel', 'severidad', 'esfuerzo', 'estado', 'sev',
-    'tipo', 'ambito', 'origen', 'agente', 'agentes', 'traza', 'mensaje', 'regla', 'resultado', 'dim', 'fuente', 'version']);
+    'tipo', 'ambito', 'origen', 'agente', 'agentes', 'traza', 'mensaje', 'regla', 'resultado', 'dim', 'fuente', 'version',
+    // Entidades: nombres propios, matrículas y códigos no se traducen; las entidades esperadas son claves
+    'personas', 'vehiculos', 'identificadores', 'nombre_propio', 'modelo_vehiculo', 'codigo', 'ner']);
   const ES_CLAVE = /^[a-z0-9_.:-]+$/;   // 'aviso', 'gpt-5', 'v2.3', 'kb-02'…
   // Campos que el código compara pero que también se ven («Coste diario», «Antifraude», «Fecha de recepción»): no se
   // traducen en el sitio; se traducen al pintarlos con I18N.dato(texto), con las mismas tablas de datos.

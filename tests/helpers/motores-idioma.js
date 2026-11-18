@@ -25,6 +25,7 @@ const Evidencias = require(path.join(raiz, 'core/evidencias.js'));
 const Cumplimiento = require(path.join(raiz, 'core/cumplimiento.js'));
 const Fraude = require(path.join(raiz, 'core/fraude.js'));
 const Fechas = require(path.join(raiz, 'core/fechas.js'));
+const Entidades = require(path.join(raiz, 'core/entidades.js'));
 
 // Antifraude por paquete (los indicadores relacionales cruzan los mensajes del lote)
 const fraude = {};
@@ -33,7 +34,7 @@ for (const p of PAQUETES) {
   Object.assign(fraude, Fraude.evaluar(lote, FRAUDE_DEMO));
 }
 // Evidencias resaltadas: qué datos y reglas respaldan (el texto de la cita y cuántas hay cambian con el idioma)
-const refs = (texto, citas, entry) => [...new Set(Evidencias.construir(texto, citas, entry).lista.filter((e) => e.resaltada).map((e) => `${e.ref}:${e.origen}`))].sort().join(' ');
+const refs = (texto, citas, entry) => [...new Set(Evidencias.construir(texto, citas, entry, { completar: false }).lista.filter((e) => e.resaltada).map((e) => `${e.ref}:${e.origen}`))].sort().join(' ');
 
 const salida = { mensajes: {}, fechas: {}, traducidos: [] };
 for (const m of PAQUETES.flatMap((p) => p.mensajes)) {
@@ -47,6 +48,8 @@ for (const m of PAQUETES.flatMap((p) => p.mensajes)) {
       importe: d.importe_estimado_eur, fecha: d.fecha_hecho, terceros: d.terceros_implicados, lesionados: d.lesionados,
       documentos: d.documentacion_mencionada.length > 0,
     },
+    // Entidades del motor local frente a las esperadas: cuántas acierta de cada grupo
+    entidades: (() => { const c = Entidades.comparar(m.esperado.ner, Entidades.detectar(m)); return Object.entries(c.por_grupo).sort().map(([g, v]) => `${g}:${v.acertadas}/${v.esperadas}`).join(' '); })(),
     evidencias: {
       local: refs(m.texto, [], { ...r, origen: 'reglas locales' }),
       guardado: guardado ? refs(m.texto, guardado.evidencias, guardado) : null,

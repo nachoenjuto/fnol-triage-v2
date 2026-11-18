@@ -4,10 +4,11 @@
 run: ## Sirve la demo en http://localhost:8792
 	python3 -m http.server 8792
 
-test: ## Pruebas de core/evidencias.js, core/cumplimiento.js, core/fraude.js, core/fechas.js, core/ahorro.js, core/adjuntos.js, core/registro.js, del recorrido y de los idiomas (sin dependencias, requiere Node)
+test: ## Pruebas de core/evidencias.js, core/entidades.js, core/cumplimiento.js, core/fraude.js, core/fechas.js, core/ahorro.js, core/adjuntos.js, core/registro.js, del recorrido y de los idiomas (sin dependencias, requiere Node)
 	node tests/i18n.test.js
 	node scripts/i18n/i18n-check.js
 	node tests/evidencias.test.js
+	node tests/entidades.test.js
 	node tests/cumplimiento.test.js
 	node tests/fraude.test.js
 	node tests/fechas.test.js

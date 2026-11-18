@@ -677,7 +677,7 @@ I18N.registrarDatos('en', {
   "5bbbc383": "Last review 06/2026 · next 12/2026",
   "aa0ae949": "AI Act art. 10",
   "59993ade": "Governance of the data and knowledge the system uses",
-  "9bbefc6f": "Rules prompt versioned (reglas v2.3) and recorded in every trace",
+  "7e18f42e": "Rules prompt versioned (reglas v2.4) and recorded in every trace",
   "805038c7": "Prompt version in 100 % of traces · knowledge bases without a versioned catalogue",
   "ad0aee02": "AI Act art. 15",
   "6c68b100": "Accuracy and robustness over time",

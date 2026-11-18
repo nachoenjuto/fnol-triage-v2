@@ -58,6 +58,8 @@
       lesionados: p.lesionados.test(sinNegaciones),
       documentacion_mencionada: docs,
       observaciones: root.I18N.t('triaje.extraccion_local_por_expresiones'),
+      // Personas, documentos, vehículos, lugares, organizaciones, importes y fechas con su papel (core/entidades.js)
+      ...(root.Entidades ? { entidades: root.Entidades.detectar(msg) } : {}),
     };
   }
 
